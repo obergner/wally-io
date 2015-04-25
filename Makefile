@@ -127,7 +127,7 @@ check-all 			: $(SOURCES)
 
 .PHONY 				: tags
 tags 				: $(SOURCES) $(TESTSOURCES)
-	ctags -R -f ./.tags ./src ./test
+	@ctags -R -f ./.tags ./src ./test
 
 ###############################################################################
 # Dependency rules: http://stackoverflow.com/questions/8025766/makefile-auto-dependency-generation
