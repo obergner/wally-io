@@ -10,7 +10,7 @@ TEST_CASE( "MQTT header flags are read", "[header]" )
     SECTION( "all flags are set" )
     {
         const uint8_t flgs = 0x0F;
-        header_flags under_test( flgs );
+        packet::header_flags under_test( flgs );
 
         REQUIRE( under_test.dup( ) );
         REQUIRE( under_test.retain( ) );
@@ -20,7 +20,7 @@ TEST_CASE( "MQTT header flags are read", "[header]" )
     SECTION( "only flags 0 and 1 are set" )
     {
         const uint8_t flgs = 0x03;
-        header_flags under_test( flgs );
+        packet::header_flags under_test( flgs );
 
         REQUIRE( !under_test.dup( ) );
         REQUIRE( under_test.retain( ) );
@@ -30,7 +30,7 @@ TEST_CASE( "MQTT header flags are read", "[header]" )
     SECTION( "only flags 1 and 2 are set" )
     {
         const uint8_t flgs = 0x06;
-        header_flags under_test( flgs );
+        packet::header_flags under_test( flgs );
 
         REQUIRE( !under_test.dup( ) );
         REQUIRE( !under_test.retain( ) );
@@ -40,7 +40,7 @@ TEST_CASE( "MQTT header flags are read", "[header]" )
     SECTION( "only flags 2 and 3 are set" )
     {
         const uint8_t flgs = 0x0C;
-        header_flags under_test( flgs );
+        packet::header_flags under_test( flgs );
 
         REQUIRE( under_test.dup( ) );
         REQUIRE( !under_test.retain( ) );
@@ -54,7 +54,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "no control packet type bits/no flags are set" )
     {
         const uint8_t type_and_flags = 0x00;
-        const header under_test( type_and_flags );
+        const packet::header under_test( type_and_flags );
 
         REQUIRE( under_test.type( ) == packet::RESERVED1 );
     }
@@ -62,7 +62,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bit 4/no flags are set" )
     {
         const uint8_t type_and_flags = 0x10;
-        const header under_test( type_and_flags );
+        const packet::header under_test( type_and_flags );
 
         REQUIRE( under_test.type( ) == packet::CONNECT );
     }
@@ -70,7 +70,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bit 5/no flags are set" )
     {
         const uint8_t type_and_flags = 0x20;
-        const header under_test( type_and_flags );
+        const packet::header under_test( type_and_flags );
 
         REQUIRE( under_test.type( ) == packet::CONNACK );
     }
@@ -78,7 +78,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bits 4 and 5/no flags are set" )
     {
         const uint8_t type_and_flags = 0x30;
-        const header under_test( type_and_flags );
+        const packet::header under_test( type_and_flags );
 
         REQUIRE( under_test.type( ) == packet::PUBLISH );
     }
@@ -86,7 +86,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bit 6/no flags are set" )
     {
         const uint8_t type_and_flags = 0x40;
-        const header under_test( type_and_flags );
+        const packet::header under_test( type_and_flags );
 
         REQUIRE( under_test.type( ) == packet::PUBACK );
     }
@@ -94,7 +94,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bits 6 and 4/no flags are set" )
     {
         const uint8_t type_and_flags = 0x50;
-        const header under_test( type_and_flags );
+        const packet::header under_test( type_and_flags );
 
         REQUIRE( under_test.type( ) == packet::PUBREC );
     }
@@ -102,7 +102,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bits 6 and 5/no flags are set" )
     {
         const uint8_t type_and_flags = 0x60;
-        const header under_test( type_and_flags );
+        const packet::header under_test( type_and_flags );
 
         REQUIRE( under_test.type( ) == packet::PUBREL );
     }
@@ -110,7 +110,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bits 6, 5 and 4/no flags are set" )
     {
         const uint8_t type_and_flags = 0x70;
-        const header under_test( type_and_flags );
+        const packet::header under_test( type_and_flags );
 
         REQUIRE( under_test.type( ) == packet::PUBCOMP );
     }
@@ -118,7 +118,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bit 7/no flags are set" )
     {
         const uint8_t type_and_flags = 0x80;
-        const header under_test( type_and_flags );
+        const packet::header under_test( type_and_flags );
 
         REQUIRE( under_test.type( ) == packet::SUBSCRIBE );
     }
@@ -126,7 +126,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bits 7 and 4/no flags are set" )
     {
         const uint8_t type_and_flags = 0x90;
-        const header under_test( type_and_flags );
+        const packet::header under_test( type_and_flags );
 
         REQUIRE( under_test.type( ) == packet::SUBACK );
     }
@@ -134,7 +134,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bits 7 and 5/no flags are set" )
     {
         const uint8_t type_and_flags = 0xA0;
-        const header under_test( type_and_flags );
+        const packet::header under_test( type_and_flags );
 
         REQUIRE( under_test.type( ) == packet::UNSUBSCRIBE );
     }
@@ -142,7 +142,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bits 7, 5 and 4/no flags are set" )
     {
         const uint8_t type_and_flags = 0xB0;
-        const header under_test( type_and_flags );
+        const packet::header under_test( type_and_flags );
 
         REQUIRE( under_test.type( ) == packet::UNSUBACK );
     }
@@ -150,7 +150,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bits 7 and 6/no flags are set" )
     {
         const uint8_t type_and_flags = 0xC0;
-        const header under_test( type_and_flags );
+        const packet::header under_test( type_and_flags );
 
         REQUIRE( under_test.type( ) == packet::PINGREQ );
     }
@@ -158,7 +158,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bits 7, 6 and 4/no flags are set" )
     {
         const uint8_t type_and_flags = 0xD0;
-        const header under_test( type_and_flags );
+        const packet::header under_test( type_and_flags );
 
         REQUIRE( under_test.type( ) == packet::PINGRESP );
     }
@@ -166,7 +166,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bits 7, 6 and 5/no flags are set" )
     {
         const uint8_t type_and_flags = 0xE0;
-        const header under_test( type_and_flags );
+        const packet::header under_test( type_and_flags );
 
         REQUIRE( under_test.type( ) == packet::DISCONNECT );
     }
@@ -174,7 +174,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "all control packet type bits/no flags are set" )
     {
         const uint8_t type_and_flags = 0xF0;
-        const header under_test( type_and_flags );
+        const packet::header under_test( type_and_flags );
 
         REQUIRE( under_test.type( ) == packet::RESERVED2 );
     }
@@ -182,7 +182,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "all control packet type bits/flag bit 0 are set" )
     {
         const uint8_t type_and_flags = 0xF1;
-        const header under_test( type_and_flags );
+        const packet::header under_test( type_and_flags );
 
         REQUIRE( under_test.flags( ).retain( ) );
     }
@@ -201,7 +201,7 @@ SCENARIO( "connect_header", "[packets]" )
 
         WHEN( "a caller asks for the protocol name" )
         {
-            const std::string name = under_test.protocol_name( );
+            const char* const name = under_test.protocol_name( );
 
             THEN( "it should see 'MQTT'" )
             {
@@ -220,7 +220,7 @@ SCENARIO( "connect_header", "[packets]" )
 
         WHEN( "a caller asks for the protocol name" )
         {
-            const std::string name = under_test.protocol_name( );
+            const char* const name = under_test.protocol_name( );
 
             THEN( "it should see 'Custom protocol'" )
             {
