@@ -70,7 +70,7 @@ TESTBUILDDIRS	:= $(sort $(dir $(TESTOBJS)))
 TEST_EXEC 	    := $(TESTBUILD)/all-tests
 
 # What may be rebuilt
-REBUILDABLES 	= $(MAIN_EXEC) $(MAINOBJS)
+REBUILDABLES 	= $(MAIN_EXEC) $(MAINOBJS) $(TEST_EXEC) $(TESTOBJS) 
 
 ###############################################################################
 # Rules

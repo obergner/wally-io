@@ -173,6 +173,42 @@ namespace io_wally
                private:
                 const uint8_t control_packet_type_and_flags_;
             };
+
+            class remaining_length
+            {
+               public:
+                typedef enum : int
+                {
+                    INCOMPLETE = 0,
+                    COMPLETE,
+                    OUT_OF_RANGE
+                } parse_state;
+
+                remaining_length( )
+                {
+                }
+
+                parse_state operator( )( uint32_t& result, const uint8_t next_byte )
+                {
+                    current_ += ( next_byte & ~MSB_MASK ) * multiplier_;
+                    parse_state pst = ( next_byte & MSB_MASK ) == MSB_MASK ? INCOMPLETE : COMPLETE;
+                    if ( pst == INCOMPLETE )
+                        multiplier_ *= 128;
+
+                    if ( multiplier_ > MAX_MULTIPLIER )
+                        pst = OUT_OF_RANGE;
+                    else if ( pst == COMPLETE )
+                        result = current_;
+
+                    return pst;
+                }
+
+               private:
+                const uint8_t MSB_MASK = 0x80;
+                const uint32_t MAX_MULTIPLIER = 128 * 128 * 128;
+                uint32_t current_ = 0;
+                uint32_t multiplier_ = 1;
+            };
         }  // namespace packet
     }      // namespace protocol
 }  // namespace io_wally
