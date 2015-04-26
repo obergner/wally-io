@@ -30,8 +30,8 @@ BUILD 		    := build
 
 # Sources
 SOURCES         += $(wildcard src/*.cpp)
-SOURCES         += $(wildcard src/mqtt/*.cpp)
-SOURCES         += $(wildcard src/mqtt/protocol/*.cpp)
+SOURCES         += $(wildcard src/io_wally/*.cpp)
+SOURCES         += $(wildcard src/io_wally/protocol/*.cpp)
 
 # Build dir for sources
 MAINBUILD       := $(BUILD)/main
@@ -54,8 +54,8 @@ TESTLFLAGS      = $(LFLAGS)
 
 # Test sources
 TESTSOURCES     += $(wildcard test/*.cpp)
-TESTSOURCES     += $(wildcard test/mqtt/*.cpp)
-TESTSOURCES     += $(wildcard test/mqtt/protocol/*.cpp)
+TESTSOURCES     += $(wildcard test/io_wally/*.cpp)
+TESTSOURCES     += $(wildcard test/io_wally/protocol/*.cpp)
 
 # Build dir for tests
 TESTBUILD       := $(BUILD)/test
