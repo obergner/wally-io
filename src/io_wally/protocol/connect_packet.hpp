@@ -152,19 +152,14 @@ namespace io_wally
             const char* const password_;      // MUST be present iff password flag is set
         };
 
-        struct connect
+        struct connect : public mqtt_packet
         {
            public:
             connect( const packet::header& header,
                      const connect_header& connect_header,
                      const connect_payload& payload )
-                : header_( header ), connect_header_( connect_header ), payload_( payload )
+                : mqtt_packet( header ), connect_header_( connect_header ), payload_( payload )
             {
-            }
-
-            const struct packet::header& header( ) const
-            {
-                return header_;
             }
 
             const struct connect_header& connect_header( ) const
@@ -178,7 +173,6 @@ namespace io_wally
             }
 
            private:
-            const struct packet::header& header_;
             const struct connect_header& connect_header_;
             const struct connect_payload& payload_;
         };

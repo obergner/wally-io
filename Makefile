@@ -29,48 +29,57 @@ LFLAGS          += -lpthread
 BUILD 		    := build
 
 # Sources
-SOURCES         += $(wildcard src/*.cpp)
-SOURCES         += $(wildcard src/io_wally/*.cpp)
-SOURCES         += $(wildcard src/io_wally/protocol/*.cpp)
+MSOURCES         += $(wildcard src/io_wally/*.cpp)
+MSOURCES         += $(wildcard src/io_wally/protocol/*.cpp)
+MSOURCES         += $(wildcard src/io_wally/protocol/parser/*.cpp)
+
+MEXECSOURCE      := $(wildcard src/*.cpp)
 
 # Build dir for sources
-MAINBUILD       := $(BUILD)/main
+MBUILD       	:= $(BUILD)/main
 
 # Objects
-MAINOBJS	    := $(patsubst src/%.cpp, $(MAINBUILD)/%.o, $(SOURCES))
+MOBJS	    	:= $(patsubst src/%.cpp, $(MBUILD)/%.o, $(MSOURCES))
+
+MEXECOBJ    	:= $(patsubst src/%.cpp, $(MBUILD)/%.o, $(MEXECSOURCE))
 
 # Subdirs in build directory need to reflect subdirs in src directory
-MAINBUILDDIRS	:= $(sort $(dir $(MAINOBJS)))
+MBUILDDIRS		:= $(sort $(dir $(MOBJS)))
 
 # Main executable
-MAIN_EXEC 	    := $(MAINBUILD)/mqtt-serverd
+MEXEC 	    	:= $(MBUILD)/mqtt-serverd
 
 # Test compiler flags
-TESTCFLAGS      = $(CFLAGS)
-TESTCFLAGS      += -I ./test
+TCFLAGS      	= $(CFLAGS)
+TCFLAGS      	+= -I ./test
 
 # Test linker flags
-TESTLFLAGS      = $(LFLAGS)
+TLFLAGS      	= $(LFLAGS)
 
 # Test sources
-TESTSOURCES     += $(wildcard test/*.cpp)
-TESTSOURCES     += $(wildcard test/io_wally/*.cpp)
-TESTSOURCES     += $(wildcard test/io_wally/protocol/*.cpp)
+TSOURCES     	+= $(wildcard test/*.cpp)
+TSOURCES     	+= $(wildcard test/io_wally/*.cpp)
+TSOURCES     	+= $(wildcard test/io_wally/protocol/*.cpp)
+TSOURCES     	+= $(wildcard test/io_wally/protocol/parser/*.cpp)
+
+TEXECSOURCE      := $(wildcard test/*.cpp)
 
 # Build dir for tests
-TESTBUILD       := $(BUILD)/test
+TBUILD       	:= $(BUILD)/test
 
 # Test objects
-TESTOBJS	    := $(patsubst test/%.cpp, $(TESTBUILD)/%.o, $(TESTSOURCES))
+TOBJS	    	:= $(patsubst test/%.cpp, $(TBUILD)/%.o, $(TSOURCES))
+
+TEXECOBJ    	:= $(patsubst test/%.cpp, $(TBUILD)/%.o, $(TEXECSOURCE))
 
 # Subdirs in build directory need to reflect subdirs in test directory
-TESTBUILDDIRS	:= $(sort $(dir $(TESTOBJS)))
+TBUILDDIRS		:= $(sort $(dir $(TOBJS)))
 
 # Main executable
-TEST_EXEC 	    := $(TESTBUILD)/all-tests
+TEXEC 	    	:= $(TBUILD)/all-tests
 
 # What may be rebuilt
-REBUILDABLES 	= $(MAIN_EXEC) $(MAINOBJS) $(TEST_EXEC) $(TESTOBJS) 
+REBUILDABLES 	= $(MEXEC) $(MOBJS) $(TEXEC) $(TOBJS) 
 
 ###############################################################################
 # Rules
@@ -86,30 +95,30 @@ debug				: CFLAGS += $(CDEBUG_FLAGS)
 debug				: main
 
 .PHONY 				: main
-main				: $(MAIN_EXEC) 		| $(MAINBUILDDIRS)
+main				: $(MEXEC) 						| $(MBUILDDIRS)
 
-$(MAINBUILDDIRS)	:
+$(MBUILDDIRS)		:
 	@mkdir -p $@
 
-$(MAIN_EXEC)		: $(MAINOBJS) 		| $(MAINBUILDDIRS)
+$(MEXEC)			: $(MOBJS) $(MEXECOBJ) 			| $(MBUILDDIRS)
 	$(CC) $(LFLAGS) -o $@ $^
 
-$(MAINBUILD)/%.o	: src/%.cpp		| $(MAINBUILDDIRS)
+$(MBUILD)/%.o		: src/%.cpp						| $(MBUILDDIRS)
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 # Test
 .PHONY 				: test
-test 				: $(TEST_EXEC) 		| $(TESTBUILDDIRS)
-	@./$(TEST_EXEC) --success --durations yes
+test 				: $(TEXEC) 						| $(TBUILDDIRS)
+	@./$(TEXEC) --success --durations yes
 
-$(TESTBUILDDIRS)	:
+$(TBUILDDIRS)		:
 	@mkdir -p $@
 
-$(TEST_EXEC)		: $(TESTOBJS) 		| $(MAINBUILDDIRS)
+$(TEXEC)			: $(MOBJS) $(TOBJS) $(TEXECOBJ)	| $(MBUILDDIRS)
 	$(CC) $(LFLAGS) -o $@ $^
 
-$(TESTBUILD)/%.o	: test/%.cpp		| $(TESTBUILDDIRS)
-	$(CC) $(TESTCFLAGS) -o $@ -c $<
+$(TBUILD)/%.o		: test/%.cpp					| $(TBUILDDIRS)
+	$(CC) $(TCFLAGS) -o $@ -c $<
 
 # Clean
 .PHONY 				: clean
@@ -118,20 +127,20 @@ clean				:
 
 # Tools
 .PHONY				: macroexpand
-macroexpand			: $(SOURCES)
-	$(CC) $(CFLAGS) -E $(SOURCES) | source-highlight --failsafe --src-lang=cc -f esc --style-file=esc.style 
+macroexpand			: $(MSOURCES)
+	$(CC) $(CFLAGS) -E $(MSOURCES) | source-highlight --failsafe --src-lang=cc -f esc --style-file=esc.style 
 
 .PHONY 				: check-all
-check-all 			: $(SOURCES)
-	clang-check $(SOURCES)
+check-all 			: $(MSOURCES) $(MEXECSOURCE)
+	clang-check $(MSOURCES)
 
 .PHONY 				: tags
-tags 				: $(SOURCES) $(TESTSOURCES)
+tags 				: $(MSOURCES) $(MEXECSOURCE) $(TSOURCES) $(TEXECSOURCE)
 	@ctags -R -f ./.tags ./src ./test
 
 ###############################################################################
 # Dependency rules: http://stackoverflow.com/questions/8025766/makefile-auto-dependency-generation
 ###############################################################################
 
--include 	$(MAINOBJS:.o=.d)
--include 	$(TESTOBJS:.o=.d)
+-include 	$(MOBJS:.o=.d)
+-include 	$(TOBJS:.o=.d)

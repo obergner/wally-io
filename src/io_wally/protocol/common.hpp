@@ -98,12 +98,15 @@ namespace io_wally
 
                private:
                 const uint8_t& flags_;
-            };
+            };  /// struct header_flags
+
+            typedef struct header_flags header_flags;
 
             struct header
             {
                public:
-                header( const uint8_t type_and_flags ) : control_packet_type_and_flags_( type_and_flags )
+                header( const uint8_t type_and_flags, const uint32_t remaining_length )
+                    : control_packet_type_and_flags_( type_and_flags ), remaining_length_( remaining_length )
                 {
                 }
 
@@ -170,9 +173,17 @@ namespace io_wally
                     return packet::header_flags( control_packet_type_and_flags_ );
                 }
 
+                const uint32_t remaining_length( ) const
+                {
+                    return remaining_length_;
+                }
+
                private:
                 const uint8_t control_packet_type_and_flags_;
-            };
+                const uint32_t remaining_length_;
+            };  /// struct header
+
+            /// typedef struct header header;
 
             class remaining_length
             {
@@ -203,6 +214,12 @@ namespace io_wally
                     return pst;
                 }
 
+                void reset( )
+                {
+                    current_ = 0;
+                    multiplier_ = 1;
+                }
+
                private:
                 const uint8_t MSB_MASK = 0x80;
                 const uint32_t MAX_MULTIPLIER = 128 * 128 * 128;
@@ -210,5 +227,23 @@ namespace io_wally
                 uint32_t multiplier_ = 1;
             };
         }  // namespace packet
-    }      // namespace protocol
+
+        struct mqtt_packet
+        {
+           public:
+            mqtt_packet( const struct packet::header& header ) : header_( header )
+            {
+            }
+
+            const struct packet::header& header( ) const
+            {
+                return header_;
+            }
+
+           private:
+            const struct packet::header& header_;
+        };
+
+        typedef struct mqtt_packet mqtt_packet;
+    }  // namespace protocol
 }  // namespace io_wally

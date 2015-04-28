@@ -54,7 +54,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "no control packet type bits/no flags are set" )
     {
         const uint8_t type_and_flags = 0x00;
-        const packet::header under_test( type_and_flags );
+        const uint32_t remaining_length = 325678;
+        const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::RESERVED1 );
     }
@@ -62,7 +63,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bit 4/no flags are set" )
     {
         const uint8_t type_and_flags = 0x10;
-        const packet::header under_test( type_and_flags );
+        const uint32_t remaining_length = 325678;
+        const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::CONNECT );
     }
@@ -70,7 +72,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bit 5/no flags are set" )
     {
         const uint8_t type_and_flags = 0x20;
-        const packet::header under_test( type_and_flags );
+        const uint32_t remaining_length = 325678;
+        const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::CONNACK );
     }
@@ -78,7 +81,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bits 4 and 5/no flags are set" )
     {
         const uint8_t type_and_flags = 0x30;
-        const packet::header under_test( type_and_flags );
+        const uint32_t remaining_length = 325678;
+        const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::PUBLISH );
     }
@@ -86,7 +90,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bit 6/no flags are set" )
     {
         const uint8_t type_and_flags = 0x40;
-        const packet::header under_test( type_and_flags );
+        const uint32_t remaining_length = 325678;
+        const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::PUBACK );
     }
@@ -94,7 +99,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bits 6 and 4/no flags are set" )
     {
         const uint8_t type_and_flags = 0x50;
-        const packet::header under_test( type_and_flags );
+        const uint32_t remaining_length = 325678;
+        const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::PUBREC );
     }
@@ -102,7 +108,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bits 6 and 5/no flags are set" )
     {
         const uint8_t type_and_flags = 0x60;
-        const packet::header under_test( type_and_flags );
+        const uint32_t remaining_length = 325678;
+        const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::PUBREL );
     }
@@ -110,7 +117,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bits 6, 5 and 4/no flags are set" )
     {
         const uint8_t type_and_flags = 0x70;
-        const packet::header under_test( type_and_flags );
+        const uint32_t remaining_length = 325678;
+        const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::PUBCOMP );
     }
@@ -118,7 +126,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bit 7/no flags are set" )
     {
         const uint8_t type_and_flags = 0x80;
-        const packet::header under_test( type_and_flags );
+        const uint32_t remaining_length = 325678;
+        const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::SUBSCRIBE );
     }
@@ -126,7 +135,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bits 7 and 4/no flags are set" )
     {
         const uint8_t type_and_flags = 0x90;
-        const packet::header under_test( type_and_flags );
+        const uint32_t remaining_length = 325678;
+        const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::SUBACK );
     }
@@ -134,7 +144,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bits 7 and 5/no flags are set" )
     {
         const uint8_t type_and_flags = 0xA0;
-        const packet::header under_test( type_and_flags );
+        const uint32_t remaining_length = 325678;
+        const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::UNSUBSCRIBE );
     }
@@ -142,7 +153,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bits 7, 5 and 4/no flags are set" )
     {
         const uint8_t type_and_flags = 0xB0;
-        const packet::header under_test( type_and_flags );
+        const uint32_t remaining_length = 325678;
+        const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::UNSUBACK );
     }
@@ -150,7 +162,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bits 7 and 6/no flags are set" )
     {
         const uint8_t type_and_flags = 0xC0;
-        const packet::header under_test( type_and_flags );
+        const uint32_t remaining_length = 325678;
+        const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::PINGREQ );
     }
@@ -158,7 +171,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bits 7, 6 and 4/no flags are set" )
     {
         const uint8_t type_and_flags = 0xD0;
-        const packet::header under_test( type_and_flags );
+        const uint32_t remaining_length = 325678;
+        const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::PINGRESP );
     }
@@ -166,7 +180,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "control packet type bits 7, 6 and 5/no flags are set" )
     {
         const uint8_t type_and_flags = 0xE0;
-        const packet::header under_test( type_and_flags );
+        const uint32_t remaining_length = 325678;
+        const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::DISCONNECT );
     }
@@ -174,7 +189,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "all control packet type bits/no flags are set" )
     {
         const uint8_t type_and_flags = 0xF0;
-        const packet::header under_test( type_and_flags );
+        const uint32_t remaining_length = 325678;
+        const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::RESERVED2 );
     }
@@ -182,7 +198,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     SECTION( "all control packet type bits/flag bit 0 are set" )
     {
         const uint8_t type_and_flags = 0xF1;
-        const packet::header under_test( type_and_flags );
+        const uint32_t remaining_length = 325678;
+        const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.flags( ).retain( ) );
     }
@@ -309,6 +326,45 @@ SCENARIO( "remaining_length functor", "[packets]" )
                 REQUIRE( st2 == packet::remaining_length::INCOMPLETE );
                 REQUIRE( st3 == packet::remaining_length::INCOMPLETE );
                 REQUIRE( st4 == packet::remaining_length::OUT_OF_RANGE );
+            }
+        }
+    }
+
+    GIVEN( "a remaining_length functor that has already run to completion" )
+    {
+        const uint8_t first_byte = 0x8A;
+        const uint8_t second_byte = 0xF2;
+        const uint8_t third_byte = 0x8B;
+        const uint8_t fourth_byte = 0x6F;
+
+        const uint32_t expected_result = 128 * 128 * 128 * ( fourth_byte & ~0x80 ) +
+                                         128 * 128 * ( third_byte & ~0x80 ) + 128 * ( second_byte & ~0x80 ) +
+                                         ( first_byte & ~0x80 );
+
+        uint32_t ignored = -1;
+        under_test( ignored, 0x8A );
+        under_test( ignored, 0xF2 );
+        under_test( ignored, 0x8B );
+        under_test( ignored, 0x3A );
+
+        WHEN( "a client calls reset() and then reuses that functor" )
+        {
+            under_test.reset( );
+
+            uint32_t actual_result = -1;
+            packet::remaining_length::parse_state st1 = under_test( actual_result, first_byte );
+            packet::remaining_length::parse_state st2 = under_test( actual_result, second_byte );
+            packet::remaining_length::parse_state st3 = under_test( actual_result, third_byte );
+            packet::remaining_length::parse_state st4 = under_test( actual_result, fourth_byte );
+
+            THEN( "it should still receive a correct result" )
+            {
+
+                REQUIRE( st1 == packet::remaining_length::INCOMPLETE );
+                REQUIRE( st2 == packet::remaining_length::INCOMPLETE );
+                REQUIRE( st3 == packet::remaining_length::INCOMPLETE );
+                REQUIRE( st4 == packet::remaining_length::COMPLETE );
+                REQUIRE( actual_result == expected_result );
             }
         }
     }
