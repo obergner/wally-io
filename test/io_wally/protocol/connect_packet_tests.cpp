@@ -17,7 +17,7 @@ SCENARIO( "connect_header", "[packets]" )
 
         WHEN( "a caller asks for the protocol name" )
         {
-            const char* const name = under_test.protocol_name( );
+            const std::string name = under_test.protocol_name( );
 
             THEN( "it should see 'MQTT'" )
             {
@@ -36,7 +36,7 @@ SCENARIO( "connect_header", "[packets]" )
 
         WHEN( "a caller asks for the protocol name" )
         {
-            const char* const name = under_test.protocol_name( );
+            const std::string name = under_test.protocol_name( );
 
             THEN( "it should see 'Custom protocol'" )
             {

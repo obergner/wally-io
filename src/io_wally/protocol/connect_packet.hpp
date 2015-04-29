@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include <boost/cstdint.hpp>
 
 #include "io_wally/protocol/common.hpp"
@@ -34,7 +36,7 @@ namespace io_wally
                 return;
             }
 
-            const char* const protocol_name( ) const
+            const std::string protocol_name( ) const
             {
                 return prot_name_;
             }
@@ -103,7 +105,7 @@ namespace io_wally
             }
 
            private:
-            const char* const prot_name_;
+            const std::string prot_name_;
             const uint8_t prot_level_;
             const uint8_t con_flags_;
             const uint16_t keep_alive_secs_;
@@ -156,6 +158,8 @@ namespace io_wally
             }
 
            private:
+            /// TODO: I would like to manage internal state using std::string rather than char*. Yet I need to find
+            /// an efficient and elegant way to support OPTIONAL strings
             const char* const client_id_;     // mandatory
             const char* const will_topic_;    // MUST be present iff will flag is set
             const char* const will_message_;  // MUST be present iff will flag is set
