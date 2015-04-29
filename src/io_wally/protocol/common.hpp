@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include <boost/cstdint.hpp>
 
 using boost::uint8_t;
@@ -106,7 +108,30 @@ namespace io_wally
                 const uint8_t& flags_;
             };  /// struct header_flags
 
-            typedef struct header_flags header_flags;
+            inline std::ostream& operator<<( std::ostream& output, header_flags const& header_flags )
+            {
+                std::string qos_string;
+                switch ( header_flags.qos( ) )
+                {
+                    case AT_MOST_ONCE:
+                        qos_string = "At most once";
+                        break;
+                    case AT_LEAST_ONCE:
+                        qos_string = "At least once";
+                        break;
+                    case EXACTLY_ONCE:
+                        qos_string = "Exactly once";
+                        break;
+                    default:
+                        qos_string = "Reserved";
+                        break;
+                }
+
+                output << "header_flags[dup:" << header_flags.dup( ) << "|retain:" << header_flags.retain( )
+                       << "|qos:" << qos_string << "]";
+
+                return output;
+            }
 
             struct header
             {
@@ -195,7 +220,62 @@ namespace io_wally
                 const uint32_t remaining_length_;
             };  /// struct header
 
-            /// typedef struct header header;
+            inline std::ostream& operator<<( std::ostream& output, header const& header )
+            {
+                std::string type_string;
+                switch ( header.type( ) )
+                {
+                    case packet::RESERVED1:
+                        type_string = "Reserved1";
+                        break;
+                    case packet::CONNECT:
+                        type_string = "Connect";
+                        break;
+                    case packet::CONNACK:
+                        type_string = "Connack";
+                        break;
+                    case packet::PUBLISH:
+                        type_string = "Publish";
+                        break;
+                    case packet::PUBACK:
+                        type_string = "Puback";
+                        break;
+                    case packet::PUBREC:
+                        type_string = "Pubrec";
+                        break;
+                    case packet::PUBCOMP:
+                        type_string = "Pubcomp";
+                        break;
+                    case packet::SUBSCRIBE:
+                        type_string = "Subscribe";
+                        break;
+                    case packet::SUBACK:
+                        type_string = "Suback";
+                        break;
+                    case packet::UNSUBSCRIBE:
+                        type_string = "Unsubscribe";
+                        break;
+                    case packet::UNSUBACK:
+                        type_string = "Unsuback";
+                        break;
+                    case packet::PINGREQ:
+                        type_string = "Pingreq";
+                        break;
+                    case packet::PINGRESP:
+                        type_string = "Pingresp";
+                        break;
+                    case packet::DISCONNECT:
+                        type_string = "Disconnect";
+                        break;
+                    default:
+                        type_string = "Reserved2";
+                        break;
+                }
+
+                output << "header[type:" << type_string << "|" << header.flags( ) << "]";
+
+                return output;
+            }
 
             class remaining_length
             {
@@ -263,6 +343,5 @@ namespace io_wally
             const struct packet::header& header_;
         };
 
-        typedef struct mqtt_packet mqtt_packet;
     }  // namespace protocol
 }  // namespace io_wally

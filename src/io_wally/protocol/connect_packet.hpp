@@ -109,7 +109,36 @@ namespace io_wally
             const uint8_t prot_level_;
             const uint8_t con_flags_;
             const uint16_t keep_alive_secs_;
-        };
+        };  /// struct connect_header
+
+        inline std::ostream& operator<<( std::ostream& output, connect_header const& connect_header )
+        {
+            std::string will_qos_string;
+            switch ( connect_header.last_will_qos( ) )
+            {
+                case packet::AT_MOST_ONCE:
+                    will_qos_string = "At most once";
+                    break;
+                case packet::AT_LEAST_ONCE:
+                    will_qos_string = "At least once";
+                    break;
+                case packet::EXACTLY_ONCE:
+                    will_qos_string = "Exactly once";
+                    break;
+                default:
+                    will_qos_string = "Reserved";
+                    break;
+            }
+
+            output << "connect_header[has_username:" << connect_header.has_username( )
+                   << "|has_password:" << connect_header.has_password( )
+                   << "|retain_last_will:" << connect_header.retain_last_will( ) << "|last_will_qos:" << will_qos_string
+                   << "|contains_last_will:" << connect_header.contains_last_will( )
+                   << "|clean_session:" << connect_header.clean_session( )
+                   << "|keep_alive_secs:" << connect_header.keep_alive_secs( ) << "]";
+
+            return output;
+        }
 
         struct connect_payload
         {
@@ -167,6 +196,17 @@ namespace io_wally
             const char* const password_;      // MUST be present iff password flag is set
         };
 
+        inline std::ostream& operator<<( std::ostream& output, connect_payload const& connect_payload )
+        {
+            output << "connect_payload[client_id:" << connect_payload.client_id( )
+                   << "|will_topic:" << ( connect_payload.will_topic( ) ? connect_payload.will_topic( ) : "[NULL]" )
+                   << "|will_message:" << ( connect_payload.will_message( ) ? "[MESSAGE]" : "[NULL]" )
+                   << "|username:" << ( connect_payload.username( ) ? connect_payload.username( ) : "[NULL]" )
+                   << "|password:" << ( connect_payload.password( ) ? "[PROTECTED]" : "[NULL]" ) << "]";
+
+            return output;
+        }
+
         struct connect : public mqtt_packet
         {
            public:
@@ -175,10 +215,12 @@ namespace io_wally
                      const connect_payload& payload )
                 : mqtt_packet( header ), connect_header_( connect_header ), payload_( payload )
             {
+                return;
             }
 
             ~connect( )
             {
+                return;
             }
 
             const struct connect_header& connect_header( ) const
@@ -195,5 +237,13 @@ namespace io_wally
             const struct connect_header& connect_header_;
             const struct connect_payload& payload_;
         };
+
+        inline std::ostream& operator<<( std::ostream& output, connect const& connect )
+        {
+            output << "connect[" << connect.header( ) << "|" << connect.connect_header( ) << "|" << connect.payload( )
+                   << "]";
+
+            return output;
+        }
     }  // namespace protocol
 }  // namespace io_wally
