@@ -32,7 +32,9 @@ namespace io_wally
                     result( const enum parse_state parse_state )
                         : parse_state_( parse_state ), parsed_header_( boost::none ), consumed_until_( boost::none )
                     {
+                        return;
                     }
+
                     result( const uint8_t type_and_flags,
                             const uint32_t remaining_length,
                             const InputIterator consumed_until )
@@ -40,6 +42,7 @@ namespace io_wally
                           parsed_header_( packet::header( type_and_flags, remaining_length ) ),
                           consumed_until_( consumed_until )
                     {
+                        return;
                     }
 
                     const enum parse_state parse_state( ) const
@@ -74,6 +77,7 @@ namespace io_wally
                 };
                 header_parser( ) : type_and_flags_( -1 ), remaining_length_( )
                 {
+                    return;
                 }
 
                 template <typename InputIterator>
@@ -108,27 +112,84 @@ namespace io_wally
                 }
 
                private:
+                /// Fields
                 int16_t type_and_flags_;
                 packet::remaining_length remaining_length_;
             };
 
-            class packet_parser
+            struct packet_parse_result
             {
                public:
-                packet_parser( ) : remaining_length_( )
+                static const packet_parse_result* const ok( mqtt_packet* mqtt_packet )
                 {
+                    return new packet_parse_result( COMPLETE, mqtt_packet );
                 }
 
-                /*
-                template <typename InputIterator>
-                boost::variant<parse_state, std::tuple<mqtt_packet, InputIterator>> parse( InputIterator buf_start,
-                                                                                           const InputIterator buf_end )
+                static const packet_parse_result* const malformed_input( )
                 {
-                    return std::make_tuple( INCOMPLETE, new mqtt_packet( 0x80, 32400 ) );
+                    return new packet_parse_result( MALFORMED_INPUT, nullptr );
                 }
-                */
+
+                const enum parse_state parse_state( ) const
+                {
+                    return parse_state_;
+                }
+
+                std::unique_ptr<mqtt_packet> parsed_packet( )
+                {
+                    return std::move( parsed_packet_ );
+                }
 
                private:
+                packet_parse_result( const enum parse_state parse_state, mqtt_packet* mqtt_pkt )
+                    : parse_state_( parse_state ), parsed_packet_( mqtt_pkt ){};
+
+                ~packet_parse_result( )
+                {
+                    return;
+                }
+
+                /// Fields
+                const enum parse_state parse_state_;
+                std::unique_ptr<mqtt_packet> parsed_packet_;
+            };
+
+            template <typename InputIterator>
+            class packet_body_parser
+            {
+               public:
+                virtual ~packet_body_parser( )
+                {
+                    return;
+                }
+
+                virtual const std::unique_ptr<mqtt_packet> parse( const packet::header_flags& header_flags,
+                                                                  InputIterator buf_start,
+                                                                  const InputIterator buf_end ) = 0;
+            };
+
+            class mqtt_packet_parser
+            {
+               public:
+                mqtt_packet_parser( ) : remaining_length_( )
+                {
+                    return;
+                }
+
+                template <typename InputIterator>
+                const packet_parse_result* const parse( InputIterator buf_start, const InputIterator buf_end )
+                {
+                    /// TODO: Implement
+                    return nullptr;
+                }
+
+                void reset( )
+                {
+                    remaining_length_.reset( );
+                }
+
+               private:
+                /// Fields
                 packet::remaining_length remaining_length_;
             };
         }  /// namespace parser
