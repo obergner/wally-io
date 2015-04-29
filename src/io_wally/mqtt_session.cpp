@@ -69,12 +69,28 @@ namespace io_wally
             return;
         }
 
-        start_read_body( result );
+        read_body( result );
     }
 
-    void mqtt_session::start_read_body( const header_parser::result<uint8_t*>& header_parse_result )
+    void mqtt_session::read_body( const header_parser::result<uint8_t*>& header_parse_result )
     {
-        // const uint32_t remaining_length = header_parse_result.parsed_header( ).remaining_length( );
-        // const uint8_t* body_start = header_parse_result.consumed_until( );
+        pointer self( shared_from_this( ) );
+        const uint32_t remaining_length = header_parse_result.parsed_header( ).remaining_length( );
+        uint8_t* body_start = header_parse_result.consumed_until( );
+
+        boost::asio::async_read(
+            socket_,
+            boost::asio::buffer( body_start, remaining_length ),
+            [this, self, header_parse_result]( const boost::system::error_code& ec, const size_t bytes_transferred )
+            {
+                on_body_data_read( header_parse_result, ec, bytes_transferred );
+            } );
+    }
+
+    void mqtt_session::on_body_data_read( const header_parser::result<uint8_t*>& header_parse_result,
+                                          const boost::system::error_code& ec,
+                                          const size_t bytes_transferred )
+    {
+        return;
     }
 }

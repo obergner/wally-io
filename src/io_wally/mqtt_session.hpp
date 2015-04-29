@@ -41,7 +41,11 @@ namespace io_wally
 
         void on_header_data_read( const boost::system::error_code& ec, const size_t bytes_transferred );
 
-        void start_read_body( const header_parser::result<uint8_t*>& header_parse_result );
+        void read_body( const header_parser::result<uint8_t*>& header_parse_result );
+
+        void on_body_data_read( const header_parser::result<uint8_t*>& header_parse_result,
+                                const boost::system::error_code& ec,
+                                const size_t bytes_transferred );
 
         /// Max fixed header length in bytes
         static const size_t MAX_HEADER_LENGTH = 5;
