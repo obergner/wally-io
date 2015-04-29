@@ -62,6 +62,12 @@ namespace io_wally
                public:
                 header_flags( const uint8_t& flags ) : flags_( flags )
                 {
+                    return;
+                }
+
+                ~header_flags( )
+                {
+                    return;
                 }
 
                 bool dup( ) const
@@ -108,6 +114,12 @@ namespace io_wally
                 header( const uint8_t type_and_flags, const uint32_t remaining_length )
                     : control_packet_type_and_flags_( type_and_flags ), remaining_length_( remaining_length )
                 {
+                    return;
+                }
+
+                ~header( )
+                {
+                    return;
                 }
 
                 const packet::type type( ) const
@@ -197,6 +209,7 @@ namespace io_wally
 
                 remaining_length( )
                 {
+                    return;
                 }
 
                 parse_state operator( )( uint32_t& result, const uint8_t next_byte )
@@ -233,6 +246,12 @@ namespace io_wally
            public:
             mqtt_packet( const struct packet::header& header ) : header_( header )
             {
+                return;
+            }
+
+            ~mqtt_packet( )
+            {
+                return;
             }
 
             const struct packet::header& header( ) const

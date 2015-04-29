@@ -26,6 +26,12 @@ namespace io_wally
                   con_flags_( con_flags ),
                   keep_alive_secs_( keep_alive_secs )
             {
+                return;
+            }
+
+            ~connect_header( )
+            {
+                return;
             }
 
             const char* const protocol_name( ) const
@@ -119,6 +125,11 @@ namespace io_wally
             {
             }
 
+            ~connect_payload( )
+            {
+                return;
+            }
+
             const char* const client_id( ) const
             {
                 return client_id_;
@@ -159,6 +170,10 @@ namespace io_wally
                      const connect_header& connect_header,
                      const connect_payload& payload )
                 : mqtt_packet( header ), connect_header_( connect_header ), payload_( payload )
+            {
+            }
+
+            ~connect( )
             {
             }
 

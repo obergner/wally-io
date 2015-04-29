@@ -51,6 +51,7 @@ MEXEC 	    	:= $(MBUILD)/mqtt-serverd
 
 # Test compiler flags
 TCFLAGS      	= $(CFLAGS)
+TCFLAGS      	+= -O0 -g
 TCFLAGS      	+= -I ./test
 
 # Test linker flags
@@ -127,12 +128,16 @@ clean				:
 
 # Tools
 .PHONY				: macroexpand
-macroexpand			: $(MSOURCES)
+macroexpand			: $(MSOURCES) $(MEXECSOURCE)
 	$(CC) $(CFLAGS) -E $(MSOURCES) | source-highlight --failsafe --src-lang=cc -f esc --style-file=esc.style 
 
-.PHONY 				: check-all
-check-all 			: $(MSOURCES) $(MEXECSOURCE)
-	clang-check $(MSOURCES)
+.PHONY 				: check-main
+check-main 			: $(MSOURCES) $(MEXECSOURCE)
+	clang-check $(MSOURCES) $(MEXECSOURCE)
+
+.PHONY 				: check-test
+check-test 			: $(TSOURCES) $(TEXECSOURCE)
+	clang-check $(TSOURCES) $(TEXECSOURCE)
 
 .PHONY 				: tags
 tags 				: $(MSOURCES) $(MEXECSOURCE) $(TSOURCES) $(TEXECSOURCE)

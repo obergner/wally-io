@@ -1,3 +1,5 @@
+#pragma once
+
 #include <tuple>
 
 #include <boost/optional.hpp>
@@ -47,7 +49,7 @@ namespace io_wally
 
                     const bool is_parsing_complete( ) const
                     {
-                        return parse_state_ == COMPLETE;
+                        return ( parse_state_ == COMPLETE ) || ( parse_state_ == MALFORMED_INPUT );
                     }
 
                     const bool is_input_malformed( ) const
