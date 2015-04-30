@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <stdexcept>
 
 #include <boost/cstdint.hpp>
 
@@ -63,11 +64,6 @@ namespace io_wally
             {
                public:
                 header_flags( const uint8_t& flags ) : flags_( flags )
-                {
-                    return;
-                }
-
-                ~header_flags( )
                 {
                     return;
                 }
@@ -138,11 +134,6 @@ namespace io_wally
                public:
                 header( const uint8_t type_and_flags, const uint32_t remaining_length )
                     : control_packet_type_and_flags_( type_and_flags ), remaining_length_( remaining_length )
-                {
-                    return;
-                }
-
-                ~header( )
                 {
                     return;
                 }
@@ -277,14 +268,15 @@ namespace io_wally
                 return output;
             }
 
+            /// \brief Stateful functor for parsing the 'remaining lenght' field in an MQTT fixed header.
+            ///
             class remaining_length
             {
                public:
                 typedef enum : int
                 {
                     INCOMPLETE = 0,
-                    COMPLETE,
-                    OUT_OF_RANGE
+                    COMPLETE
                 } parse_state;
 
                 remaining_length( )
@@ -292,6 +284,19 @@ namespace io_wally
                     return;
                 }
 
+                /// \brief Calculate an MQTT packet's 'remaining length', i.e. its length in bytes minus fixed header
+                ///        length.
+                ///
+                /// Take the next length byte 'next_byte'. Return 'parse_state' INCOMPLETE while calculation is not
+                /// yet done. Once calculation has completed, return 'parse_state' COMPLETE and assign calculated
+                /// 'remaining_lenght' to out parameter 'result'.
+                ///
+                /// Throw std::range_error if provided sequence of bytes does not encode a valid 'remaining length'.
+                ///
+                /// \param result Remaining length calculated by this functor.
+                /// \param next_byte Next byte in sequence of bytes encoding an MQTT packet's remaining length.
+                /// \return Current parse state, either INCOMPLETE or COMPLETE.
+                /// \throws std::range_error If provided sequence of bytes does not encode a valid 'remaining length'.
                 parse_state operator( )( uint32_t& result, const uint8_t next_byte )
                 {
                     current_ += ( next_byte & ~MSB_MASK ) * multiplier_;
@@ -300,13 +305,14 @@ namespace io_wally
                         multiplier_ *= 128;
 
                     if ( multiplier_ > MAX_MULTIPLIER )
-                        pst = OUT_OF_RANGE;
-                    else if ( pst == COMPLETE )
+                        throw std::range_error( "supplied byte sequence does not encode a valid remaining length" );
+                    if ( pst == COMPLETE )
                         result = current_;
 
                     return pst;
                 }
 
+                /// \brief Reset this functor's internal state so that it may be reused.
                 void reset( )
                 {
                     current_ = 0;
@@ -325,11 +331,6 @@ namespace io_wally
         {
            public:
             mqtt_packet( const struct packet::header& header ) : header_( header )
-            {
-                return;
-            }
-
-            ~mqtt_packet( )
             {
                 return;
             }

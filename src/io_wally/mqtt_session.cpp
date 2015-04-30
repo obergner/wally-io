@@ -55,21 +55,22 @@ namespace io_wally
             return;
         }
 
-        const header_parser::result<uint8_t*> result =
-            header_parser_.parse( read_buffer_.data( ), read_buffer_.data( ) + bytes_transferred );
-        if ( result.is_input_malformed( ) )
+        try
+        {
+            const header_parser::result<uint8_t*> result =
+                header_parser_.parse( read_buffer_.data( ), read_buffer_.data( ) + bytes_transferred );
+            if ( !result.is_parsing_complete( ) )
+            {
+                read_header( );
+                return;
+            }
+
+            read_body( result );
+        }
+        catch ( const std::range_error& e )
         {
             stop( );
-            return;
         }
-
-        if ( !result.is_parsing_complete( ) )
-        {
-            read_header( );
-            return;
-        }
-
-        read_body( result );
     }
 
     void mqtt_session::read_body( const header_parser::result<uint8_t*>& header_parse_result )
@@ -91,6 +92,17 @@ namespace io_wally
                                           const boost::system::error_code& ec,
                                           const size_t bytes_transferred )
     {
+        if ( ec )
+        {
+            if ( ec != boost::asio::error::operation_aborted )
+                stop( );
+            return;
+        }
+
+        const std::unique_ptr<mqtt_packet> parsed_packet =
+            packet_parser_.parse( header_parse_result.parsed_header( ),
+                                  header_parse_result.consumed_until( ),
+                                  header_parse_result.consumed_until( ) + bytes_transferred );
         return;
     }
 }

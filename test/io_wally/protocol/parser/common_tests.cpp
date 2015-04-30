@@ -27,7 +27,6 @@ SCENARIO( "header_parser", "[parser]" )
             {
                 REQUIRE( result.parse_state( ) == parser::COMPLETE );
                 REQUIRE( result.is_parsing_complete( ) );
-                REQUIRE( !result.is_input_malformed( ) );
                 REQUIRE( result.parsed_header( ).type( ) == packet::RESERVED1 );
                 REQUIRE( result.consumed_until( ) == buffer.end( ) );
             }
@@ -59,7 +58,6 @@ SCENARIO( "header_parser", "[parser]" )
             {
                 REQUIRE( result.parse_state( ) == parser::COMPLETE );
                 REQUIRE( result.is_parsing_complete( ) );
-                REQUIRE( !result.is_input_malformed( ) );
                 REQUIRE( result.parsed_header( ).type( ) == packet::PINGRESP );
                 REQUIRE( result.consumed_until( ) == buffer.end( ) );
             }
@@ -91,7 +89,6 @@ SCENARIO( "header_parser", "[parser]" )
             {
                 REQUIRE( result.parse_state( ) == parser::INCOMPLETE );
                 REQUIRE( !result.is_parsing_complete( ) );
-                REQUIRE( !result.is_input_malformed( ) );
             }
         }
 
@@ -104,7 +101,6 @@ SCENARIO( "header_parser", "[parser]" )
             {
                 REQUIRE( result.parse_state( ) == parser::COMPLETE );
                 REQUIRE( result.is_parsing_complete( ) );
-                REQUIRE( !result.is_input_malformed( ) );
                 REQUIRE( result.consumed_until( ) == buffer.end( ) );
             }
         }
@@ -128,14 +124,9 @@ SCENARIO( "header_parser", "[parser]" )
 
         WHEN( "a client passes that array into header_parser" )
         {
-            const parser::header_parser::result<std::array<uint8_t, 5>::const_iterator> result =
-                under_test.parse( buffer.begin( ), buffer.end( ) );
-
             THEN( "that client should receive parse_state MALFORMED_INPUT" )
             {
-                REQUIRE( result.parse_state( ) == parser::MALFORMED_INPUT );
-                REQUIRE( result.is_parsing_complete( ) );
-                REQUIRE( result.is_input_malformed( ) );
+                REQUIRE_THROWS_AS( under_test.parse( buffer.begin( ), buffer.end( ) ), std::range_error );
             }
         }
     }

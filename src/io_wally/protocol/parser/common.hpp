@@ -18,8 +18,7 @@ namespace io_wally
             enum parse_state : int
             {
                 INCOMPLETE = 0,
-                COMPLETE,
-                MALFORMED_INPUT
+                COMPLETE
             };
 
             class header_parser
@@ -52,12 +51,7 @@ namespace io_wally
 
                     const bool is_parsing_complete( ) const
                     {
-                        return ( parse_state_ == COMPLETE ) || ( parse_state_ == MALFORMED_INPUT );
-                    }
-
-                    const bool is_input_malformed( ) const
-                    {
-                        return parse_state_ == MALFORMED_INPUT;
+                        return parse_state_ == COMPLETE;
                     }
 
                     const packet::header parsed_header( ) const
@@ -97,8 +91,6 @@ namespace io_wally
                         }
                     }
 
-                    if ( rem_len_pst == packet::remaining_length::OUT_OF_RANGE )
-                        return result<InputIterator>( MALFORMED_INPUT );
                     if ( rem_len_pst == packet::remaining_length::INCOMPLETE )
                         return result<InputIterator>( INCOMPLETE );
 
@@ -117,43 +109,16 @@ namespace io_wally
                 packet::remaining_length remaining_length_;
             };
 
-            struct packet_parse_result
-            {
-               public:
-                static const packet_parse_result* const ok( mqtt_packet* mqtt_packet )
-                {
-                    return new packet_parse_result( COMPLETE, mqtt_packet );
-                }
-
-                static const packet_parse_result* const malformed_input( )
-                {
-                    return new packet_parse_result( MALFORMED_INPUT, nullptr );
-                }
-
-                const enum parse_state parse_state( ) const
-                {
-                    return parse_state_;
-                }
-
-                std::unique_ptr<mqtt_packet> parsed_packet( )
-                {
-                    return std::move( parsed_packet_ );
-                }
-
-               private:
-                packet_parse_result( const enum parse_state parse_state, mqtt_packet* mqtt_pkt )
-                    : parse_state_( parse_state ), parsed_packet_( mqtt_pkt ){};
-
-                ~packet_parse_result( )
-                {
-                    return;
-                }
-
-                /// Fields
-                const enum parse_state parse_state_;
-                std::unique_ptr<mqtt_packet> parsed_packet_;
-            };
-
+            /// \brief Interface for MQTT packet parsers/decoders.
+            ///
+            /// Defines and interface for parsers/decoders that take header_flags and a buffers containing an MQTT
+            /// packet's on the wire representation and return a decoded mqtt_packet.
+            ///
+            /// Note that the concrete type of mqtt_packet to decode is already known when an implementation of this
+            /// interface is called.
+            ///
+            /// Note further that a concrete packet_body_parser implementation handles exactly one concrete
+            /// mqtt_packet type (CONNECT, CONNACK, ...).
             template <typename InputIterator>
             class packet_body_parser
             {
@@ -163,24 +128,41 @@ namespace io_wally
                     return;
                 }
 
+                /// \brief Parse the supplied buffer into an MQTT packet.
+                ///
+                /// From the supplied 'header_flags' deduce the type of 'mqtt_packet' to parse. Start parsing at
+                /// 'buf_start'. Parse until 'buf_end'. Return the parsed 'mqtt_packet', transferring ownership to the
+                /// caller.
+                /// If parsing fails throw a std::range_error.
+                ///
+                /// \param header_flags Header flags of MQTT packet to parse. Contains the type of MQTT packet.
+                /// \param buf_start Start of buffer containing the serialized MQTT packet. MUST point to the start of
+                ///                  the packet body, i.e. the variable header (if present) or the payload.
+                /// \param buf_end End of buffer containing the serialized MQTT packet.
+                /// \throws std::range_error If encoding is malformed, e.g. remaining length has been incorrectly
+                ///         encoded.
                 virtual const std::unique_ptr<mqtt_packet> parse( const packet::header_flags& header_flags,
                                                                   InputIterator buf_start,
                                                                   const InputIterator buf_end ) = 0;
             };
 
+            /// \brief Parser for arbitrary MQTT packets.
+            template <typename InputIterator>
             class mqtt_packet_parser
             {
                public:
+                /// Methods
                 mqtt_packet_parser( ) : remaining_length_( )
                 {
                     return;
                 }
 
-                template <typename InputIterator>
-                const packet_parse_result* const parse( InputIterator buf_start, const InputIterator buf_end )
+                std::unique_ptr<mqtt_packet> parse( const packet::header& header,
+                                                    InputIterator buf_start,
+                                                    const InputIterator buf_end )
                 {
                     /// TODO: Implement
-                    return nullptr;
+                    return std::unique_ptr<mqtt_packet>( new mqtt_packet( header ) );
                 }
 
                 void reset( )
@@ -189,6 +171,13 @@ namespace io_wally
                 }
 
                private:
+                /// Methods
+                /*
+                const packet_body_parser& body_parser_for( const packet::header& header )
+                {
+                }
+                */
+
                 /// Fields
                 packet::remaining_length remaining_length_;
             };

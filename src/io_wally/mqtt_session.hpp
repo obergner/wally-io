@@ -53,5 +53,6 @@ namespace io_wally
         tcp::socket socket_;
         std::vector<uint8_t> read_buffer_;
         header_parser header_parser_;
+        mqtt_packet_parser<uint8_t*> packet_parser_;
     };
 }

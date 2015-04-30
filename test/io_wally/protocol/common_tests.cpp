@@ -318,14 +318,13 @@ SCENARIO( "remaining_length functor", "[packets]" )
             packet::remaining_length::parse_state st1 = under_test( actual_result, first_byte );
             packet::remaining_length::parse_state st2 = under_test( actual_result, second_byte );
             packet::remaining_length::parse_state st3 = under_test( actual_result, third_byte );
-            packet::remaining_length::parse_state st4 = under_test( actual_result, fourth_byte );
 
             THEN( "it should on the last call receive parse_state OUT_OF_RANGE" )
             {
                 REQUIRE( st1 == packet::remaining_length::INCOMPLETE );
                 REQUIRE( st2 == packet::remaining_length::INCOMPLETE );
                 REQUIRE( st3 == packet::remaining_length::INCOMPLETE );
-                REQUIRE( st4 == packet::remaining_length::OUT_OF_RANGE );
+                REQUIRE_THROWS_AS( under_test( actual_result, fourth_byte ), std::range_error );
             }
         }
     }
