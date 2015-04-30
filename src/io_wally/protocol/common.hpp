@@ -344,5 +344,12 @@ namespace io_wally
             const struct packet::header& header_;
         };
 
+        inline std::ostream& operator<<( std::ostream& output, mqtt_packet const& mqtt_packet )
+        {
+            output << "mqtt_packet[header:" << mqtt_packet.header( ) << "]";
+
+            return output;
+        }
+
     }  // namespace protocol
 }  // namespace io_wally

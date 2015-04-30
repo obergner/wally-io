@@ -99,7 +99,7 @@ namespace io_wally
             return;
         }
 
-        const std::unique_ptr<mqtt_packet> parsed_packet =
+        const std::unique_ptr<const mqtt_packet> parsed_packet =
             packet_parser_.parse( header_parse_result.parsed_header( ),
                                   header_parse_result.consumed_until( ),
                                   header_parse_result.consumed_until( ) + bytes_transferred );

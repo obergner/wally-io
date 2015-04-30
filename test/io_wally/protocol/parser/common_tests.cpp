@@ -131,3 +131,22 @@ SCENARIO( "header_parser", "[parser]" )
         }
     }
 }
+
+SCENARIO( "parsing a UTF-8 string", "[packets]" )
+{
+
+    GIVEN( "a buffer of length 2 containing a correctly encoded empty string" )
+    {
+        const std::array<char, 2> buffer = {{0x00, 0x00}};
+
+        WHEN( "a client passes that buffer into parse_utf8_string" )
+        {
+            const std::string parsed_string = parser::parse_utf8_string( buffer.begin( ), buffer.cend( ) );
+
+            THEN( "the client should receive an empty string" )
+            {
+                REQUIRE( parsed_string == "" );
+            }
+        }
+    }
+}
