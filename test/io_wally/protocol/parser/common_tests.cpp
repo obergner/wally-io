@@ -124,7 +124,7 @@ SCENARIO( "header_parser", "[parser]" )
 
         WHEN( "a client passes that array into header_parser" )
         {
-            THEN( "that client should receive parse_state MALFORMED_INPUT" )
+            THEN( "that client should see a std::range_error being thrown" )
             {
                 REQUIRE_THROWS_AS( under_test.parse( buffer.begin( ), buffer.end( ) ), std::range_error );
             }
@@ -135,17 +135,64 @@ SCENARIO( "header_parser", "[parser]" )
 SCENARIO( "parsing a UTF-8 string", "[packets]" )
 {
 
+    GIVEN( "a buffer of length 1" )
+    {
+        const std::array<char, 1> buffer = {{0x00}};
+
+        WHEN( "a client passes that buffer into parse_utf8_string" )
+        {
+            THEN( "the client should see a std::range_error being thrown" )
+            {
+                REQUIRE_THROWS_AS( parser::parse_utf8_string( buffer.begin( ), buffer.cend( ) ),
+                                   std::range_error );  // must not be nullptr
+            }
+        }
+    }
+
+    GIVEN( "a buffer of insufficient length for the contained string" )
+    {
+        const std::array<char, 5> buffer = {{0x00, 0x04, 0x61, 0x62, 0x63}};
+
+        WHEN( "a client passes that buffer into parse_utf8_string" )
+        {
+            THEN( "the client should see a std::range_error being thrown" )
+            {
+                REQUIRE_THROWS_AS( parser::parse_utf8_string( buffer.begin( ), buffer.cend( ) ),
+                                   std::range_error );  // must not be nullptr
+            }
+        }
+    }
+
     GIVEN( "a buffer of length 2 containing a correctly encoded empty string" )
     {
         const std::array<char, 2> buffer = {{0x00, 0x00}};
 
         WHEN( "a client passes that buffer into parse_utf8_string" )
         {
-            const std::string parsed_string = parser::parse_utf8_string( buffer.begin( ), buffer.cend( ) );
+            const std::unique_ptr<const char> parsed_string =
+                parser::parse_utf8_string( buffer.begin( ), buffer.cend( ) );
 
             THEN( "the client should receive an empty string" )
             {
-                REQUIRE( parsed_string == "" );
+                REQUIRE( parsed_string );  // must not be nullptr
+                REQUIRE( std::string( parsed_string.get( ) ) == "" );
+            }
+        }
+    }
+
+    GIVEN( "a buffer of sufficient length containing a correctly encoded non-empty string" )
+    {
+        const std::array<char, 5> buffer = {{0x00, 0x03, 0x61, 0x62, 0x63}};
+
+        WHEN( "a client passes that buffer into parse_utf8_string" )
+        {
+            const std::unique_ptr<const char> parsed_string =
+                parser::parse_utf8_string( buffer.begin( ), buffer.cend( ) );
+
+            THEN( "the client should receive an correctly parsed non-empty string" )
+            {
+                REQUIRE( parsed_string );  // must not be nullptr
+                REQUIRE( std::string( parsed_string.get( ) ) == "abc" );
             }
         }
     }

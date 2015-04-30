@@ -63,7 +63,7 @@ namespace io_wally
             struct header_flags
             {
                public:
-                header_flags( const uint8_t& flags ) : flags_( flags )
+                header_flags( const uint8_t flags ) : flags_( flags )
                 {
                     return;
                 }
@@ -101,7 +101,7 @@ namespace io_wally
                 }
 
                private:
-                const uint8_t& flags_;
+                const uint8_t flags_;
             };  /// struct header_flags
 
             inline std::ostream& operator<<( std::ostream& output, header_flags const& header_flags )
@@ -330,7 +330,7 @@ namespace io_wally
         struct mqtt_packet
         {
            public:
-            mqtt_packet( const struct packet::header& header ) : header_( header )
+            mqtt_packet( struct packet::header header ) : header_( std::move( header ) )
             {
                 return;
             }
@@ -341,7 +341,7 @@ namespace io_wally
             }
 
            private:
-            const struct packet::header& header_;
+            const struct packet::header header_;
         };
 
         inline std::ostream& operator<<( std::ostream& output, mqtt_packet const& mqtt_packet )

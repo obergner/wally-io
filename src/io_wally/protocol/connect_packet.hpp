@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <memory>
 
 #include <boost/cstdint.hpp>
 
@@ -27,11 +28,6 @@ namespace io_wally
                   prot_level_( prot_level ),
                   con_flags_( con_flags ),
                   keep_alive_secs_( keep_alive_secs )
-            {
-                return;
-            }
-
-            ~connect_header( )
             {
                 return;
             }
@@ -156,44 +152,37 @@ namespace io_wally
             {
             }
 
-            ~connect_payload( )
-            {
-                return;
-            }
-
             const char* const client_id( ) const
             {
-                return client_id_;
+                return client_id_.get( );
             }
 
             const char* const will_topic( ) const
             {
-                return will_topic_;
+                return will_topic_.get( );
             }
 
             const char* const will_message( ) const
             {
-                return will_message_;
+                return will_message_.get( );
             }
 
             const char* const username( ) const
             {
-                return username_;
+                return username_.get( );
             }
 
             const char* const password( ) const
             {
-                return password_;
+                return password_.get( );
             }
 
            private:
-            /// TODO: I would like to manage internal state using std::string rather than char*. Yet I need to find
-            /// an efficient and elegant way to support OPTIONAL strings
-            const char* const client_id_;     // mandatory
-            const char* const will_topic_;    // MUST be present iff will flag is set
-            const char* const will_message_;  // MUST be present iff will flag is set
-            const char* const username_;      // MUST be present iff username flag is set
-            const char* const password_;      // MUST be present iff password flag is set
+            std::unique_ptr<const char> client_id_;     // mandatory
+            std::unique_ptr<const char> will_topic_;    // MUST be present iff will flag is set
+            std::unique_ptr<const char> will_message_;  // MUST be present iff will flag is set
+            std::unique_ptr<const char> username_;      // MUST be present iff username flag is set
+            std::unique_ptr<const char> password_;      // MUST be present iff password flag is set
         };
 
         inline std::ostream& operator<<( std::ostream& output, connect_payload const& connect_payload )
@@ -210,15 +199,10 @@ namespace io_wally
         struct connect : public mqtt_packet
         {
            public:
-            connect( const packet::header& header,
-                     const connect_header& connect_header,
-                     const connect_payload& payload )
-                : mqtt_packet( header ), connect_header_( connect_header ), payload_( payload )
-            {
-                return;
-            }
-
-            ~connect( )
+            connect( const packet::header header, const connect_header connect_header, connect_payload payload )
+                : mqtt_packet( std::move( header ) ),
+                  connect_header_( std::move( connect_header ) ),
+                  payload_( std::move( payload ) )
             {
                 return;
             }
@@ -234,8 +218,8 @@ namespace io_wally
             }
 
            private:
-            const struct connect_header& connect_header_;
-            const struct connect_payload& payload_;
+            const struct connect_header connect_header_;
+            const struct connect_payload payload_;
         };
 
         inline std::ostream& operator<<( std::ostream& output, connect const& connect )

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <stdio.h>
+#include <string.h>
+
 #include <tuple>
 
 #include <boost/optional.hpp>
@@ -127,7 +130,8 @@ namespace io_wally
             ///
             /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718016
             template <typename InputIterator>
-            inline const std::string parse_utf8_string( InputIterator string_start, const InputIterator buf_end )
+            inline std::unique_ptr<const char> parse_utf8_string( InputIterator string_start,
+                                                                  const InputIterator buf_end )
             {
                 // We need at least two bytes for encoding string length
                 if ( string_start + 2 > buf_end )
@@ -144,7 +148,14 @@ namespace io_wally
                     throw std::range_error( "Buffer truncated: cannot decode UTF-8 string" );
                 }
 
-                return std::string( string_start, string_length );
+                char* parsed_string = (char*)malloc( string_length );
+                memcpy( parsed_string, string_start, string_length + 1 );
+                parsed_string[string_length] = '\0';
+
+                // Update buffer start iterator
+                string_start += string_length;
+
+                return std::unique_ptr<const char>( parsed_string );
             }
 
             /// \brief Interface for parsers capable of decoding a single type of MQTT packets.
@@ -161,18 +172,13 @@ namespace io_wally
             class packet_body_parser
             {
                public:
-                virtual ~packet_body_parser( )
-                {
-                    return;
-                }
-
                 /// \brief Parse the supplied buffer into an MQTT packet.
                 ///
                 /// From the supplied 'header_flags' deduce the type of 'mqtt_packet' to parse. Start parsing at
                 /// 'buf_start'. Parse until 'buf_end'. Return the parsed 'mqtt_packet', transferring ownership to the
                 /// caller. If parsing fails throw a std::range_error.
                 ///
-                /// \param header_flags         Header flags of MQTT packet to parse. Contains the type of MQTT packet.
+                /// \param header               Header of MQTT packet to parse. Contains the type of MQTT packet.
                 /// \param buf_start            Start of buffer containing the serialized MQTT packet. MUST point to
                 ///                             the start of the packet body, i.e. the variable header (if present) or
                 ///                             the payload.
@@ -181,7 +187,7 @@ namespace io_wally
                 ///                             'mqtt_packet'. Note that the caller assumes ownership.
                 /// \throws std::range_error    If encoding is malformed, e.g. remaining length has been incorrectly
                 ///                             encoded.
-                virtual const std::unique_ptr<mqtt_packet> parse( const packet::header_flags& header_flags,
+                virtual std::unique_ptr<const mqtt_packet> parse( const packet::header& header,
                                                                   InputIterator buf_start,
                                                                   const InputIterator buf_end ) = 0;
             };
