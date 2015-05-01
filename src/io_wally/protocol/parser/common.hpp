@@ -24,6 +24,59 @@ namespace io_wally
                 COMPLETE
             };
 
+            /// \brief Stateful functor for parsing the 'remaining lenght' field in an MQTT fixed header.
+            ///
+            class remaining_length
+            {
+               public:
+                remaining_length( )
+                {
+                    return;
+                }
+
+                /// \brief Calculate an MQTT packet's 'remaining length', i.e. its length in bytes minus fixed header
+                ///        length.
+                ///
+                /// Take the next length byte 'next_byte'. Return 'parse_state' INCOMPLETE while calculation is not
+                /// yet done. Once calculation has completed, return 'parse_state' COMPLETE and assign calculated
+                /// 'remaining_lenght' to out parameter 'result'.
+                ///
+                /// Throw std::range_error if provided sequence of bytes does not encode a valid 'remaining length'.
+                ///
+                /// \param result Remaining length calculated by this functor.
+                /// \param next_byte Next byte in sequence of bytes encoding an MQTT packet's remaining length.
+                /// \return Current parse state, either INCOMPLETE or COMPLETE.
+                /// \throws std::range_error If provided sequence of bytes does not encode a valid 'remaining length'.
+                ParseState operator( )( uint32_t& result, const uint8_t next_byte )
+                {
+                    current_ += ( next_byte & ~MSB_MASK ) * multiplier_;
+                    ParseState pst =
+                        ( next_byte & MSB_MASK ) == MSB_MASK ? ParseState::INCOMPLETE : ParseState::COMPLETE;
+                    if ( pst == ParseState::INCOMPLETE )
+                        multiplier_ *= 128;
+
+                    if ( multiplier_ > MAX_MULTIPLIER )
+                        throw std::range_error( "supplied byte sequence does not encode a valid remaining length" );
+                    if ( pst == ParseState::COMPLETE )
+                        result = current_;
+
+                    return pst;
+                }
+
+                /// \brief Reset this functor's internal state so that it may be reused.
+                void reset( )
+                {
+                    current_ = 0;
+                    multiplier_ = 1;
+                }
+
+               private:
+                const uint8_t MSB_MASK = 0x80;
+                const uint32_t MAX_MULTIPLIER = 128 * 128 * 128;
+                uint32_t current_ = 0;
+                uint32_t multiplier_ = 1;
+            };
+
             class header_parser
             {
                public:
@@ -81,9 +134,8 @@ namespace io_wally
                 const result<InputIterator> parse( InputIterator buf_start, const InputIterator buf_end )
                 {
                     uint32_t rem_len = -1;
-                    packet::remaining_length::ParseState rem_len_pst = packet::remaining_length::ParseState::INCOMPLETE;
-                    while ( ( buf_start != buf_end ) &&
-                            ( rem_len_pst == packet::remaining_length::ParseState::INCOMPLETE ) )
+                    ParseState rem_len_pst = ParseState::INCOMPLETE;
+                    while ( ( buf_start != buf_end ) && ( rem_len_pst == ParseState::INCOMPLETE ) )
                     {
                         if ( type_and_flags_ == -1 )
                         {
@@ -95,7 +147,7 @@ namespace io_wally
                         }
                     }
 
-                    if ( rem_len_pst == packet::remaining_length::ParseState::INCOMPLETE )
+                    if ( rem_len_pst == ParseState::INCOMPLETE )
                         return result<InputIterator>( ParseState::INCOMPLETE );
 
                     return result<InputIterator>( type_and_flags_, rem_len, buf_start );
@@ -110,8 +162,8 @@ namespace io_wally
                private:
                 /// Fields
                 int16_t type_and_flags_;
-                packet::remaining_length remaining_length_;
-            };
+                remaining_length remaining_length_;
+            };  // header_parser
 
             /// \brief Parse a 16 bit wide unsigned int in the supplied buffer.
             ///
@@ -283,7 +335,7 @@ namespace io_wally
                 */
 
                 /// Fields
-                packet::remaining_length remaining_length_;
+                remaining_length remaining_length_;
             };
         }  /// namespace parser
     }      /// namespace protocol

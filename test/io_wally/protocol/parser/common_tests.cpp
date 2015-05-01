@@ -4,6 +4,170 @@
 
 using namespace io_wally::protocol;
 
+SCENARIO( "remaining_length functor", "[packets]" )
+{
+    parser::remaining_length under_test;
+
+    GIVEN( "a valid remaining length bytes sequence of length 1" )
+    {
+        const uint8_t remaining_length_byte = 0x7F;
+        const uint32_t expected_result = 127;
+
+        WHEN( "a caller passes in one byte" )
+        {
+            uint32_t actual_result = -1;
+            parser::ParseState st = under_test( actual_result, remaining_length_byte );
+
+            THEN( "it should receive parse_state COMPLETE and the correct remaining length" )
+            {
+                REQUIRE( st == parser::ParseState::COMPLETE );
+                REQUIRE( actual_result == expected_result );
+            }
+        }
+    }
+
+    GIVEN( "a valid remaining length bytes sequence of length 2" )
+    {
+        const uint8_t first_byte = 0x9F;
+        const uint8_t second_byte = 0x6f;
+
+        const uint32_t expected_result = 128 * ( second_byte & ~0x80 ) + ( first_byte & ~0x80 );
+
+        WHEN( "a caller passes in all bytes" )
+        {
+            uint32_t actual_result = -1;
+            parser::ParseState st1 = under_test( actual_result, first_byte );
+            parser::ParseState st2 = under_test( actual_result, second_byte );
+
+            THEN( "it should on each call receive correct parse_state and in the end the correct remaining length" )
+            {
+                REQUIRE( st1 == parser::ParseState::INCOMPLETE );
+                REQUIRE( st2 == parser::ParseState::COMPLETE );
+                REQUIRE( actual_result == expected_result );
+            }
+        }
+    }
+
+    GIVEN( "a valid remaining length bytes sequence of length 3" )
+    {
+        const uint8_t first_byte = 0x8A;
+        const uint8_t second_byte = 0xF2;
+        const uint8_t third_byte = 0x5A;
+
+        const uint32_t expected_result =
+            128 * 128 * ( third_byte & ~0x80 ) + 128 * ( second_byte & ~0x80 ) + ( first_byte & ~0x80 );
+
+        WHEN( "a caller passes in all bytes" )
+        {
+            uint32_t actual_result = -1;
+            parser::ParseState st1 = under_test( actual_result, first_byte );
+            parser::ParseState st2 = under_test( actual_result, second_byte );
+            parser::ParseState st3 = under_test( actual_result, third_byte );
+
+            THEN( "it should on each call receive correct parse_state and in the end the correct remaining length" )
+            {
+                REQUIRE( st1 == parser::ParseState::INCOMPLETE );
+                REQUIRE( st2 == parser::ParseState::INCOMPLETE );
+                REQUIRE( st3 == parser::ParseState::COMPLETE );
+                REQUIRE( actual_result == expected_result );
+            }
+        }
+    }
+
+    GIVEN( "a valid remaining length bytes sequence of length 4" )
+    {
+        const uint8_t first_byte = 0x8A;
+        const uint8_t second_byte = 0xF2;
+        const uint8_t third_byte = 0x8B;
+        const uint8_t fourth_byte = 0x6F;
+
+        const uint32_t expected_result = 128 * 128 * 128 * ( fourth_byte & ~0x80 ) +
+                                         128 * 128 * ( third_byte & ~0x80 ) + 128 * ( second_byte & ~0x80 ) +
+                                         ( first_byte & ~0x80 );
+
+        WHEN( "a caller passes in all bytes" )
+        {
+            uint32_t actual_result = -1;
+            parser::ParseState st1 = under_test( actual_result, first_byte );
+            parser::ParseState st2 = under_test( actual_result, second_byte );
+            parser::ParseState st3 = under_test( actual_result, third_byte );
+            parser::ParseState st4 = under_test( actual_result, fourth_byte );
+
+            THEN( "it should on each call receive correct parse_state and in the end the correct remaining length" )
+            {
+                REQUIRE( st1 == parser::ParseState::INCOMPLETE );
+                REQUIRE( st2 == parser::ParseState::INCOMPLETE );
+                REQUIRE( st3 == parser::ParseState::INCOMPLETE );
+                REQUIRE( st4 == parser::ParseState::COMPLETE );
+                REQUIRE( actual_result == expected_result );
+            }
+        }
+    }
+
+    GIVEN( "an invalid remaining length bytes sequence of length 4" )
+    {
+        const uint8_t first_byte = 0x8A;
+        const uint8_t second_byte = 0xF2;
+        const uint8_t third_byte = 0x8B;
+        const uint8_t fourth_byte = 0x80;
+
+        WHEN( "a caller passes in all bytes" )
+        {
+            uint32_t actual_result = -1;
+            parser::ParseState st1 = under_test( actual_result, first_byte );
+            parser::ParseState st2 = under_test( actual_result, second_byte );
+            parser::ParseState st3 = under_test( actual_result, third_byte );
+
+            THEN( "it should on the last call receive parse_state OUT_OF_RANGE" )
+            {
+                REQUIRE( st1 == parser::ParseState::INCOMPLETE );
+                REQUIRE( st2 == parser::ParseState::INCOMPLETE );
+                REQUIRE( st3 == parser::ParseState::INCOMPLETE );
+                REQUIRE_THROWS_AS( under_test( actual_result, fourth_byte ), std::range_error );
+            }
+        }
+    }
+
+    GIVEN( "a remaining_length functor that has already run to completion" )
+    {
+        const uint8_t first_byte = 0x8A;
+        const uint8_t second_byte = 0xF2;
+        const uint8_t third_byte = 0x8B;
+        const uint8_t fourth_byte = 0x6F;
+
+        const uint32_t expected_result = 128 * 128 * 128 * ( fourth_byte & ~0x80 ) +
+                                         128 * 128 * ( third_byte & ~0x80 ) + 128 * ( second_byte & ~0x80 ) +
+                                         ( first_byte & ~0x80 );
+
+        uint32_t ignored = -1;
+        under_test( ignored, 0x8A );
+        under_test( ignored, 0xF2 );
+        under_test( ignored, 0x8B );
+        under_test( ignored, 0x3A );
+
+        WHEN( "a client calls reset() and then reuses that functor" )
+        {
+            under_test.reset( );
+
+            uint32_t actual_result = -1;
+            parser::ParseState st1 = under_test( actual_result, first_byte );
+            parser::ParseState st2 = under_test( actual_result, second_byte );
+            parser::ParseState st3 = under_test( actual_result, third_byte );
+            parser::ParseState st4 = under_test( actual_result, fourth_byte );
+
+            THEN( "it should still receive a correct result" )
+            {
+
+                REQUIRE( st1 == parser::ParseState::INCOMPLETE );
+                REQUIRE( st2 == parser::ParseState::INCOMPLETE );
+                REQUIRE( st3 == parser::ParseState::INCOMPLETE );
+                REQUIRE( st4 == parser::ParseState::COMPLETE );
+                REQUIRE( actual_result == expected_result );
+            }
+        }
+    }
+}
+
 SCENARIO( "header_parser", "[parser]" )
 {
     parser::header_parser under_test;
