@@ -25,9 +25,9 @@ SCENARIO( "header_parser", "[parser]" )
 
             THEN( "that client should receive a valid packet header and a correct buffer iterator" )
             {
-                REQUIRE( result.parse_state( ) == parser::COMPLETE );
+                REQUIRE( result.parse_state( ) == parser::ParseState::COMPLETE );
                 REQUIRE( result.is_parsing_complete( ) );
-                REQUIRE( result.parsed_header( ).type( ) == packet::RESERVED1 );
+                REQUIRE( result.parsed_header( ).type( ) == packet::Type::RESERVED1 );
                 REQUIRE( result.consumed_until( ) == buffer.end( ) );
             }
         }
@@ -56,9 +56,9 @@ SCENARIO( "header_parser", "[parser]" )
 
             THEN( "that client should receive a valid packet header and a correct buffer iterator" )
             {
-                REQUIRE( result.parse_state( ) == parser::COMPLETE );
+                REQUIRE( result.parse_state( ) == parser::ParseState::COMPLETE );
                 REQUIRE( result.is_parsing_complete( ) );
-                REQUIRE( result.parsed_header( ).type( ) == packet::PINGRESP );
+                REQUIRE( result.parsed_header( ).type( ) == packet::Type::PINGRESP );
                 REQUIRE( result.consumed_until( ) == buffer.end( ) );
             }
         }
@@ -87,7 +87,7 @@ SCENARIO( "header_parser", "[parser]" )
 
             THEN( "that client should receive parse_state INCOMPLETE" )
             {
-                REQUIRE( result.parse_state( ) == parser::INCOMPLETE );
+                REQUIRE( result.parse_state( ) == parser::ParseState::INCOMPLETE );
                 REQUIRE( !result.is_parsing_complete( ) );
             }
         }
@@ -99,7 +99,7 @@ SCENARIO( "header_parser", "[parser]" )
 
             THEN( "that client should receive parse_state COMPLETE and a correct buffer iterator" )
             {
-                REQUIRE( result.parse_state( ) == parser::COMPLETE );
+                REQUIRE( result.parse_state( ) == parser::ParseState::COMPLETE );
                 REQUIRE( result.is_parsing_complete( ) );
                 REQUIRE( result.consumed_until( ) == buffer.end( ) );
             }

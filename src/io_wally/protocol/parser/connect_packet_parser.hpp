@@ -23,7 +23,7 @@ namespace io_wally
                                                                   InputIterator buf_start,
                                                                   const InputIterator buf_end )
                 {
-                    if ( header.type( ) != packet::CONNECT )
+                    if ( header.type( ) != packet::Type::CONNECT )
                         throw std::invalid_argument( "Supplied header is not of type CONNECT" );
 
                     InputIterator new_buf_start = buf_start;

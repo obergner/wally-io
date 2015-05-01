@@ -14,7 +14,7 @@ TEST_CASE( "MQTT header flags are read", "[header]" )
 
         REQUIRE( under_test.dup( ) );
         REQUIRE( under_test.retain( ) );
-        REQUIRE( under_test.qos( ) == packet::RESERVED );
+        REQUIRE( under_test.qos( ) == packet::QoS::RESERVED );
     }
 
     SECTION( "only flags 0 and 1 are set" )
@@ -24,7 +24,7 @@ TEST_CASE( "MQTT header flags are read", "[header]" )
 
         REQUIRE( !under_test.dup( ) );
         REQUIRE( under_test.retain( ) );
-        REQUIRE( under_test.qos( ) == packet::AT_LEAST_ONCE );
+        REQUIRE( under_test.qos( ) == packet::QoS::AT_LEAST_ONCE );
     }
 
     SECTION( "only flags 1 and 2 are set" )
@@ -34,7 +34,7 @@ TEST_CASE( "MQTT header flags are read", "[header]" )
 
         REQUIRE( !under_test.dup( ) );
         REQUIRE( !under_test.retain( ) );
-        REQUIRE( under_test.qos( ) == packet::RESERVED );
+        REQUIRE( under_test.qos( ) == packet::QoS::RESERVED );
     }
 
     SECTION( "only flags 2 and 3 are set" )
@@ -44,7 +44,7 @@ TEST_CASE( "MQTT header flags are read", "[header]" )
 
         REQUIRE( under_test.dup( ) );
         REQUIRE( !under_test.retain( ) );
-        REQUIRE( under_test.qos( ) == packet::EXACTLY_ONCE );
+        REQUIRE( under_test.qos( ) == packet::QoS::EXACTLY_ONCE );
     }
 }
 
@@ -57,7 +57,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
         const uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
-        REQUIRE( under_test.type( ) == packet::RESERVED1 );
+        REQUIRE( under_test.type( ) == packet::Type::RESERVED1 );
     }
 
     SECTION( "control packet type bit 4/no flags are set" )
@@ -66,7 +66,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
         const uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
-        REQUIRE( under_test.type( ) == packet::CONNECT );
+        REQUIRE( under_test.type( ) == packet::Type::CONNECT );
     }
 
     SECTION( "control packet type bit 5/no flags are set" )
@@ -75,7 +75,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
         const uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
-        REQUIRE( under_test.type( ) == packet::CONNACK );
+        REQUIRE( under_test.type( ) == packet::Type::CONNACK );
     }
 
     SECTION( "control packet type bits 4 and 5/no flags are set" )
@@ -84,7 +84,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
         const uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
-        REQUIRE( under_test.type( ) == packet::PUBLISH );
+        REQUIRE( under_test.type( ) == packet::Type::PUBLISH );
     }
 
     SECTION( "control packet type bit 6/no flags are set" )
@@ -93,7 +93,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
         const uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
-        REQUIRE( under_test.type( ) == packet::PUBACK );
+        REQUIRE( under_test.type( ) == packet::Type::PUBACK );
     }
 
     SECTION( "control packet type bits 6 and 4/no flags are set" )
@@ -102,7 +102,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
         const uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
-        REQUIRE( under_test.type( ) == packet::PUBREC );
+        REQUIRE( under_test.type( ) == packet::Type::PUBREC );
     }
 
     SECTION( "control packet type bits 6 and 5/no flags are set" )
@@ -111,7 +111,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
         const uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
-        REQUIRE( under_test.type( ) == packet::PUBREL );
+        REQUIRE( under_test.type( ) == packet::Type::PUBREL );
     }
 
     SECTION( "control packet type bits 6, 5 and 4/no flags are set" )
@@ -120,7 +120,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
         const uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
-        REQUIRE( under_test.type( ) == packet::PUBCOMP );
+        REQUIRE( under_test.type( ) == packet::Type::PUBCOMP );
     }
 
     SECTION( "control packet type bit 7/no flags are set" )
@@ -129,7 +129,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
         const uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
-        REQUIRE( under_test.type( ) == packet::SUBSCRIBE );
+        REQUIRE( under_test.type( ) == packet::Type::SUBSCRIBE );
     }
 
     SECTION( "control packet type bits 7 and 4/no flags are set" )
@@ -138,7 +138,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
         const uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
-        REQUIRE( under_test.type( ) == packet::SUBACK );
+        REQUIRE( under_test.type( ) == packet::Type::SUBACK );
     }
 
     SECTION( "control packet type bits 7 and 5/no flags are set" )
@@ -147,7 +147,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
         const uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
-        REQUIRE( under_test.type( ) == packet::UNSUBSCRIBE );
+        REQUIRE( under_test.type( ) == packet::Type::UNSUBSCRIBE );
     }
 
     SECTION( "control packet type bits 7, 5 and 4/no flags are set" )
@@ -156,7 +156,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
         const uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
-        REQUIRE( under_test.type( ) == packet::UNSUBACK );
+        REQUIRE( under_test.type( ) == packet::Type::UNSUBACK );
     }
 
     SECTION( "control packet type bits 7 and 6/no flags are set" )
@@ -165,7 +165,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
         const uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
-        REQUIRE( under_test.type( ) == packet::PINGREQ );
+        REQUIRE( under_test.type( ) == packet::Type::PINGREQ );
     }
 
     SECTION( "control packet type bits 7, 6 and 4/no flags are set" )
@@ -174,7 +174,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
         const uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
-        REQUIRE( under_test.type( ) == packet::PINGRESP );
+        REQUIRE( under_test.type( ) == packet::Type::PINGRESP );
     }
 
     SECTION( "control packet type bits 7, 6 and 5/no flags are set" )
@@ -183,7 +183,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
         const uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
-        REQUIRE( under_test.type( ) == packet::DISCONNECT );
+        REQUIRE( under_test.type( ) == packet::Type::DISCONNECT );
     }
 
     SECTION( "all control packet type bits/no flags are set" )
@@ -192,7 +192,7 @@ TEST_CASE( "An MQTT header is read", "[header]" )
         const uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
-        REQUIRE( under_test.type( ) == packet::RESERVED2 );
+        REQUIRE( under_test.type( ) == packet::Type::RESERVED2 );
     }
 
     SECTION( "all control packet type bits/flag bit 0 are set" )
@@ -217,11 +217,11 @@ SCENARIO( "remaining_length functor", "[packets]" )
         WHEN( "a caller passes in one byte" )
         {
             uint32_t actual_result = -1;
-            packet::remaining_length::parse_state st = under_test( actual_result, remaining_length_byte );
+            packet::remaining_length::ParseState st = under_test( actual_result, remaining_length_byte );
 
             THEN( "it should receive parse_state COMPLETE and the correct remaining length" )
             {
-                REQUIRE( st == packet::remaining_length::COMPLETE );
+                REQUIRE( st == packet::remaining_length::ParseState::COMPLETE );
                 REQUIRE( actual_result == expected_result );
             }
         }
@@ -237,13 +237,13 @@ SCENARIO( "remaining_length functor", "[packets]" )
         WHEN( "a caller passes in all bytes" )
         {
             uint32_t actual_result = -1;
-            packet::remaining_length::parse_state st1 = under_test( actual_result, first_byte );
-            packet::remaining_length::parse_state st2 = under_test( actual_result, second_byte );
+            packet::remaining_length::ParseState st1 = under_test( actual_result, first_byte );
+            packet::remaining_length::ParseState st2 = under_test( actual_result, second_byte );
 
             THEN( "it should on each call receive correct parse_state and in the end the correct remaining length" )
             {
-                REQUIRE( st1 == packet::remaining_length::INCOMPLETE );
-                REQUIRE( st2 == packet::remaining_length::COMPLETE );
+                REQUIRE( st1 == packet::remaining_length::ParseState::INCOMPLETE );
+                REQUIRE( st2 == packet::remaining_length::ParseState::COMPLETE );
                 REQUIRE( actual_result == expected_result );
             }
         }
@@ -261,15 +261,15 @@ SCENARIO( "remaining_length functor", "[packets]" )
         WHEN( "a caller passes in all bytes" )
         {
             uint32_t actual_result = -1;
-            packet::remaining_length::parse_state st1 = under_test( actual_result, first_byte );
-            packet::remaining_length::parse_state st2 = under_test( actual_result, second_byte );
-            packet::remaining_length::parse_state st3 = under_test( actual_result, third_byte );
+            packet::remaining_length::ParseState st1 = under_test( actual_result, first_byte );
+            packet::remaining_length::ParseState st2 = under_test( actual_result, second_byte );
+            packet::remaining_length::ParseState st3 = under_test( actual_result, third_byte );
 
             THEN( "it should on each call receive correct parse_state and in the end the correct remaining length" )
             {
-                REQUIRE( st1 == packet::remaining_length::INCOMPLETE );
-                REQUIRE( st2 == packet::remaining_length::INCOMPLETE );
-                REQUIRE( st3 == packet::remaining_length::COMPLETE );
+                REQUIRE( st1 == packet::remaining_length::ParseState::INCOMPLETE );
+                REQUIRE( st2 == packet::remaining_length::ParseState::INCOMPLETE );
+                REQUIRE( st3 == packet::remaining_length::ParseState::COMPLETE );
                 REQUIRE( actual_result == expected_result );
             }
         }
@@ -289,17 +289,17 @@ SCENARIO( "remaining_length functor", "[packets]" )
         WHEN( "a caller passes in all bytes" )
         {
             uint32_t actual_result = -1;
-            packet::remaining_length::parse_state st1 = under_test( actual_result, first_byte );
-            packet::remaining_length::parse_state st2 = under_test( actual_result, second_byte );
-            packet::remaining_length::parse_state st3 = under_test( actual_result, third_byte );
-            packet::remaining_length::parse_state st4 = under_test( actual_result, fourth_byte );
+            packet::remaining_length::ParseState st1 = under_test( actual_result, first_byte );
+            packet::remaining_length::ParseState st2 = under_test( actual_result, second_byte );
+            packet::remaining_length::ParseState st3 = under_test( actual_result, third_byte );
+            packet::remaining_length::ParseState st4 = under_test( actual_result, fourth_byte );
 
             THEN( "it should on each call receive correct parse_state and in the end the correct remaining length" )
             {
-                REQUIRE( st1 == packet::remaining_length::INCOMPLETE );
-                REQUIRE( st2 == packet::remaining_length::INCOMPLETE );
-                REQUIRE( st3 == packet::remaining_length::INCOMPLETE );
-                REQUIRE( st4 == packet::remaining_length::COMPLETE );
+                REQUIRE( st1 == packet::remaining_length::ParseState::INCOMPLETE );
+                REQUIRE( st2 == packet::remaining_length::ParseState::INCOMPLETE );
+                REQUIRE( st3 == packet::remaining_length::ParseState::INCOMPLETE );
+                REQUIRE( st4 == packet::remaining_length::ParseState::COMPLETE );
                 REQUIRE( actual_result == expected_result );
             }
         }
@@ -315,15 +315,15 @@ SCENARIO( "remaining_length functor", "[packets]" )
         WHEN( "a caller passes in all bytes" )
         {
             uint32_t actual_result = -1;
-            packet::remaining_length::parse_state st1 = under_test( actual_result, first_byte );
-            packet::remaining_length::parse_state st2 = under_test( actual_result, second_byte );
-            packet::remaining_length::parse_state st3 = under_test( actual_result, third_byte );
+            packet::remaining_length::ParseState st1 = under_test( actual_result, first_byte );
+            packet::remaining_length::ParseState st2 = under_test( actual_result, second_byte );
+            packet::remaining_length::ParseState st3 = under_test( actual_result, third_byte );
 
             THEN( "it should on the last call receive parse_state OUT_OF_RANGE" )
             {
-                REQUIRE( st1 == packet::remaining_length::INCOMPLETE );
-                REQUIRE( st2 == packet::remaining_length::INCOMPLETE );
-                REQUIRE( st3 == packet::remaining_length::INCOMPLETE );
+                REQUIRE( st1 == packet::remaining_length::ParseState::INCOMPLETE );
+                REQUIRE( st2 == packet::remaining_length::ParseState::INCOMPLETE );
+                REQUIRE( st3 == packet::remaining_length::ParseState::INCOMPLETE );
                 REQUIRE_THROWS_AS( under_test( actual_result, fourth_byte ), std::range_error );
             }
         }
@@ -351,18 +351,18 @@ SCENARIO( "remaining_length functor", "[packets]" )
             under_test.reset( );
 
             uint32_t actual_result = -1;
-            packet::remaining_length::parse_state st1 = under_test( actual_result, first_byte );
-            packet::remaining_length::parse_state st2 = under_test( actual_result, second_byte );
-            packet::remaining_length::parse_state st3 = under_test( actual_result, third_byte );
-            packet::remaining_length::parse_state st4 = under_test( actual_result, fourth_byte );
+            packet::remaining_length::ParseState st1 = under_test( actual_result, first_byte );
+            packet::remaining_length::ParseState st2 = under_test( actual_result, second_byte );
+            packet::remaining_length::ParseState st3 = under_test( actual_result, third_byte );
+            packet::remaining_length::ParseState st4 = under_test( actual_result, fourth_byte );
 
             THEN( "it should still receive a correct result" )
             {
 
-                REQUIRE( st1 == packet::remaining_length::INCOMPLETE );
-                REQUIRE( st2 == packet::remaining_length::INCOMPLETE );
-                REQUIRE( st3 == packet::remaining_length::INCOMPLETE );
-                REQUIRE( st4 == packet::remaining_length::COMPLETE );
+                REQUIRE( st1 == packet::remaining_length::ParseState::INCOMPLETE );
+                REQUIRE( st2 == packet::remaining_length::ParseState::INCOMPLETE );
+                REQUIRE( st3 == packet::remaining_length::ParseState::INCOMPLETE );
+                REQUIRE( st4 == packet::remaining_length::ParseState::COMPLETE );
                 REQUIRE( actual_result == expected_result );
             }
         }

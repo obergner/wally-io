@@ -94,12 +94,12 @@ SCENARIO( "connect_packet_parser", "[parser]" )
                 const mqtt_packet& raw_result = *result;
                 const connect& connect_packet = static_cast<const connect&>( raw_result );
 
-                CHECK( connect_packet.header( ).type( ) == packet::CONNECT );
+                CHECK( connect_packet.header( ).type( ) == packet::Type::CONNECT );
 
                 CHECK( connect_packet.connect_header( ).contains_last_will( ) );
-                CHECK( connect_packet.connect_header( ).last_will_qos( ) == packet::AT_LEAST_ONCE );
+                CHECK( connect_packet.connect_header( ).last_will_qos( ) == packet::QoS::AT_LEAST_ONCE );
                 CHECK( !connect_packet.connect_header( ).retain_last_will( ) );
-                CHECK( connect_packet.connect_header( ).protocol_level( ) == packet::LEVEL4 );
+                CHECK( connect_packet.connect_header( ).protocol_level( ) == packet::ProtocolLevel::LEVEL4 );
                 CHECK( connect_packet.connect_header( ).protocol_name( ) == "MQTT" );
                 CHECK( connect_packet.connect_header( ).clean_session( ) );
                 CHECK( connect_packet.connect_header( ).has_username( ) );

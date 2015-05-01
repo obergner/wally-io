@@ -39,14 +39,14 @@ namespace io_wally
                 return prot_name_;
             }
 
-            const packet::protocol_level protocol_level( ) const
+            const packet::ProtocolLevel protocol_level( ) const
             {
                 switch ( prot_level_ )
                 {
                     case 0x04:
-                        return packet::LEVEL4;
+                        return packet::ProtocolLevel::LEVEL4;
                     default:
-                        return packet::UNSUPPORTED;
+                        return packet::ProtocolLevel::UNSUPPORTED;
                 }
             }
 
@@ -65,23 +65,23 @@ namespace io_wally
                 return ( con_flags_ & 0x20 ) == 0x20;
             }
 
-            const packet::qos last_will_qos( ) const
+            const packet::QoS last_will_qos( ) const
             {
                 const uint8_t qos_bits = ( con_flags_ & 0x18 ) >> 3;
-                packet::qos res;
+                packet::QoS res;
                 switch ( qos_bits )
                 {
                     case 0x00:
-                        res = packet::AT_MOST_ONCE;
+                        res = packet::QoS::AT_MOST_ONCE;
                         break;
                     case 0x01:
-                        res = packet::AT_LEAST_ONCE;
+                        res = packet::QoS::AT_LEAST_ONCE;
                         break;
                     case 0x02:
-                        res = packet::EXACTLY_ONCE;
+                        res = packet::QoS::EXACTLY_ONCE;
                         break;
                     default:
-                        res = packet::RESERVED;
+                        res = packet::QoS::RESERVED;
                         break;
                 }
                 return res;
@@ -114,13 +114,13 @@ namespace io_wally
             std::string will_qos_string;
             switch ( connect_header.last_will_qos( ) )
             {
-                case packet::AT_MOST_ONCE:
+                case packet::QoS::AT_MOST_ONCE:
                     will_qos_string = "At most once";
                     break;
-                case packet::AT_LEAST_ONCE:
+                case packet::QoS::AT_LEAST_ONCE:
                     will_qos_string = "At least once";
                     break;
-                case packet::EXACTLY_ONCE:
+                case packet::QoS::EXACTLY_ONCE:
                     will_qos_string = "Exactly once";
                     break;
                 default:

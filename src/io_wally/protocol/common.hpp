@@ -26,15 +26,15 @@ namespace io_wally
 
             const uint8_t CONTROL_PACKET_TYPE_MASK = 0xF0;
 
-            typedef enum : int
+            enum class QoS : int
             {
                 AT_MOST_ONCE,
                 AT_LEAST_ONCE,
                 EXACTLY_ONCE,
                 RESERVED
-            } qos;
+            };
 
-            typedef enum : int
+            enum class Type : int
             {
                 RESERVED1 = 0,
                 CONNECT = 1,
@@ -52,13 +52,13 @@ namespace io_wally
                 PINGRESP,
                 DISCONNECT,
                 RESERVED2
-            } type;
+            };
 
-            typedef enum : int
+            enum class ProtocolLevel : int
             {
                 LEVEL4 = 0x04,
                 UNSUPPORTED
-            } protocol_level;
+            };
 
             struct header_flags
             {
@@ -78,23 +78,23 @@ namespace io_wally
                     return ( flags_ & 0x01 ) == 0x01;
                 }
 
-                const packet::qos qos( ) const
+                const packet::QoS qos( ) const
                 {
                     const uint8_t qos_bits = ( flags_ & 0x06 ) >> 1;
-                    packet::qos res;
+                    packet::QoS res;
                     switch ( qos_bits )
                     {
                         case 0x00:
-                            res = packet::AT_MOST_ONCE;
+                            res = packet::QoS::AT_MOST_ONCE;
                             break;
                         case 0x01:
-                            res = packet::AT_LEAST_ONCE;
+                            res = packet::QoS::AT_LEAST_ONCE;
                             break;
                         case 0x02:
-                            res = packet::EXACTLY_ONCE;
+                            res = packet::QoS::EXACTLY_ONCE;
                             break;
                         default:
-                            res = packet::RESERVED;
+                            res = packet::QoS::RESERVED;
                             break;
                     }
                     return res;
@@ -109,13 +109,13 @@ namespace io_wally
                 std::string qos_string;
                 switch ( header_flags.qos( ) )
                 {
-                    case AT_MOST_ONCE:
+                    case packet::QoS::AT_MOST_ONCE:
                         qos_string = "At most once";
                         break;
-                    case AT_LEAST_ONCE:
+                    case packet::QoS::AT_LEAST_ONCE:
                         qos_string = "At least once";
                         break;
-                    case EXACTLY_ONCE:
+                    case packet::QoS::EXACTLY_ONCE:
                         qos_string = "Exactly once";
                         break;
                     default:
@@ -138,59 +138,59 @@ namespace io_wally
                     return;
                 }
 
-                const packet::type type( ) const
+                const packet::Type type( ) const
                 {
                     const uint8_t type_bits = ( control_packet_type_and_flags_ & CONTROL_PACKET_TYPE_MASK ) >> 4;
-                    packet::type res;
+                    packet::Type res;
                     switch ( type_bits )
                     {
                         case 0x00:
-                            res = packet::RESERVED1;
+                            res = packet::Type::RESERVED1;
                             break;
                         case 0x01:
-                            res = packet::CONNECT;
+                            res = packet::Type::CONNECT;
                             break;
                         case 0x02:
-                            res = packet::CONNACK;
+                            res = packet::Type::CONNACK;
                             break;
                         case 0x03:
-                            res = packet::PUBLISH;
+                            res = packet::Type::PUBLISH;
                             break;
                         case 0x04:
-                            res = packet::PUBACK;
+                            res = packet::Type::PUBACK;
                             break;
                         case 0x05:
-                            res = packet::PUBREC;
+                            res = packet::Type::PUBREC;
                             break;
                         case 0x06:
-                            res = packet::PUBREL;
+                            res = packet::Type::PUBREL;
                             break;
                         case 0x07:
-                            res = packet::PUBCOMP;
+                            res = packet::Type::PUBCOMP;
                             break;
                         case 0x08:
-                            res = packet::SUBSCRIBE;
+                            res = packet::Type::SUBSCRIBE;
                             break;
                         case 0x09:
-                            res = packet::SUBACK;
+                            res = packet::Type::SUBACK;
                             break;
                         case 0x0A:
-                            res = packet::UNSUBSCRIBE;
+                            res = packet::Type::UNSUBSCRIBE;
                             break;
                         case 0x0B:
-                            res = packet::UNSUBACK;
+                            res = packet::Type::UNSUBACK;
                             break;
                         case 0x0C:
-                            res = packet::PINGREQ;
+                            res = packet::Type::PINGREQ;
                             break;
                         case 0x0D:
-                            res = packet::PINGRESP;
+                            res = packet::Type::PINGRESP;
                             break;
                         case 0x0E:
-                            res = packet::DISCONNECT;
+                            res = packet::Type::DISCONNECT;
                             break;
                         default:
-                            res = packet::RESERVED2;
+                            res = packet::Type::RESERVED2;
                             break;
                     }
                     return res;
@@ -216,46 +216,46 @@ namespace io_wally
                 std::string type_string;
                 switch ( header.type( ) )
                 {
-                    case packet::RESERVED1:
+                    case packet::Type::RESERVED1:
                         type_string = "Reserved1";
                         break;
-                    case packet::CONNECT:
+                    case packet::Type::CONNECT:
                         type_string = "Connect";
                         break;
-                    case packet::CONNACK:
+                    case packet::Type::CONNACK:
                         type_string = "Connack";
                         break;
-                    case packet::PUBLISH:
+                    case packet::Type::PUBLISH:
                         type_string = "Publish";
                         break;
-                    case packet::PUBACK:
+                    case packet::Type::PUBACK:
                         type_string = "Puback";
                         break;
-                    case packet::PUBREC:
+                    case packet::Type::PUBREC:
                         type_string = "Pubrec";
                         break;
-                    case packet::PUBCOMP:
+                    case packet::Type::PUBCOMP:
                         type_string = "Pubcomp";
                         break;
-                    case packet::SUBSCRIBE:
+                    case packet::Type::SUBSCRIBE:
                         type_string = "Subscribe";
                         break;
-                    case packet::SUBACK:
+                    case packet::Type::SUBACK:
                         type_string = "Suback";
                         break;
-                    case packet::UNSUBSCRIBE:
+                    case packet::Type::UNSUBSCRIBE:
                         type_string = "Unsubscribe";
                         break;
-                    case packet::UNSUBACK:
+                    case packet::Type::UNSUBACK:
                         type_string = "Unsuback";
                         break;
-                    case packet::PINGREQ:
+                    case packet::Type::PINGREQ:
                         type_string = "Pingreq";
                         break;
-                    case packet::PINGRESP:
+                    case packet::Type::PINGRESP:
                         type_string = "Pingresp";
                         break;
-                    case packet::DISCONNECT:
+                    case packet::Type::DISCONNECT:
                         type_string = "Disconnect";
                         break;
                     default:
@@ -270,14 +270,15 @@ namespace io_wally
 
             /// \brief Stateful functor for parsing the 'remaining lenght' field in an MQTT fixed header.
             ///
+            /// \todo Consider moving this class to namespace \c wally_io::protocol::parser
             class remaining_length
             {
                public:
-                typedef enum : int
+                enum class ParseState : int
                 {
                     INCOMPLETE = 0,
                     COMPLETE
-                } parse_state;
+                };
 
                 remaining_length( )
                 {
@@ -297,16 +298,17 @@ namespace io_wally
                 /// \param next_byte Next byte in sequence of bytes encoding an MQTT packet's remaining length.
                 /// \return Current parse state, either INCOMPLETE or COMPLETE.
                 /// \throws std::range_error If provided sequence of bytes does not encode a valid 'remaining length'.
-                parse_state operator( )( uint32_t& result, const uint8_t next_byte )
+                ParseState operator( )( uint32_t& result, const uint8_t next_byte )
                 {
                     current_ += ( next_byte & ~MSB_MASK ) * multiplier_;
-                    parse_state pst = ( next_byte & MSB_MASK ) == MSB_MASK ? INCOMPLETE : COMPLETE;
-                    if ( pst == INCOMPLETE )
+                    ParseState pst =
+                        ( next_byte & MSB_MASK ) == MSB_MASK ? ParseState::INCOMPLETE : ParseState::COMPLETE;
+                    if ( pst == ParseState::INCOMPLETE )
                         multiplier_ *= 128;
 
                     if ( multiplier_ > MAX_MULTIPLIER )
                         throw std::range_error( "supplied byte sequence does not encode a valid remaining length" );
-                    if ( pst == COMPLETE )
+                    if ( pst == ParseState::COMPLETE )
                         result = current_;
 
                     return pst;

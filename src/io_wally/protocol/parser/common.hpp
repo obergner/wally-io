@@ -18,7 +18,7 @@ namespace io_wally
     {
         namespace parser
         {
-            enum parse_state : int
+            enum class ParseState : int
             {
                 INCOMPLETE = 0,
                 COMPLETE
@@ -31,7 +31,7 @@ namespace io_wally
                 struct result
                 {
                    public:
-                    result( const enum parse_state parse_state )
+                    result( const ParseState parse_state )
                         : parse_state_( parse_state ), parsed_header_( boost::none ), consumed_until_( boost::none )
                     {
                         return;
@@ -40,21 +40,21 @@ namespace io_wally
                     result( const uint8_t type_and_flags,
                             const uint32_t remaining_length,
                             const InputIterator consumed_until )
-                        : parse_state_( COMPLETE ),
+                        : parse_state_( ParseState::COMPLETE ),
                           parsed_header_( packet::header( type_and_flags, remaining_length ) ),
                           consumed_until_( consumed_until )
                     {
                         return;
                     }
 
-                    const enum parse_state parse_state( ) const
+                    const ParseState parse_state( ) const
                     {
                         return parse_state_;
                     }
 
                     const bool is_parsing_complete( ) const
                     {
-                        return parse_state_ == COMPLETE;
+                        return parse_state_ == ParseState::COMPLETE;
                     }
 
                     const packet::header parsed_header( ) const
@@ -68,7 +68,7 @@ namespace io_wally
                     }
 
                    private:
-                    const enum parse_state parse_state_;
+                    const ParseState parse_state_;
                     const boost::optional<packet::header> parsed_header_;
                     const boost::optional<InputIterator> consumed_until_;
                 };
@@ -81,8 +81,9 @@ namespace io_wally
                 const result<InputIterator> parse( InputIterator buf_start, const InputIterator buf_end )
                 {
                     uint32_t rem_len = -1;
-                    packet::remaining_length::parse_state rem_len_pst = packet::remaining_length::INCOMPLETE;
-                    while ( ( buf_start != buf_end ) && ( rem_len_pst == packet::remaining_length::INCOMPLETE ) )
+                    packet::remaining_length::ParseState rem_len_pst = packet::remaining_length::ParseState::INCOMPLETE;
+                    while ( ( buf_start != buf_end ) &&
+                            ( rem_len_pst == packet::remaining_length::ParseState::INCOMPLETE ) )
                     {
                         if ( type_and_flags_ == -1 )
                         {
@@ -94,8 +95,8 @@ namespace io_wally
                         }
                     }
 
-                    if ( rem_len_pst == packet::remaining_length::INCOMPLETE )
-                        return result<InputIterator>( INCOMPLETE );
+                    if ( rem_len_pst == packet::remaining_length::ParseState::INCOMPLETE )
+                        return result<InputIterator>( ParseState::INCOMPLETE );
 
                     return result<InputIterator>( type_and_flags_, rem_len, buf_start );
                 }

@@ -55,11 +55,11 @@ SCENARIO( "connect_header", "[packets]" )
 
         WHEN( "a caller asks for the protocol level" )
         {
-            const packet::protocol_level level = under_test.protocol_level( );
+            const packet::ProtocolLevel level = under_test.protocol_level( );
 
             THEN( "it should see level 4" )
             {
-                REQUIRE( level == packet::LEVEL4 );
+                REQUIRE( level == packet::ProtocolLevel::LEVEL4 );
             }
         }
     }
@@ -74,11 +74,11 @@ SCENARIO( "connect_header", "[packets]" )
 
         WHEN( "a caller asks for the protocol level" )
         {
-            const packet::protocol_level level = under_test.protocol_level( );
+            const packet::ProtocolLevel level = under_test.protocol_level( );
 
             THEN( "it should see level UNSUPPORTED" )
             {
-                REQUIRE( level == packet::UNSUPPORTED );
+                REQUIRE( level == packet::ProtocolLevel::UNSUPPORTED );
             }
         }
     }
@@ -207,11 +207,11 @@ SCENARIO( "connect_header", "[packets]" )
 
         WHEN( "a caller asks for the last will quality of service" )
         {
-            const packet::qos qos = under_test.last_will_qos( );
+            const packet::QoS qos = under_test.last_will_qos( );
 
             THEN( "it should receive answer 'EXACTLY_ONCE'" )
             {
-                REQUIRE( qos == packet::EXACTLY_ONCE );
+                REQUIRE( qos == packet::QoS::EXACTLY_ONCE );
             }
         }
     }
@@ -226,11 +226,11 @@ SCENARIO( "connect_header", "[packets]" )
 
         WHEN( "a caller asks for the last will quality of service" )
         {
-            const packet::qos qos = under_test.last_will_qos( );
+            const packet::QoS qos = under_test.last_will_qos( );
 
             THEN( "it should receive answer 'AT_LEAST_ONCE'" )
             {
-                REQUIRE( qos == packet::AT_LEAST_ONCE );
+                REQUIRE( qos == packet::QoS::AT_LEAST_ONCE );
             }
         }
     }
@@ -245,11 +245,11 @@ SCENARIO( "connect_header", "[packets]" )
 
         WHEN( "a caller asks for the last will quality of service" )
         {
-            const packet::qos qos = under_test.last_will_qos( );
+            const packet::QoS qos = under_test.last_will_qos( );
 
             THEN( "it should receive answer 'AT_MOST_ONCE'" )
             {
-                REQUIRE( qos == packet::AT_MOST_ONCE );
+                REQUIRE( qos == packet::QoS::AT_MOST_ONCE );
             }
         }
     }
