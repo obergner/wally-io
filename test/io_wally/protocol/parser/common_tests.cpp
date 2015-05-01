@@ -183,7 +183,7 @@ SCENARIO( "parsing a 16 bit unsigned integer", "[packets]" )
                 REQUIRE( parsed_int == expected_result );
             }
 
-            THEN( "the client should receive a correctly updated iterator" )
+            AND_THEN( "the client should receive a correctly updated iterator" )
             {
                 REQUIRE( updated_iterator == buffer.begin( ) + 2 );
             }
@@ -240,7 +240,7 @@ SCENARIO( "parsing a UTF-8 string", "[packets]" )
                 REQUIRE( std::string( parsed_string ) == "" );
             }
 
-            THEN( "the client should receive a correctly updated buffer iterator" )
+            AND_THEN( "the client should receive a correctly updated buffer iterator" )
             {
                 REQUIRE( new_buffer_start == buffer.begin( ) + 2 );
             }
