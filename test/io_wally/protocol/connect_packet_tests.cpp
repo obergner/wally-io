@@ -330,3 +330,64 @@ SCENARIO( "connect_header", "[packets]" )
         }
     }
 }
+
+SCENARIO( "connect_payload", "[packets]" )
+{
+    GIVEN( "a connect_payload with all members initialized in its constructor" )
+    {
+        const char* const client_id = "client id";
+        const char* const will_topic = "will topic";
+        const char* const will_message = "will message";
+        const char* const username = "username";
+        const char* const password = "password";
+
+        const connect_payload under_test( client_id, will_topic, will_message, username, password );
+
+        WHEN( "a caller calls accessors for all fields" )
+        {
+            const std::string client_id_ret = under_test.client_id( );
+            const optional<const std::string> will_topic_ret = under_test.will_topic( );
+            const optional<const std::string> will_message_ret = under_test.will_message( );
+            const optional<const std::string> username_ret = under_test.username( );
+            const optional<const std::string> password_ret = under_test.password( );
+
+            THEN( "it should see the values passed in the constructor" )
+            {
+                REQUIRE( client_id_ret == client_id );
+                REQUIRE( *will_topic_ret == will_topic );
+                REQUIRE( *will_message_ret == will_message );
+                REQUIRE( *username_ret == username );
+                REQUIRE( *password_ret == password );
+            }
+        }
+    }
+
+    GIVEN( "a connect_payload with all optional members uninitialized in its constructor" )
+    {
+        const char* const client_id = "client id";
+        const char* const will_topic = nullptr;
+        const char* const will_message = nullptr;
+        const char* const username = nullptr;
+        const char* const password = nullptr;
+
+        const connect_payload under_test( client_id, will_topic, will_message, username, password );
+
+        WHEN( "a caller calls accessors for all fields" )
+        {
+            const std::string client_id_ret = under_test.client_id( );
+            const optional<const std::string> will_topic_ret = under_test.will_topic( );
+            const optional<const std::string> will_message_ret = under_test.will_message( );
+            const optional<const std::string> username_ret = under_test.username( );
+            const optional<const std::string> password_ret = under_test.password( );
+
+            THEN( "it should see the values passed in the constructor" )
+            {
+                REQUIRE( client_id_ret == client_id );
+                REQUIRE( !will_topic_ret );
+                REQUIRE( !will_message_ret );
+                REQUIRE( !username_ret );
+                REQUIRE( !password_ret );
+            }
+        }
+    }
+}

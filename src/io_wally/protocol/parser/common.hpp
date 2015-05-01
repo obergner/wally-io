@@ -112,11 +112,48 @@ namespace io_wally
                 packet::remaining_length remaining_length_;
             };
 
-            /// \brief Parse an UTF-8 string in the supplied buffer.
+            /// \brief Parse a 16 bit wide unsigned int in the supplied buffer.
             ///
-            /// Start parsing at 'string_start', interpreting the supplied buffer as an MQTT UTF-8 string. Stop
-            /// parsing when reaching the end of the string to parse, or 'buf_end', whichever comes first. Return the
-            /// parsed string, or throw std::range_error if input is malformed.
+            /// Start parsing at \c uint16_start, interpreting the supplied buffer as a 16 bit unsigned int in big
+            /// endian byte order, as mandated by MQTT. Stop parsing when reaching the end of unsigned int to parse,
+            /// or \c buf_end, whichever comes first. Return the parsed unsigned int, or throw \c std::range_error if
+            /// input is malformed.
+            ///
+            /// \note           In MQTT 3.1.1 integers are encoded in big endian byte order.
+            ///
+            /// \param uint16_start     Start of buffer to parse.
+            /// \param buf_end          End of entire packet buffer, NOT end of uint16_t buffer (although that would
+            ///                         work, too). Needed for range checks.
+            /// \param parsed_uint16    A pointer to the parsed integer (out parameter), will never be \c nullptr.
+            /// \return                 The updated InputIterator \c uint16_start, thus telling the caller where to
+            ///                         continue parsing.
+            /// \throws std::range_error        If parsing fails due to malformed input.
+            /// \throws std::bad_alloc          If failing to allocate heap memory for \c parsed_string
+            ///
+            /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718016
+            template <typename InputIterator>
+            inline InputIterator parse_uint16( InputIterator uint16_start,
+                                               const InputIterator buf_end,
+                                               uint16_t* const parsed_uint16 )
+            {
+                // We need at least two bytes for encoding a uint16_t
+                if ( uint16_start + 2 > buf_end )
+                {
+                    throw std::range_error( "Encoding a 16 bit unsigned int needs at least two bytes" );
+                }
+
+                const uint8_t msb = *uint16_start++;
+                const uint8_t lsb = *uint16_start++;
+                *parsed_uint16 = ( msb << 8 ) + lsb;
+
+                return uint16_start;
+            }
+
+            /// \brief Parse a UTF-8 string in the supplied buffer.
+            ///
+            /// Start parsing at \c string_start, interpreting the supplied buffer as an MQTT UTF-8 string. Stop
+            /// parsing when reaching the end of the string to parse, or \c buf_end, whichever comes first. Return the
+            /// parsed string, or throw \c std::range_error if input is malformed.
             ///
             /// \note           In MQTT 3.1.1 strings are encoded in UTF-8. They are preceded by two bytes in big
             ///                 endian order that encode string length.
@@ -125,13 +162,17 @@ namespace io_wally
             ///                         encoding string length.
             /// \param buf_end          End of entire packet buffer, NOT end of string buffer (although that would
             ///                         work, too). Needed for range checks.
-            /// \return                 The parsed string.
-            /// \throws std::ranger_error       If parsing fails due to malformed input.
+            /// \param parsed_string    A pointer to the parsed string (out parameter), will never be \c nullptr.
+            /// \return                 The update InputIterator \c string_start, thus telling the caller where to
+            ///                         continue parsing.
+            /// \throws std::range_error        If parsing fails due to malformed input.
+            /// \throws std::bad_alloc          If failing to allocate heap memory for \c parsed_string
             ///
             /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718016
             template <typename InputIterator>
-            inline std::unique_ptr<const char> parse_utf8_string( InputIterator string_start,
-                                                                  const InputIterator buf_end )
+            inline InputIterator parse_utf8_string( InputIterator string_start,
+                                                    const InputIterator buf_end,
+                                                    char** parsed_string )
             {
                 // We need at least two bytes for encoding string length
                 if ( string_start + 2 > buf_end )
@@ -139,52 +180,51 @@ namespace io_wally
                     throw std::range_error( "Encoding an UTF-8 string needs at least two bytes" );
                 }
 
-                const uint8_t msb = *string_start++;
-                const uint8_t lsb = *string_start++;
-                const uint16_t string_length = ( msb << 8 ) + lsb;
+                uint16_t string_length = -1;
+                string_start = parse_uint16( string_start, buf_end, &string_length );
                 // Do we have enough room for our string?
                 if ( string_start + string_length > buf_end )
                 {
                     throw std::range_error( "Buffer truncated: cannot decode UTF-8 string" );
                 }
 
-                char* parsed_string = (char*)malloc( string_length );
-                memcpy( parsed_string, string_start, string_length + 1 );
-                parsed_string[string_length] = '\0';
+                *parsed_string = new char[string_length + 1];
+                memcpy( *parsed_string, string_start, string_length + 1 );
+                ( *parsed_string )[string_length] = '\0';
 
                 // Update buffer start iterator
                 string_start += string_length;
 
-                return std::unique_ptr<const char>( parsed_string );
+                return string_start;
             }
 
             /// \brief Interface for parsers capable of decoding a single type of MQTT packets.
             ///
-            /// Defines and interface for parsers/decoders that take header_flags and a buffer containing an MQTT
-            /// packet's on the wire representation and return a decoded mqtt_packet.
+            /// Defines and interface for parsers/decoders that take \c header_flags and a buffer containing an MQTT
+            /// packet's on the wire representation and return a decoded \c mqtt_packet.
             ///
-            /// Note that the concrete type of mqtt_packet to decode is already known when an implementation of this
+            /// Note that the concrete type of \c mqtt_packet to decode is already known when an implementation of this
             /// interface is called.
             ///
-            /// Note further that a concrete packet_body_parser implementation handles exactly one concrete
-            /// mqtt_packet type (CONNECT, CONNACK, ...).
+            /// Note further that a concrete \c packet_body_parser implementation handles exactly one concrete
+            /// \c mqtt_packet type (CONNECT, CONNACK, ...).
             template <typename InputIterator>
             class packet_body_parser
             {
                public:
                 /// \brief Parse the supplied buffer into an MQTT packet.
                 ///
-                /// From the supplied 'header_flags' deduce the type of 'mqtt_packet' to parse. Start parsing at
-                /// 'buf_start'. Parse until 'buf_end'. Return the parsed 'mqtt_packet', transferring ownership to the
-                /// caller. If parsing fails throw a std::range_error.
+                /// From the supplied \c header_flags deduce the type of 'mqtt_packet' to parse. Start parsing at
+                /// \c buf_start. Parse until \c buf_end. Return the parsed \c mqtt_packet, transferring ownership to
+                /// the caller. If parsing fails throw a \c std::range_error.
                 ///
                 /// \param header               Header of MQTT packet to parse. Contains the type of MQTT packet.
                 /// \param buf_start            Start of buffer containing the serialized MQTT packet. MUST point to
                 ///                             the start of the packet body, i.e. the variable header (if present) or
                 ///                             the payload.
                 /// \param buf_end              End of buffer containing the serialized MQTT packet.
-                /// \return                     The parsed 'mqtt_packet', i.e. an instance of a concrete subclass of
-                ///                             'mqtt_packet'. Note that the caller assumes ownership.
+                /// \return                     The parsed \c mqtt_packet, i.e. an instance of a concrete subclass of
+                ///                             \c mqtt_packe'. Note that the caller assumes ownership.
                 /// \throws std::range_error    If encoding is malformed, e.g. remaining length has been incorrectly
                 ///                             encoded.
                 virtual std::unique_ptr<const mqtt_packet> parse( const packet::header& header,
@@ -195,7 +235,7 @@ namespace io_wally
             /// \brief Parser for MQTT packets of arbitrary type.
             ///
             /// Takes a buffer containing an MQTT packet's on the wire representation, decodes its header and then
-            /// delegates to an appropriate 'packet_body_parser' implementation.
+            /// delegates to an appropriate \c packet_body_parser implementation.
             template <typename InputIterator>
             class mqtt_packet_parser
             {
@@ -208,15 +248,15 @@ namespace io_wally
 
                 /// \brief Parse the supplied buffer into an MQTT packet.
                 ///
-                /// Start parsing at 'buf_start', decoding this packet's 'fixed header'. Continue parsing until
-                /// 'buf_end'. Return the parsed 'mqtt_packet', transferring ownership to the caller. If parsing fails
-                /// throw a std::range_error.
+                /// Start parsing at \c buf_start, decoding this packet's \c fixed header. Continue parsing until
+                /// \c buf_end. Return the parsed \c mqtt_packet, transferring ownership to the caller. If parsing fails
+                /// throw a \c std::range_error.
                 ///
                 /// \param buf_start    Start of buffer containing the serialized MQTT packet. MUST point to the start
                 ///                     of the entire packet.
                 /// \param buf_end      End of buffer containing the serialized MQTT packet.
-                /// \return             The parsed 'mqtt_packet', i.e. an instance of a concrete subclass of
-                ///                     'mqtt_packet'. Note that the caller assumes ownership.
+                /// \return             The parsed \c mqtt_packet, i.e. an instance of a concrete subclass of
+                ///                     \c mqtt_packet. Note that the caller assumes ownership.
                 /// \throws std::range_error    If encoding is malformed, e.g. remaining length has been incorrectly
                 ///                             encoded.
                 std::unique_ptr<const mqtt_packet> parse( const packet::header& header,
@@ -227,7 +267,7 @@ namespace io_wally
                     return std::unique_ptr<const mqtt_packet>( new mqtt_packet( header ) );
                 }
 
-                /// \brief Reset this 'mqtt_packet_parser's' internal state, preparing it for reuse.
+                /// \brief Reset this \c mqtt_packet_parser's internal state, preparing it for reuse.
                 void reset( )
                 {
                     remaining_length_.reset( );

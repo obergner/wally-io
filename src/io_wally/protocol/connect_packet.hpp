@@ -4,10 +4,12 @@
 #include <memory>
 
 #include <boost/cstdint.hpp>
+#include <boost/optional.hpp>
 
 #include "io_wally/protocol/common.hpp"
 
 using boost::uint8_t;
+using boost::optional;
 
 namespace io_wally
 {
@@ -145,52 +147,57 @@ namespace io_wally
                              const char* const username,
                              const char* const password )
                 : client_id_( client_id ),
-                  will_topic_( will_topic ),
-                  will_message_( will_message ),
-                  username_( username ),
-                  password_( password )
+                  will_topic_( will_topic ? optional<const std::string>( std::string( will_topic ) )
+                                          : optional<const std::string>( ) ),
+                  will_message_( will_message ? optional<const std::string>( std::string( will_message ) )
+                                              : optional<const std::string>( ) ),
+                  username_( username ? optional<const std::string>( std::string( username ) )
+                                      : optional<const std::string>( ) ),
+                  password_( password ? optional<const std::string>( std::string( password ) )
+                                      : optional<const std::string>( ) )
             {
+                return;
             }
 
-            const char* const client_id( ) const
+            const std::string& client_id( ) const
             {
-                return client_id_.get( );
+                return client_id_;
             }
 
-            const char* const will_topic( ) const
+            const optional<const std::string>& will_topic( ) const
             {
-                return will_topic_.get( );
+                return will_topic_;
             }
 
-            const char* const will_message( ) const
+            const optional<const std::string>& will_message( ) const
             {
-                return will_message_.get( );
+                return will_message_;
             }
 
-            const char* const username( ) const
+            const optional<const std::string>& username( ) const
             {
-                return username_.get( );
+                return username_;
             }
 
-            const char* const password( ) const
+            const optional<const std::string>& password( ) const
             {
-                return password_.get( );
+                return password_;
             }
 
            private:
-            std::unique_ptr<const char> client_id_;     // mandatory
-            std::unique_ptr<const char> will_topic_;    // MUST be present iff will flag is set
-            std::unique_ptr<const char> will_message_;  // MUST be present iff will flag is set
-            std::unique_ptr<const char> username_;      // MUST be present iff username flag is set
-            std::unique_ptr<const char> password_;      // MUST be present iff password flag is set
+            const std::string client_id_;                     // mandatory
+            const optional<const std::string> will_topic_;    // MUST be present iff will flag is set
+            const optional<const std::string> will_message_;  // MUST be present iff will flag is set
+            const optional<const std::string> username_;      // MUST be present iff username flag is set
+            const optional<const std::string> password_;      // MUST be present iff password flag is set
         };
 
         inline std::ostream& operator<<( std::ostream& output, connect_payload const& connect_payload )
         {
             output << "connect_payload[client_id:" << connect_payload.client_id( )
-                   << "|will_topic:" << ( connect_payload.will_topic( ) ? connect_payload.will_topic( ) : "[NULL]" )
+                   << "|will_topic:" << ( connect_payload.will_topic( ) ? *connect_payload.will_topic( ) : "[NULL]" )
                    << "|will_message:" << ( connect_payload.will_message( ) ? "[MESSAGE]" : "[NULL]" )
-                   << "|username:" << ( connect_payload.username( ) ? connect_payload.username( ) : "[NULL]" )
+                   << "|username:" << ( connect_payload.username( ) ? *connect_payload.username( ) : "[NULL]" )
                    << "|password:" << ( connect_payload.password( ) ? "[PROTECTED]" : "[NULL]" ) << "]";
 
             return output;
