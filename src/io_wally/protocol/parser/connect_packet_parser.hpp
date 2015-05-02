@@ -25,7 +25,7 @@ namespace io_wally
                 ///
                 virtual std::unique_ptr<const mqtt_packet> parse( const packet::header& header,
                                                                   InputIterator buf_start,
-                                                                  const InputIterator buf_end )
+                                                                  const InputIterator buf_end ) const
                 {
                     // TODO:: consider removing this assert in release build
                     assert( header.type( ) == packet::Type::CONNECT );
@@ -91,6 +91,7 @@ namespace io_wally
                     return result;
                 }
             };
-        }
-    }
-}
+
+        }  // namespace parser
+    }      // namespace protocol
+}  // namespace io_wally

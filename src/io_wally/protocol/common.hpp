@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <stdexcept>
 
 #include <boost/cstdint.hpp>
 

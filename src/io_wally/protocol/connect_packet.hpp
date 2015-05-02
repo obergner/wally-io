@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <memory>
 
 #include <boost/cstdint.hpp>
 #include <boost/optional.hpp>
