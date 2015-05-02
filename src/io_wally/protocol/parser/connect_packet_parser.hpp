@@ -30,6 +30,12 @@ namespace io_wally
                     // TODO:: consider removing this assert in release build
                     assert( header.type( ) == packet::Type::CONNECT );
 
+                    // Check that size of supplied buffer corresponds to remaining length as advertised in header
+                    if ( ( buf_end - buf_start ) != header.remaining_length( ) )
+                        throw error::malformed_mqtt_packet(
+                            "Size of supplied buffer does not correspond to "
+                            "remaining length as advertised in header" );
+
                     InputIterator new_buf_start = buf_start;
 
                     // Parse variable header connect_header
@@ -73,8 +79,9 @@ namespace io_wally
                         new_buf_start = parse_utf8_string( new_buf_start, buf_end, &password );
                     }
 
-                    // TODO: consider removing this assert in release build
-                    assert( new_buf_start == buf_end );
+                    if ( new_buf_start != buf_end )
+                        throw error::malformed_mqtt_packet(
+                            "Combined size of fields in buffers does not add up to advertised remaining length" );
 
                     struct connect_payload connect_pyl( client_id, last_will_topic, last_will_msg, username, password );
 
