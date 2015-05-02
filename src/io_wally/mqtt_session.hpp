@@ -21,14 +21,15 @@ namespace io_wally
        public:
         typedef boost::shared_ptr<mqtt_session> pointer;
 
-        static pointer create( boost::asio::io_service& io_service );
+        static pointer create( tcp::socket socket );
+
+        /// Naturally, mqtt_sessions cannot be copied.
+        mqtt_session( const mqtt_session& ) = delete;
+        mqtt_session& operator=( const mqtt_session& ) = delete;
 
         /// TODO: I would like to make this destructor private, just like the constructor. Yet boost::shared_ptr
         /// requires a public destructor.
         ~mqtt_session( );
-
-        mqtt_session( const mqtt_session& ) = delete;
-        mqtt_session& operator=( const mqtt_session& ) = delete;
 
         void start( );
 
@@ -36,7 +37,7 @@ namespace io_wally
 
        private:
         /// Hide constructor since we MUST be created by static factory method 'create' above
-        mqtt_session( boost::asio::io_service& io_service );
+        explicit mqtt_session( tcp::socket socket );
 
         void read_header( );
 
@@ -49,7 +50,7 @@ namespace io_wally
                                 const size_t bytes_transferred );
 
         /// Max fixed header length in bytes
-        static const size_t MAX_HEADER_LENGTH = 5;
+        static const size_t MAX_HEADER_LENGTH = 8192;  // FIXME: Only temporary hack
         /// The client socket this session is connected to
         tcp::socket socket_;
         std::vector<uint8_t> read_buffer_;

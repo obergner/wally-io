@@ -22,6 +22,8 @@ CFLAGS 		    += $(shell pkg-config --cflags libsystemd-journal)
 LFLAGS		    += $(shell pkg-config --libs libsystemd-journal)
 LFLAGS          += -lboost_system
 LFLAGS          += -lboost_thread
+LFLAGS          += -lboost_log
+LFLAGS          += -lboost_log_setup
 LFLAGS          += -lpthread
 
 # Top level build directory
