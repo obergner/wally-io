@@ -123,7 +123,7 @@ SCENARIO( "remaining_length functor", "[packets]" )
                 REQUIRE( st1 == parser::ParseState::INCOMPLETE );
                 REQUIRE( st2 == parser::ParseState::INCOMPLETE );
                 REQUIRE( st3 == parser::ParseState::INCOMPLETE );
-                REQUIRE_THROWS_AS( under_test( actual_result, fourth_byte ), std::range_error );
+                REQUIRE_THROWS_AS( under_test( actual_result, fourth_byte ), parser::error::malformed_mqtt_packet );
             }
         }
     }
@@ -288,9 +288,10 @@ SCENARIO( "header_parser", "[parser]" )
 
         WHEN( "a client passes that array into header_parser" )
         {
-            THEN( "that client should see a std::range_error being thrown" )
+            THEN( "that client should see a parser::error::malformed_mqtt_packet being thrown" )
             {
-                REQUIRE_THROWS_AS( under_test.parse( buffer.begin( ), buffer.end( ) ), std::range_error );
+                REQUIRE_THROWS_AS( under_test.parse( buffer.begin( ), buffer.end( ) ),
+                                   parser::error::malformed_mqtt_packet );
             }
         }
     }
@@ -306,10 +307,10 @@ SCENARIO( "parsing a 16 bit unsigned integer", "[packets]" )
 
         WHEN( "a client passes that buffer into parse_uint16" )
         {
-            THEN( "the client should see a std::range_error being thrown" )
+            THEN( "the client should see a parser::error::malformed_mqtt_packet being thrown" )
             {
                 REQUIRE_THROWS_AS( parser::parse_uint16( buffer.begin( ), buffer.cend( ), &parsed_int ),
-                                   std::range_error );
+                                   parser::error::malformed_mqtt_packet );
             }
         }
     }
@@ -321,10 +322,10 @@ SCENARIO( "parsing a 16 bit unsigned integer", "[packets]" )
 
         WHEN( "a client passes that buffer into parse_uint16" )
         {
-            THEN( "the client should see a std::range_error being thrown" )
+            THEN( "the client should see a parser::error::malformed_mqtt_packet being thrown" )
             {
                 REQUIRE_THROWS_AS( parser::parse_uint16( buffer.begin( ), buffer.cend( ), &parsed_int ),
-                                   std::range_error );
+                                   parser::error::malformed_mqtt_packet );
             }
         }
     }
@@ -365,10 +366,10 @@ SCENARIO( "parsing a UTF-8 string", "[packets]" )
 
         WHEN( "a client passes that buffer into parse_utf8_string" )
         {
-            THEN( "the client should see a std::range_error being thrown" )
+            THEN( "the client should see a parser::error::malformed_mqtt_packet being thrown" )
             {
                 REQUIRE_THROWS_AS( parser::parse_utf8_string( buffer.begin( ), buffer.cend( ), &parsed_string ),
-                                   std::range_error );
+                                   parser::error::malformed_mqtt_packet );
             }
         }
     }
@@ -380,10 +381,10 @@ SCENARIO( "parsing a UTF-8 string", "[packets]" )
 
         WHEN( "a client passes that buffer into parse_utf8_string" )
         {
-            THEN( "the client should see a std::range_error being thrown" )
+            THEN( "the client should see a parser::error::malformed_mqtt_packet being thrown" )
             {
                 REQUIRE_THROWS_AS( parser::parse_utf8_string( buffer.begin( ), buffer.cend( ), &parsed_string ),
-                                   std::range_error );
+                                   parser::error::malformed_mqtt_packet );
             }
         }
     }

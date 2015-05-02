@@ -19,12 +19,16 @@ namespace io_wally
             class connect_packet_parser : public packet_body_parser<InputIterator>
             {
                public:
+                /// \brief Parse the supplied buffer into a \c connect packet.
+                ///
+                /// \see io_wally::protocol::parser::packet_body_parser::parse
+                ///
                 virtual std::unique_ptr<const mqtt_packet> parse( const packet::header& header,
                                                                   InputIterator buf_start,
                                                                   const InputIterator buf_end )
                 {
-                    if ( header.type( ) != packet::Type::CONNECT )
-                        throw std::invalid_argument( "Supplied header is not of type CONNECT" );
+                    // TODO:: consider removing this assert in release build
+                    assert( header.type( ) == packet::Type::CONNECT );
 
                     InputIterator new_buf_start = buf_start;
 
@@ -32,7 +36,7 @@ namespace io_wally
                     char* protocol_name = nullptr;
                     new_buf_start = parse_utf8_string( new_buf_start, buf_end, &protocol_name );
                     if ( !protocol_name )
-                        throw std::range_error( "CONNECT packet does not contain protocol name" );
+                        throw error::malformed_mqtt_packet( "CONNECT packet does not contain protocol name" );
 
                     const uint8_t protocol_level = (const uint8_t)*new_buf_start++;
 

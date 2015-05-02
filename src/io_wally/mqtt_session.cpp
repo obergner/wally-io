@@ -67,7 +67,7 @@ namespace io_wally
 
             read_body( result );
         }
-        catch ( const std::range_error& e )
+        catch ( const error::malformed_mqtt_packet& e )
         {
             stop( );
         }
