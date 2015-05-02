@@ -15,13 +15,31 @@ namespace io_wally
 {
     namespace protocol
     {
-        /**
-         * CONNECT control packet
-         */
 
+        /// \brief Represents a CONNECT control packet's \c variable header.
+        ///
+        /// In a CONNECT control packet the \c fixed \c packet::header shared by all MQTT control packet's is
+        /// immediately followed by a \c variable header. This encodes
+        ///
+        ///  - protocol name:   name of protocol used, almost always "MQTT"
+        ///  - protocol level:  the \c packet::ProtocolLevel (protocol version), only \c packet::ProtocolLevel::LEVEL4
+        ///                     is supported by this implementation
+        ///  - username (0/1):  whether the \c connect_payload contains a \c username
+        ///  - password (0/1):  whether the \c connect_payload contains a \c password
+        ///  - contains_last_will (0/1):        whether \c connect_payload contains a last will message
+        ///  - retain_last_will (0/1):  whether a last will message contained in \c connect_payload should be retained
+        ///                             by the broker
+        ///  - last_will_qos:   delivery \c packet::QoS for last will message contained in \c connect_payload
+        ///  - clean_session (0/1):     whether to establish a persistent session (0) or not (1)
+        ///  - keep_alive:      For how long in seconds the broker should keep alive the newly established session
+        ///                     without the client sending any message
+        ///
+        /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718030
         struct connect_header
         {
            public:
+            /// \brief Create a new \c connect_header instance.
+            ///
             connect_header( const char* const prot_name,
                             const uint8_t prot_level,
                             const uint8_t con_flags,
@@ -34,11 +52,15 @@ namespace io_wally
                 return;
             }
 
+            /// \brief Return \c protocol name, almost always "MQTT"
+            ///
             const std::string protocol_name( ) const
             {
                 return prot_name_;
             }
 
+            /// \brief Return \c protocol level (version). Only supported version is \c packet::ProtocolLevel::LEVEL4.
+            ///
             const packet::ProtocolLevel protocol_level( ) const
             {
                 switch ( prot_level_ )
@@ -50,21 +72,30 @@ namespace io_wally
                 }
             }
 
+            /// \brief Whether the \c connect_payload contains a username.
+            ///
             const bool has_username( ) const
             {
                 return ( con_flags_ & 0x80 ) == 0x80;
             }
 
+            /// \brief Whether the \c connect_payload contains a password.
+            ///
             const bool has_password( ) const
             {
                 return ( con_flags_ & 0x40 ) == 0x40;
             }
 
+            /// \brief Whether the last will message contained in \c connect_payload should be retained.
+            ///
             const bool retain_last_will( ) const
             {
                 return ( con_flags_ & 0x20 ) == 0x20;
             }
 
+            /// \brief Quality of service for last will message contained in \c connect_payload.
+            ///
+            /// \see packet::QoS
             const packet::QoS last_will_qos( ) const
             {
                 const uint8_t qos_bits = ( con_flags_ & 0x18 ) >> 3;
@@ -87,16 +118,24 @@ namespace io_wally
                 return res;
             }
 
+            /// \brief Whether the \c connect_payload contains a last will message.
+            ///
             const bool contains_last_will( ) const
             {
                 return ( con_flags_ & 0x04 ) == 0x04;
             }
 
+            /// \brief Whether to establish a persistent session (\c false) or not (\c true).
+            ///
             const bool clean_session( ) const
             {
                 return ( con_flags_ & 0x02 ) == 0x02;
             }
 
+            /// \brief Keep alive timeout in seconds.
+            ///
+            /// When not receiving a message from a client for at least 1.5 * \c keep_alive_secs() the broker MUST
+            /// close the session (provided the keep alive timeout is non-zero).
             const uint16_t keep_alive_secs( ) const
             {
                 return keep_alive_secs_;
@@ -138,6 +177,9 @@ namespace io_wally
             return output;
         }
 
+        /// \brief A CONNECT control packet's payload.
+        ///
+        ///
         struct connect_payload
         {
            public:
@@ -203,6 +245,8 @@ namespace io_wally
             return output;
         }
 
+        /// \brief CONNECT control packet, sent by a client to establish a new session.
+        ///
         struct connect : public mqtt_packet
         {
            public:

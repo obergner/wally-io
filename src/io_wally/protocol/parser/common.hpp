@@ -89,6 +89,9 @@ namespace io_wally
                 /// \return             Current \c ParseState, either INCOMPLETE or COMPLETE.
                 /// \throws error::malformed_mqtt_packet If provided sequence of bytes does not encode a valid
                 ///                                      \c remaining length.
+                ///
+                /// \pre        Either this functor is called for the first time after creation/calling ::reset(), or
+                ///             the previous call has returned \c ParseState::INCOMPLETE
                 ParseState operator( )( uint32_t& result, const uint8_t next_byte )
                 {
                     current_ += ( next_byte & ~MSB_MASK ) * multiplier_;
@@ -120,12 +123,12 @@ namespace io_wally
                 uint32_t multiplier_ = 1;
             };
 
-            /// \brief Stateful parser for MQTT \headers.
+            /// \brief Stateful parser for MQTT \c headers.
             ///
             class header_parser
             {
                public:
-                /// \brief Result of parsing an MQTT \header.
+                /// \brief Result of parsing an MQTT \c header.
                 ///
                 /// Combines current \c ParseState - one of COMPLETE and INCOMPLETE - as well as optionally the parsed
                 /// \c header and the updated \c InputIterator. Parsed \c header and the updated \c InputIterator are
@@ -220,7 +223,15 @@ namespace io_wally
                 /// \throws error::malformed_mqtt_packet    If the supplied buffer does not contain a correctly encoded
                 ///                                         \c header.
                 ///
+                /// \pre        \c buf_start initially points to the first byte in a buffer representing an
+                ///             \c mqtt_packet's on the wire format (first call), or to the first unconsumed byte
+                ///             (subsequent calls).
+                /// \pre        \c buf_end points immediately past the last byte in a buffer representing an
+                ///             \c mqtt_packet's on the wire format.
+                /// \post       The \c InputIterator returned in \c result<InputIterator> points to the first
+                ///             unconsumed byte.
                 /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718020
+                ///
                 template <typename InputIterator>
                 const result<InputIterator> parse( InputIterator buf_start, const InputIterator buf_end )
                 {
@@ -276,6 +287,11 @@ namespace io_wally
             /// \throws error::malformed_mqtt_packet        If parsing fails due to malformed input.
             /// \throws std::bad_alloc          If failing to allocate heap memory for \c parsed_string
             ///
+            /// \pre        \c uint16_start initially points to the first byte of a two byte sequence in big endian.
+            /// \pre        \c buf_end points immediately past the last byte in a buffer representing an
+            ///             \c mqtt_packet's on the wire format.
+            /// \post       The \c InputIterator returned points to the first unconsumed byte.
+            ///
             /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718016
             template <typename InputIterator>
             inline InputIterator parse_uint16( InputIterator uint16_start,
@@ -313,6 +329,12 @@ namespace io_wally
             ///                         continue parsing.
             /// \throws error::malformed_mqtt_packet        If parsing fails due to malformed input.
             /// \throws std::bad_alloc          If failing to allocate heap memory for \c parsed_string
+            ///
+            /// \pre        \c string_start  points to the first byte in a two byte sequence encoding string length,
+            ///             followed by the bytes of the string itself.
+            /// \pre        \c buf_end points immediately past the last byte in a buffer representing an
+            ///             \c mqtt_packet's on the wire format.
+            /// \post       The \c InputIterator returned points to the first unconsumed byte.
             ///
             /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718016
             template <typename InputIterator>
@@ -376,6 +398,13 @@ namespace io_wally
                 ///                             \c mqtt_packet. Note that the caller assumes ownership.
                 /// \throws error::malformed_mqtt_packet    If encoding is malformed, e.g. remaining length has been
                 ///                                         incorrectly encoded.
+                ///
+                /// \pre        \c buf_start points to the first byte after the fixed header in a buffer representing
+                ///             an \c mqtt_packet's on the wire format.
+                /// \pre        \c buf_end points immediately past the last byte in a buffer representing an
+                ///             \c mqtt_packet's on the wire format.
+                /// \pre        \c header is of the same MQTT Control Packet type as this \c packet_body_parser
+                ///             expects to decode.
                 virtual std::unique_ptr<const mqtt_packet> parse( const packet::header& header,
                                                                   InputIterator buf_start,
                                                                   const InputIterator buf_end ) = 0;
@@ -413,6 +442,11 @@ namespace io_wally
                 ///                     \c mqtt_packet. Note that the caller assumes ownership.
                 /// \throws error::malformed_mqtt_packet    If encoding is malformed, e.g. remaining length has been
                 ///                                         incorrectly encoded.
+                ///
+                /// \pre        \c buf_start points to the first byte after the fixed header in a buffer representing
+                ///             an \c mqtt_packet's on the wire format.
+                /// \pre        \c buf_end points immediately past the last byte in a buffer representing an
+                ///             \c mqtt_packet's on the wire format.
                 std::unique_ptr<const mqtt_packet> parse( const packet::header& header,
                                                           InputIterator buf_start,
                                                           const InputIterator buf_end )
