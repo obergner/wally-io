@@ -82,6 +82,9 @@ TEXEC 	    	:= $(TBUILD)/all-tests
 # What may be rebuilt
 REBUILDABLES 	= $(MEXEC) $(MOBJS) $(TEXEC) $(TOBJS) 
 
+# All things doxygen
+DOCDIR			:= $(BUILD)/doc
+
 ###############################################################################
 # Rules
 ###############################################################################
@@ -125,6 +128,12 @@ $(TBUILD)/%.o		: test/%.cpp					| $(TBUILDDIRS)
 .PHONY 				: clean
 clean				:
 	@rm -rf $(BUILD)
+
+# Documentation
+.PHONY 				: doc
+doc 				: $(MSOURCES) $(MEXECSOURCE)
+	@rm -rf $(DOCDIR)
+	doxygen ./.doxygen.cfg
 
 # Tools
 .PHONY				: macroexpand

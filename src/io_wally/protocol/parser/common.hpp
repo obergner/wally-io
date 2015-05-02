@@ -16,9 +16,20 @@ namespace io_wally
 {
     namespace protocol
     {
+        /// \brief Namespace for grouping types and functions related to parsing \c mqtt_packets.
+        ///
+        /// Most important classes in this namespace are arguably
+        ///
+        ///  - \c header_parser and
+        ///  - \c mqtt_packet_parser
+        ///
+        /// \note       The grunt work of parsing an \c mqtt_packet's on the wire representation is done by several
+        ///             implementations of \c packet_body_parser, one for each concrete \c mqtt_packet.
         namespace parser
         {
 
+            /// \brief Namespace for grouping all exceptions that may be thrown when parsing an \c mqtt_packet's on
+            ///        the wire representation.
             namespace error
             {
                 /// \brief Signals an incorrectly encoded MQTT control packet.
@@ -45,7 +56,10 @@ namespace io_wally
             ///
             enum class ParseState : int
             {
+                /// \brief Parsing is not yet complete. More input is needed.
                 INCOMPLETE = 0,
+
+                /// \brief Parsing is complete. The parse result is available.
                 COMPLETE
             };
 
@@ -54,6 +68,7 @@ namespace io_wally
             class remaining_length
             {
                public:
+                /// \brief Empty default constructor.
                 remaining_length( )
                 {
                     return;
@@ -113,18 +128,26 @@ namespace io_wally
                 /// \brief Result of parsing an MQTT \header.
                 ///
                 /// Combines current \c ParseState - one of COMPLETE and INCOMPLETE - as well as optionally the parsed
-                /// \c header and the updated \c InputIterator. Parsed \header and the updated \InputIterator are
+                /// \c header and the updated \c InputIterator. Parsed \c header and the updated \c InputIterator are
                 /// defined if and only if \c ParseState is COMPLETE.
                 template <typename InputIterator>
                 struct result
                 {
                    public:
-                    result( const ParseState parse_state )
-                        : parse_state_( parse_state ), parsed_header_( boost::none ), consumed_until_( boost::none )
+                    /// \brief Create a result instance in \c ParseState \c ParseState::INCOMPLETE.
+                    result( )
+                        : parse_state_( ParseState::INCOMPLETE ),
+                          parsed_header_( boost::none ),
+                          consumed_until_( boost::none )
                     {
                         return;
                     }
 
+                    /// \brief Create a result instance in \c ParseState \c ParseState::COMPLETE.
+                    ///
+                    /// \param type_and_flags   Byte encoding packet type and packet flags
+                    /// \param remaining_length Remaining length (excluding header) of packet
+                    /// \param consumed_until   \c InputIterator that points past the last consumed byte
                     result( const uint8_t type_and_flags,
                             const uint32_t remaining_length,
                             const InputIterator consumed_until )
@@ -135,21 +158,27 @@ namespace io_wally
                         return;
                     }
 
+                    /// \brief Return \c ParseState, either \c ParseState::COMPLETE or \c ParseState::INCOMPLETE.
                     const ParseState parse_state( ) const
                     {
                         return parse_state_;
                     }
 
+                    /// \brief Return whether parsing has completed or not.
                     const bool is_parsing_complete( ) const
                     {
                         return parse_state_ == ParseState::COMPLETE;
                     }
 
+                    /// \brief Return the parsed \c header.
+                    ///
+                    /// \attention This method MUST NOT BE CALLED if \c parse_state() is \c ParseState::INCOMPLETE.
                     const packet::header parsed_header( ) const
                     {
                         return parsed_header_.get( );
                     }
 
+                    /// \brief Returned an \c InputIterator pointing past the last consumed byte.
                     const InputIterator consumed_until( ) const
                     {
                         return consumed_until_.get( );
@@ -160,6 +189,8 @@ namespace io_wally
                     const boost::optional<packet::header> parsed_header_;
                     const boost::optional<InputIterator> consumed_until_;
                 };
+
+                /// \brief Create a default \c header_parser.
                 header_parser( ) : type_and_flags_( -1 ), remaining_length_( )
                 {
                     return;
@@ -171,7 +202,7 @@ namespace io_wally
                 /// parsed, or until \c buf_end, whichever comes first.
                 ///
                 /// Return a \c result with \c ParseState INCOMPLETE if the supplied buffer holds only a \c header
-                /// part. In that case the \result returned will contain an \c InputIterator pointing past the last
+                /// part. In that case the \c result returned will contain an \c InputIterator pointing past the last
                 /// consumed byte. The caller is expected to supply the next chunk in a subsequent call to this method,
                 /// with \c buf_start set to the \c InputIterator previously returned.
                 ///
@@ -208,7 +239,7 @@ namespace io_wally
                     }
 
                     if ( rem_len_pst == ParseState::INCOMPLETE )
-                        return result<InputIterator>( ParseState::INCOMPLETE );
+                        return result<InputIterator>( );
 
                     return result<InputIterator>( type_and_flags_, rem_len, buf_start );
                 }
@@ -240,7 +271,7 @@ namespace io_wally
             /// \param buf_end          End of entire packet buffer, NOT end of uint16_t buffer (although that would
             ///                         work, too). Needed for range checks.
             /// \param parsed_uint16    A pointer to the parsed integer (out parameter), will never be \c nullptr.
-            /// \return                 The updated InputIterator \c uint16_start, thus telling the caller where to
+            /// \return                 The updated \c InputIterator \c uint16_start, thus telling the caller where to
             ///                         continue parsing.
             /// \throws error::malformed_mqtt_packet        If parsing fails due to malformed input.
             /// \throws std::bad_alloc          If failing to allocate heap memory for \c parsed_string
@@ -329,8 +360,8 @@ namespace io_wally
                public:
                 /// \brief Parse the supplied buffer into an MQTT packet.
                 ///
-                /// Start parsing at \c buf_start. Parse until \c buf_end. Use \header to create the parsed
-                /// \c mqtt_packet and return it, transferring ownership to the caller. If parsing fails throw a
+                /// Start parsing at \c buf_start. Parse until \c buf_end. Use \c header to create the parsed
+                /// \c mqtt_packet and return it, transferring ownership to the caller. If parsing fails throw an
                 /// \c error::malformed_mqtt_packet.
                 ///
                 /// \param header               Header of MQTT packet to parse. Contains the type of MQTT packet.
@@ -342,7 +373,7 @@ namespace io_wally
                 ///                             the payload.
                 /// \param buf_end              End of buffer containing the serialized MQTT packet.
                 /// \return                     The parsed \c mqtt_packet, i.e. an instance of a concrete subclass of
-                ///                             \c mqtt_packe'. Note that the caller assumes ownership.
+                ///                             \c mqtt_packet. Note that the caller assumes ownership.
                 /// \throws error::malformed_mqtt_packet    If encoding is malformed, e.g. remaining length has been
                 ///                                         incorrectly encoded.
                 virtual std::unique_ptr<const mqtt_packet> parse( const packet::header& header,
@@ -360,6 +391,8 @@ namespace io_wally
             {
                public:
                 /// Methods
+
+                /// \brief Create a default \c mqtt_packet_parser.
                 mqtt_packet_parser( ) : remaining_length_( )
                 {
                     return;
@@ -372,7 +405,7 @@ namespace io_wally
                 /// \c mqtt_packet, transferring ownership to the caller. If parsing fails throw an
                 /// \c error::malformed_mqtt_packet.
                 ///
-                /// \param header       Parsed \header of MQTT control packet to decode.
+                /// \param header       Parsed \c header of MQTT control packet to decode.
                 /// \param buf_start    Start of buffer containing the serialized MQTT packet. MUST point immediately
                 ///                     past the fixed header.
                 /// \param buf_end      End of buffer containing the serialized MQTT packet.
