@@ -6,6 +6,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
 
+#include "io_wally/logging.hpp"
 #include "io_wally/protocol/parser/common.hpp"
 #include "io_wally/protocol/parser/mqtt_packet_parser.hpp"
 
@@ -51,10 +52,20 @@ namespace io_wally
 
         /// Initial read buffer capacity
         const size_t initial_buffer_capacity = 256;
+
+        /// Buffer incoming data
+        std::vector<uint8_t> read_buffer_;
+
         /// The client socket this session is connected to
         tcp::socket socket_;
-        std::vector<uint8_t> read_buffer_;
+
+        /// Somehow we need to parse those headers
         header_parser header_parser_;
+
+        /// And while we are at it, why not parse the rest of those packets, too?
         mqtt_packet_parser<uint8_t*> packet_parser_;
+
+        /// Our severity-enabled channel logger
+        boost::log::sources::severity_channel_logger<io_wally::logging::lvl::severity_level> logger_;
     };
 }

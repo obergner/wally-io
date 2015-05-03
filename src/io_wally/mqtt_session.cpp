@@ -7,12 +7,22 @@ using boost::asio::ip::tcp;
 
 using namespace io_wally::protocol;
 using namespace io_wally::protocol::parser;
+using namespace io_wally::logging;
 
 namespace io_wally
 {
     mqtt_session::pointer mqtt_session::create( tcp::socket socket )
     {
         return pointer( new mqtt_session( std::move( socket ) ) );
+    }
+
+    mqtt_session::mqtt_session( tcp::socket socket )
+        : read_buffer_( std::vector<uint8_t>( initial_buffer_capacity ) ),
+          socket_( std::move( socket ) ),
+          header_parser_( header_parser( ) ),
+          logger_( keywords::channel = "session", keywords::severity = lvl::trace )
+    {
+        return;
     }
 
     mqtt_session::~mqtt_session( )
@@ -22,27 +32,19 @@ namespace io_wally
 
     void mqtt_session::start( )
     {
-        BOOST_LOG_TRIVIAL( info ) << "START: MQTT session " << socket_;
+        BOOST_LOG_SEV( logger_, lvl::info ) << "START: MQTT session " << socket_;
         read_header( );
     }
 
     void mqtt_session::stop( )
     {
         socket_.close( );
-        BOOST_LOG_TRIVIAL( info ) << "STOP: MQTT session " << socket_;
-    }
-
-    mqtt_session::mqtt_session( tcp::socket socket )
-        : socket_( std::move( socket ) ),
-          read_buffer_( std::vector<uint8_t>( initial_buffer_capacity ) ),
-          header_parser_( header_parser( ) )
-    {
-        return;
+        BOOST_LOG_SEV( logger_, lvl::info ) << "STOP: MQTT session " << socket_;
     }
 
     void mqtt_session::read_header( )
     {
-        BOOST_LOG_TRIVIAL( debug ) << "READ: header ...";
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "READ: header ...";
         socket_.async_read_some( boost::asio::buffer( read_buffer_ ),
                                  boost::bind( &mqtt_session::on_header_data_read,
                                               shared_from_this( ),
@@ -54,7 +56,7 @@ namespace io_wally
     {
         if ( ec )
         {
-            BOOST_LOG_TRIVIAL( error ) << "Failed to read header: [error_code:" << ec << "]";
+            BOOST_LOG_SEV( logger_, lvl::error ) << "Failed to read header: [error_code:" << ec << "]";
             if ( ec != boost::asio::error::operation_aborted )
                 stop( );
             return;
@@ -67,17 +69,18 @@ namespace io_wally
             if ( !result.is_parsing_complete( ) )
             {
                 // HIGHLY UNLIKELY: header is at most 5 bytes.
-                BOOST_LOG_TRIVIAL( warning ) << "Header data incomplete - continue";
+                BOOST_LOG_SEV( logger_, lvl::warn ) << "Header data incomplete - continue";
                 read_header( );
                 return;
             }
 
-            BOOST_LOG_TRIVIAL( info ) << "RCVD: " << result.parsed_header( );
+            BOOST_LOG_SEV( logger_, lvl::info ) << "RCVD: " << result.parsed_header( );
             read_body( result, bytes_transferred );
         }
         catch ( const error::malformed_mqtt_packet& e )
         {
-            BOOST_LOG_TRIVIAL( error ) << "Malformed control packet header - will stop this session: " << e.what( );
+            BOOST_LOG_SEV( logger_, lvl::error )
+                << "Malformed control packet header - will stop this session: " << e.what( );
             stop( );
         }
     }
@@ -89,7 +92,7 @@ namespace io_wally
         uint8_t* body_start = header_parse_result.consumed_until( );
         const size_t header_length = body_start - &read_buffer_.front( );
 
-        BOOST_LOG_TRIVIAL( debug ) << "Reading body (remaining length: " << remaining_length << ") ...";
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "Reading body (remaining length: " << remaining_length << ") ...";
 
         if ( bytes_transferred >= ( header_length + remaining_length ) )
         {
@@ -122,7 +125,7 @@ namespace io_wally
     {
         if ( ec )
         {
-            BOOST_LOG_TRIVIAL( error ) << "Failed to read body: [error_code:" << ec << "]";
+            BOOST_LOG_SEV( logger_, lvl::error ) << "Failed to read body: [error_code:" << ec << "]";
             if ( ec != boost::asio::error::operation_aborted )
                 stop( );
             return;
@@ -130,16 +133,17 @@ namespace io_wally
 
         try
         {
-            BOOST_LOG_TRIVIAL( debug ) << "Body data read. Decoding ...";
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "Body data read. Decoding ...";
             const std::unique_ptr<const mqtt_packet> parsed_packet =
                 packet_parser_.parse( header_parse_result.parsed_header( ),
                                       header_parse_result.consumed_until( ),
                                       header_parse_result.consumed_until( ) + bytes_transferred );
-            BOOST_LOG_TRIVIAL( info ) << "DECODED: " << *parsed_packet;
+            BOOST_LOG_SEV( logger_, lvl::info ) << "DECODED: " << *parsed_packet;
         }
         catch ( const error::malformed_mqtt_packet& e )
         {
-            BOOST_LOG_TRIVIAL( error ) << "Malformed control packet body - will stop this session: " << e.what( );
+            BOOST_LOG_SEV( logger_, lvl::error )
+                << "Malformed control packet body - will stop this session: " << e.what( );
             stop( );
         }
 

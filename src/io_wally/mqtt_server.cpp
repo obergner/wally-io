@@ -5,12 +5,17 @@
 #include "io_wally/mqtt_server.hpp"
 
 using boost::asio::ip::tcp;
+using namespace io_wally::logging;
 
 namespace io_wally
 {
 
     mqtt_server::mqtt_server( const std::string& address, const std::string& port )
-        : io_service_( ), signals_( io_service_ ), acceptor_( io_service_ ), socket_( io_service_ )
+        : io_service_( ),
+          signals_( io_service_ ),
+          acceptor_( io_service_ ),
+          socket_( io_service_ ),
+          logger_( keywords::channel = "server", keywords::severity = lvl::trace )
     {
         // Register to handle the signals that indicate when the mqtt_server should exit.
         // It is safe to register for the same signal multiple times in a program,
@@ -36,7 +41,7 @@ namespace io_wally
 
     void mqtt_server::run( )
     {
-        BOOST_LOG_TRIVIAL( info ) << "START: MQTT server: " << acceptor_;
+        BOOST_LOG_SEV( logger_, lvl::info ) << "START: MQTT server: " << acceptor_;
         // The io_service::run() call will block until all asynchronous operations
         // have finished. While the mqtt_server is running, there is always at least one
         // asynchronous operation outstanding: the asynchronous accept call waiting
@@ -49,7 +54,7 @@ namespace io_wally
         acceptor_.async_accept( socket_,
                                 [this]( boost::system::error_code ec )
                                 {
-            BOOST_LOG_TRIVIAL( debug ) << "ACCEPTED: " << socket_;
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "ACCEPTED: " << socket_;
             // Check whether the mqtt_server was stopped by a signal before this
             // completion handler had a chance to run.
             if ( !acceptor_.is_open( ) )
@@ -73,7 +78,7 @@ namespace io_wally
                                  // The mqtt_server is stopped by cancelling all outstanding asynchronous
                                  // operations. Once all operations have finished the io_service::run( ) call will exit.
                                  acceptor_.close( );
-                                 BOOST_LOG_TRIVIAL( info ) << "STOPPED: MQTT server";
+                                 BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPED: MQTT server";
                              } );
     }
 

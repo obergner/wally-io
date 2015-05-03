@@ -2,6 +2,7 @@
 
 #include <boost/asio.hpp>
 
+#include "io_wally/logging.hpp"
 #include "io_wally/mqtt_session.hpp"
 
 using boost::asio::ip::tcp;
@@ -50,5 +51,8 @@ namespace io_wally
 
         /// The next socket to be accepted.
         boost::asio::ip::tcp::socket socket_;
+
+        /// Our severity-enabled channel logger
+        boost::log::sources::severity_channel_logger<io_wally::logging::lvl::severity_level> logger_;
     };
 }  // namespace io_wally
