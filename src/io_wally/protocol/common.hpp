@@ -341,6 +341,7 @@ namespace io_wally
            public:
             /// \brief Create a new \c mqtt_packet instance from the supplied \c packet::header.
             ///
+            /// \param \c packet::header of this MQTT packet
             mqtt_packet( struct packet::header header ) : header_( std::move( header ) )
             {
                 return;
@@ -348,10 +349,16 @@ namespace io_wally
 
             /// \brief Return this \c mqtt_packet's \c packet::header.
             ///
+            /// \return \c packet::header of this MQTT packet
             const struct packet::header& header( ) const
             {
                 return header_;
             }
+
+            /// \brief Return a string representation of this packet to be used e.g. in log output.
+            ///
+            /// \return A string representation of this MQTT packet suitable for log output.
+            virtual const std::string to_string( ) const = 0;
 
            private:
             /// Fields
@@ -360,7 +367,7 @@ namespace io_wally
 
         inline std::ostream& operator<<( std::ostream& output, mqtt_packet const& mqtt_packet )
         {
-            output << "mqtt_packet[header:" << mqtt_packet.header( ) << "]";
+            output << mqtt_packet.to_string( );
 
             return output;
         }
