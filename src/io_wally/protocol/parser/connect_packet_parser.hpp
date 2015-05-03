@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sstream>
+
 #include "io_wally/protocol/connect_packet.hpp"
 #include "io_wally/protocol/parser/common.hpp"
 
@@ -32,9 +34,13 @@ namespace io_wally
 
                     // Check that size of supplied buffer corresponds to remaining length as advertised in header
                     if ( ( buf_end - buf_start ) != header.remaining_length( ) )
-                        throw error::malformed_mqtt_packet(
-                            "Size of supplied buffer does not correspond to "
-                            "remaining length as advertised in header" );
+                    {
+                        std::ostringstream message;
+                        message << "Size of supplied buffer does not correspond to "
+                                << "remaining length as advertised in header: [expected:" << header.remaining_length( )
+                                << "|actual:" << ( buf_end - buf_start ) << "]";
+                        throw error::malformed_mqtt_packet( message.str( ) );
+                    }
 
                     InputIterator new_buf_start = buf_start;
 

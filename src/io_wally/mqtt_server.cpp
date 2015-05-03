@@ -36,8 +36,7 @@ namespace io_wally
 
     void mqtt_server::run( )
     {
-        BOOST_LOG_TRIVIAL( info ) << "MQTT server started [addr:" << acceptor_.local_endpoint( ).address( ).to_string( )
-                                  << "|port:" << acceptor_.local_endpoint( ).port( ) << "]";
+        BOOST_LOG_TRIVIAL( info ) << "START: MQTT server: " << acceptor_;
         // The io_service::run() call will block until all asynchronous operations
         // have finished. While the mqtt_server is running, there is always at least one
         // asynchronous operation outstanding: the asynchronous accept call waiting
@@ -50,18 +49,13 @@ namespace io_wally
         acceptor_.async_accept( socket_,
                                 [this]( boost::system::error_code ec )
                                 {
-            BOOST_LOG_TRIVIAL( debug ) << "Client socket connection accepted: [remote:("
-                                       << socket_.remote_endpoint( ).address( ).to_string( ) << "/"
-                                       << socket_.remote_endpoint( ).port( ) << ")|local:("
-                                       << socket_.local_endpoint( ).address( ).to_string( ) << "/"
-                                       << socket_.local_endpoint( ).port( ) << ")]";
+            BOOST_LOG_TRIVIAL( debug ) << "ACCEPTED: " << socket_;
             // Check whether the mqtt_server was stopped by a signal before this
             // completion handler had a chance to run.
             if ( !acceptor_.is_open( ) )
             {
                 return;
             }
-
             if ( !ec )
             {
                 mqtt_session::pointer session = mqtt_session::create( std::move( socket_ ) );
@@ -79,7 +73,7 @@ namespace io_wally
                                  // The mqtt_server is stopped by cancelling all outstanding asynchronous
                                  // operations. Once all operations have finished the io_service::run( ) call will exit.
                                  acceptor_.close( );
-                                 BOOST_LOG_TRIVIAL( info ) << "MQTT server stopped";
+                                 BOOST_LOG_TRIVIAL( info ) << "STOPPED: MQTT server";
                              } );
     }
 

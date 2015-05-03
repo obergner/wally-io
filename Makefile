@@ -14,6 +14,8 @@ CFLAGS          += -I ./src
 
 CRELEASE_FLAGS	+= -O3 # -dNDEBUG
 CDEBUG_FLAGS	+= -O0 -g
+CDEBUG_FLAGS	+= -D_GLIBCXX_DEBUG
+CDEBUG_FLAGS	+= -DBOOST_ASIO_ENABLE_HANDLER_TRACKING
 
 # Extra compiler flags
 CFLAGS 		    += $(shell pkg-config --cflags libsystemd-journal)

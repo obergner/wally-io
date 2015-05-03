@@ -43,14 +43,14 @@ namespace io_wally
 
         void on_header_data_read( const boost::system::error_code& ec, const size_t bytes_transferred );
 
-        void read_body( const header_parser::result<uint8_t*>& header_parse_result );
+        void read_body( const header_parser::result<uint8_t*>& header_parse_result, const size_t bytes_transferred );
 
         void on_body_data_read( const header_parser::result<uint8_t*>& header_parse_result,
                                 const boost::system::error_code& ec,
                                 const size_t bytes_transferred );
 
-        /// Max fixed header length in bytes
-        static const size_t MAX_HEADER_LENGTH = 8192;  // FIXME: Only temporary hack
+        /// Initial read buffer capacity
+        const size_t initial_buffer_capacity = 256;
         /// The client socket this session is connected to
         tcp::socket socket_;
         std::vector<uint8_t> read_buffer_;

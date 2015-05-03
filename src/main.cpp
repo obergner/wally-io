@@ -1,6 +1,6 @@
 #include "io_wally/mqtt_server.hpp"
 
-static const std::string host = "127.0.0.1";
+static const std::string host = "0.0.0.0";
 static const std::string port = "1883";
 
 int main( int argc, char* argv[] )

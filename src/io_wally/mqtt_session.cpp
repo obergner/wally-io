@@ -22,19 +22,19 @@ namespace io_wally
 
     void mqtt_session::start( )
     {
-        BOOST_LOG_TRIVIAL( info ) << "MQTT session started";
+        BOOST_LOG_TRIVIAL( info ) << "START: MQTT session " << socket_;
         read_header( );
     }
 
     void mqtt_session::stop( )
     {
         socket_.close( );
-        BOOST_LOG_TRIVIAL( info ) << "MQTT session stopped";
+        BOOST_LOG_TRIVIAL( info ) << "STOP: MQTT session " << socket_;
     }
 
     mqtt_session::mqtt_session( tcp::socket socket )
         : socket_( std::move( socket ) ),
-          read_buffer_( std::vector<uint8_t>( MAX_HEADER_LENGTH ) ),
+          read_buffer_( std::vector<uint8_t>( initial_buffer_capacity ) ),
           header_parser_( header_parser( ) )
     {
         return;
@@ -42,7 +42,7 @@ namespace io_wally
 
     void mqtt_session::read_header( )
     {
-        BOOST_LOG_TRIVIAL( debug ) << "Reading header ...";
+        BOOST_LOG_TRIVIAL( debug ) << "READ: header ...";
         socket_.async_read_some( boost::asio::buffer( read_buffer_ ),
                                  boost::bind( &mqtt_session::on_header_data_read,
                                               shared_from_this( ),
@@ -52,9 +52,9 @@ namespace io_wally
 
     void mqtt_session::on_header_data_read( const boost::system::error_code& ec, const size_t bytes_transferred )
     {
-        BOOST_LOG_TRIVIAL( debug ) << "Header data read - may not yet be complete";
         if ( ec )
         {
+            BOOST_LOG_TRIVIAL( error ) << "Failed to read header: [error_code:" << ec << "]";
             if ( ec != boost::asio::error::operation_aborted )
                 stop( );
             return;
@@ -66,56 +66,82 @@ namespace io_wally
                 header_parser_.parse( read_buffer_.data( ), read_buffer_.data( ) + bytes_transferred );
             if ( !result.is_parsing_complete( ) )
             {
-                BOOST_LOG_TRIVIAL( debug ) << "Header data incomplete - continue";
+                // HIGHLY UNLIKELY: header is at most 5 bytes.
+                BOOST_LOG_TRIVIAL( warning ) << "Header data incomplete - continue";
                 read_header( );
                 return;
             }
 
-            BOOST_LOG_TRIVIAL( info ) << "Header data complete";
-            read_body( result );
+            BOOST_LOG_TRIVIAL( info ) << "RCVD: " << result.parsed_header( );
+            read_body( result, bytes_transferred );
         }
         catch ( const error::malformed_mqtt_packet& e )
         {
-            std::cerr << e.what( ) << std::endl;
+            BOOST_LOG_TRIVIAL( error ) << "Malformed control packet header - will stop this session: " << e.what( );
             stop( );
         }
     }
 
-    void mqtt_session::read_body( const header_parser::result<uint8_t*>& header_parse_result )
+    void mqtt_session::read_body( const header_parser::result<uint8_t*>& header_parse_result,
+                                  const size_t bytes_transferred )
     {
-        pointer self( shared_from_this( ) );
         const uint32_t remaining_length = header_parse_result.parsed_header( ).remaining_length( );
         uint8_t* body_start = header_parse_result.consumed_until( );
+        const size_t header_length = body_start - &read_buffer_.front( );
+
         BOOST_LOG_TRIVIAL( debug ) << "Reading body (remaining length: " << remaining_length << ") ...";
 
-        read_buffer_.resize( remaining_length + 5 );
+        if ( bytes_transferred >= ( header_length + remaining_length ) )
+        {
+            // We already received the entire packet. No need to wait for more data.
+            on_body_data_read( header_parse_result,
+                               boost::system::errc::make_error_code( boost::system::errc::success ),
+                               bytes_transferred - header_length );
+        }
+        else
+        {
+            // Resize read buffer to allow for storing the control packet, but do NOT shrink it below
+            // its initial default capacity
+            if ( remaining_length + header_length > initial_buffer_capacity )
+                read_buffer_.resize( remaining_length + header_length );
 
-        boost::asio::async_read(
-            socket_,
-            boost::asio::buffer( body_start, remaining_length ),
-            [this, self, header_parse_result]( const boost::system::error_code& ec, const size_t bytes_transferred )
-            {
-                on_body_data_read( header_parse_result, ec, bytes_transferred );
-            } );
+            pointer self( shared_from_this( ) );
+            boost::asio::async_read(
+                socket_,
+                boost::asio::buffer( body_start, remaining_length ),
+                [this, self, header_parse_result]( const boost::system::error_code& ec, const size_t bytes_transferred )
+                {
+                    on_body_data_read( header_parse_result, ec, bytes_transferred );
+                } );
+        }
     }
 
     void mqtt_session::on_body_data_read( const header_parser::result<uint8_t*>& header_parse_result,
                                           const boost::system::error_code& ec,
                                           const size_t bytes_transferred )
     {
-        BOOST_LOG_TRIVIAL( debug ) << "Body data read. Decoding ...";
         if ( ec )
         {
+            BOOST_LOG_TRIVIAL( error ) << "Failed to read body: [error_code:" << ec << "]";
             if ( ec != boost::asio::error::operation_aborted )
                 stop( );
             return;
         }
 
-        const std::unique_ptr<const mqtt_packet> parsed_packet =
-            packet_parser_.parse( header_parse_result.parsed_header( ),
-                                  header_parse_result.consumed_until( ),
-                                  header_parse_result.consumed_until( ) + bytes_transferred );
-        BOOST_LOG_TRIVIAL( info ) << "Decoded MQTT control packet";
+        try
+        {
+            BOOST_LOG_TRIVIAL( debug ) << "Body data read. Decoding ...";
+            const std::unique_ptr<const mqtt_packet> parsed_packet =
+                packet_parser_.parse( header_parse_result.parsed_header( ),
+                                      header_parse_result.consumed_until( ),
+                                      header_parse_result.consumed_until( ) + bytes_transferred );
+            BOOST_LOG_TRIVIAL( info ) << "DECODED: " << *parsed_packet;
+        }
+        catch ( const error::malformed_mqtt_packet& e )
+        {
+            BOOST_LOG_TRIVIAL( error ) << "Malformed control packet body - will stop this session: " << e.what( );
+            stop( );
+        }
 
         return;
     }
