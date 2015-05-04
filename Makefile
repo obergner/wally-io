@@ -7,6 +7,7 @@ CC		        := g++
 
 # Standard compiler flags
 CFLAGS		    += -Wall
+CFLAGS		    += -Wextra
 CFLAGS		    += -std=c++11
 CFLAGS          += -fdiagnostics-color=auto
 CFLAGS          += -MMD # automatically generate dependency rules on each run

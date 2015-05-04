@@ -122,7 +122,7 @@ namespace io_wally
                 /// Message delivery quality of service.
                 ///
                 /// \see QoS
-                const packet::QoS qos( ) const
+                packet::QoS qos( ) const
                 {
                     const uint8_t qos_bits = ( flags_ & 0x06 ) >> 1;
                     packet::QoS res;
@@ -197,7 +197,7 @@ namespace io_wally
                 /// \brief Return this control packet's \c type.
                 ///
                 /// \see packet::PacketType
-                const packet::Type type( ) const
+                packet::Type type( ) const
                 {
                     const uint8_t type_bits = ( control_packet_type_and_flags_ & CONTROL_PACKET_TYPE_MASK ) >> 4;
                     packet::Type res;
@@ -265,7 +265,7 @@ namespace io_wally
 
                 /// \brief Return this control packet's remaining length in bytes on the wire, excluding fixed header.
                 ///
-                const uint32_t remaining_length( ) const
+                uint32_t remaining_length( ) const
                 {
                     return remaining_length_;
                 }

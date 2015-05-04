@@ -66,6 +66,6 @@ namespace io_wally
         mqtt_packet_parser<uint8_t*> packet_parser_;
 
         /// Our severity-enabled channel logger
-        boost::log::sources::severity_channel_logger<io_wally::logging::lvl::severity_level> logger_;
+        boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_;
     };
 }

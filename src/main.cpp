@@ -6,7 +6,7 @@ static const std::string port = "1883";
 
 static const std::string log_file_prefix = ".testlog";
 
-int main( int argc, char* argv[] )
+int main( int /*  argc */, char** /* argv */ )
 {
     io_wally::logging::init_logging( log_file_prefix, true );
 

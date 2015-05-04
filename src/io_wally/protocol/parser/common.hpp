@@ -163,13 +163,13 @@ namespace io_wally
                     }
 
                     /// \brief Return \c ParseState, either \c ParseState::COMPLETE or \c ParseState::INCOMPLETE.
-                    const ParseState parse_state( ) const
+                    ParseState parse_state( ) const
                     {
                         return parse_state_;
                     }
 
                     /// \brief Return whether parsing has completed or not.
-                    const bool is_parsing_complete( ) const
+                    bool is_parsing_complete( ) const
                     {
                         return parse_state_ == ParseState::COMPLETE;
                     }

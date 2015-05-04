@@ -69,7 +69,7 @@ namespace io_wally
             if ( !result.is_parsing_complete( ) )
             {
                 // HIGHLY UNLIKELY: header is at most 5 bytes.
-                BOOST_LOG_SEV( logger_, lvl::warn ) << "Header data incomplete - continue";
+                BOOST_LOG_SEV( logger_, lvl::warning ) << "Header data incomplete - continue";
                 read_header( );
                 return;
             }

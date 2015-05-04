@@ -14,39 +14,12 @@
 #include <boost/asio.hpp>
 
 namespace keywords = boost::log::keywords;
+namespace lvl = boost::log::trivial;
 
 namespace io_wally
 {
     namespace logging
     {
-        namespace lvl
-        {
-            enum severity_level : int
-            {
-                trace = 0,
-                debug,
-                info,
-                warn,
-                error,
-                fatal
-            };
-        }
-
-        //! Returns stringized enumeration value or \c NULL, if the value is not valid
-        const char* to_string( lvl::severity_level lvl );
-
-        //! Outputs stringized representation of the severity level to the stream
-        template <typename CharT, typename TraitsT>
-        inline std::basic_ostream<CharT, TraitsT>& operator<<( std::basic_ostream<CharT, TraitsT>& strm,
-                                                               lvl::severity_level lvl )
-        {
-            const char* str = to_string( lvl );
-            if ( str )
-                strm << str;
-            else
-                strm << static_cast<int>( lvl );
-            return strm;
-        }
 
         void init_logging( const std::string& log_file, bool enable_console_log );
     }

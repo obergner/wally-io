@@ -68,7 +68,7 @@ namespace io_wally
             /// \brief Return \c protocol level (version). Only supported version is \c packet::ProtocolLevel::LEVEL4.
             ///
             /// \return Protocol level, only supported value is \c Level4, aka MQTT 3.1.1
-            const packet::ProtocolLevel protocol_level( ) const
+            packet::ProtocolLevel protocol_level( ) const
             {
                 switch ( prot_level_ )
                 {
@@ -82,7 +82,7 @@ namespace io_wally
             /// \brief Whether the \c connect_payload contains a username.
             ///
             /// \return \c true if CONNECT packet contains a \c username field, \c false otherwise
-            const bool has_username( ) const
+            bool has_username( ) const
             {
                 return ( con_flags_ & 0x80 ) == 0x80;
             }
@@ -90,7 +90,7 @@ namespace io_wally
             /// \brief Whether the \c connect_payload contains a password.
             ///
             /// \return \c true if CONNECT packet contains a \c password field, \c false otherwise
-            const bool has_password( ) const
+            bool has_password( ) const
             {
                 return ( con_flags_ & 0x40 ) == 0x40;
             }
@@ -98,7 +98,7 @@ namespace io_wally
             /// \brief Whether the last will message contained in \c connect_payload should be retained.
             ///
             /// \return \c true if broker should retain \c will message if it is published, \c false otherwise
-            const bool retain_last_will( ) const
+            bool retain_last_will( ) const
             {
                 return ( con_flags_ & 0x20 ) == 0x20;
             }
@@ -108,7 +108,7 @@ namespace io_wally
             /// \return Quality of service mandated for \c will message
             ///
             /// \see packet::QoS
-            const packet::QoS last_will_qos( ) const
+            packet::QoS last_will_qos( ) const
             {
                 const uint8_t qos_bits = ( con_flags_ & 0x18 ) >> 3;
                 packet::QoS res;
@@ -133,7 +133,7 @@ namespace io_wally
             /// \brief Whether the \c connect_payload contains a last will message.
             ///
             /// \return \c true if CONNECT packet contains a \c will message, \c false otherwise
-            const bool contains_last_will( ) const
+            bool contains_last_will( ) const
             {
                 return ( con_flags_ & 0x04 ) == 0x04;
             }
@@ -142,7 +142,7 @@ namespace io_wally
             ///
             /// \return \c true if broker should NOT establish a persistent session for this client, \c false if it
             ///         SHOULD
-            const bool clean_session( ) const
+            bool clean_session( ) const
             {
                 return ( con_flags_ & 0x02 ) == 0x02;
             }
@@ -153,7 +153,7 @@ namespace io_wally
             /// close the session (provided the keep alive timeout is non-zero).
             ///
             /// \return Keep alive timeout in seconds
-            const uint16_t keep_alive_secs( ) const
+            uint16_t keep_alive_secs( ) const
             {
                 return keep_alive_secs_;
             }
