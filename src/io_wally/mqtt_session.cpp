@@ -2,24 +2,26 @@
 
 #include "io_wally/logging.hpp"
 #include "io_wally/mqtt_session.hpp"
+#include "io_wally/mqtt_session_manager.hpp"
 
 using boost::asio::ip::tcp;
 
 using namespace io_wally::protocol;
 using namespace io_wally::protocol::parser;
-using namespace io_wally::logging;
 
 namespace io_wally
 {
-    mqtt_session::pointer mqtt_session::create( tcp::socket socket )
+    mqtt_session::pointer mqtt_session::create( tcp::socket socket, mqtt_session_manager& session_manager )
     {
-        return pointer( new mqtt_session( std::move( socket ) ) );
+        return pointer( new mqtt_session( std::move( socket ), session_manager ) );
     }
 
-    mqtt_session::mqtt_session( tcp::socket socket )
-        : read_buffer_( std::vector<uint8_t>( initial_buffer_capacity ) ),
+    mqtt_session::mqtt_session( tcp::socket socket, mqtt_session_manager& session_manager )
+        : session_manager_( session_manager ),
+          read_buffer_( std::vector<uint8_t>( initial_buffer_capacity ) ),
           socket_( std::move( socket ) ),
-          header_parser_( header_parser( ) ),
+          header_parser_( ),
+          packet_parser_( ),
           logger_( keywords::channel = "session", keywords::severity = lvl::trace )
     {
         return;
@@ -42,6 +44,14 @@ namespace io_wally
         BOOST_LOG_SEV( logger_, lvl::info ) << "STOP: MQTT session " << socket_;
     }
 
+    const std::string mqtt_session::to_string( ) const
+    {
+        std::ostringstream output;
+        output << "session[" << socket_;
+
+        return output.str( );
+    }
+
     void mqtt_session::read_header( )
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << "READ: header ...";
@@ -58,7 +68,7 @@ namespace io_wally
         {
             BOOST_LOG_SEV( logger_, lvl::error ) << "Failed to read header: [error_code:" << ec << "]";
             if ( ec != boost::asio::error::operation_aborted )
-                stop( );
+                session_manager_.stop( shared_from_this( ) );
             return;
         }
 
@@ -81,7 +91,7 @@ namespace io_wally
         {
             BOOST_LOG_SEV( logger_, lvl::error )
                 << "Malformed control packet header - will stop this session: " << e.what( );
-            stop( );
+            session_manager_.stop( shared_from_this( ) );
         }
     }
 
@@ -127,7 +137,7 @@ namespace io_wally
         {
             BOOST_LOG_SEV( logger_, lvl::error ) << "Failed to read body: [error_code:" << ec << "]";
             if ( ec != boost::asio::error::operation_aborted )
-                stop( );
+                session_manager_.stop( shared_from_this( ) );
             return;
         }
 
@@ -144,7 +154,7 @@ namespace io_wally
         {
             BOOST_LOG_SEV( logger_, lvl::error )
                 << "Malformed control packet body - will stop this session: " << e.what( );
-            stop( );
+            session_manager_.stop( shared_from_this( ) );
         }
 
         return;

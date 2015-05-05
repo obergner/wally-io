@@ -11,7 +11,8 @@ namespace io_wally
 {
 
     mqtt_server::mqtt_server( const std::string& address, const std::string& port )
-        : io_service_( ),
+        : session_manager_( ),
+          io_service_( ),
           signals_( io_service_ ),
           acceptor_( io_service_ ),
           socket_( io_service_ ),
@@ -63,8 +64,8 @@ namespace io_wally
             }
             if ( !ec )
             {
-                mqtt_session::pointer session = mqtt_session::create( std::move( socket_ ) );
-                session->start( );
+                mqtt_session::pointer session = mqtt_session::create( std::move( socket_ ), session_manager_ );
+                session_manager_.start( session );
             }
 
             do_accept( );
@@ -78,6 +79,7 @@ namespace io_wally
                                  // The mqtt_server is stopped by cancelling all outstanding asynchronous
                                  // operations. Once all operations have finished the io_service::run( ) call will exit.
                                  acceptor_.close( );
+                                 session_manager_.stop_all( );
                                  BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPED: MQTT server";
                              } );
     }

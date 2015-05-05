@@ -4,6 +4,7 @@
 
 #include "io_wally/logging.hpp"
 #include "io_wally/mqtt_session.hpp"
+#include "io_wally/mqtt_session_manager.hpp"
 
 using boost::asio::ip::tcp;
 
@@ -39,6 +40,9 @@ namespace io_wally
 
         /// Wait for a request to stop the mqtt_server.
         void do_await_stop( );
+
+        /// Our session manager that manages all connections
+        mqtt_session_manager session_manager_;
 
         /// The io_service used to perform asynchronous operations.
         boost::asio::io_service io_service_;
