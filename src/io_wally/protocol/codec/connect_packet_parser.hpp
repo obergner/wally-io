@@ -3,7 +3,7 @@
 #include <sstream>
 
 #include "io_wally/protocol/connect_packet.hpp"
-#include "io_wally/protocol/parser/common.hpp"
+#include "io_wally/protocol/codec/common.hpp"
 
 namespace io_wally
 {

@@ -1,6 +1,6 @@
 #include "catch.hpp"
 
-#include "io_wally/protocol/parser/connect_packet_parser.hpp"
+#include "io_wally/protocol/codec/connect_packet_parser.hpp"
 
 using namespace io_wally::protocol;
 

@@ -1,6 +1,6 @@
 #include "catch.hpp"
 
-#include "io_wally/protocol/parser/common.hpp"
+#include "io_wally/protocol/codec/common.hpp"
 
 using namespace io_wally::protocol;
 

@@ -1,6 +1,6 @@
 #include "catch.hpp"
 
-#include "io_wally/protocol/parser/mqtt_packet_parser.hpp"
+#include "io_wally/protocol/codec/mqtt_packet_parser.hpp"
 
 using namespace io_wally::protocol;
 
