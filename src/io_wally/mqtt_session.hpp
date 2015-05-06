@@ -7,7 +7,7 @@
 #include <boost/asio.hpp>
 
 #include "io_wally/logging.hpp"
-#include "io_wally/protocol/codec/common.hpp"
+#include "io_wally/protocol/codec/parser.hpp"
 #include "io_wally/protocol/codec/mqtt_packet_parser.hpp"
 
 using boost::asio::ip::tcp;
