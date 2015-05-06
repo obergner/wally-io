@@ -1,12 +1,12 @@
 #include "catch.hpp"
 
-#include "io_wally/protocol/codec/parser.hpp"
+#include "io_wally/protocol/codec/decoder.hpp"
 
 using namespace io_wally::protocol;
 
 SCENARIO( "remaining_length functor", "[packets]" )
 {
-    parser::remaining_length under_test;
+    decoder::remaining_length under_test;
 
     GIVEN( "a valid remaining length bytes sequence of length 1" )
     {
@@ -16,11 +16,11 @@ SCENARIO( "remaining_length functor", "[packets]" )
         WHEN( "a caller passes in one byte" )
         {
             uint32_t actual_result = -1;
-            parser::ParseState st = under_test( actual_result, remaining_length_byte );
+            decoder::ParseState st = under_test( actual_result, remaining_length_byte );
 
             THEN( "it should receive parse_state COMPLETE and the correct remaining length" )
             {
-                REQUIRE( st == parser::ParseState::COMPLETE );
+                REQUIRE( st == decoder::ParseState::COMPLETE );
                 REQUIRE( actual_result == expected_result );
             }
         }
@@ -36,13 +36,13 @@ SCENARIO( "remaining_length functor", "[packets]" )
         WHEN( "a caller passes in all bytes" )
         {
             uint32_t actual_result = -1;
-            parser::ParseState st1 = under_test( actual_result, first_byte );
-            parser::ParseState st2 = under_test( actual_result, second_byte );
+            decoder::ParseState st1 = under_test( actual_result, first_byte );
+            decoder::ParseState st2 = under_test( actual_result, second_byte );
 
             THEN( "it should on each call receive correct parse_state and in the end the correct remaining length" )
             {
-                REQUIRE( st1 == parser::ParseState::INCOMPLETE );
-                REQUIRE( st2 == parser::ParseState::COMPLETE );
+                REQUIRE( st1 == decoder::ParseState::INCOMPLETE );
+                REQUIRE( st2 == decoder::ParseState::COMPLETE );
                 REQUIRE( actual_result == expected_result );
             }
         }
@@ -60,15 +60,15 @@ SCENARIO( "remaining_length functor", "[packets]" )
         WHEN( "a caller passes in all bytes" )
         {
             uint32_t actual_result = -1;
-            parser::ParseState st1 = under_test( actual_result, first_byte );
-            parser::ParseState st2 = under_test( actual_result, second_byte );
-            parser::ParseState st3 = under_test( actual_result, third_byte );
+            decoder::ParseState st1 = under_test( actual_result, first_byte );
+            decoder::ParseState st2 = under_test( actual_result, second_byte );
+            decoder::ParseState st3 = under_test( actual_result, third_byte );
 
             THEN( "it should on each call receive correct parse_state and in the end the correct remaining length" )
             {
-                REQUIRE( st1 == parser::ParseState::INCOMPLETE );
-                REQUIRE( st2 == parser::ParseState::INCOMPLETE );
-                REQUIRE( st3 == parser::ParseState::COMPLETE );
+                REQUIRE( st1 == decoder::ParseState::INCOMPLETE );
+                REQUIRE( st2 == decoder::ParseState::INCOMPLETE );
+                REQUIRE( st3 == decoder::ParseState::COMPLETE );
                 REQUIRE( actual_result == expected_result );
             }
         }
@@ -88,17 +88,17 @@ SCENARIO( "remaining_length functor", "[packets]" )
         WHEN( "a caller passes in all bytes" )
         {
             uint32_t actual_result = -1;
-            parser::ParseState st1 = under_test( actual_result, first_byte );
-            parser::ParseState st2 = under_test( actual_result, second_byte );
-            parser::ParseState st3 = under_test( actual_result, third_byte );
-            parser::ParseState st4 = under_test( actual_result, fourth_byte );
+            decoder::ParseState st1 = under_test( actual_result, first_byte );
+            decoder::ParseState st2 = under_test( actual_result, second_byte );
+            decoder::ParseState st3 = under_test( actual_result, third_byte );
+            decoder::ParseState st4 = under_test( actual_result, fourth_byte );
 
             THEN( "it should on each call receive correct parse_state and in the end the correct remaining length" )
             {
-                REQUIRE( st1 == parser::ParseState::INCOMPLETE );
-                REQUIRE( st2 == parser::ParseState::INCOMPLETE );
-                REQUIRE( st3 == parser::ParseState::INCOMPLETE );
-                REQUIRE( st4 == parser::ParseState::COMPLETE );
+                REQUIRE( st1 == decoder::ParseState::INCOMPLETE );
+                REQUIRE( st2 == decoder::ParseState::INCOMPLETE );
+                REQUIRE( st3 == decoder::ParseState::INCOMPLETE );
+                REQUIRE( st4 == decoder::ParseState::COMPLETE );
                 REQUIRE( actual_result == expected_result );
             }
         }
@@ -114,16 +114,16 @@ SCENARIO( "remaining_length functor", "[packets]" )
         WHEN( "a caller passes in all bytes" )
         {
             uint32_t actual_result = -1;
-            parser::ParseState st1 = under_test( actual_result, first_byte );
-            parser::ParseState st2 = under_test( actual_result, second_byte );
-            parser::ParseState st3 = under_test( actual_result, third_byte );
+            decoder::ParseState st1 = under_test( actual_result, first_byte );
+            decoder::ParseState st2 = under_test( actual_result, second_byte );
+            decoder::ParseState st3 = under_test( actual_result, third_byte );
 
             THEN( "it should on the last call receive parse_state OUT_OF_RANGE" )
             {
-                REQUIRE( st1 == parser::ParseState::INCOMPLETE );
-                REQUIRE( st2 == parser::ParseState::INCOMPLETE );
-                REQUIRE( st3 == parser::ParseState::INCOMPLETE );
-                REQUIRE_THROWS_AS( under_test( actual_result, fourth_byte ), parser::error::malformed_mqtt_packet );
+                REQUIRE( st1 == decoder::ParseState::INCOMPLETE );
+                REQUIRE( st2 == decoder::ParseState::INCOMPLETE );
+                REQUIRE( st3 == decoder::ParseState::INCOMPLETE );
+                REQUIRE_THROWS_AS( under_test( actual_result, fourth_byte ), decoder::error::malformed_mqtt_packet );
             }
         }
     }
@@ -150,27 +150,27 @@ SCENARIO( "remaining_length functor", "[packets]" )
             under_test.reset( );
 
             uint32_t actual_result = -1;
-            parser::ParseState st1 = under_test( actual_result, first_byte );
-            parser::ParseState st2 = under_test( actual_result, second_byte );
-            parser::ParseState st3 = under_test( actual_result, third_byte );
-            parser::ParseState st4 = under_test( actual_result, fourth_byte );
+            decoder::ParseState st1 = under_test( actual_result, first_byte );
+            decoder::ParseState st2 = under_test( actual_result, second_byte );
+            decoder::ParseState st3 = under_test( actual_result, third_byte );
+            decoder::ParseState st4 = under_test( actual_result, fourth_byte );
 
             THEN( "it should still receive a correct result" )
             {
 
-                REQUIRE( st1 == parser::ParseState::INCOMPLETE );
-                REQUIRE( st2 == parser::ParseState::INCOMPLETE );
-                REQUIRE( st3 == parser::ParseState::INCOMPLETE );
-                REQUIRE( st4 == parser::ParseState::COMPLETE );
+                REQUIRE( st1 == decoder::ParseState::INCOMPLETE );
+                REQUIRE( st2 == decoder::ParseState::INCOMPLETE );
+                REQUIRE( st3 == decoder::ParseState::INCOMPLETE );
+                REQUIRE( st4 == decoder::ParseState::COMPLETE );
                 REQUIRE( actual_result == expected_result );
             }
         }
     }
 }
 
-SCENARIO( "header_parser", "[parser]" )
+SCENARIO( "header_decoder", "[decoder]" )
 {
-    parser::header_parser under_test;
+    decoder::header_decoder under_test;
 
     GIVEN( "a well-formed and complete header byte array with 1 length byte" )
     {
@@ -182,14 +182,14 @@ SCENARIO( "header_parser", "[parser]" )
 
         const uint32_t expected_remaining_length = ( first_byte & ~0x80 );
 
-        WHEN( "a client passes that array into header_parser" )
+        WHEN( "a client passes that array into header_decoder" )
         {
-            const parser::header_parser::result<std::array<uint8_t, 2>::const_iterator> result =
-                under_test.parse( buffer.begin( ), buffer.end( ) );
+            const decoder::header_decoder::result<std::array<uint8_t, 2>::const_iterator> result =
+                under_test.decode( buffer.begin( ), buffer.end( ) );
 
             THEN( "that client should receive a valid packet header and a correct buffer iterator" )
             {
-                REQUIRE( result.parse_state( ) == parser::ParseState::COMPLETE );
+                REQUIRE( result.parse_state( ) == decoder::ParseState::COMPLETE );
                 REQUIRE( result.is_parsing_complete( ) );
                 REQUIRE( result.parsed_header( ).type( ) == packet::Type::RESERVED1 );
                 REQUIRE( result.consumed_until( ) == buffer.end( ) );
@@ -213,14 +213,14 @@ SCENARIO( "header_parser", "[parser]" )
                                                    128 * 128 * ( third_byte & ~0x80 ) + 128 * ( second_byte & ~0x80 ) +
                                                    ( first_byte & ~0x80 );
 
-        WHEN( "a client passes that array into header_parser" )
+        WHEN( "a client passes that array into header_decoder" )
         {
-            const parser::header_parser::result<std::array<uint8_t, 5>::const_iterator> result =
-                under_test.parse( buffer.begin( ), buffer.end( ) );
+            const decoder::header_decoder::result<std::array<uint8_t, 5>::const_iterator> result =
+                under_test.decode( buffer.begin( ), buffer.end( ) );
 
             THEN( "that client should receive a valid packet header and a correct buffer iterator" )
             {
-                REQUIRE( result.parse_state( ) == parser::ParseState::COMPLETE );
+                REQUIRE( result.parse_state( ) == decoder::ParseState::COMPLETE );
                 REQUIRE( result.is_parsing_complete( ) );
                 REQUIRE( result.parsed_header( ).type( ) == packet::Type::PINGRESP );
                 REQUIRE( result.consumed_until( ) == buffer.end( ) );
@@ -244,26 +244,26 @@ SCENARIO( "header_parser", "[parser]" )
                                                    128 * 128 * ( third_byte & ~0x80 ) + 128 * ( second_byte & ~0x80 ) +
                                                    ( first_byte & ~0x80 );
 
-        WHEN( "a client passes the first chunck into header_parser" )
+        WHEN( "a client passes the first chunck into header_decoder" )
         {
-            const parser::header_parser::result<std::array<uint8_t, 5>::const_iterator> result =
-                under_test.parse( buffer.begin( ), buffer.begin( ) + 2 );
+            const decoder::header_decoder::result<std::array<uint8_t, 5>::const_iterator> result =
+                under_test.decode( buffer.begin( ), buffer.begin( ) + 2 );
 
             THEN( "that client should receive parse_state INCOMPLETE" )
             {
-                REQUIRE( result.parse_state( ) == parser::ParseState::INCOMPLETE );
+                REQUIRE( result.parse_state( ) == decoder::ParseState::INCOMPLETE );
                 REQUIRE( !result.is_parsing_complete( ) );
             }
         }
 
-        WHEN( "a client passes the second chunck into header_parser" )
+        WHEN( "a client passes the second chunck into header_decoder" )
         {
-            const parser::header_parser::result<std::array<uint8_t, 5>::const_iterator> result =
-                under_test.parse( buffer.begin( ) + 2, buffer.end( ) );
+            const decoder::header_decoder::result<std::array<uint8_t, 5>::const_iterator> result =
+                under_test.decode( buffer.begin( ) + 2, buffer.end( ) );
 
             THEN( "that client should receive parse_state COMPLETE and a correct buffer iterator" )
             {
-                REQUIRE( result.parse_state( ) == parser::ParseState::COMPLETE );
+                REQUIRE( result.parse_state( ) == decoder::ParseState::COMPLETE );
                 REQUIRE( result.is_parsing_complete( ) );
                 REQUIRE( result.consumed_until( ) == buffer.end( ) );
             }
@@ -286,12 +286,12 @@ SCENARIO( "header_parser", "[parser]" )
                                                    128 * 128 * ( third_byte & ~0x80 ) + 128 * ( second_byte & ~0x80 ) +
                                                    ( first_byte & ~0x80 );
 
-        WHEN( "a client passes that array into header_parser" )
+        WHEN( "a client passes that array into header_decoder" )
         {
-            THEN( "that client should see a parser::error::malformed_mqtt_packet being thrown" )
+            THEN( "that client should see a decoder::error::malformed_mqtt_packet being thrown" )
             {
-                REQUIRE_THROWS_AS( under_test.parse( buffer.begin( ), buffer.end( ) ),
-                                   parser::error::malformed_mqtt_packet );
+                REQUIRE_THROWS_AS( under_test.decode( buffer.begin( ), buffer.end( ) ),
+                                   decoder::error::malformed_mqtt_packet );
             }
         }
     }
@@ -307,10 +307,10 @@ SCENARIO( "parsing a 16 bit unsigned integer", "[packets]" )
 
         WHEN( "a client passes that buffer into parse_uint16" )
         {
-            THEN( "the client should see a parser::error::malformed_mqtt_packet being thrown" )
+            THEN( "the client should see a decoder::error::malformed_mqtt_packet being thrown" )
             {
-                REQUIRE_THROWS_AS( parser::parse_uint16( buffer.begin( ), buffer.cend( ), &parsed_int ),
-                                   parser::error::malformed_mqtt_packet );
+                REQUIRE_THROWS_AS( decoder::decode_uint16( buffer.begin( ), buffer.cend( ), &parsed_int ),
+                                   decoder::error::malformed_mqtt_packet );
             }
         }
     }
@@ -322,10 +322,10 @@ SCENARIO( "parsing a 16 bit unsigned integer", "[packets]" )
 
         WHEN( "a client passes that buffer into parse_uint16" )
         {
-            THEN( "the client should see a parser::error::malformed_mqtt_packet being thrown" )
+            THEN( "the client should see a decoder::error::malformed_mqtt_packet being thrown" )
             {
-                REQUIRE_THROWS_AS( parser::parse_uint16( buffer.begin( ), buffer.cend( ), &parsed_int ),
-                                   parser::error::malformed_mqtt_packet );
+                REQUIRE_THROWS_AS( decoder::decode_uint16( buffer.begin( ), buffer.cend( ), &parsed_int ),
+                                   decoder::error::malformed_mqtt_packet );
             }
         }
     }
@@ -341,7 +341,7 @@ SCENARIO( "parsing a 16 bit unsigned integer", "[packets]" )
 
         WHEN( "a client passes that buffer into parse_uint16" )
         {
-            const uint8_t* updated_iterator = parser::parse_uint16( buffer.begin( ), buffer.cend( ), &parsed_int );
+            const uint8_t* updated_iterator = decoder::decode_uint16( buffer.begin( ), buffer.cend( ), &parsed_int );
 
             THEN( "the client should receive a correctly decoded result" )
             {
@@ -364,12 +364,12 @@ SCENARIO( "parsing a UTF-8 string", "[packets]" )
         const std::array<const char, 1> buffer = {{0x00}};
         char* parsed_string = 0;
 
-        WHEN( "a client passes that buffer into parse_utf8_string" )
+        WHEN( "a client passes that buffer into decode_utf8_string" )
         {
-            THEN( "the client should see a parser::error::malformed_mqtt_packet being thrown" )
+            THEN( "the client should see a decoder::error::malformed_mqtt_packet being thrown" )
             {
-                REQUIRE_THROWS_AS( parser::parse_utf8_string( buffer.begin( ), buffer.cend( ), &parsed_string ),
-                                   parser::error::malformed_mqtt_packet );
+                REQUIRE_THROWS_AS( decoder::decode_utf8_string( buffer.begin( ), buffer.cend( ), &parsed_string ),
+                                   decoder::error::malformed_mqtt_packet );
             }
         }
     }
@@ -379,12 +379,12 @@ SCENARIO( "parsing a UTF-8 string", "[packets]" )
         const std::array<const char, 5> buffer = {{0x00, 0x04, 0x61, 0x62, 0x63}};
         char* parsed_string = 0;
 
-        WHEN( "a client passes that buffer into parse_utf8_string" )
+        WHEN( "a client passes that buffer into decode_utf8_string" )
         {
-            THEN( "the client should see a parser::error::malformed_mqtt_packet being thrown" )
+            THEN( "the client should see a decoder::error::malformed_mqtt_packet being thrown" )
             {
-                REQUIRE_THROWS_AS( parser::parse_utf8_string( buffer.begin( ), buffer.cend( ), &parsed_string ),
-                                   parser::error::malformed_mqtt_packet );
+                REQUIRE_THROWS_AS( decoder::decode_utf8_string( buffer.begin( ), buffer.cend( ), &parsed_string ),
+                                   decoder::error::malformed_mqtt_packet );
             }
         }
     }
@@ -394,10 +394,10 @@ SCENARIO( "parsing a UTF-8 string", "[packets]" )
         const std::array<const char, 2> buffer = {{0x00, 0x00}};
         char* parsed_string = 0;
 
-        WHEN( "a client passes that buffer into parse_utf8_string" )
+        WHEN( "a client passes that buffer into decode_utf8_string" )
         {
             std::array<const char, 2>::iterator new_buffer_start =
-                parser::parse_utf8_string( buffer.begin( ), buffer.cend( ), &parsed_string );
+                decoder::decode_utf8_string( buffer.begin( ), buffer.cend( ), &parsed_string );
 
             THEN( "the client should receive an empty string" )
             {
@@ -417,10 +417,10 @@ SCENARIO( "parsing a UTF-8 string", "[packets]" )
         const std::array<char, 5> buffer = {{0x00, 0x03, 0x61, 0x62, 0x63}};
         char* parsed_string = 0;
 
-        WHEN( "a client passes that buffer into parse_utf8_string" )
+        WHEN( "a client passes that buffer into decode_utf8_string" )
         {
             std::array<const char, 2>::iterator new_buffer_start =
-                parser::parse_utf8_string( buffer.begin( ), buffer.cend( ), &parsed_string );
+                decoder::decode_utf8_string( buffer.begin( ), buffer.cend( ), &parsed_string );
 
             THEN( "the client should receive an correctly parsed non-empty string" )
             {

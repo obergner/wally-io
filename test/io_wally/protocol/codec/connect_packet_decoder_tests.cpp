@@ -1,12 +1,12 @@
 #include "catch.hpp"
 
-#include "io_wally/protocol/codec/connect_packet_parser.hpp"
+#include "io_wally/protocol/codec/connect_packet_decoder.hpp"
 
 using namespace io_wally::protocol;
 
-SCENARIO( "connect_packet_parser", "[parser]" )
+SCENARIO( "connect_packet_decoder", "[decoder]" )
 {
-    parser::connect_packet_parser<const uint8_t*> under_test;
+    decoder::connect_packet_decoder<const uint8_t*> under_test;
 
     GIVEN( "a well-formed and complete header byte array with 1 length byte" )
     {
@@ -79,10 +79,10 @@ SCENARIO( "connect_packet_parser", "[parser]" )
             't',
         }};  /// avoids warning
 
-        WHEN( "a client passes that array into connect_packet_parser::parse" )
+        WHEN( "a client passes that array into connect_packet_decoder::decode" )
         {
             std::unique_ptr<const mqtt_packet> result =
-                under_test.parse( fixed_header, buffer.begin( ), buffer.end( ) );
+                under_test.decode( fixed_header, buffer.begin( ), buffer.end( ) );
 
             THEN( "that client should receive a non-null mqtt_packet pointer" )
             {
@@ -191,13 +191,13 @@ SCENARIO( "connect_packet_parser", "[parser]" )
             't',
         }};  /// avoids warning
 
-        WHEN( "a client passes that array into connect_packet_parser::parse" )
+        WHEN( "a client passes that array into connect_packet_decoder::decode" )
         {
 
-            THEN( "that client should see a parser::error::malformed_mqtt_packet being thrown" )
+            THEN( "that client should see a decoder::error::malformed_mqtt_packet being thrown" )
             {
-                REQUIRE_THROWS_AS( under_test.parse( fixed_header, buffer.begin( ), buffer.end( ) ),
-                                   parser::error::malformed_mqtt_packet );
+                REQUIRE_THROWS_AS( under_test.decode( fixed_header, buffer.begin( ), buffer.end( ) ),
+                                   decoder::error::malformed_mqtt_packet );
             }
         }
     }
@@ -273,13 +273,13 @@ SCENARIO( "connect_packet_parser", "[parser]" )
             't',
         }};  /// avoids warning
 
-        WHEN( "a client passes that array into connect_packet_parser::parse" )
+        WHEN( "a client passes that array into connect_packet_decoder::decode" )
         {
 
-            THEN( "that client should see a parser::error::malformed_mqtt_packet being thrown" )
+            THEN( "that client should see a decoder::error::malformed_mqtt_packet being thrown" )
             {
-                REQUIRE_THROWS_AS( under_test.parse( fixed_header, buffer.begin( ), buffer.end( ) ),
-                                   parser::error::malformed_mqtt_packet );
+                REQUIRE_THROWS_AS( under_test.decode( fixed_header, buffer.begin( ), buffer.end( ) ),
+                                   decoder::error::malformed_mqtt_packet );
             }
         }
     }
@@ -355,13 +355,13 @@ SCENARIO( "connect_packet_parser", "[parser]" )
             't',
         }};  /// avoids warning
 
-        WHEN( "a client passes that array into connect_packet_parser::parse" )
+        WHEN( "a client passes that array into connect_packet_decoder::decode" )
         {
 
-            THEN( "that client should see a parser::error::malformed_mqtt_packet being thrown" )
+            THEN( "that client should see a decoder::error::malformed_mqtt_packet being thrown" )
             {
-                REQUIRE_THROWS_AS( under_test.parse( fixed_header, buffer.begin( ), buffer.end( ) ),
-                                   parser::error::malformed_mqtt_packet );
+                REQUIRE_THROWS_AS( under_test.decode( fixed_header, buffer.begin( ), buffer.end( ) ),
+                                   decoder::error::malformed_mqtt_packet );
             }
         }
     }
@@ -437,13 +437,13 @@ SCENARIO( "connect_packet_parser", "[parser]" )
             'x',
         }};  /// avoids warning
 
-        WHEN( "a client passes that array into connect_packet_parser::parse" )
+        WHEN( "a client passes that array into connect_packet_decoder::decode" )
         {
 
-            THEN( "that client should see a parser::error::malformed_mqtt_packet being thrown" )
+            THEN( "that client should see a decoder::error::malformed_mqtt_packet being thrown" )
             {
-                REQUIRE_THROWS_AS( under_test.parse( fixed_header, buffer.begin( ), buffer.end( ) ),
-                                   parser::error::malformed_mqtt_packet );
+                REQUIRE_THROWS_AS( under_test.decode( fixed_header, buffer.begin( ), buffer.end( ) ),
+                                   decoder::error::malformed_mqtt_packet );
             }
         }
     }

@@ -7,13 +7,13 @@
 #include <boost/asio.hpp>
 
 #include "io_wally/logging.hpp"
-#include "io_wally/protocol/codec/parser.hpp"
-#include "io_wally/protocol/codec/mqtt_packet_parser.hpp"
+#include "io_wally/protocol/codec/decoder.hpp"
+#include "io_wally/protocol/codec/mqtt_packet_decoder.hpp"
 
 using boost::asio::ip::tcp;
 
 using namespace io_wally::protocol;
-using namespace io_wally::protocol::parser;
+using namespace io_wally::protocol::decoder;
 
 namespace io_wally
 {
@@ -51,9 +51,9 @@ namespace io_wally
 
         void on_header_data_read( const boost::system::error_code& ec, const size_t bytes_transferred );
 
-        void read_body( const header_parser::result<uint8_t*>& header_parse_result, const size_t bytes_transferred );
+        void read_body( const header_decoder::result<uint8_t*>& header_parse_result, const size_t bytes_transferred );
 
-        void on_body_data_read( const header_parser::result<uint8_t*>& header_parse_result,
+        void on_body_data_read( const header_decoder::result<uint8_t*>& header_parse_result,
                                 const boost::system::error_code& ec,
                                 const size_t bytes_transferred );
 
@@ -70,10 +70,10 @@ namespace io_wally
         tcp::socket socket_;
 
         /// Somehow we need to parse those headers
-        header_parser header_parser_;
+        header_decoder header_decoder_;
 
         /// And while we are at it, why not parse the rest of those packets, too?
-        mqtt_packet_parser<uint8_t*> packet_parser_;
+        mqtt_packet_decoder<uint8_t*> packet_decoder_;
 
         /// Our severity-enabled channel logger
         boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_;

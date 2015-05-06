@@ -21,12 +21,12 @@ namespace io_wally
         ///
         /// Most important classes in this namespace are arguably
         ///
-        ///  - \c header_parser and
-        ///  - \c mqtt_packet_parser
+        ///  - \c header_decoder and
+        ///  - \c mqtt_packet_decoder
         ///
         /// \note       The grunt work of parsing an \c mqtt_packet's on the wire representation is done by several
-        ///             implementations of \c packet_body_parser, one for each concrete \c mqtt_packet.
-        namespace parser
+        ///             implementations of \c packet_body_decoder, one for each concrete \c mqtt_packet.
+        namespace decoder
         {
 
             /// \brief Namespace for grouping all exceptions that may be thrown when parsing an \c mqtt_packet's on
@@ -124,9 +124,9 @@ namespace io_wally
                 uint32_t multiplier_ = 1;
             };
 
-            /// \brief Stateful parser for MQTT \c headers.
+            /// \brief Stateful decoder for MQTT \c headers.
             ///
-            class header_parser
+            class header_decoder
             {
                public:
                 /// \brief Result of parsing an MQTT \c header.
@@ -194,8 +194,8 @@ namespace io_wally
                     const boost::optional<InputIterator> consumed_until_;
                 };
 
-                /// \brief Create a default \c header_parser.
-                header_parser( ) : type_and_flags_( -1 ), remaining_length_( )
+                /// \brief Create a default \c header_decoder.
+                header_decoder( ) : type_and_flags_( -1 ), remaining_length_( )
                 {
                     return;
                 }
@@ -234,7 +234,7 @@ namespace io_wally
                 /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718020
                 ///
                 template <typename InputIterator>
-                const result<InputIterator> parse( InputIterator buf_start, const InputIterator buf_end )
+                const result<InputIterator> decode( InputIterator buf_start, const InputIterator buf_end )
                 {
                     uint32_t rem_len = -1;
                     ParseState rem_len_pst = ParseState::INCOMPLETE;
@@ -256,7 +256,7 @@ namespace io_wally
                     return result<InputIterator>( type_and_flags_, rem_len, buf_start );
                 }
 
-                /// \brief Reset this \c header_parser's internal state, preparing it for reuse.
+                /// \brief Reset this \c header_decoder's internal state, preparing it for reuse.
                 ///
                 void reset( )
                 {
@@ -268,7 +268,7 @@ namespace io_wally
                 /// Fields
                 int16_t type_and_flags_;
                 remaining_length remaining_length_;
-            };  // header_parser
+            };  // header_decoder
 
             /// \brief Parse a 16 bit wide unsigned int in the supplied buffer.
             ///
@@ -295,9 +295,9 @@ namespace io_wally
             ///
             /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718016
             template <typename InputIterator>
-            inline InputIterator parse_uint16( InputIterator uint16_start,
-                                               const InputIterator buf_end,
-                                               uint16_t* const parsed_uint16 )
+            inline InputIterator decode_uint16( InputIterator uint16_start,
+                                                const InputIterator buf_end,
+                                                uint16_t* const parsed_uint16 )
             {
                 // We need at least two bytes for encoding a uint16_t
                 if ( uint16_start + 2 > buf_end )
@@ -339,9 +339,9 @@ namespace io_wally
             ///
             /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718016
             template <typename InputIterator>
-            inline InputIterator parse_utf8_string( InputIterator string_start,
-                                                    const InputIterator buf_end,
-                                                    char** parsed_string )
+            inline InputIterator decode_utf8_string( InputIterator string_start,
+                                                     const InputIterator buf_end,
+                                                     char** parsed_string )
             {
                 // We need at least two bytes for encoding string length
                 if ( string_start + 2 > buf_end )
@@ -350,7 +350,7 @@ namespace io_wally
                 }
 
                 uint16_t string_length = -1;
-                string_start = parse_uint16( string_start, buf_end, &string_length );
+                string_start = decode_uint16( string_start, buf_end, &string_length );
                 // Do we have enough room for our string?
                 if ( string_start + string_length > buf_end )
                 {
@@ -367,18 +367,18 @@ namespace io_wally
                 return string_start;
             }
 
-            /// \brief Interface for parsers capable of decoding a single type of MQTT packets.
+            /// \brief Interface for decoders capable of decoding a single type of MQTT packets.
             ///
-            /// Defines and interface for parsers/decoders that take \c header_flags and a buffer containing an MQTT
+            /// Defines and interface for decoders/decoders that take \c header_flags and a buffer containing an MQTT
             /// packet's on the wire representation and return a decoded \c mqtt_packet.
             ///
             /// Note that the concrete type of \c mqtt_packet to decode is already known when an implementation of this
             /// interface is called.
             ///
-            /// Note further that a concrete \c packet_body_parser implementation handles exactly one concrete
+            /// Note further that a concrete \c packet_body_decoder implementation handles exactly one concrete
             /// \c mqtt_packet type (CONNECT, CONNACK, ...).
             template <typename InputIterator>
-            class packet_body_parser
+            class packet_body_decoder
             {
                public:
                 /// \brief Parse the supplied buffer into an MQTT packet.
@@ -404,13 +404,13 @@ namespace io_wally
                 ///             an \c mqtt_packet's on the wire format.
                 /// \pre        \c buf_end points immediately past the last byte in a buffer representing an
                 ///             \c mqtt_packet's on the wire format.
-                /// \pre        \c header is of the same MQTT Control Packet type as this \c packet_body_parser
+                /// \pre        \c header is of the same MQTT Control Packet type as this \c packet_body_decoder
                 ///             expects to decode.
-                virtual std::unique_ptr<const mqtt_packet> parse( const packet::header& header,
-                                                                  InputIterator buf_start,
-                                                                  const InputIterator buf_end ) const = 0;
-            };  // packet_body_parser
+                virtual std::unique_ptr<const mqtt_packet> decode( const packet::header& header,
+                                                                   InputIterator buf_start,
+                                                                   const InputIterator buf_end ) const = 0;
+            };  // packet_body_decoder
 
-        }  /// namespace parser
+        }  /// namespace decoder
     }      /// namespace protocol
 }  /// namespace io_wally

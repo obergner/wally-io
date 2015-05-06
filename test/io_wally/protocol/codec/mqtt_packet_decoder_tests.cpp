@@ -1,12 +1,12 @@
 #include "catch.hpp"
 
-#include "io_wally/protocol/codec/mqtt_packet_parser.hpp"
+#include "io_wally/protocol/codec/mqtt_packet_decoder.hpp"
 
 using namespace io_wally::protocol;
 
-SCENARIO( "mqtt_packet_parser", "[parser]" )
+SCENARIO( "mqtt_packet_decoder", "[decoder]" )
 {
-    parser::mqtt_packet_parser<const uint8_t*> under_test;
+    decoder::mqtt_packet_decoder<const uint8_t*> under_test;
 
     GIVEN( "a well-formed and complete header byte array with 1 length byte" )
     {
@@ -79,10 +79,10 @@ SCENARIO( "mqtt_packet_parser", "[parser]" )
             't',
         }};  /// avoids warning
 
-        WHEN( "a client passes that array into mqtt_packet_parser::parse" )
+        WHEN( "a client passes that array into mqtt_packet_decoder::parse" )
         {
             std::unique_ptr<const mqtt_packet> result =
-                under_test.parse( fixed_header, buffer.begin( ), buffer.end( ) );
+                under_test.decode( fixed_header, buffer.begin( ), buffer.end( ) );
 
             THEN( "that client should receive a non-null mqtt_packet pointer" )
             {

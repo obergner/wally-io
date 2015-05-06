@@ -7,7 +7,7 @@
 using boost::asio::ip::tcp;
 
 using namespace io_wally::protocol;
-using namespace io_wally::protocol::parser;
+using namespace io_wally::protocol::decoder;
 
 namespace io_wally
 {
@@ -20,8 +20,8 @@ namespace io_wally
         : session_manager_( session_manager ),
           read_buffer_( std::vector<uint8_t>( initial_buffer_capacity ) ),
           socket_( std::move( socket ) ),
-          header_parser_( ),
-          packet_parser_( ),
+          header_decoder_( ),
+          packet_decoder_( ),
           logger_( keywords::channel = "session", keywords::severity = lvl::trace )
     {
         return;
@@ -74,8 +74,8 @@ namespace io_wally
 
         try
         {
-            const header_parser::result<uint8_t*> result =
-                header_parser_.parse( read_buffer_.data( ), read_buffer_.data( ) + bytes_transferred );
+            const header_decoder::result<uint8_t*> result =
+                header_decoder_.decode( read_buffer_.data( ), read_buffer_.data( ) + bytes_transferred );
             if ( !result.is_parsing_complete( ) )
             {
                 // HIGHLY UNLIKELY: header is at most 5 bytes.
@@ -95,7 +95,7 @@ namespace io_wally
         }
     }
 
-    void mqtt_session::read_body( const header_parser::result<uint8_t*>& header_parse_result,
+    void mqtt_session::read_body( const header_decoder::result<uint8_t*>& header_parse_result,
                                   const size_t bytes_transferred )
     {
         const uint32_t remaining_length = header_parse_result.parsed_header( ).remaining_length( );
@@ -129,7 +129,7 @@ namespace io_wally
         }
     }
 
-    void mqtt_session::on_body_data_read( const header_parser::result<uint8_t*>& header_parse_result,
+    void mqtt_session::on_body_data_read( const header_decoder::result<uint8_t*>& header_parse_result,
                                           const boost::system::error_code& ec,
                                           const size_t bytes_transferred )
     {
@@ -145,9 +145,9 @@ namespace io_wally
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "Body data read. Decoding ...";
             const std::unique_ptr<const mqtt_packet> parsed_packet =
-                packet_parser_.parse( header_parse_result.parsed_header( ),
-                                      header_parse_result.consumed_until( ),
-                                      header_parse_result.consumed_until( ) + bytes_transferred );
+                packet_decoder_.decode( header_parse_result.parsed_header( ),
+                                        header_parse_result.consumed_until( ),
+                                        header_parse_result.consumed_until( ) + bytes_transferred );
             BOOST_LOG_SEV( logger_, lvl::info ) << "DECODED: " << *parsed_packet;
         }
         catch ( const error::malformed_mqtt_packet& e )
