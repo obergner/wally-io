@@ -13,7 +13,7 @@ namespace io_wally
         {
             /// \brief \c packet_body_decoder implementation for CONNECT packets.
             ///
-            /// Interprets the supplied buffer to contain a serialized CONNECT packet. Parses the buffer and returns
+            /// Interprets the supplied buffer to contain a serialized CONNECT packet. Decodes the buffer and returns
             /// decoded \c connect_packet.
             ///
             /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718nullptr28
@@ -21,7 +21,7 @@ namespace io_wally
             class connect_packet_decoder : public packet_body_decoder<InputIterator>
             {
                public:
-                /// \brief Parse the supplied buffer into a \c connect packet.
+                /// \brief Decode the supplied buffer into a \c connect_packet.
                 ///
                 /// \see io_wally::protocol::decoder::packet_body_decoder::parse
                 ///

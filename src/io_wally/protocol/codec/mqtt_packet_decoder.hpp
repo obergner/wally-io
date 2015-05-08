@@ -10,10 +10,10 @@ namespace io_wally
     {
         namespace decoder
         {
-            /// \brief decoder for MQTT packets of arbitrary but known type.
+            /// \brief Decoder for MQTT packets of arbitrary but known type.
             ///
             /// Takes an MQTT \c header and a buffer containing an MQTT packet's on the wire representation. Deduces
-            /// from the supplied \c header the type of \c mqtt_packet to parse and delegates to an appropriate
+            /// from the supplied \c header the type of \c mqtt_packet to decode and delegates to an appropriate
             /// \c packet_body_decoder implementation.
             template <typename InputIterator>
             class mqtt_packet_decoder
@@ -21,18 +21,18 @@ namespace io_wally
                public:
                 /// Methods
 
-                /// \brief Parse the supplied buffer into an MQTT packet.
+                /// \brief Decode the supplied buffer into an MQTT packet.
                 ///
-                /// From the supplied \c header determine the concrete type of \c mqtt_packet to parse. Find an
-                /// appropriate implementation of \c packet_body_decoder and delegate parsing to it. Return the parsed
-                /// \c mqtt_packet, transferring ownership to the caller. If parsing fails throw an
+                /// From the supplied \c header determine the concrete type of \c mqtt_packet to decode. Find an
+                /// appropriate implementation of \c packet_body_decoder and delegate decoding to it. Return the decoded
+                /// \c mqtt_packet, transferring ownership to the caller. If decoding fails throw an
                 /// \c error::malformed_mqtt_packet.
                 ///
                 /// \param header       Parsed \c header of MQTT control packet to decode.
                 /// \param buf_start    Start of buffer containing the serialized MQTT packet. MUST point immediately
                 ///                     past the fixed header.
                 /// \param buf_end      End of buffer containing the serialized MQTT packet.
-                /// \return             The parsed \c mqtt_packet, i.e. an instance of a concrete subclass of
+                /// \return             The decoded \c mqtt_packet, i.e. an instance of a concrete subclass of
                 ///                     \c mqtt_packet. Note that the caller assumes ownership.
                 /// \throws error::malformed_mqtt_packet    If encoding is malformed, e.g. remaining length has been
                 ///                                         incorrectly encoded.
