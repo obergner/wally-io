@@ -132,3 +132,65 @@ SCENARIO( "remaining_length_encoder", "[packets]" )
         }
     }
 }
+
+SCENARIO( "encoding a 16 bit unsigned integer", "[packets]" )
+{
+    typedef std::array<const uint8_t, 2>::iterator out_iter;
+
+    GIVEN( "the value 0" )
+    {
+        const uint16_t value = 0;
+        std::array<uint8_t, 2> result = {{0x00, 0x00}};
+        const std::array<uint8_t, 2> expected_result = {{0x00, 0x00}};
+
+        WHEN( "a client passes that buffer into encode_uint16" )
+        {
+            const out_iter buf_end = encoder::encode_uint16( value, result.begin( ) );
+
+            THEN( "the client should see a correctly encoded value and a correctly updated buffer iterator" )
+            {
+                CHECK( result == expected_result );
+                REQUIRE( ( buf_end - result.begin( ) ) == 2 );
+            }
+        }
+    }
+
+    GIVEN( "the value 0x00F0" )
+    {
+        const uint16_t value = 0x00F0;
+        std::array<uint8_t, 2> result = {{0x00, 0x00}};
+        const std::array<uint8_t, 2> expected_result = {{0x00, 0xF0}};
+
+        WHEN( "a client passes that buffer into encode_uint16" )
+        {
+            const out_iter buf_end = encoder::encode_uint16( value, result.begin( ) );
+
+            THEN( "the client should see a correctly encoded value and a correctly updated buffer iterator" )
+            {
+                CHECK( result == expected_result );
+                REQUIRE( ( buf_end - result.begin( ) ) == 2 );
+            }
+        }
+    }
+
+    GIVEN( "the value 0xB345" )
+    {
+        const uint16_t value = 0xB345;
+        std::array<uint8_t, 2> result = {{0x00, 0x00}};
+        const std::array<uint8_t, 2> expected_result = {{0xB3, 0x45}};
+
+        WHEN( "a client passes that buffer into encode_uint16" )
+        {
+            const out_iter buf_end = encoder::encode_uint16( value, result.begin( ) );
+
+            THEN( "the client should see a correctly encoded value and a correctly updated buffer iterator" )
+            {
+                for ( const uint8_t& v : result )
+                    std::cout << "RES: " << (int)v << std::endl;
+                std::cout.flush( );
+                CHECK( result == expected_result );
+                REQUIRE( ( buf_end - result.begin( ) ) == 2 );
+            }
+        }
+    }
+}

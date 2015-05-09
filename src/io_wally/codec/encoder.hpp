@@ -92,11 +92,26 @@ namespace io_wally
             }
         };
 
+        /// \brief Encode a 16 bit wide unsigned integer in big endian byte order.
+        ///
+        /// Take the supplied \c value, encode it in big endian byte order, and write the two bytes thus obtained into
+        /// a buffer starting at \c buf_start. Return an \c OutputIterator that points immediately past the last byte
+        /// written.
+        ///
+        /// \param value        The 16 bit wide unsigned integer to encode
+        /// \param buf_start    Start of buffer to encode \c value into
+        /// \return             An \c OuptutIterator that points immediately past the last byte written
         ///
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718016
         template <typename OutputIterator>
         inline OutputIterator encode_uint16( const uint16_t value, OutputIterator buf_start )
         {
+            const uint8_t msb = value / 0x0100;
+            const uint8_t lsb = value % 0x0100;
+
+            *buf_start++ = msb;
+            *buf_start++ = lsb;
+
             return buf_start;
         }
 
