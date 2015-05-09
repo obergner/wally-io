@@ -7,13 +7,13 @@
 #include <boost/asio.hpp>
 
 #include "io_wally/logging.hpp"
-#include "io_wally/protocol/codec/decoder.hpp"
-#include "io_wally/protocol/codec/mqtt_packet_decoder.hpp"
+#include "io_wally/codec/decoder.hpp"
+#include "io_wally/codec/mqtt_packet_decoder.hpp"
 
 using boost::asio::ip::tcp;
 
 using namespace io_wally::protocol;
-using namespace io_wally::protocol::decoder;
+using namespace io_wally::decoder;
 
 namespace io_wally
 {

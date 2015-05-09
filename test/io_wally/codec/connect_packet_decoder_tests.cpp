@@ -1,8 +1,8 @@
 #include "catch.hpp"
 
-#include "io_wally/protocol/codec/connect_packet_decoder.hpp"
+#include "io_wally/codec/connect_packet_decoder.hpp"
 
-using namespace io_wally::protocol;
+using namespace io_wally;
 
 SCENARIO( "connect_packet_decoder", "[decoder]" )
 {

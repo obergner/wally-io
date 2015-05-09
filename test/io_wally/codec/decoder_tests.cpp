@@ -1,8 +1,8 @@
 #include "catch.hpp"
 
-#include "io_wally/protocol/codec/decoder.hpp"
+#include "io_wally/codec/decoder.hpp"
 
-using namespace io_wally::protocol;
+using namespace io_wally;
 
 SCENARIO( "remaining_length functor", "[packets]" )
 {

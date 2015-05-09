@@ -36,7 +36,7 @@ BUILD 		    := build
 # Sources
 MSOURCES         += $(wildcard src/io_wally/*.cpp)
 MSOURCES         += $(wildcard src/io_wally/protocol/*.cpp)
-MSOURCES         += $(wildcard src/io_wally/protocol/codec/*.cpp)
+MSOURCES         += $(wildcard src/io_wally/codec/*.cpp)
 
 MEXECSOURCE      := $(wildcard src/*.cpp)
 
@@ -66,7 +66,7 @@ TLFLAGS      	= $(LFLAGS)
 TSOURCES     	+= $(wildcard test/*.cpp)
 TSOURCES     	+= $(wildcard test/io_wally/*.cpp)
 TSOURCES     	+= $(wildcard test/io_wally/protocol/*.cpp)
-TSOURCES     	+= $(wildcard test/io_wally/protocol/codec/*.cpp)
+TSOURCES     	+= $(wildcard test/io_wally/codec/*.cpp)
 
 TEXECSOURCE      := $(wildcard test/*.cpp)
 

@@ -7,7 +7,7 @@
 using boost::asio::ip::tcp;
 
 using namespace io_wally::protocol;
-using namespace io_wally::protocol::decoder;
+using namespace io_wally::decoder;
 
 namespace io_wally
 {
