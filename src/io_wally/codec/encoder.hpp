@@ -115,12 +115,32 @@ namespace io_wally
             return buf_start;
         }
 
+        constexpr uint16_t MAX_STRING_LENGTH = 0x00FF * 0x0100 + 0xFF;
+
         /// \brief Encode a UTF-8 string into the supplied buffer.
+        ///
+        /// Take the supplied \c value and write its contents viewed as a byte array into a buffer starting at
+        /// \c buf_start. Prefix the byte array with a two bytes sequence encoding \c value length (in bytes) in big
+        /// endian byte order. Return an \c OutputIterator that points immediately past the last byte written. If
+        /// \c value is longer than the allowed maximum of 65536 bytes throw an error::illegal_mqtt_packet.
+        ///
+        /// \param value        The string to encode. Note that MQTT 3.1.1 requires strings to be UNICODE strings
+        ///                     encoded in UTF-8, although this function does in fact not care.
+        /// \param buf_start    Start of buffer to encode \c value into
+        /// \return             An \c OutputIterator pointing immediately past the last byte written
         ///
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718016
         template <typename OutputIterator>
         inline OutputIterator encode_utf8_string( const std::string& value, OutputIterator buf_start )
         {
+            if ( value.length( ) > MAX_STRING_LENGTH )
+                throw error::illegal_mqtt_packet( "Supplied UTF-8 string is longer than allowed maximum" );
+
+            const uint16_t string_length = value.length( );
+            buf_start = encode_uint16( string_length, buf_start );
+            for ( const char& ch : value )
+                *buf_start++ = ch;
+
             return buf_start;
         }
 

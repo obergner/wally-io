@@ -194,3 +194,96 @@ SCENARIO( "encoding a 16 bit unsigned integer", "[packets]" )
         }
     }
 }
+
+SCENARIO( "encoding a UTF-8 string", "[packets]" )
+{
+    typedef std::array<const uint8_t, 2>::iterator out_iter;
+
+    GIVEN( "an empty string" )
+    {
+        const std::string value = "";
+        std::array<uint8_t, 2> result = {{0x00, 0x00}};
+        const std::array<uint8_t, 2> expected_result = {{0x00, 0x00}};
+
+        WHEN( "a client passes that buffer into encode_utf8_string" )
+        {
+            const out_iter buf_end = encoder::encode_utf8_string( value, result.begin( ) );
+
+            THEN( "the client should see a correctly encoded value and a correctly updated buffer iterator" )
+            {
+                CHECK( result == expected_result );
+                REQUIRE( ( buf_end - result.begin( ) ) == 2 );
+            }
+        }
+    }
+
+    GIVEN( "the string 'abc'" )
+    {
+        const std::string value = "abc";
+        std::array<uint8_t, 5> result = {{0x00, 0x00, 0x00, 0x00, 0x00}};
+        const std::array<uint8_t, 5> expected_result = {{0x00, 0x03, 'a', 'b', 'c'}};
+
+        WHEN( "a client passes that buffer into encode_utf8_string" )
+        {
+            const out_iter buf_end = encoder::encode_utf8_string( value, result.begin( ) );
+
+            THEN( "the client should see a correctly encoded value and a correctly updated buffer iterator" )
+            {
+                CHECK( result == expected_result );
+                REQUIRE( ( buf_end - result.begin( ) ) == 5 );
+            }
+        }
+    }
+
+    GIVEN( "a string of maximum allowed length" )
+    {
+        char value_buf[encoder::MAX_STRING_LENGTH];
+        std::generate( value_buf,
+                       value_buf + encoder::MAX_STRING_LENGTH,
+                       []( )
+                       {
+            return 'a';
+        } );
+        const std::string value( value_buf );
+
+        std::array<uint8_t, encoder::MAX_STRING_LENGTH + 2> result;
+
+        std::array<uint8_t, encoder::MAX_STRING_LENGTH + 2> expected_result;
+        expected_result.fill( 'a' );
+        *expected_result.begin( ) = 0xFF;
+        *( expected_result.begin( ) + 1 ) = 0xFF;
+
+        WHEN( "a client passes that buffer into encode_utf8_string" )
+        {
+            const out_iter buf_end = encoder::encode_utf8_string( value, result.begin( ) );
+
+            THEN( "the client should see a correctly encoded value and a correctly updated buffer iterator" )
+            {
+                CHECK( result == expected_result );
+                REQUIRE( ( buf_end - result.begin( ) ) == encoder::MAX_STRING_LENGTH + 2 );
+            }
+        }
+    }
+
+    GIVEN( "a string of maximum allowed length + 1" )
+    {
+        char value_buf[encoder::MAX_STRING_LENGTH + 1];
+        std::generate( value_buf,
+                       value_buf + encoder::MAX_STRING_LENGTH + 1,
+                       []( )
+                       {
+            return 'a';
+        } );
+        const std::string value( value_buf );
+        std::array<uint8_t, encoder::MAX_STRING_LENGTH + 3> result;
+
+        WHEN( "a client passes that buffer into encode_utf8_string" )
+        {
+            THEN( "the client should see an encoder::error::illegal_mqtt_packet being thrown" )
+            {
+                REQUIRE_THROWS_AS( encoder::encode_utf8_string( value, result.begin( ) ),
+                                   encoder::error::illegal_mqtt_packet );
+            }
+        }
+    }
+}
