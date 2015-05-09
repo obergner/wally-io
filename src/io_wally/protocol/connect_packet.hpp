@@ -302,10 +302,10 @@ namespace io_wally
            public:
             /// \brief Create a new \c connect instance.
             ///
-            /// \param header        Fixed header, common to all MQTT control packets
-            /// \param connect_header        Variable header, specific to CONNECT packet
-            /// \param connect_payload       Packet body/payload
-            connect( const packet::header header, const connect_header connect_header, connect_payload payload )
+            /// \param header           Fixed header, common to all MQTT control packets
+            /// \param connect_header   Variable header, specific to CONNECT packet
+            /// \param payload          Packet body/payload
+            connect( const packet::header header, const connect_header connect_header, const connect_payload payload )
                 : mqtt_packet( std::move( header ) ),
                   connect_header_( std::move( connect_header ) ),
                   payload_( std::move( payload ) )

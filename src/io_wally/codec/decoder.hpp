@@ -89,7 +89,7 @@ namespace io_wally
             /// \throws error::malformed_mqtt_packet If provided sequence of bytes does not encode a valid
             ///                                      \c remaining length.
             ///
-            /// \pre        Either this functor is called for the first time after creation/calling ::reset(), or
+            /// \pre        Either this functor is called for the first time after creation/calling reset(), or
             ///             the previous call has returned \c ParseState::INCOMPLETE
             ParseState operator( )( uint32_t& result, const uint8_t next_byte )
             {

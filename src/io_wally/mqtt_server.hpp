@@ -13,7 +13,7 @@ namespace io_wally
     /// \brief The MQTT server.
     ///
     /// An \c mqtt_server instance is initialized with an \c address and a \c port to listen on. It starts
-    /// listening for incoming connection requests as soon as a client calls its ::run() method.
+    /// listening for incoming connection requests as soon as a client calls its run() method.
     ///
     /// To stop a running \c mqtt_server instance users currently need to send a termination signal to the running
     /// process.

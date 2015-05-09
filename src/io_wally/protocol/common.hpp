@@ -341,7 +341,7 @@ namespace io_wally
            public:
             /// \brief Create a new \c mqtt_packet instance from the supplied \c packet::header.
             ///
-            /// \param \c packet::header of this MQTT packet
+            /// \param header This MQTT packet's packet::header
             mqtt_packet( struct packet::header header ) : header_( std::move( header ) )
             {
                 return;
@@ -349,7 +349,7 @@ namespace io_wally
 
             /// \brief Return this \c mqtt_packet's \c packet::header.
             ///
-            /// \return \c packet::header of this MQTT packet
+            /// \return This MQTT packet's packet::header
             const struct packet::header& header( ) const
             {
                 return header_;
