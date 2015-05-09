@@ -161,10 +161,20 @@ namespace io_wally
             return buf_start;
         }
 
+        /// \brief Encoder for \c mqtt_packet bodies, i.e. \c mqtt_packets sans fixed header.
         template <typename OutputIterator>
         class packet_body_encoder
         {
            public:
+            /// \brief Encode \c mqtt_packet's body.
+            ///
+            /// Encode \c mqtt_packet's body, skipping its \c packet::header, into a buffer starting at \c buf_start.
+            /// Return an \c OutputIterator that points immediately past the last byte written. If \c packet
+            /// violates the spec, throw an error::illegal_mqtt_packet.
+            ///
+            /// \param packet        \c mqtt_packet to encode the body of
+            /// \param buf_start     Start of buffer to encode packet body into
+            /// \return              An \c OutputIterator pointing immediately past the last byte written
             virtual OutputIterator encode( const mqtt_packet& packet, OutputIterator buf_start ) = 0;
         };  // packet_body_encoder
 
