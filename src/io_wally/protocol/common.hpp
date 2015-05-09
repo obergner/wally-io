@@ -33,8 +33,6 @@ namespace io_wally
         namespace packet
         {
 
-            const uint8_t CONTROL_PACKET_TYPE_MASK = 0xF0;
-
             /// \brief Quality of service
             ///
             /// Contract on delivery guarantuees for published messages:
@@ -149,6 +147,9 @@ namespace io_wally
                 const uint8_t flags_;
             };  /// struct header_flags
 
+            /// \brief Overload stream output operator for \c header_flags.
+            ///
+            /// Overload stream output operator for \c header_flag, primarily meant to facilitate logging.
             inline std::ostream& operator<<( std::ostream& output, header_flags const& header_flags )
             {
                 std::string qos_string;
@@ -263,6 +264,13 @@ namespace io_wally
                     return packet::header_flags( control_packet_type_and_flags_ );
                 }
 
+                /// \brief Return control packet type and flags in "raw" form, i.e. as a byte.
+                ///
+                uint8_t type_and_flags( ) const
+                {
+                    return control_packet_type_and_flags_;
+                }
+
                 /// \brief Return this control packet's remaining length in bytes on the wire, excluding fixed header.
                 ///
                 uint32_t remaining_length( ) const
@@ -271,11 +279,15 @@ namespace io_wally
                 }
 
                private:
+                static constexpr uint8_t CONTROL_PACKET_TYPE_MASK = 0xF0;
                 /// Fields
                 const uint8_t control_packet_type_and_flags_;
                 const uint32_t remaining_length_;
             };  /// struct header
 
+            /// \brief Overload stream output operator for \c headers.
+            ///
+            /// Overload stream output operator for \c headers, primarily meant to facilitate logging.
             inline std::ostream& operator<<( std::ostream& output, header const& header )
             {
                 std::string type_string;
@@ -365,6 +377,9 @@ namespace io_wally
             const struct packet::header header_;
         };
 
+        /// \brief Overload stream output operator for \c mqtt_packet.
+        ///
+        /// Overload stream output operator for \c mqtt_packet, primarily meant to facilitate logging.
         inline std::ostream& operator<<( std::ostream& output, mqtt_packet const& mqtt_packet )
         {
             output << mqtt_packet.to_string( );

@@ -43,6 +43,9 @@ namespace io_wally
             class malformed_mqtt_packet : public std::runtime_error
             {
                public:
+                /// Create a new \c malformed_mqtt_packet instance, using the supplied reason.
+                ///
+                /// \param what      Reason
                 malformed_mqtt_packet( const std::string& what ) : runtime_error( what )
                 {
                     return;
@@ -67,12 +70,6 @@ namespace io_wally
         class remaining_length
         {
            public:
-            /// \brief Empty default constructor.
-            remaining_length( )
-            {
-                return;
-            }
-
             /// \brief Calculate an MQTT packet's \c remaining length, i.e. its length in bytes minus fixed header
             ///        length.
             ///

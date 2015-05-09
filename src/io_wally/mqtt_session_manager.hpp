@@ -14,7 +14,9 @@ namespace io_wally
     class mqtt_session_manager
     {
        public:
+        /// An mqtt_session_manager cannot be copied.
         mqtt_session_manager( const mqtt_session_manager& ) = delete;
+        /// An mqtt_session_manager cannot be copied.
         mqtt_session_manager& operator=( const mqtt_session_manager& ) = delete;
 
         /// Construct a session manager.

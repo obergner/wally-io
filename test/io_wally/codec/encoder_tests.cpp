@@ -7,7 +7,6 @@ using namespace io_wally;
 SCENARIO( "remaining_length_encoder", "[packets]" )
 {
     typedef std::array<uint8_t, 4>::iterator itr;
-    encoder::remaining_length_encoder<itr> under_test;
 
     GIVEN( "a valid remaining length 0x6E" )
     {
@@ -17,7 +16,7 @@ SCENARIO( "remaining_length_encoder", "[packets]" )
 
         WHEN( "a caller passes in that length" )
         {
-            itr out_iter = under_test.encode( remaining_length, buf.begin( ) );
+            itr out_iter = encoder::encode_remaining_length( remaining_length, buf.begin( ) );
 
             THEN( "it should receive a correctly encoded remaining length and a correct out iterator" )
             {
@@ -35,7 +34,7 @@ SCENARIO( "remaining_length_encoder", "[packets]" )
 
         WHEN( "a caller passes in that length" )
         {
-            itr out_iter = under_test.encode( remaining_length, buf.begin( ) );
+            itr out_iter = encoder::encode_remaining_length( remaining_length, buf.begin( ) );
 
             THEN( "it should receive a correctly encoded remaining length and a correct out iterator" )
             {
@@ -53,7 +52,7 @@ SCENARIO( "remaining_length_encoder", "[packets]" )
 
         WHEN( "a caller passes in that length" )
         {
-            itr out_iter = under_test.encode( remaining_length, buf.begin( ) );
+            itr out_iter = encoder::encode_remaining_length( remaining_length, buf.begin( ) );
 
             THEN( "it should receive a correctly encoded remaining length and a correct out iterator" )
             {
@@ -71,7 +70,7 @@ SCENARIO( "remaining_length_encoder", "[packets]" )
 
         WHEN( "a caller passes in that length" )
         {
-            itr out_iter = under_test.encode( remaining_length, buf.begin( ) );
+            itr out_iter = encoder::encode_remaining_length( remaining_length, buf.begin( ) );
 
             THEN( "it should receive a correctly encoded remaining length and a correct out iterator" )
             {
@@ -89,7 +88,7 @@ SCENARIO( "remaining_length_encoder", "[packets]" )
 
         WHEN( "a caller passes in that length" )
         {
-            itr out_iter = under_test.encode( remaining_length, buf.begin( ) );
+            itr out_iter = encoder::encode_remaining_length( remaining_length, buf.begin( ) );
 
             THEN( "it should receive a correctly encoded remaining length and a correct out iterator" )
             {
@@ -107,7 +106,7 @@ SCENARIO( "remaining_length_encoder", "[packets]" )
 
         WHEN( "a caller passes in that length" )
         {
-            itr out_iter = under_test.encode( remaining_length, buf.begin( ) );
+            itr out_iter = encoder::encode_remaining_length( remaining_length, buf.begin( ) );
 
             THEN( "it should receive a correctly encoded remaining length and a correct out iterator" )
             {
@@ -126,7 +125,7 @@ SCENARIO( "remaining_length_encoder", "[packets]" )
         {
             THEN( "it should see an encoder::error::illegal_mqtt_packet" )
             {
-                REQUIRE_THROWS_AS( under_test.encode( remaining_length, buf.begin( ) ),
+                REQUIRE_THROWS_AS( encoder::encode_remaining_length( remaining_length, buf.begin( ) ),
                                    encoder::error::illegal_mqtt_packet );
             }
         }
@@ -283,6 +282,31 @@ SCENARIO( "encoding a UTF-8 string", "[packets]" )
             {
                 REQUIRE_THROWS_AS( encoder::encode_utf8_string( value, result.begin( ) ),
                                    encoder::error::illegal_mqtt_packet );
+            }
+        }
+    }
+}
+
+SCENARIO( "encoding an mqtt_header", "[packets]" )
+{
+    typedef std::array<const uint8_t, 2>::iterator out_iter;
+
+    GIVEN( "a header of type PUBREL (with bit 1 set)" )
+    {
+        const uint8_t type_and_flags = 0x62;
+        const uint32_t remaining_length = 244;
+        const packet::header header( type_and_flags, remaining_length );
+        std::array<uint8_t, 5> result = {{0x00, 0x00, 0x00, 0x00, 0x00}};
+        const std::array<uint8_t, 5> expected_result = {{0x62, 0xF4, 0x01, 0x00, 0x00}};
+
+        WHEN( "a client passes that buffer into encode_header" )
+        {
+            const out_iter buf_end = encoder::encode_header( header, result.begin( ) );
+
+            THEN( "the client should see a correctly encoded value and a correctly updated buffer iterator" )
+            {
+                CHECK( result == expected_result );
+                REQUIRE( ( buf_end - result.begin( ) ) == 3 );
             }
         }
     }

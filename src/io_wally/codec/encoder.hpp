@@ -39,6 +39,9 @@ namespace io_wally
             class illegal_mqtt_packet : public std::runtime_error
             {
                public:
+                /// Create a new illegal_mqtt_packet, using the supplied reason.
+                ///
+                /// \param what      Reason
                 illegal_mqtt_packet( const std::string& what ) : runtime_error( what )
                 {
                     return;
@@ -46,51 +49,45 @@ namespace io_wally
             };
         }  /// namespace error
 
-        /// \brief Encode the \c remaining lenght field into an MQTT fixed header.
+        /// \brief Encode supplied \c remaing_length according to the rules mandated by MQTT 3.1.1.
         ///
+        /// Encode supplied \c remaining_length assumed to represent an MQTT packet's remaining length (length
+        /// sans fixed header) into a buffer starting at \c buf_start. Return an iterator that points
+        /// immediately past the last byte written. Throw an
+        /// io_wally::encoder::error::illegal_mqtt_packet if \c remaining_length is greater than the
+        /// maximum value allowed by MQTT 3.1.1, which is \c 268,435,455.
+        ///
+        /// Encoding will follow the rules as mandated by MQTT 3.1.1, i.e. using a base of \c 128 (0x80) with
+        /// a "carry over" bit.
+        ///
+        /// \param remaining_length     The remaining length to encode
+        /// \param buf_start            Buffer iterator pointing to where to start encdoding
+        /// \return                     An iterator pointing immediately past the last byte written into the
+        ///                             supplied buffer
+        /// \throws io_wally::encoder::error::illegal_mqtt_packet If \c remaining_length is greater
+        ///             than maximum value allowed by MQTT 3.1.1: 268,435,455
+        ///
+        /// \pre        \c buf_start points to second byte in a fixed header
+        /// \post       OutputIterator returned points immediately past the last byte written
+        ///
+        /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718023
         template <typename OutputIterator>
-        class remaining_length_encoder
+        OutputIterator encode_remaining_length( uint32_t remaining_length, OutputIterator buf_start )
         {
-           public:
-            /// \brief Encode supplied \c remaing_length according to the rules mandated by MQTT 3.1.1.
-            ///
-            /// Encode supplied \c remaining_length assumed to represent an MQTT packet's remaining length (length
-            /// sans fixed header) into a buffer starting at \c buf_start. Return an iterator that points
-            /// immediately past the last byte written. Throw an
-            /// io_wally::encoder::error::illegal_mqtt_packet if \c remaining_length is greater than the
-            /// maximum value allowed by MQTT 3.1.1, which is \c 268,435,455.
-            ///
-            /// Encoding will follow the rules as mandated by MQTT 3.1.1, i.e. using a base of \c 128 (0x80) with
-            /// a "carry over" bit.
-            ///
-            /// \param remaining_length     The remaining length to encode
-            /// \param buf_start            Buffer iterator pointing to where to start encdoding
-            /// \return                     An iterator pointing immediately past the last byte written into the
-            ///                             supplied buffer
-            /// \throws io_wally::encoder::error::illegal_mqtt_packet If \c remaining_length is greater
-            ///             than maximum value allowed by MQTT 3.1.1: 268,435,455
-            ///
-            /// \pre        \c buf_start points to second byte in a fixed header
-            /// \post       OutputIterator returned points immediately past the last byte written
-            ///
-            /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718023
-            OutputIterator encode( uint32_t remaining_length, OutputIterator buf_start )
+            const OutputIterator saved_buf_start = buf_start;
+            do
             {
-                const OutputIterator saved_buf_start = buf_start;
-                do
-                {
-                    uint8_t rest = remaining_length % 0x80;
-                    remaining_length = remaining_length / 0x80;
-                    uint8_t current = ( remaining_length > 0 ? ( rest | 0x80 ) : rest );
-                    *buf_start++ = current;
-                } while ( remaining_length > 0 );
+                uint8_t rest = remaining_length % 0x80;
+                remaining_length = remaining_length / 0x80;
+                uint8_t current = ( remaining_length > 0 ? ( rest | 0x80 ) : rest );
+                *buf_start++ = current;
+            } while ( remaining_length > 0 );
 
-                if ( buf_start - saved_buf_start > 4 )
-                    throw error::illegal_mqtt_packet( "Supplied remaining_length greater than allowed maximum" );
+            if ( buf_start - saved_buf_start > 4 )
+                throw error::illegal_mqtt_packet( "Supplied remaining_length greater than allowed maximum" );
 
-                return buf_start;
-            }
-        };
+            return buf_start;
+        }
 
         /// \brief Encode a 16 bit wide unsigned integer in big endian byte order.
         ///
@@ -115,6 +112,7 @@ namespace io_wally
             return buf_start;
         }
 
+        /// \brief Maximum string length in bytes allowed by MQTT 3.1.1 - 65536.
         constexpr uint16_t MAX_STRING_LENGTH = 0x00FF * 0x0100 + 0xFF;
 
         /// \brief Encode a UTF-8 string into the supplied buffer.
@@ -144,17 +142,24 @@ namespace io_wally
             return buf_start;
         }
 
-        /// \brief Encode MQTT \c headers.
+        /// \brief Encode an MQTT \c header.
         ///
+        /// Encode \c header into a buffer starting at \c buf_start. Return an \c OutputIterator pointing immediately
+        /// past the last byte written. If \c header is not spec compliant, throw an error::illegal_mqtt_packet.
+        ///
+        /// \param header       The packet::header to encode
+        /// \param buf_start    Start of buffer to encode \c header into
+        /// \return             An \c OutputIterator pointing immediately past the last byte written
+        ///
+        /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718020
         template <typename OutputIterator>
-        class header_encoder
+        OutputIterator encode_header( const packet::header& header, OutputIterator buf_start )
         {
-           public:
-            OutputIterator encode( const packet::header& header, OutputIterator buf_start )
-            {
-                return buf_start;
-            }
-        };  // header_encoder
+            *buf_start++ = header.type_and_flags( );
+            buf_start = encode_remaining_length( header.remaining_length( ), buf_start );
+
+            return buf_start;
+        }
 
         template <typename OutputIterator>
         class packet_body_encoder

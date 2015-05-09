@@ -24,11 +24,13 @@ namespace io_wally
     class mqtt_server
     {
        public:
+        /// \brief \c mqtt_server instances cannot be copied
         mqtt_server( const mqtt_server& ) = delete;
+
+        /// \brief \c mqtt_server instances cannot be copied
         mqtt_server& operator=( const mqtt_server& ) = delete;
 
-        /// Construct the mqtt_server to listen on the specified TCP address and port, and
-        /// serve up files from the given directory.
+        /// Construct the mqtt_server to listen on the specified TCP address and port.
         explicit mqtt_server( const std::string& address, const std::string& port );
 
         /// Run the mqtt_server's io_service loop.

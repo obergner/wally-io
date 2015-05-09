@@ -165,6 +165,9 @@ namespace io_wally
             const uint16_t keep_alive_secs_;
         };  /// struct connect_header
 
+        /// \brief Overload stream output operator for \c connect_header.
+        ///
+        /// Overload stream output operator for \c connect_header, primarily to facilitate logging.
         inline std::ostream& operator<<( std::ostream& output, connect_header const& connect_header )
         {
             std::string will_qos_string;
@@ -280,6 +283,9 @@ namespace io_wally
             const optional<const std::string> password_;      // MUST be present iff password flag is set
         };
 
+        /// \brief Overload stream output operator for \c connect_payload.
+        ///
+        /// Overload stream output operator for \c connect_payload, primarily to facilitate logging.
         inline std::ostream& operator<<( std::ostream& output, connect_payload const& connect_payload )
         {
             output << "connect_payload[client_id:" << connect_payload.client_id( )

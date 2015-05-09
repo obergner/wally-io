@@ -19,23 +19,31 @@ namespace io_wally
 {
     class mqtt_session_manager;
 
+    ///  \brief An MQTT client connection.
+    ///
+    /// Represents a persistent connection between a client and an \c mqtt_server.
     class mqtt_session : public boost::enable_shared_from_this<mqtt_session>
     {
        public:
+        /// A pointer to an \c mqtt_session.
         typedef boost::shared_ptr<mqtt_session> pointer;
 
+        /// Factory method for \c mqtt_sessions.
         static pointer create( tcp::socket socket, mqtt_session_manager& session_manager );
 
         /// Naturally, mqtt_sessions cannot be copied.
         mqtt_session( const mqtt_session& ) = delete;
+        /// Naturally, mqtt_sessions cannot be copied.
         mqtt_session& operator=( const mqtt_session& ) = delete;
 
         /// TODO: I would like to make this destructor private, just like the constructor. Yet boost::shared_ptr
         /// requires a public destructor.
         ~mqtt_session( );
 
+        /// \brief Start this session, initiating reading incoming data.
         void start( );
 
+        /// \brief Stop this session, closing its \c tcp::socket.
         void stop( );
 
         /// \brief Return a string representation to be used in log output.
