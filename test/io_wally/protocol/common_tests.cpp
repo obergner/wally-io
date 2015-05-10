@@ -204,3 +204,40 @@ TEST_CASE( "An MQTT header is read", "[header]" )
         REQUIRE( under_test.flags( ).retain( ) );
     }
 }
+
+SCENARIO( "converting a header byte into Type", "[packets]" )
+{
+    GIVEN( "a byte encoding type PUBREL with some header flags set" )
+    {
+        const uint8_t input = 0x6F;
+
+        WHEN( "a caller passes that byte into type_of()" )
+        {
+            const packet::Type type = packet::type_of( input );
+
+            THEN( "it will receive Type::PUBREL" )
+            {
+                REQUIRE( type == packet::Type::PUBREL );
+            }
+        }
+    }
+}
+
+SCENARIO( "writing a Type into a header byte", "[packets]" )
+{
+    GIVEN( "a header byte with type CONNECT and some flags set" )
+    {
+        uint8_t header_byte = 0x1E;
+        const uint8_t expected_header_byte = 0x3E;
+
+        WHEN( "a caller passes type PUBLISH and the given header byte into type_into()" )
+        {
+            packet::type_into( packet::Type::PUBLISH, header_byte );
+
+            THEN( "it will see a correctly updated header byte" )
+            {
+                REQUIRE( header_byte == expected_header_byte );
+            }
+        }
+    }
+}

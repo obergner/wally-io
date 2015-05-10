@@ -77,6 +77,140 @@ namespace io_wally
                 RESERVED2
             };
 
+            /// \brief Bit mask for extracting bits 4-7, the bits encoding a packet's \c Type, out of a byte.
+            constexpr uint8_t CONTROL_PACKET_TYPE_MASK = 0xF0;
+
+            /// \brief Determine type of control packet encoded in \c control_packet_type_and_flags and return it as
+            ///         \c Type enum.
+            ///
+            /// The first byte in each MQTT control packet encodes in bits 4-7 that packet's \c Type. Extract those
+            /// bits and convert them into a \c Type enum instance.
+            ///
+            /// \param control_packet_type_and_flags    First byte in an encoded MQTT packet
+            /// \return         A \c Type instance representing the type of MQTT packet encoded in
+            ///                 \c control_packet_type_and_flags
+            inline Type type_of( const uint8_t control_packet_type_and_flags )
+            {
+                const uint8_t type_bits = ( control_packet_type_and_flags & CONTROL_PACKET_TYPE_MASK ) >> 4;
+                packet::Type res;
+                switch ( type_bits )
+                {
+                    case 0x00:
+                        res = packet::Type::RESERVED1;
+                        break;
+                    case 0x01:
+                        res = packet::Type::CONNECT;
+                        break;
+                    case 0x02:
+                        res = packet::Type::CONNACK;
+                        break;
+                    case 0x03:
+                        res = packet::Type::PUBLISH;
+                        break;
+                    case 0x04:
+                        res = packet::Type::PUBACK;
+                        break;
+                    case 0x05:
+                        res = packet::Type::PUBREC;
+                        break;
+                    case 0x06:
+                        res = packet::Type::PUBREL;
+                        break;
+                    case 0x07:
+                        res = packet::Type::PUBCOMP;
+                        break;
+                    case 0x08:
+                        res = packet::Type::SUBSCRIBE;
+                        break;
+                    case 0x09:
+                        res = packet::Type::SUBACK;
+                        break;
+                    case 0x0A:
+                        res = packet::Type::UNSUBSCRIBE;
+                        break;
+                    case 0x0B:
+                        res = packet::Type::UNSUBACK;
+                        break;
+                    case 0x0C:
+                        res = packet::Type::PINGREQ;
+                        break;
+                    case 0x0D:
+                        res = packet::Type::PINGRESP;
+                        break;
+                    case 0x0E:
+                        res = packet::Type::DISCONNECT;
+                        break;
+                    default:
+                        res = packet::Type::RESERVED2;
+                        break;
+                }
+                return res;
+            }
+
+            /// \brief Write \c type into \c control_packet_type_and_flags, i.e. replace bits 4-7 with bits
+            ///         representing \c type.
+            ///
+            /// \param type     \c Type to write
+            /// \param control_packet_type_and_flags    Byte to write \c type into
+            inline void type_into( const Type type, uint8_t& control_packet_type_and_flags )
+            {
+                uint8_t type_mask = 0x00;
+                switch ( type )
+                {
+                    case packet::Type::RESERVED1:
+                        type_mask = ( 0x00 << 4 );
+                        break;
+                    case packet::Type::CONNECT:
+                        type_mask = ( 0x01 << 4 );
+                        break;
+                    case packet::Type::CONNACK:
+                        type_mask = ( 0x02 << 4 );
+                        break;
+                    case packet::Type::PUBLISH:
+                        type_mask = ( 0x03 << 4 );
+                        break;
+                    case packet::Type::PUBACK:
+                        type_mask = ( 0x04 << 4 );
+                        break;
+                    case packet::Type::PUBREC:
+                        type_mask = ( 0x05 << 4 );
+                        break;
+                    case packet::Type::PUBREL:
+                        type_mask = ( 0x06 << 4 );
+                        break;
+                    case packet::Type::PUBCOMP:
+                        type_mask = ( 0x07 << 4 );
+                        break;
+                    case packet::Type::SUBSCRIBE:
+                        type_mask = ( 0x08 << 4 );
+                        break;
+                    case packet::Type::SUBACK:
+                        type_mask = ( 0x09 << 4 );
+                        break;
+                    case packet::Type::UNSUBSCRIBE:
+                        type_mask = ( 0x0A << 4 );
+                        break;
+                    case packet::Type::UNSUBACK:
+                        type_mask = ( 0x0B << 4 );
+                        break;
+                    case packet::Type::PINGREQ:
+                        type_mask = ( 0x0C << 4 );
+                        break;
+                    case packet::Type::PINGRESP:
+                        type_mask = ( 0x0D << 4 );
+                        break;
+                    case packet::Type::DISCONNECT:
+                        type_mask = ( 0x0E << 4 );
+                        break;
+                    default:
+                        type_mask = ( 0x0F << 4 );
+                        break;
+                }
+
+                control_packet_type_and_flags &= 0x0F;  // Set bits 4-7 to 0.
+                control_packet_type_and_flags |= type_mask;
+            }
+
             /// \brief Protocol level, a.k.a. protocol version.
             ///
             enum class ProtocolLevel : int
@@ -200,60 +334,7 @@ namespace io_wally
                 /// \see packet::PacketType
                 packet::Type type( ) const
                 {
-                    const uint8_t type_bits = ( control_packet_type_and_flags_ & CONTROL_PACKET_TYPE_MASK ) >> 4;
-                    packet::Type res;
-                    switch ( type_bits )
-                    {
-                        case 0x00:
-                            res = packet::Type::RESERVED1;
-                            break;
-                        case 0x01:
-                            res = packet::Type::CONNECT;
-                            break;
-                        case 0x02:
-                            res = packet::Type::CONNACK;
-                            break;
-                        case 0x03:
-                            res = packet::Type::PUBLISH;
-                            break;
-                        case 0x04:
-                            res = packet::Type::PUBACK;
-                            break;
-                        case 0x05:
-                            res = packet::Type::PUBREC;
-                            break;
-                        case 0x06:
-                            res = packet::Type::PUBREL;
-                            break;
-                        case 0x07:
-                            res = packet::Type::PUBCOMP;
-                            break;
-                        case 0x08:
-                            res = packet::Type::SUBSCRIBE;
-                            break;
-                        case 0x09:
-                            res = packet::Type::SUBACK;
-                            break;
-                        case 0x0A:
-                            res = packet::Type::UNSUBSCRIBE;
-                            break;
-                        case 0x0B:
-                            res = packet::Type::UNSUBACK;
-                            break;
-                        case 0x0C:
-                            res = packet::Type::PINGREQ;
-                            break;
-                        case 0x0D:
-                            res = packet::Type::PINGRESP;
-                            break;
-                        case 0x0E:
-                            res = packet::Type::DISCONNECT;
-                            break;
-                        default:
-                            res = packet::Type::RESERVED2;
-                            break;
-                    }
-                    return res;
+                    return type_of( control_packet_type_and_flags_ );
                 }
 
                 /// \brief Return this control packet' header flags (only relevant for PUBLISH control packets).
@@ -279,7 +360,6 @@ namespace io_wally
                 }
 
                private:
-                static constexpr uint8_t CONTROL_PACKET_TYPE_MASK = 0xF0;
                 /// Fields
                 const uint8_t control_packet_type_and_flags_;
                 const uint32_t remaining_length_;
@@ -351,14 +431,6 @@ namespace io_wally
         struct mqtt_packet
         {
            public:
-            /// \brief Create a new \c mqtt_packet instance from the supplied \c packet::header.
-            ///
-            /// \param header This MQTT packet's packet::header
-            mqtt_packet( struct packet::header header ) : header_( std::move( header ) )
-            {
-                return;
-            }
-
             /// \brief Return this \c mqtt_packet's \c packet::header.
             ///
             /// \return This MQTT packet's packet::header
@@ -371,6 +443,15 @@ namespace io_wally
             ///
             /// \return A string representation of this MQTT packet suitable for log output.
             virtual const std::string to_string( ) const = 0;
+
+           protected:
+            /// \brief Create a new \c mqtt_packet instance from the supplied \c packet::header.
+            ///
+            /// \param header This MQTT packet's packet::header
+            mqtt_packet( struct packet::header header ) : header_( std::move( header ) )
+            {
+                return;
+            }
 
            private:
             /// Fields
@@ -386,6 +467,28 @@ namespace io_wally
 
             return output;
         }
+
+        /// \brief Base class for MQTT acks.
+        ///
+        struct mqtt_ack : public mqtt_packet
+        {
+           protected:
+            mqtt_ack( const packet::Type type, const uint32_t remaining_length )
+                : mqtt_packet( header_for( type, remaining_length ) )
+            {
+                return;
+            }
+
+           private:
+            static packet::header header_for( const packet::Type type, const uint32_t remaining_length )
+            {
+                uint8_t type_and_flags = 0x00;
+                packet::type_into( type, type_and_flags );
+                const packet::header res( type_and_flags, remaining_length );
+
+                return res;
+            }
+        };  // struct mqtt_ack
 
     }  // namespace protocol
 }  // namespace io_wally

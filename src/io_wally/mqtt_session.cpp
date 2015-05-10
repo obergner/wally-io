@@ -47,7 +47,7 @@ namespace io_wally
     const std::string mqtt_session::to_string( ) const
     {
         std::ostringstream output;
-        output << "session[" << socket_;
+        output << "session[" << socket_ << "]";
 
         return output.str( );
     }
