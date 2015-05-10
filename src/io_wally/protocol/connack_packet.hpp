@@ -45,9 +45,9 @@ namespace io_wally
         /// \brief Overload stream output operator for \c connect_return_code.
         ///
         /// Overload stream output operator for \c connect_return_code, primarily to facilitate logging.
-        inline std::ostream& operator<<( std::ostream& output, connect_return_code const& connect_return_code )
+        inline std::ostream& operator<<( std::ostream& output, connect_return_code const& return_code )
         {
-            switch ( connect_return_code )
+            switch ( return_code )
             {
                 case connect_return_code::CONNECTION_ACCEPTED:
                     output << "Connection accepted";
@@ -144,7 +144,7 @@ namespace io_wally
                 return;
             }
 
-            const connack_header& connack_header( ) const
+            const struct connack_header& connack_header( ) const
             {
                 return connack_header_;
             }
