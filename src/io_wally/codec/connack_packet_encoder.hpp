@@ -12,7 +12,7 @@ namespace io_wally
         /// \brief Encoder for CONNACK packet bodies.
         ///
         template <typename OutputIterator>
-        class connack_packet_encoder : public packet_body_encoder<OutputIterator, connack>
+        class connack_packet_encoder : public packet_body_encoder<OutputIterator>
         {
            public:
             /// Methods
@@ -23,13 +23,16 @@ namespace io_wally
             /// immediately past the last byte written. If \c connack does not conform to spec, throw
             /// error::invalid_mqtt_packet.
             ///
-            /// \param connack        \c connack packet to encode
+            /// \param connack_packet \c connack packet to encode
             /// \param buf_start      Start of buffer to encode \c mqtt_packet into
             /// \return         \c OutputIterator that points immediately past the last byte written
-            /// \throws std::invalid_argument   If buffer is too small for \c connack
+            /// \throws std::invalid_argument   If \c connack_packet is not a \c connack instance
             /// \throws error::invalid_mqtt_packet      If \c connack does not conform to spec
-            OutputIterator encode( const connack& connack, OutputIterator buf_start )
+            OutputIterator encode( const mqtt_packet& connack_packet, OutputIterator buf_start )
             {
+                if ( connack_packet.header( ).type( ) != packet::Type::CONNACK )
+                    throw std::invalid_argument( "Supplied packet is not a CONNACK packet" );
+                const connack& connack = dynamic_cast<const struct connack&>( connack_packet );
                 const uint8_t first_byte = ( connack.connack_header( ).is_session_present( ) ? 0x01 : 0x00 );
                 uint8_t second_byte;
                 switch ( connack.connack_header( ).return_code( ) )

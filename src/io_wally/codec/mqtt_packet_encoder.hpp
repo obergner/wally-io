@@ -1,6 +1,7 @@
 #pragma once
 
 #include "io_wally/codec/encoder.hpp"
+#include "io_wally/codec/connack_packet_encoder.hpp"
 
 using namespace io_wally::protocol;
 

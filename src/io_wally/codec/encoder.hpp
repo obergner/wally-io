@@ -162,11 +162,9 @@ namespace io_wally
         }
 
         /// \brief Encoder for \c mqtt_packet bodies, i.e. \c mqtt_packets sans fixed header.
-        template <typename OutputIterator, typename Packet>
+        template <typename OutputIterator>
         class packet_body_encoder
         {
-            static_assert( std::is_base_of<mqtt_packet, Packet>::value, "Packet must inherit from mqtt_packet" );
-
            public:
             /// \brief Encode \c mqtt_packet's body.
             ///
@@ -177,7 +175,7 @@ namespace io_wally
             /// \param packet        \c mqtt_packet to encode the body of
             /// \param buf_start     Start of buffer to encode packet body into
             /// \return              An \c OutputIterator pointing immediately past the last byte written
-            virtual OutputIterator encode( const Packet& packet, OutputIterator buf_start ) = 0;
+            virtual OutputIterator encode( const mqtt_packet& packet, OutputIterator buf_start ) = 0;
         };  // packet_body_encoder
 
     }  /// namespace encoder
