@@ -30,7 +30,9 @@ namespace io_wally
             /// \return         \c OutputIterator that points immediately past the last byte written
             /// \throws std::invalid_argument   If buffer is too small for \c mqtt_packet
             /// \throws error::invalid_mqtt_packet      If \c mqtt_packet does not conform to spec
-            OutputIterator encode( const mqtt_packet& mqtt_packet, OutputIterator buf_start, OutputIterator buf_end )
+            OutputIterator encode( const mqtt_packet& mqtt_packet,
+                                   OutputIterator buf_start,
+                                   OutputIterator buf_end ) const
             {
                 buf_start = encode_header( mqtt_packet.header( ), buf_start );
                 if ( ( buf_end - buf_start ) < mqtt_packet.header( ).remaining_length( ) )
@@ -41,10 +43,22 @@ namespace io_wally
 
            private:
             /// Methods
-            const packet_body_encoder<OutputIterator>& body_encoder_for( const mqtt_packet& mqtt_packet )
+            const packet_body_encoder<OutputIterator>& body_encoder_for( const mqtt_packet& mqtt_packet ) const
             {
+                switch ( mqtt_packet.header( ).type( ) )
+                {
+                    case packet::Type::CONNACK:
+                        return connack_encoder_;
+                    default:
+                        throw std::invalid_argument( "Unsupported packet type" );
+                }
                 assert( false );
             }
+
+            /// Fields
+
+            /// Encode CONNACK
+            const connack_packet_encoder<OutputIterator> connack_encoder_ = connack_packet_encoder<OutputIterator>( );
         };
 
     }  /// namespace decoder

@@ -175,7 +175,7 @@ namespace io_wally
             /// \param packet        \c mqtt_packet to encode the body of
             /// \param buf_start     Start of buffer to encode packet body into
             /// \return              An \c OutputIterator pointing immediately past the last byte written
-            virtual OutputIterator encode( const mqtt_packet& packet, OutputIterator buf_start ) = 0;
+            virtual OutputIterator encode( const mqtt_packet& packet, OutputIterator buf_start ) const = 0;
         };  // packet_body_encoder
 
     }  /// namespace encoder

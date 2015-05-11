@@ -28,7 +28,7 @@ namespace io_wally
             /// \return         \c OutputIterator that points immediately past the last byte written
             /// \throws std::invalid_argument   If \c connack_packet is not a \c connack instance
             /// \throws error::invalid_mqtt_packet      If \c connack does not conform to spec
-            OutputIterator encode( const mqtt_packet& connack_packet, OutputIterator buf_start )
+            OutputIterator encode( const mqtt_packet& connack_packet, OutputIterator buf_start ) const
             {
                 if ( connack_packet.header( ).type( ) != packet::Type::CONNACK )
                     throw std::invalid_argument( "Supplied packet is not a CONNACK packet" );
