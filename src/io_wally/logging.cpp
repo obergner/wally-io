@@ -19,7 +19,8 @@ namespace io_wally
             std::ostringstream log_file_name;
             log_file_name << log_file << "_%N.log";
             boost::log::add_file_log(
-                keywords::file_name = log_file_name.str( ), keywords::rotation_size = 10 * 1024 * 1024,
+                keywords::file_name = log_file_name.str( ),
+                keywords::rotation_size = 10 * 1024 * 1024,
                 keywords::time_based_rotation = sinks::file::rotation_at_time_point( 0, 0, 0 ),
                 keywords::format =
                     "[%TimeStamp%] [%ProcessID%] [%ThreadID%] [%LineID%] [%Channel%] | %Severity% | %Message%",

@@ -76,7 +76,8 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
             'c',
             'r',
             'e',
-            't', }};  /// avoids warning
+            't',
+        }};  /// avoids warning
 
         WHEN( "a client passes that array into mqtt_packet_decoder::parse" )
         {

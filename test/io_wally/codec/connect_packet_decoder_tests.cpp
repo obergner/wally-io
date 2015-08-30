@@ -76,7 +76,8 @@ SCENARIO( "connect_packet_decoder", "[decoder]" )
             'c',
             'r',
             'e',
-            't', }};  /// avoids warning
+            't',
+        }};  /// avoids warning
 
         WHEN( "a client passes that array into connect_packet_decoder::decode" )
         {
@@ -187,7 +188,8 @@ SCENARIO( "connect_packet_decoder", "[decoder]" )
             'c',
             'r',
             'e',
-            't', }};  /// avoids warning
+            't',
+        }};  /// avoids warning
 
         WHEN( "a client passes that array into connect_packet_decoder::decode" )
         {
@@ -268,7 +270,8 @@ SCENARIO( "connect_packet_decoder", "[decoder]" )
             'c',
             'r',
             'e',
-            't', }};  /// avoids warning
+            't',
+        }};  /// avoids warning
 
         WHEN( "a client passes that array into connect_packet_decoder::decode" )
         {
@@ -349,7 +352,8 @@ SCENARIO( "connect_packet_decoder", "[decoder]" )
             'c',
             'r',
             'e',
-            't', }};  /// avoids warning
+            't',
+        }};  /// avoids warning
 
         WHEN( "a client passes that array into connect_packet_decoder::decode" )
         {
@@ -430,7 +434,8 @@ SCENARIO( "connect_packet_decoder", "[decoder]" )
             'c',
             'r',
             'e',
-            'x', }};  /// avoids warning
+            'x',
+        }};  /// avoids warning
 
         WHEN( "a client passes that array into connect_packet_decoder::decode" )
         {
