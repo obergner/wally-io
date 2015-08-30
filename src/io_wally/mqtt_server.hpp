@@ -5,8 +5,11 @@
 #include "io_wally/logging.hpp"
 #include "io_wally/mqtt_session.hpp"
 #include "io_wally/mqtt_session_manager.hpp"
+#include "io_wally/spi/mqtt_packet_handler_factory.hpp"
 
 using boost::asio::ip::tcp;
+
+using namespace io_wally::spi;
 
 namespace io_wally
 {
@@ -31,7 +34,9 @@ namespace io_wally
         mqtt_server& operator=( const mqtt_server& ) = delete;
 
         /// Construct the mqtt_server to listen on the specified TCP address and port.
-        explicit mqtt_server( const std::string& address, const std::string& port );
+        explicit mqtt_server( const std::string& address,
+                              const std::string& port,
+                              const mqtt_packet_handler_factory& packet_handler_factory );
 
         /// Run the mqtt_server's io_service loop.
         void run( );
@@ -45,6 +50,9 @@ namespace io_wally
 
         /// Our session manager that manages all connections
         mqtt_session_manager session_manager_;
+
+        /// Packet handler factory to be passed to each session
+        const mqtt_packet_handler_factory& packet_handler_factory_;
 
         /// The io_service used to perform asynchronous operations.
         boost::asio::io_service io_service_;

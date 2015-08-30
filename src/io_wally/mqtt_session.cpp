@@ -17,11 +17,13 @@ namespace io_wally
     }
 
     mqtt_session::mqtt_session( tcp::socket socket, mqtt_session_manager& session_manager )
-        : session_manager_( session_manager ),
+        : id_( nullptr ),
+          session_manager_( session_manager ),
           read_buffer_( std::vector<uint8_t>( initial_buffer_capacity ) ),
           socket_( std::move( socket ) ),
           header_decoder_( ),
           packet_decoder_( ),
+          packet_encoder_( ),
           logger_( keywords::channel = "session", keywords::severity = lvl::trace )
     {
         return;
@@ -29,7 +31,14 @@ namespace io_wally
 
     mqtt_session::~mqtt_session( )
     {
+        if ( id_ )
+            delete id_;
         return;
+    }
+
+    struct mqtt_session_id* mqtt_session::id( ) const
+    {
+        return id_;
     }
 
     void mqtt_session::start( )
@@ -87,7 +96,7 @@ namespace io_wally
             BOOST_LOG_SEV( logger_, lvl::info ) << "RCVD: " << result.parsed_header( );
             read_body( result, bytes_transferred );
         }
-        catch ( const error::malformed_mqtt_packet& e )
+        catch ( const io_wally::decoder::error::malformed_mqtt_packet& e )
         {
             BOOST_LOG_SEV( logger_, lvl::error )
                 << "Malformed control packet header - will stop this session: " << e.what( );
@@ -150,7 +159,7 @@ namespace io_wally
                                         header_parse_result.consumed_until( ) + bytes_transferred );
             BOOST_LOG_SEV( logger_, lvl::info ) << "DECODED: " << *parsed_packet;
         }
-        catch ( const error::malformed_mqtt_packet& e )
+        catch ( const io_wally::decoder::error::malformed_mqtt_packet& e )
         {
             BOOST_LOG_SEV( logger_, lvl::error )
                 << "Malformed control packet body - will stop this session: " << e.what( );
@@ -158,5 +167,19 @@ namespace io_wally
         }
 
         return;
+    }
+
+    void mqtt_session::dispatch_decoded_packet( const mqtt_packet& packet )
+    {
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "DISPATCHING: " << packet;
+        switch ( packet.header( ).type( ) )
+        {
+            case packet::Type::CONNECT:
+                // const connack ack( );
+                break;
+            default:
+                break;
+        }
+        BOOST_LOG_SEV( logger_, lvl::info ) << "DISPATCHED: " << packet;
     }
 }

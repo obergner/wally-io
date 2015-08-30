@@ -9,15 +9,43 @@
 #include "io_wally/logging.hpp"
 #include "io_wally/codec/decoder.hpp"
 #include "io_wally/codec/mqtt_packet_decoder.hpp"
+#include "io_wally/codec/mqtt_packet_encoder.hpp"
+#include "io_wally/spi/mqtt_packet_handler_factory.hpp"
 
 using boost::asio::ip::tcp;
 
 using namespace io_wally::protocol;
 using namespace io_wally::decoder;
+using namespace io_wally::encoder;
+using namespace io_wally::spi;
 
 namespace io_wally
 {
     class mqtt_session_manager;
+
+    struct mqtt_session_id
+    {
+       public:
+        mqtt_session_id( const std::string username, const tcp::endpoint& client )
+            : username_( username ), client_( client )
+        {
+            return;
+        }
+
+        const std::string& username( )
+        {
+            return username_;
+        }
+
+        const tcp::endpoint& client( )
+        {
+            return client_;
+        }
+
+       private:
+        const std::string username_;
+        const tcp::endpoint& client_;
+    };
 
     ///  \brief An MQTT client connection.
     ///
@@ -39,6 +67,8 @@ namespace io_wally
         /// TODO: I would like to make this destructor private, just like the constructor. Yet boost::shared_ptr
         /// requires a public destructor.
         ~mqtt_session( );
+
+        struct mqtt_session_id* id( ) const;
 
         /// \brief Start this session, initiating reading incoming data.
         void start( );
@@ -65,6 +95,12 @@ namespace io_wally
                                 const boost::system::error_code& ec,
                                 const size_t bytes_transferred );
 
+        void dispatch_decoded_packet( const mqtt_packet& packet );
+
+       private:
+        /// Our ID, only assigned once we have been authenticated
+        struct mqtt_session_id* id_;
+
         /// Our session manager, responsible for managing our lifecycle
         mqtt_session_manager& session_manager_;
 
@@ -82,6 +118,9 @@ namespace io_wally
 
         /// And while we are at it, why not parse the rest of those packets, too?
         mqtt_packet_decoder<uint8_t*> packet_decoder_;
+
+        /// Encode outgoing packets
+        mqtt_packet_encoder<uint8_t*> packet_encoder_;
 
         /// Our severity-enabled channel logger
         boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_;

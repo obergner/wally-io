@@ -10,8 +10,11 @@ using namespace io_wally::logging;
 namespace io_wally
 {
 
-    mqtt_server::mqtt_server( const std::string& address, const std::string& port )
+    mqtt_server::mqtt_server( const std::string& address,
+                              const std::string& port,
+                              const mqtt_packet_handler_factory& packet_handler_factory )
         : session_manager_( ),
+          packet_handler_factory_( packet_handler_factory ),
           io_service_( ),
           signals_( io_service_ ),
           acceptor_( io_service_ ),
