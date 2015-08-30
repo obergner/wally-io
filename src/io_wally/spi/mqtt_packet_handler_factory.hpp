@@ -17,17 +17,10 @@ namespace io_wally
     ///        framework.
     namespace spi
     {
-        class mqtt_authentication_handler
-        {
-           public:
-            virtual const struct connack operator( )( const struct connect& connect ) = 0;
-        };
+        typedef std::function<const struct connack( const struct connect& connect )> mqtt_authentication_handler;
 
-        class mqtt_packet_handler
-        {
-           public:
-            virtual std::unique_ptr<const struct mqtt_ack> operator( )( const struct mqtt_packet& packet ) = 0;
-        };  // mqtt_packet_handler
+        typedef std::function<std::unique_ptr<const struct mqtt_ack>( const struct mqtt_packet& packet )>
+            mqtt_packet_handler;
 
         class mqtt_packet_handler_factory
         {
