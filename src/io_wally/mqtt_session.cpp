@@ -64,11 +64,10 @@ namespace io_wally
     void mqtt_session::read_header( )
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << "READ: header ...";
-        socket_.async_read_some( boost::asio::buffer( read_buffer_ ),
-                                 boost::bind( &mqtt_session::on_header_data_read,
-                                              shared_from_this( ),
-                                              boost::asio::placeholders::error,
-                                              boost::asio::placeholders::bytes_transferred ) );
+        socket_.async_read_some(
+            boost::asio::buffer( read_buffer_ ),
+            boost::bind( &mqtt_session::on_header_data_read, shared_from_this( ), boost::asio::placeholders::error,
+                         boost::asio::placeholders::bytes_transferred ) );
     }
 
     void mqtt_session::on_header_data_read( const boost::system::error_code& ec, const size_t bytes_transferred )
@@ -129,8 +128,7 @@ namespace io_wally
 
             pointer self( shared_from_this( ) );
             boost::asio::async_read(
-                socket_,
-                boost::asio::buffer( body_start, remaining_length ),
+                socket_, boost::asio::buffer( body_start, remaining_length ),
                 [this, self, header_parse_result]( const boost::system::error_code& ec, const size_t bytes_transferred )
                 {
                     on_body_data_read( header_parse_result, ec, bytes_transferred );
@@ -154,8 +152,7 @@ namespace io_wally
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "Body data read. Decoding ...";
             const std::unique_ptr<const mqtt_packet> parsed_packet =
-                packet_decoder_.decode( header_parse_result.parsed_header( ),
-                                        header_parse_result.consumed_until( ),
+                packet_decoder_.decode( header_parse_result.parsed_header( ), header_parse_result.consumed_until( ),
                                         header_parse_result.consumed_until( ) + bytes_transferred );
             BOOST_LOG_SEV( logger_, lvl::info ) << "DECODED: " << *parsed_packet;
         }
