@@ -52,24 +52,24 @@ namespace io_wally
 
     void mqtt_server::do_accept( )
     {
-        acceptor_.async_accept( socket_,
-                                [this]( boost::system::error_code ec )
+        acceptor_.async_accept( socket_, [this]( boost::system::error_code ec )
                                 {
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "ACCEPTED: " << socket_;
-            // Check whether the mqtt_server was stopped by a signal before this
-            // completion handler had a chance to run.
-            if ( !acceptor_.is_open( ) )
-            {
-                return;
-            }
-            if ( !ec )
-            {
-                mqtt_session::pointer session = mqtt_session::create( std::move( socket_ ), session_manager_ );
-                session_manager_.start( session );
-            }
+                                    BOOST_LOG_SEV( logger_, lvl::debug ) << "ACCEPTED: " << socket_;
+                                    // Check whether the mqtt_server was stopped by a signal before this
+                                    // completion handler had a chance to run.
+                                    if ( !acceptor_.is_open( ) )
+                                    {
+                                        return;
+                                    }
+                                    if ( !ec )
+                                    {
+                                        mqtt_session::pointer session =
+                                            mqtt_session::create( std::move( socket_ ), session_manager_ );
+                                        session_manager_.start( session );
+                                    }
 
-            do_accept( );
-        } );
+                                    do_accept( );
+                                } );
     }
 
     void mqtt_server::do_await_stop( )

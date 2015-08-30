@@ -138,7 +138,7 @@ clean				:
 .PHONY 				: doc
 doc 				: $(MSOURCES) $(MEXECSOURCE)
 	@rm -rf $(DOCDIR)
-	doxygen ./.doxygen.cfg
+	@doxygen ./.doxygen.cfg
 
 # Tools
 .PHONY				: macroexpand
@@ -147,11 +147,26 @@ macroexpand			: $(MSOURCES) $(MEXECSOURCE)
 
 .PHONY 				: check-main
 check-main 			: $(MSOURCES) $(MEXECSOURCE)
-	clang-check $(MSOURCES) $(MEXECSOURCE)
+	@clang-check $(MSOURCES) $(MEXECSOURCE)
 
 .PHONY 				: check-test
 check-test 			: $(TSOURCES) $(TEXECSOURCE)
-	clang-check $(TSOURCES) $(TEXECSOURCE)
+	@clang-check $(TSOURCES) $(TEXECSOURCE)
+
+.PHONY 				: modernize
+modernize 			: $(MSOURCES) $(MEXECSOURCE)
+	@clang-modernize -final-syntax-check -summary -format -style=file -include=src/ -p compile_commands.json
+
+.PHONY 				: format-main
+format-main			: $(MSOURCES) $(MEXECSOURCE)
+	@clang-format -i -style=file $(MSOURCES) $(MEXECSOURCE)
+
+.PHONY 				: format-test
+format-test			: $(TSOURCES) $(TEXECSOURCE)
+	@clang-format -i -style=file $(TSOURCES) $(TEXECSOURCE)
+
+.PHONY 				: format
+format  			: format-main format-test
 
 .PHONY 				: tags
 tags 				: $(MSOURCES) $(MEXECSOURCE) $(TSOURCES) $(TEXECSOURCE)
