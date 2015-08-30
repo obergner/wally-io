@@ -90,6 +90,9 @@ REBUILDABLES 	= $(MEXEC) $(MOBJS) $(TEXEC) $(TOBJS)
 # All things doxygen
 DOCDIR			:= $(BUILD)/doc
 
+# Clang's compilation database needed for some of its tooling
+COMPILATIONDB   := compile_commands.json
+
 ###############################################################################
 # Rules
 ###############################################################################
@@ -141,6 +144,9 @@ doc 				: $(MSOURCES) $(MEXECSOURCE)
 	@doxygen ./.doxygen.cfg
 
 # Tools
+$(COMPILATIONDB)    : $(MSOURCES) $(MEXECSOURCE)
+	@bear make clean main
+
 .PHONY				: macroexpand
 macroexpand			: $(MSOURCES) $(MEXECSOURCE)
 	$(CC) $(CFLAGS) -E $(MSOURCES) | source-highlight --failsafe --src-lang=cc -f esc --style-file=esc.style 
@@ -154,7 +160,7 @@ check-test 			: $(TSOURCES) $(TEXECSOURCE)
 	@clang-check $(TSOURCES) $(TEXECSOURCE)
 
 .PHONY 				: modernize
-modernize 			: $(MSOURCES) $(MEXECSOURCE)
+modernize 			: $(MSOURCES) $(MEXECSOURCE) $(COMPILATIONDB)
 	@clang-modernize -final-syntax-check -summary -format -style=file -include=src/ -p compile_commands.json
 
 .PHONY 				: format-main
