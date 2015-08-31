@@ -67,7 +67,8 @@ namespace io_wally
             }
             if ( !ec )
             {
-                mqtt_session::pointer session = mqtt_session::create( std::move( socket_ ), session_manager_ );
+                mqtt_session::pointer session = mqtt_session::create(
+                    std::move( socket_ ), session_manager_, *packet_handler_factory_.create_packet_handler( ) );
                 session_manager_.start( session );
             }
 

@@ -9,7 +9,7 @@ namespace io_wally
         class default_authentication_handler : public mqtt_authentication_handler
         {
            public:
-            const struct connack operator( )( const struct connect& /* connect */ ) override
+            const struct connack operator( )( const struct connect& /* connect */ )
             {
                 const struct connack ack( false, connect_return_code::CONNECTION_ACCEPTED );
 
@@ -20,7 +20,8 @@ namespace io_wally
         class default_packet_handler : public mqtt_packet_handler
         {
            public:
-            std::unique_ptr<const struct mqtt_ack> operator( )( const struct mqtt_packet& /* packet */ ) override
+            std::unique_ptr<const struct mqtt_ack> operator( )( const struct mqtt_session_id& /*  session_id */,
+                                                                const struct mqtt_packet& /* packet */ )
             {
                 std::unique_ptr<const struct mqtt_ack> result(
                     new connack( false, connect_return_code::CONNECTION_ACCEPTED ) );
@@ -37,15 +38,14 @@ namespace io_wally
                 return;
             }
 
-            std::unique_ptr<mqtt_authentication_handler> create_authentication_handler(
-                const mqtt_session& /* session */ ) override
+            std::unique_ptr<mqtt_authentication_handler> create_authentication_handler( ) const override
             {
                 std::unique_ptr<mqtt_authentication_handler> result( new default_authentication_handler( ) );
 
                 return std::move( result );
             }
 
-            std::unique_ptr<mqtt_packet_handler> create_packet_handler( const mqtt_session_id& /* session */ ) override
+            std::unique_ptr<mqtt_packet_handler> create_packet_handler( ) const override
             {
                 std::unique_ptr<mqtt_packet_handler> result( new default_packet_handler( ) );
 

@@ -57,7 +57,9 @@ namespace io_wally
         typedef boost::shared_ptr<mqtt_session> pointer;
 
         /// Factory method for \c mqtt_sessions.
-        static pointer create( tcp::socket socket, mqtt_session_manager& session_manager );
+        static pointer create( tcp::socket socket,
+                               mqtt_session_manager& session_manager,
+                               mqtt_packet_handler packet_handler );
 
         /// Naturally, mqtt_sessions cannot be copied.
         mqtt_session( const mqtt_session& ) = delete;
@@ -83,7 +85,9 @@ namespace io_wally
 
        private:
         /// Hide constructor since we MUST be created by static factory method 'create' above
-        explicit mqtt_session( tcp::socket socket, mqtt_session_manager& session_manager );
+        explicit mqtt_session( tcp::socket socket,
+                               mqtt_session_manager& session_manager,
+                               mqtt_packet_handler packet_handler );
 
         void read_header( );
 
@@ -121,6 +125,9 @@ namespace io_wally
 
         /// Encode outgoing packets
         mqtt_packet_encoder<uint8_t*> packet_encoder_;
+
+        /// Handle incoming packets
+        mqtt_packet_handler packet_handler_;
 
         /// Our severity-enabled channel logger
         boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_;

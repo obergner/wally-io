@@ -11,12 +11,16 @@ using namespace io_wally::decoder;
 
 namespace io_wally
 {
-    mqtt_session::pointer mqtt_session::create( tcp::socket socket, mqtt_session_manager& session_manager )
+    mqtt_session::pointer mqtt_session::create( tcp::socket socket,
+                                                mqtt_session_manager& session_manager,
+                                                mqtt_packet_handler packet_handler )
     {
-        return pointer( new mqtt_session( std::move( socket ), session_manager ) );
+        return pointer( new mqtt_session( std::move( socket ), session_manager, packet_handler ) );
     }
 
-    mqtt_session::mqtt_session( tcp::socket socket, mqtt_session_manager& session_manager )
+    mqtt_session::mqtt_session( tcp::socket socket,
+                                mqtt_session_manager& session_manager,
+                                mqtt_packet_handler packet_handler )
         : id_( nullptr ),
           session_manager_( session_manager ),
           read_buffer_( std::vector<uint8_t>( initial_buffer_capacity ) ),
@@ -24,6 +28,7 @@ namespace io_wally
           header_decoder_( ),
           packet_decoder_( ),
           packet_encoder_( ),
+          packet_handler_( std::move( packet_handler ) ),
           logger_( keywords::channel = "session", keywords::severity = lvl::trace )
     {
         return;

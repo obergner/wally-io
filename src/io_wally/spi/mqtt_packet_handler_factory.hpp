@@ -19,16 +19,16 @@ namespace io_wally
     {
         typedef std::function<const struct connack( const struct connect& connect )> mqtt_authentication_handler;
 
-        typedef std::function<std::unique_ptr<const struct mqtt_ack>( const struct mqtt_packet& packet )>
+        typedef std::function<std::unique_ptr<const struct mqtt_ack>( const struct mqtt_session_id& session_id,
+                                                                      const struct mqtt_packet& packet )>
             mqtt_packet_handler;
 
         class mqtt_packet_handler_factory
         {
            public:
-            virtual std::unique_ptr<mqtt_authentication_handler> create_authentication_handler(
-                const mqtt_session& session ) = 0;
+            virtual std::unique_ptr<mqtt_authentication_handler> create_authentication_handler( ) const = 0;
 
-            virtual std::unique_ptr<mqtt_packet_handler> create_packet_handler( const mqtt_session_id& session ) = 0;
+            virtual std::unique_ptr<mqtt_packet_handler> create_packet_handler( ) const = 0;
         };
     }  // namespace spi
 }  // namespace io_wally
