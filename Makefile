@@ -68,7 +68,7 @@ TSOURCES     	+= $(wildcard test/io_wally/*.cpp)
 TSOURCES     	+= $(wildcard test/io_wally/protocol/*.cpp)
 TSOURCES     	+= $(wildcard test/io_wally/codec/*.cpp)
 
-TEXECSOURCE      := $(wildcard test/*.cpp)
+TEXECSOURCE     := $(wildcard test/*.cpp)
 
 # Build dir for tests
 TBUILD       	:= $(BUILD)/test
