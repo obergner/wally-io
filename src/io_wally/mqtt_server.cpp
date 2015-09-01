@@ -5,16 +5,18 @@
 #include "io_wally/mqtt_server.hpp"
 
 using boost::asio::ip::tcp;
+
+using namespace std;
 using namespace io_wally::logging;
 
 namespace io_wally
 {
 
-    mqtt_server::mqtt_server( const std::string& address,
-                              const std::string& port,
-                              const mqtt_packet_handler_factory& packet_handler_factory )
+    mqtt_server::mqtt_server( const string& address,
+                              const string& port,
+                              unique_ptr<authentication_service> authentication_service )
         : session_manager_( ),
-          packet_handler_factory_( packet_handler_factory ),
+          authentication_service_( move( authentication_service ) ),
           io_service_( ),
           signals_( io_service_ ),
           acceptor_( io_service_ ),
@@ -67,8 +69,8 @@ namespace io_wally
             }
             if ( !ec )
             {
-                mqtt_session::pointer session = mqtt_session::create(
-                    std::move( socket_ ), session_manager_, *packet_handler_factory_.create_packet_handler( ) );
+                mqtt_session::pointer session =
+                    mqtt_session::create( move( socket_ ), session_manager_, *authentication_service_ );
                 session_manager_.start( session );
             }
 

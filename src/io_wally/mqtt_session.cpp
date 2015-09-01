@@ -6,6 +6,7 @@
 
 using boost::asio::ip::tcp;
 
+using namespace std;
 using namespace io_wally::protocol;
 using namespace io_wally::decoder;
 
@@ -13,22 +14,22 @@ namespace io_wally
 {
     mqtt_session::pointer mqtt_session::create( tcp::socket socket,
                                                 mqtt_session_manager& session_manager,
-                                                mqtt_packet_handler packet_handler )
+                                                authentication_service& authentication_service )
     {
-        return pointer( new mqtt_session( std::move( socket ), session_manager, packet_handler ) );
+        return pointer( new mqtt_session( move( socket ), session_manager, authentication_service ) );
     }
 
     mqtt_session::mqtt_session( tcp::socket socket,
                                 mqtt_session_manager& session_manager,
-                                mqtt_packet_handler packet_handler )
+                                authentication_service& authentication_service )
         : id_( nullptr ),
           session_manager_( session_manager ),
-          read_buffer_( std::vector<uint8_t>( initial_buffer_capacity ) ),
-          socket_( std::move( socket ) ),
+          read_buffer_( vector<uint8_t>( initial_buffer_capacity ) ),
+          socket_( move( socket ) ),
           header_decoder_( ),
           packet_decoder_( ),
           packet_encoder_( ),
-          packet_handler_( std::move( packet_handler ) ),
+          authentication_service_( authentication_service ),
           logger_( keywords::channel = "session", keywords::severity = lvl::trace )
     {
         return;
@@ -58,9 +59,9 @@ namespace io_wally
         BOOST_LOG_SEV( logger_, lvl::info ) << "STOP: MQTT session " << socket_;
     }
 
-    const std::string mqtt_session::to_string( ) const
+    const string mqtt_session::to_string( ) const
     {
-        std::ostringstream output;
+        ostringstream output;
         output << "session[" << socket_ << "]";
 
         return output.str( );
@@ -158,7 +159,7 @@ namespace io_wally
         try
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "Body data read. Decoding ...";
-            const std::unique_ptr<const mqtt_packet> parsed_packet =
+            const unique_ptr<const mqtt_packet> parsed_packet =
                 packet_decoder_.decode( header_parse_result.parsed_header( ),
                                         header_parse_result.consumed_until( ),
                                         header_parse_result.consumed_until( ) + bytes_transferred );

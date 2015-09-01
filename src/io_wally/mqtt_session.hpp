@@ -10,10 +10,11 @@
 #include "io_wally/codec/decoder.hpp"
 #include "io_wally/codec/mqtt_packet_decoder.hpp"
 #include "io_wally/codec/mqtt_packet_encoder.hpp"
-#include "io_wally/spi/mqtt_packet_handler_factory.hpp"
+#include "io_wally/spi/authentication_service_factory.hpp"
 
 using boost::asio::ip::tcp;
 
+using namespace std;
 using namespace io_wally::protocol;
 using namespace io_wally::decoder;
 using namespace io_wally::encoder;
@@ -26,13 +27,12 @@ namespace io_wally
     struct mqtt_session_id
     {
        public:
-        mqtt_session_id( const std::string username, const tcp::endpoint& client )
-            : username_( username ), client_( client )
+        mqtt_session_id( const string username, const tcp::endpoint& client ) : username_( username ), client_( client )
         {
             return;
         }
 
-        const std::string& username( )
+        const string& username( )
         {
             return username_;
         }
@@ -43,7 +43,7 @@ namespace io_wally
         }
 
        private:
-        const std::string username_;
+        const string username_;
         const tcp::endpoint& client_;
     };
 
@@ -59,7 +59,7 @@ namespace io_wally
         /// Factory method for \c mqtt_sessions.
         static pointer create( tcp::socket socket,
                                mqtt_session_manager& session_manager,
-                               mqtt_packet_handler packet_handler );
+                               authentication_service& authentication_service );
 
         /// Naturally, mqtt_sessions cannot be copied.
         mqtt_session( const mqtt_session& ) = delete;
@@ -81,13 +81,13 @@ namespace io_wally
         /// \brief Return a string representation to be used in log output.
         ///
         /// \return A string representation to be used in log output
-        const std::string to_string( ) const;
+        const string to_string( ) const;
 
        private:
         /// Hide constructor since we MUST be created by static factory method 'create' above
         explicit mqtt_session( tcp::socket socket,
                                mqtt_session_manager& session_manager,
-                               mqtt_packet_handler packet_handler );
+                               authentication_service& authentication_service );
 
         void read_header( );
 
@@ -112,7 +112,7 @@ namespace io_wally
         const size_t initial_buffer_capacity = 256;
 
         /// Buffer incoming data
-        std::vector<uint8_t> read_buffer_;
+        vector<uint8_t> read_buffer_;
 
         /// The client socket this session is connected to
         tcp::socket socket_;
@@ -126,14 +126,14 @@ namespace io_wally
         /// Encode outgoing packets
         mqtt_packet_encoder<uint8_t*> packet_encoder_;
 
-        /// Handle incoming packets
-        mqtt_packet_handler packet_handler_;
+        /// Handle connect requests
+        authentication_service& authentication_service_;
 
         /// Our severity-enabled channel logger
         boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_;
     };
 
-    inline std::ostream& operator<<( std::ostream& output, mqtt_session const& mqtt_session )
+    inline ostream& operator<<( ostream& output, mqtt_session const& mqtt_session )
     {
         output << mqtt_session.to_string( );
 
