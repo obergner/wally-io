@@ -144,8 +144,8 @@ doc 				: $(MSOURCES) $(MEXECSOURCE)
 	@doxygen ./.doxygen.cfg
 
 # Tools
-$(COMPILATIONDB)    : $(MSOURCES) $(MEXECSOURCE)
-	@bear make clean main
+$(COMPILATIONDB)    : $(MSOURCES) $(MEXECSOURCE) $(TSOURCES) $(TEXECSOURCE)
+	@bear make clean main test
 
 .PHONY				: macroexpand
 macroexpand			: $(MSOURCES) $(MEXECSOURCE)
@@ -158,6 +158,9 @@ check-main 			: $(MSOURCES) $(MEXECSOURCE)
 .PHONY 				: check-test
 check-test 			: $(TSOURCES) $(TEXECSOURCE)
 	@clang-check $(TSOURCES) $(TEXECSOURCE)
+
+.PHONY 				: check
+check	 			: check-main check-test
 
 .PHONY 				: modernize
 modernize 			: $(MSOURCES) $(MEXECSOURCE) $(COMPILATIONDB)
