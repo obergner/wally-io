@@ -47,6 +47,8 @@ namespace io_wally
         const tcp::endpoint& client_;
     };
 
+    typedef vector<uint8_t>::iterator buf_iter;
+
     ///  \brief An MQTT client connection.
     ///
     /// Represents a persistent connection between a client and an \c mqtt_server.
@@ -93,9 +95,9 @@ namespace io_wally
 
         void on_header_data_read( const boost::system::error_code& ec, const size_t bytes_transferred );
 
-        void read_body( const header_decoder::result<uint8_t*>& header_parse_result, const size_t bytes_transferred );
+        void read_body( const header_decoder::result<buf_iter>& header_parse_result, const size_t bytes_transferred );
 
-        void on_body_data_read( const header_decoder::result<uint8_t*>& header_parse_result,
+        void on_body_data_read( const header_decoder::result<buf_iter>& header_parse_result,
                                 const boost::system::error_code& ec,
                                 const size_t bytes_transferred );
 
@@ -128,10 +130,10 @@ namespace io_wally
         header_decoder header_decoder_;
 
         /// And while we are at it, why not parse the rest of those packets, too?
-        mqtt_packet_decoder<uint8_t*> packet_decoder_;
+        mqtt_packet_decoder<buf_iter> packet_decoder_;
 
         /// Encode outgoing packets
-        mqtt_packet_encoder<vector<uint8_t>::iterator> packet_encoder_;
+        mqtt_packet_encoder<buf_iter> packet_encoder_;
 
         /// Handle connect requests
         authentication_service& authentication_service_;
