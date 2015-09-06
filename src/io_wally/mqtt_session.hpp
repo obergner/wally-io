@@ -101,6 +101,10 @@ namespace io_wally
 
         void dispatch_decoded_packet( const mqtt_packet& packet );
 
+        void write_packet( const mqtt_packet& packet );
+
+        void write_packet_and_close_session( const mqtt_packet& packet, const string& message );
+
        private:
         /// Our ID, only assigned once we have been authenticated
         struct mqtt_session_id* id_;
@@ -114,6 +118,9 @@ namespace io_wally
         /// Buffer incoming data
         vector<uint8_t> read_buffer_;
 
+        /// Buffer outgoing data
+        vector<uint8_t> write_buffer_;
+
         /// The client socket this session is connected to
         tcp::socket socket_;
 
@@ -124,7 +131,7 @@ namespace io_wally
         mqtt_packet_decoder<uint8_t*> packet_decoder_;
 
         /// Encode outgoing packets
-        mqtt_packet_encoder<uint8_t*> packet_encoder_;
+        mqtt_packet_encoder<vector<uint8_t>::iterator> packet_encoder_;
 
         /// Handle connect requests
         authentication_service& authentication_service_;

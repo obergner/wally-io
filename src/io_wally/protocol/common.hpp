@@ -309,6 +309,10 @@ namespace io_wally
                 return output;
             }
 
+            constexpr uint32_t MAX_ALLOWED_PACKET_LENGTH = 268435455;
+
+            constexpr uint32_t MAX_FIXED_HEADER_LENGTH = 5;
+
             /// \brief Represents an MQTT control packet's \c fixed header.
             ///
             /// Each MQTT control packet starts with a variable length \c fixed header encoding
@@ -357,6 +361,17 @@ namespace io_wally
                 uint32_t remaining_length( ) const
                 {
                     return remaining_length_;
+                }
+
+                /// \brief Return a fairly accurate upper bound for this MQTT packet's total length in bytes on the
+                /// wire.
+                ///
+                /// An MQTT packet's total length in bytes on the wire is simply the sum of its fixed header's lenght
+                /// plus its \c remaining_length(). A fixed header may be at most 5 bytes long, so this method simply
+                /// returns \c remaining_length() + 5.
+                uint32_t max_total_packet_length( ) const
+                {
+                    return remaining_length_ + MAX_FIXED_HEADER_LENGTH;
                 }
 
                private:

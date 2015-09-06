@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <memory>
+#include <boost/optional.hpp>
 
 using namespace std;
 
@@ -11,8 +12,9 @@ namespace io_wally
     ///        framework.
     namespace spi
     {
-        typedef function<bool( const string& client_ip, const string& username, const string& password )>
-            authentication_service;
+        typedef function<bool( const string& client_ip,
+                               const boost::optional<const string>& username,
+                               const boost::optional<const string>& password )> authentication_service;
 
         typedef function<unique_ptr<authentication_service>( const string& service_name )>
             authentication_service_factory;

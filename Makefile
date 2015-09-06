@@ -37,6 +37,8 @@ BUILD 		    := build
 MSOURCES         += $(wildcard src/io_wally/*.cpp)
 MSOURCES         += $(wildcard src/io_wally/protocol/*.cpp)
 MSOURCES         += $(wildcard src/io_wally/codec/*.cpp)
+MSOURCES         += $(wildcard src/io_wally/spi/*.cpp)
+MSOURCES         += $(wildcard src/io_wally/impl/*.cpp)
 
 MEXECSOURCE      := $(wildcard src/*.cpp)
 

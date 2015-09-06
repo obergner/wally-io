@@ -24,7 +24,8 @@ namespace io_wally
                                 authentication_service& authentication_service )
         : id_( nullptr ),
           session_manager_( session_manager ),
-          read_buffer_( vector<uint8_t>( initial_buffer_capacity ) ),
+          read_buffer_( initial_buffer_capacity ),
+          write_buffer_( initial_buffer_capacity ),
           socket_( move( socket ) ),
           header_decoder_( ),
           packet_decoder_( ),
@@ -181,11 +182,75 @@ namespace io_wally
         switch ( packet.header( ).type( ) )
         {
             case packet::Type::CONNECT:
-                // const connack ack( );
-                break;
+            {
+                const io_wally::protocol::connect& connect = dynamic_cast<const io_wally::protocol::connect&>( packet );
+                if ( !authentication_service_( socket_.remote_endpoint( ).address( ).to_string( ),
+                                               connect.payload( ).username( ),
+                                               connect.payload( ).password( ) ) )
+                {
+                    write_packet_and_close_session( connack( false, connect_return_code::BAD_USERNAME_OR_PASSWORD ),
+                                                    "Authentication failed" );
+                }
+                else
+                {
+                    write_packet( connack( false, connect_return_code::CONNECTION_ACCEPTED ) );
+                }
+            }
+            break;
             default:
                 break;
         }
         BOOST_LOG_SEV( logger_, lvl::info ) << "DISPATCHED: " << packet;
+    }
+
+    void mqtt_session::write_packet( const mqtt_packet& packet )
+    {
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "Sending packet " << packet << " ...";
+        packet_encoder_.encode(
+            packet, write_buffer_.begin( ), write_buffer_.begin( ) + packet.header( ).max_total_packet_length( ) );
+
+        auto self( shared_from_this( ) );
+        boost::asio::async_write(
+            socket_,
+            boost::asio::buffer( write_buffer_.data( ), write_buffer_.size( ) ),
+            [this, self, &packet]( const boost::system::error_code& ec, size_t /* bytes_written */ )
+            {
+                write_buffer_.clear( );
+                if ( ec )
+                {
+                    BOOST_LOG_SEV( logger_, lvl::error ) << "Failed to send " << packet
+                                                         << " - session will be closed: " << ec;
+                }
+                else
+                {
+                    BOOST_LOG_SEV( logger_, lvl::debug ) << "Sent packet " << packet;
+                }
+            } );
+    }
+
+    void mqtt_session::write_packet_and_close_session( const mqtt_packet& packet, const string& message )
+    {
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "Sending packet " << packet << " - session will be closed: " << message
+                                             << " ...";
+        packet_encoder_.encode(
+            packet, write_buffer_.begin( ), write_buffer_.begin( ) + packet.header( ).max_total_packet_length( ) );
+
+        auto self( shared_from_this( ) );
+        boost::asio::async_write(
+            socket_,
+            boost::asio::buffer( write_buffer_.data( ), write_buffer_.size( ) ),
+            [this, self, &packet]( const boost::system::error_code& ec, size_t /* bytes_written */ )
+            {
+                write_buffer_.clear( );
+                if ( ec )
+                {
+                    BOOST_LOG_SEV( logger_, lvl::error ) << "Failed to send " << packet << ": " << ec;
+                }
+                else
+                {
+                    BOOST_LOG_SEV( logger_, lvl::debug ) << "Sent packet " << packet;
+                }
+                session_manager_.stop( self );
+            } );
     }
 }

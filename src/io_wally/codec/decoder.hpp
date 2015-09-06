@@ -352,7 +352,7 @@ namespace io_wally
             }
 
             *parsed_string = new char[string_length + 1];
-            memcpy( *parsed_string, string_start, string_length + 1 );
+            memcpy( *parsed_string, &( *string_start ), string_length + 1 );
             ( *parsed_string )[string_length] = '\0';
 
             // Update buffer start iterator

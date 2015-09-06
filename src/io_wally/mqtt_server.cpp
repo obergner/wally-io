@@ -16,7 +16,7 @@ namespace io_wally
                               const string& port,
                               unique_ptr<authentication_service> authentication_service )
         : session_manager_( ),
-          authentication_service_( move( authentication_service ) ),
+          authentication_service_( std::move( authentication_service ) ),
           io_service_( ),
           signals_( io_service_ ),
           acceptor_( io_service_ ),

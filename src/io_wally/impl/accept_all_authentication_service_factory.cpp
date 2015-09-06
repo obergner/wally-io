@@ -1,5 +1,3 @@
-#pragma once
-
 #include "io_wally/spi/authentication_service_factory.hpp"
 
 using namespace std;
@@ -18,8 +16,8 @@ namespace io_wally
            public:
             /// \brief Always return \c true.
             bool operator( )( const string& /* client_ip */,
-                              const string& /* username  */,
-                              const string& /* password */ )
+                              const boost::optional<const string>& /* username  */,
+                              const boost::optional<const string>& /* password */ )
             {
                 return true;
             }
