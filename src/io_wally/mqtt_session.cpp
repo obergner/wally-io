@@ -14,14 +14,14 @@ namespace io_wally
 {
     mqtt_session::pointer mqtt_session::create( tcp::socket socket,
                                                 mqtt_session_manager& session_manager,
-                                                authentication_service& authentication_service )
+                                                const authentication_service& authentication_service )
     {
         return pointer( new mqtt_session( move( socket ), session_manager, authentication_service ) );
     }
 
     mqtt_session::mqtt_session( tcp::socket socket,
                                 mqtt_session_manager& session_manager,
-                                authentication_service& authentication_service )
+                                const authentication_service& authentication_service )
         : id_( nullptr ),
           session_manager_( session_manager ),
           read_buffer_( initial_buffer_capacity ),

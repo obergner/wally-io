@@ -61,7 +61,7 @@ namespace io_wally
         /// Factory method for \c mqtt_sessions.
         static pointer create( tcp::socket socket,
                                mqtt_session_manager& session_manager,
-                               authentication_service& authentication_service );
+                               const authentication_service& authentication_service );
 
         /// Naturally, mqtt_sessions cannot be copied.
         mqtt_session( const mqtt_session& ) = delete;
@@ -89,7 +89,7 @@ namespace io_wally
         /// Hide constructor since we MUST be created by static factory method 'create' above
         explicit mqtt_session( tcp::socket socket,
                                mqtt_session_manager& session_manager,
-                               authentication_service& authentication_service );
+                               const authentication_service& authentication_service );
 
         void read_header( );
 
@@ -136,7 +136,7 @@ namespace io_wally
         mqtt_packet_encoder<buf_iter> packet_encoder_;
 
         /// Handle connect requests
-        authentication_service& authentication_service_;
+        const authentication_service& authentication_service_;
 
         /// Our severity-enabled channel logger
         boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_;
