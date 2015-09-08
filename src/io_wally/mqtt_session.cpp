@@ -164,6 +164,7 @@ namespace io_wally
                 packet_decoder_.decode( header_parse_result.parsed_header( ),
                                         header_parse_result.consumed_until( ),
                                         header_parse_result.consumed_until( ) + bytes_transferred );
+            // FIXME: This risks discarding (the first bytes of) another packet that might already have been received!
             read_buffer_.clear( );
             BOOST_LOG_SEV( logger_, lvl::info ) << "DECODED: " << *parsed_packet;
 
