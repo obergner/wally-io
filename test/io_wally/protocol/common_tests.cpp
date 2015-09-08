@@ -241,3 +241,125 @@ SCENARIO( "writing a Type into a header byte", "[packets]" )
         }
     }
 }
+
+SCENARIO( "calculating a packet's total length in bytes on the wire", "[packets]" )
+{
+    GIVEN( "a fixed header with remaining length 126" )
+    {
+        const uint8_t type_and_flags = 0xF1;
+        const uint32_t remaining_length = 126;
+        const packet::header under_test( type_and_flags, remaining_length );
+
+        WHEN( "a caller calls total_length()" )
+        {
+            const uint32_t total_length = under_test.total_length( );
+
+            THEN( "it will see a total length of remaining_length + 2 bytes" )
+            {
+                REQUIRE( total_length == remaining_length + 2 );
+            }
+        }
+    }
+
+    GIVEN( "a fixed header with remaining length 128" )
+    {
+        const uint8_t type_and_flags = 0xF1;
+        const uint32_t remaining_length = 128;
+        const packet::header under_test( type_and_flags, remaining_length );
+
+        WHEN( "a caller calls total_length()" )
+        {
+            const uint32_t total_length = under_test.total_length( );
+
+            THEN( "it will see a total length of remaining_length + 3 bytes" )
+            {
+                REQUIRE( total_length == remaining_length + 3 );
+            }
+        }
+    }
+
+    GIVEN( "a fixed header with remaining length 16383" )
+    {
+        const uint8_t type_and_flags = 0xF1;
+        const uint32_t remaining_length = 16383;
+        const packet::header under_test( type_and_flags, remaining_length );
+
+        WHEN( "a caller calls total_length()" )
+        {
+            const uint32_t total_length = under_test.total_length( );
+
+            THEN( "it will see a total length of remaining_length + 3 bytes" )
+            {
+                REQUIRE( total_length == remaining_length + 3 );
+            }
+        }
+    }
+
+    GIVEN( "a fixed header with remaining length 16384" )
+    {
+        const uint8_t type_and_flags = 0xF1;
+        const uint32_t remaining_length = 16384;
+        const packet::header under_test( type_and_flags, remaining_length );
+
+        WHEN( "a caller calls total_length()" )
+        {
+            const uint32_t total_length = under_test.total_length( );
+
+            THEN( "it will see a total length of remaining_length + 4 bytes" )
+            {
+                REQUIRE( total_length == remaining_length + 4 );
+            }
+        }
+    }
+
+    GIVEN( "a fixed header with remaining length 2097151" )
+    {
+        const uint8_t type_and_flags = 0xF1;
+        const uint32_t remaining_length = 2097151;
+        const packet::header under_test( type_and_flags, remaining_length );
+
+        WHEN( "a caller calls total_length()" )
+        {
+            const uint32_t total_length = under_test.total_length( );
+
+            THEN( "it will see a total length of remaining_length + 4 bytes" )
+            {
+                REQUIRE( total_length == remaining_length + 4 );
+            }
+        }
+    }
+
+    GIVEN( "a fixed header with remaining length 2097152" )
+    {
+        const uint8_t type_and_flags = 0xF1;
+        const uint32_t remaining_length = 2097152;
+        const packet::header under_test( type_and_flags, remaining_length );
+
+        WHEN( "a caller calls total_length()" )
+        {
+            const uint32_t total_length = under_test.total_length( );
+
+            THEN( "it will see a total length of remaining_length + 5 bytes" )
+            {
+                REQUIRE( total_length == remaining_length + 5 );
+            }
+        }
+    }
+
+    GIVEN( "a fixed header with remaining length 268435455" )
+    {
+        const uint8_t type_and_flags = 0xF1;
+        const uint32_t remaining_length = 268435455;
+        const packet::header under_test( type_and_flags, remaining_length );
+
+        WHEN( "a caller calls total_length()" )
+        {
+            const uint32_t total_length = under_test.total_length( );
+
+            THEN( "it will see a total length of remaining_length + 5 bytes" )
+            {
+                REQUIRE( total_length == remaining_length + 5 );
+            }
+        }
+    }
+}
