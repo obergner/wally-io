@@ -12,6 +12,10 @@ static io_wally::impl::accept_all_authentication_service_factory auth_service_fa
 int main( int /*  argc */, char** /* argv */ )
 {
     io_wally::logging::init_logging( log_file_prefix, true );
+    // auto auth_srvc = auth_service_factory( "ignored" );
+    // const boost::optional<const string> usr = std::string( "anonymous" );
+    // const boost::optional<const string> pwd = std::string( "secret" );
+    // ( *auth_srvc )( "127.0.0.1", usr, pwd );
 
     io_wally::mqtt_server srv( host, port, auth_service_factory( "ignored" ) );
     srv.run( );

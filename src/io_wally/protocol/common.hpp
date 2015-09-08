@@ -363,15 +363,23 @@ namespace io_wally
                     return remaining_length_;
                 }
 
-                /// \brief Return a fairly accurate upper bound for this MQTT packet's total length in bytes on the
-                /// wire.
+                /// \brief Return this MQTT packet's total length in bytes on the wire.
                 ///
                 /// An MQTT packet's total length in bytes on the wire is simply the sum of its fixed header's lenght
-                /// plus its \c remaining_length(). A fixed header may be at most 5 bytes long, so this method simply
-                /// returns \c remaining_length() + 5.
-                uint32_t max_total_packet_length( ) const
+                /// plus its \c remaining_length().
+                uint32_t total_length( ) const
                 {
-                    return remaining_length_ + MAX_FIXED_HEADER_LENGTH;
+                    uint32_t rem_length_bytes;
+                    if ( remaining_length_ <= 127 )
+                        rem_length_bytes = 1;
+                    else if ( remaining_length_ <= 16383 )
+                        rem_length_bytes = 2;
+                    else if ( remaining_length_ <= 2097151 )
+                        rem_length_bytes = 3;
+                    else
+                        rem_length_bytes = 4;
+
+                    return 1 + rem_length_bytes + remaining_length_;
                 }
 
                private:

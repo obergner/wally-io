@@ -12,9 +12,13 @@ namespace io_wally
     ///        framework.
     namespace spi
     {
-        typedef function<bool( const string& client_ip,
-                               const boost::optional<const string>& username,
-                               const boost::optional<const string>& password )> authentication_service;
+        class authentication_service
+        {
+           public:
+            virtual bool authenticate( const string& client_ip,
+                                       const boost::optional<const string>& username,
+                                       const boost::optional<const string>& password ) = 0;
+        };
 
         typedef function<unique_ptr<authentication_service>( const string& service_name )>
             authentication_service_factory;

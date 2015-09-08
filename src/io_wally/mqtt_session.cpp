@@ -14,14 +14,14 @@ namespace io_wally
 {
     mqtt_session::pointer mqtt_session::create( tcp::socket socket,
                                                 mqtt_session_manager& session_manager,
-                                                const authentication_service& authentication_service )
+                                                authentication_service& authentication_service )
     {
         return pointer( new mqtt_session( move( socket ), session_manager, authentication_service ) );
     }
 
     mqtt_session::mqtt_session( tcp::socket socket,
                                 mqtt_session_manager& session_manager,
-                                const authentication_service& authentication_service )
+                                authentication_service& authentication_service )
         : id_( nullptr ),
           session_manager_( session_manager ),
           read_buffer_( initial_buffer_capacity ),
@@ -164,9 +164,10 @@ namespace io_wally
                 packet_decoder_.decode( header_parse_result.parsed_header( ),
                                         header_parse_result.consumed_until( ),
                                         header_parse_result.consumed_until( ) + bytes_transferred );
+            read_buffer_.clear( );
             BOOST_LOG_SEV( logger_, lvl::info ) << "DECODED: " << *parsed_packet;
 
-            // dispatch_decoded_packet( *parsed_packet );
+            dispatch_decoded_packet( *parsed_packet );
         }
         catch ( const io_wally::decoder::error::malformed_mqtt_packet& e )
         {
@@ -180,15 +181,15 @@ namespace io_wally
 
     void mqtt_session::dispatch_decoded_packet( const mqtt_packet& packet )
     {
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "DISPATCHING: " << packet;
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "DISPATCHING: " << packet << " ...";
         switch ( packet.header( ).type( ) )
         {
             case packet::Type::CONNECT:
             {
                 const io_wally::protocol::connect& connect = dynamic_cast<const io_wally::protocol::connect&>( packet );
-                if ( !authentication_service_( socket_.remote_endpoint( ).address( ).to_string( ),
-                                               connect.payload( ).username( ),
-                                               connect.payload( ).password( ) ) )
+                if ( !authentication_service_.authenticate( socket_.remote_endpoint( ).address( ).to_string( ),
+                                                            connect.payload( ).username( ),
+                                                            connect.payload( ).password( ) ) )
                 {
                     write_packet_and_close_session( connack( false, connect_return_code::BAD_USERNAME_OR_PASSWORD ),
                                                     "Authentication failed" );
@@ -209,25 +210,24 @@ namespace io_wally
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << "Sending packet " << packet << " ...";
         packet_encoder_.encode(
-            packet, write_buffer_.begin( ), write_buffer_.begin( ) + packet.header( ).max_total_packet_length( ) );
+            packet, write_buffer_.begin( ), write_buffer_.begin( ) + packet.header( ).total_length( ) );
 
         auto self( shared_from_this( ) );
-        boost::asio::async_write(
-            socket_,
-            boost::asio::buffer( write_buffer_.data( ), write_buffer_.size( ) ),
-            [this, self, &packet]( const boost::system::error_code& ec, size_t /* bytes_written */ )
+        boost::asio::async_write( socket_,
+                                  boost::asio::buffer( write_buffer_, packet.header( ).total_length( ) ),
+                                  [this, self]( const boost::system::error_code& ec, size_t /* bytes_written */ )
+                                  {
+            write_buffer_.clear( );
+            if ( ec )
             {
-                write_buffer_.clear( );
-                if ( ec )
-                {
-                    BOOST_LOG_SEV( logger_, lvl::error ) << "Failed to send " << packet
-                                                         << " - session will be closed: " << ec;
-                }
-                else
-                {
-                    BOOST_LOG_SEV( logger_, lvl::debug ) << "Sent packet " << packet;
-                }
-            } );
+                BOOST_LOG_SEV( logger_, lvl::error ) << "Failed to send packet - session will be closed: " << ec;
+            }
+            else
+            {
+                BOOST_LOG_SEV( logger_, lvl::debug ) << "Packet successfully sent";
+                read_header( );
+            }
+        } );
     }
 
     void mqtt_session::write_packet_and_close_session( const mqtt_packet& packet, const string& message )
@@ -235,24 +235,23 @@ namespace io_wally
         BOOST_LOG_SEV( logger_, lvl::debug ) << "Sending packet " << packet << " - session will be closed: " << message
                                              << " ...";
         packet_encoder_.encode(
-            packet, write_buffer_.begin( ), write_buffer_.begin( ) + packet.header( ).max_total_packet_length( ) );
+            packet, write_buffer_.begin( ), write_buffer_.begin( ) + packet.header( ).total_length( ) );
 
         auto self( shared_from_this( ) );
-        boost::asio::async_write(
-            socket_,
-            boost::asio::buffer( write_buffer_.data( ), write_buffer_.size( ) ),
-            [this, self, &packet]( const boost::system::error_code& ec, size_t /* bytes_written */ )
+        boost::asio::async_write( socket_,
+                                  boost::asio::buffer( write_buffer_.data( ), packet.header( ).total_length( ) ),
+                                  [this, self]( const boost::system::error_code& ec, size_t /* bytes_written */ )
+                                  {
+            write_buffer_.clear( );
+            if ( ec )
             {
-                write_buffer_.clear( );
-                if ( ec )
-                {
-                    BOOST_LOG_SEV( logger_, lvl::error ) << "Failed to send " << packet << ": " << ec;
-                }
-                else
-                {
-                    BOOST_LOG_SEV( logger_, lvl::debug ) << "Sent packet " << packet;
-                }
-                session_manager_.stop( self );
-            } );
+                BOOST_LOG_SEV( logger_, lvl::error ) << "Failed to send packet: " << ec;
+            }
+            else
+            {
+                BOOST_LOG_SEV( logger_, lvl::debug ) << "Packet successfully sent";
+            }
+            session_manager_.stop( self );
+        } );
     }
 }

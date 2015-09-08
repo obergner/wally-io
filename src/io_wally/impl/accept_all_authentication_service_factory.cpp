@@ -15,9 +15,9 @@ namespace io_wally
         {
            public:
             /// \brief Always return \c true.
-            bool operator( )( const string& /* client_ip */,
-                              const boost::optional<const string>& /* username  */,
-                              const boost::optional<const string>& /* password */ )
+            bool authenticate( const string& /* client_ip */,
+                               const boost::optional<const string>& /* username  */,
+                               const boost::optional<const string>& /* password */ ) override
             {
                 return true;
             }
