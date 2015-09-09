@@ -1,30 +1,30 @@
 #include "catch.hpp"
 
-#include "io_wally/protocol/pingreq_packet.hpp"
+#include "io_wally/protocol/pingresp_packet.hpp"
 
 using namespace io_wally::protocol;
 
-SCENARIO( "pingreq packet", "[packets]" )
+SCENARIO( "pingresp packet", "[packets]" )
 {
 
-    GIVEN( "a pingreq packet instance" )
+    GIVEN( "a pingresp packet instance" )
     {
-        const pingreq under_test;
+        const pingresp under_test;
 
         WHEN( "a caller asks for its packet type" )
         {
             const packet::Type packet_type = under_test.header( ).type( );
 
-            THEN( "it should see PINGREQ" )
+            THEN( "it should see PINGRESP" )
             {
-                REQUIRE( packet_type == packet::Type::PINGREQ );
+                REQUIRE( packet_type == packet::Type::PINGRESP );
             }
         }
     }
 
-    GIVEN( "a pingreq packet instance" )
+    GIVEN( "a pingresp packet instance" )
     {
-        const pingreq under_test;
+        const pingresp under_test;
 
         WHEN( "a caller asks for its remaining_length" )
         {
@@ -37,9 +37,9 @@ SCENARIO( "pingreq packet", "[packets]" )
         }
     }
 
-    GIVEN( "a pingreq packet instance" )
+    GIVEN( "a pingresp packet instance" )
     {
-        const pingreq under_test;
+        const pingresp under_test;
 
         WHEN( "a caller asks for its total_length" )
         {

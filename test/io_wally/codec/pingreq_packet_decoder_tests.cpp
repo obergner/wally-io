@@ -38,27 +38,6 @@ SCENARIO( "pingreq_packet_decoder", "[decoder]" )
         }
     }
 
-    GIVEN( "a malformed header byte array with illegal fixed header flags" )
-    {
-        const uint8_t type_and_flags = ( 12 << 4 ) | 0x01;  // PINGREQ
-        const uint32_t remaining_length = 0;
-
-        const struct packet::header fixed_header( type_and_flags, remaining_length );
-
-        // Shameless act of robbery: https://github.com/surgemq/surgemq/blob/master/message/pingreq_test.go#L132
-        const std::array<uint8_t, remaining_length> buffer = {{}};  /// avoids warning
-
-        WHEN( "a client passes that array into pingreq_packet_decoder::decode" )
-        {
-
-            THEN( "that client should see a decoder::error::malformed_mqtt_packet being thrown" )
-            {
-                REQUIRE_THROWS_AS( under_test.decode( fixed_header, buffer.begin( ), buffer.end( ) ),
-                                   decoder::error::malformed_mqtt_packet );
-            }
-        }
-    }
-
     GIVEN( "a malformed header byte array with non-zero remaining length" )
     {
         const uint8_t type_and_flags = ( 12 << 4 );  // PINGREQ

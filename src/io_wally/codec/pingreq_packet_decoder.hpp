@@ -32,14 +32,6 @@ namespace io_wally
                 // TODO:: consider removing this assert in release build
                 assert( header.type( ) == packet::Type::PINGREQ );
 
-                // Check that no header flags are set, as required by MQTT 3.1.1
-                if ( ( header.type_and_flags( ) & 0x0F ) != 0x00 )
-                {
-                    std::ostringstream message;
-                    message << "Illegal flags set in PINGREQ fixed header (violates MQTT 3.1.1 spec)";
-                    throw error::malformed_mqtt_packet( message.str( ) );
-                }
-
                 // Check that remaining length is 0, as required by MQTT 3.1.1
                 if ( header.remaining_length( ) != 0 )
                 {
@@ -61,6 +53,5 @@ namespace io_wally
                 return std::unique_ptr<const mqtt_packet>( new protocol::pingreq( ) );
             }
         };
-
     }  // namespace decoder
 }  // namespace io_wally

@@ -2,6 +2,7 @@
 
 #include "io_wally/codec/encoder.hpp"
 #include "io_wally/codec/connack_packet_encoder.hpp"
+#include "io_wally/codec/pingresp_packet_encoder.hpp"
 
 using namespace io_wally::protocol;
 
@@ -49,16 +50,20 @@ namespace io_wally
                 {
                     case packet::Type::CONNACK:
                         return connack_encoder_;
+                    case packet::Type::PINGRESP:
+                        return pingresp_encoder_;
                     default:
                         throw std::invalid_argument( "Unsupported packet type" );
                 }
                 assert( false );
             }
 
+           private:
             /// Fields
-
-            /// Encode CONNACK
             const connack_packet_encoder<OutputIterator> connack_encoder_ = connack_packet_encoder<OutputIterator>( );
+
+            const pingresp_packet_encoder<OutputIterator> pingresp_encoder_ =
+                pingresp_packet_encoder<OutputIterator>( );
         };
 
     }  /// namespace decoder

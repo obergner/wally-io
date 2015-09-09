@@ -48,4 +48,27 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
             }
         }
     }
+
+    GIVEN( "a pingresp packet" )
+    {
+        const pingresp pingresp;
+
+        std::array<uint8_t, 2> result = {{0x00, 0x00}};
+        const std::array<uint8_t, 2> expected_result = {{0xD0, 0x00}};
+
+        WHEN( "a client passes that packet into mqtt_packet_encoder::encode" )
+        {
+            out_iter new_buf_start = under_test.encode( pingresp, result.begin( ), result.end( ) );
+
+            THEN( "that client should see a correctly encoded buffer" )
+            {
+                REQUIRE( result == expected_result );
+            }
+
+            AND_THEN( "it should see a correctly advanced out iterator" )
+            {
+                REQUIRE( ( new_buf_start - result.begin( ) ) == pingresp.header( ).total_length( ) );
+            }
+        }
+    }
 }
