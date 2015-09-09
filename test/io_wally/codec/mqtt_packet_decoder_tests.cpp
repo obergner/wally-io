@@ -8,7 +8,7 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
 {
     decoder::mqtt_packet_decoder<const uint8_t*> under_test;
 
-    GIVEN( "a well-formed and complete header byte array with 1 length byte" )
+    GIVEN( "a well-formed and complete header byte array of type CONNECT with 1 length byte" )
     {
         const uint8_t type_and_flags = ( 1 << 4 );  // CONNECT
         const uint32_t remaining_length = 60;
@@ -116,6 +116,36 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
                 CHECK( *connect_packet.payload( ).username( ) == "surgemq" );
                 CHECK( connect_packet.payload( ).password( ) );
                 CHECK( *connect_packet.payload( ).password( ) == "verysecret" );
+            }
+        }
+    }
+
+    GIVEN( "a well-formed and complete header byte array of type PINGREQ with 1 length byte" )
+    {
+        const uint8_t type_and_flags = ( 12 << 4 );  // PINGREQ
+        const uint32_t remaining_length = 0;
+
+        const struct packet::header fixed_header( type_and_flags, remaining_length );
+
+        // Shameless act of robbery: https://github.com/surgemq/surgemq/blob/master/message/connect_test.go#L132
+        const std::array<uint8_t, remaining_length> buffer = {{}};  /// avoids warning
+
+        WHEN( "a client passes that array into mqtt_packet_decoder::parse" )
+        {
+            std::unique_ptr<const mqtt_packet> result =
+                under_test.decode( fixed_header, buffer.begin( ), buffer.end( ) );
+
+            THEN( "that client should receive a non-null mqtt_packet pointer" )
+            {
+                REQUIRE( result );
+            }
+
+            AND_THEN( "it should be able to cast that result to a 'pingreq' instance" )
+            {
+                const mqtt_packet& raw_result = *result;
+                const pingreq& pingreq_packet = static_cast<const pingreq&>( raw_result );
+
+                CHECK( pingreq_packet.header( ).type( ) == packet::Type::PINGREQ );
             }
         }
     }

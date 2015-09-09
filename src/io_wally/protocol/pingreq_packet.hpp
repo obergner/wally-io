@@ -36,6 +36,5 @@ namespace io_wally
                 return output.str( );
             }
         };
-
     }  // namespace protocol
 }  // namespace io_wally

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "io_wally/codec/connect_packet_decoder.hpp"
+#include "io_wally/codec/pingreq_packet_decoder.hpp"
 
 using namespace io_wally::protocol;
 
@@ -54,6 +55,8 @@ namespace io_wally
                 {
                     case packet::Type::CONNECT:
                         return connect_packet_decoder_;
+                    case packet::Type::PINGREQ:
+                        return pingreq_packet_decoder_;
                     default:
                         throw std::invalid_argument( "Unsupported MQTT control packet type" );
                 }
@@ -61,9 +64,13 @@ namespace io_wally
                 assert( false );
             }
 
+           private:
             /// Fields
             const connect_packet_decoder<InputIterator> connect_packet_decoder_ =
                 connect_packet_decoder<InputIterator>( );
+
+            const pingreq_packet_decoder<InputIterator> pingreq_packet_decoder_ =
+                pingreq_packet_decoder<InputIterator>( );
         };
 
     }  /// namespace decoder
