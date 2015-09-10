@@ -153,7 +153,7 @@ namespace io_wally
             virtual const std::string to_string( ) const override
             {
                 std::ostringstream output;
-                output << "connack[" << header( ) << "]";
+                output << "connack[" << connack_header( ) << "]";
 
                 return output.str( );
             }

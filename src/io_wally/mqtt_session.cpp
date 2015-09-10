@@ -70,19 +70,24 @@ namespace io_wally
 
     void mqtt_session::read_header( )
     {
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "READ: header ...";
-        socket_.async_read_some( boost::asio::buffer( read_buffer_ ),
-                                 boost::bind( &mqtt_session::on_header_data_read,
-                                              shared_from_this( ),
-                                              boost::asio::placeholders::error,
-                                              boost::asio::placeholders::bytes_transferred ) );
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< READ: header [bufs:" << read_buffer_.size( ) << "] ...";
+        boost::asio::async_read(
+            socket_,
+            boost::asio::buffer( read_buffer_ ),
+            boost::asio::transfer_at_least( 2 ),  // FIXME: This won't work if we are called in a loop
+            boost::bind( &mqtt_session::on_header_data_read,
+                         shared_from_this( ),
+                         boost::asio::placeholders::error,
+                         boost::asio::placeholders::bytes_transferred ) );
     }
 
     void mqtt_session::on_header_data_read( const boost::system::error_code& ec, const size_t bytes_transferred )
     {
         if ( ec )
         {
-            BOOST_LOG_SEV( logger_, lvl::error ) << "Failed to read header: [error_code:" << ec << "]";
+            BOOST_LOG_SEV( logger_, lvl::error ) << "<<< Failed to read header: [ec:" << ec << "|emsg:" << ec.message( )
+                                                 << "|bt:" << bytes_transferred << "|bufs:" << read_buffer_.size( )
+                                                 << "]";
             if ( ec != boost::asio::error::operation_aborted )
                 session_manager_.stop( shared_from_this( ) );
             return;
@@ -90,17 +95,24 @@ namespace io_wally
 
         try
         {
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< Header data read [bt:" << bytes_transferred
+                                                 << "|bufs:" << read_buffer_.size( ) << "]";
             const header_decoder::result<buf_iter> result =
                 header_decoder_.decode( read_buffer_.begin( ), read_buffer_.begin( ) + bytes_transferred );
             if ( !result.is_parsing_complete( ) )
             {
                 // HIGHLY UNLIKELY: header is at most 5 bytes.
-                BOOST_LOG_SEV( logger_, lvl::warning ) << "Header data incomplete - continue";
+                BOOST_LOG_SEV( logger_, lvl::warning ) << "<<< Header data incomplete - continue";
                 read_header( );
+
                 return;
             }
+            // Reset header_decoder's internal state
+            header_decoder_.reset( );
 
-            BOOST_LOG_SEV( logger_, lvl::info ) << "RCVD: " << result.parsed_header( );
+            BOOST_LOG_SEV( logger_, lvl::info ) << "<<< HEADER [res:" << result.parsed_header( )
+                                                << "|bt:" << bytes_transferred << "|bufs:" << read_buffer_.size( )
+                                                << "]";
             read_body( result, bytes_transferred );
         }
         catch ( const io_wally::decoder::error::malformed_mqtt_packet& e )
@@ -114,13 +126,15 @@ namespace io_wally
     void mqtt_session::read_body( const header_decoder::result<buf_iter>& header_parse_result,
                                   const size_t bytes_transferred )
     {
+        const uint32_t total_length = header_parse_result.parsed_header( ).total_length( );
         const uint32_t remaining_length = header_parse_result.parsed_header( ).remaining_length( );
-        buf_iter body_start = header_parse_result.consumed_until( );
-        const size_t header_length = body_start - read_buffer_.begin( );
+        const uint32_t header_length = total_length - remaining_length;
 
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "Reading body (remaining length: " << remaining_length << ") ...";
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< Reading body [tl:" << total_length << "|rl:" << remaining_length
+                                             << "|bt:" << bytes_transferred << "|bufs:" << read_buffer_.size( )
+                                             << "] ...";
 
-        if ( bytes_transferred >= ( header_length + remaining_length ) )
+        if ( bytes_transferred >= total_length )
         {
             // We already received the entire packet. No need to wait for more data.
             on_body_data_read( header_parse_result,
@@ -129,18 +143,20 @@ namespace io_wally
         }
         else
         {
+            // FIXME: This code path has probably never been excercised and needs to be revisited.
+
             // Resize read buffer to allow for storing the control packet, but do NOT shrink it below
             // its initial default capacity
-            if ( remaining_length + header_length > initial_buffer_capacity )
-                read_buffer_.resize( remaining_length + header_length );
+            read_buffer_.resize( total_length );
 
             pointer self( shared_from_this( ) );
             boost::asio::async_read(
                 socket_,
-                boost::asio::buffer( read_buffer_, remaining_length ),
-                [this, self, header_parse_result]( const boost::system::error_code& ec, const size_t bytes_transferred )
+                boost::asio::buffer( read_buffer_, total_length ),
+                boost::asio::transfer_at_least( total_length - bytes_transferred ),
+                [self, header_parse_result]( const boost::system::error_code& ec, const size_t bytes_transferred )
                 {
-                    on_body_data_read( header_parse_result, ec, bytes_transferred );
+                    self->on_body_data_read( header_parse_result, ec, bytes_transferred );
                 } );
         }
     }
@@ -151,7 +167,8 @@ namespace io_wally
     {
         if ( ec )
         {
-            BOOST_LOG_SEV( logger_, lvl::error ) << "Failed to read body: [error_code:" << ec << "]";
+            BOOST_LOG_SEV( logger_, lvl::error ) << "<<< Failed to read body: [ec:" << ec << "|bt:" << bytes_transferred
+                                                 << "|bufs:" << read_buffer_.size( ) << "]";
             if ( ec != boost::asio::error::operation_aborted )
                 session_manager_.stop( shared_from_this( ) );
             return;
@@ -159,21 +176,23 @@ namespace io_wally
 
         try
         {
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "Body data read. Decoding ...";
-            const unique_ptr<const mqtt_packet> parsed_packet =
-                packet_decoder_.decode( header_parse_result.parsed_header( ),
-                                        header_parse_result.consumed_until( ),
-                                        header_parse_result.consumed_until( ) + bytes_transferred );
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< Body data read. Decoding ...";
+            const unique_ptr<const mqtt_packet> parsed_packet = packet_decoder_.decode(
+                header_parse_result.parsed_header( ),
+                header_parse_result.consumed_until( ),
+                header_parse_result.consumed_until( ) + header_parse_result.parsed_header( ).remaining_length( ) );
+            BOOST_LOG_SEV( logger_, lvl::info ) << "<<< DECODED [res:" << *parsed_packet << "|bt:" << bytes_transferred
+                                                << "|bufs:" << read_buffer_.size( ) << "]";
             // FIXME: This risks discarding (the first bytes of) another packet that might already have been received!
             read_buffer_.clear( );
-            BOOST_LOG_SEV( logger_, lvl::info ) << "DECODED: " << *parsed_packet;
+            read_buffer_.resize( initial_buffer_capacity );
 
             dispatch_decoded_packet( *parsed_packet );
         }
         catch ( const io_wally::decoder::error::malformed_mqtt_packet& e )
         {
             BOOST_LOG_SEV( logger_, lvl::error )
-                << "Malformed control packet body - will stop this session: " << e.what( );
+                << "<<< Malformed control packet body - will stop this session: " << e.what( );
             session_manager_.stop( shared_from_this( ) );
         }
 
@@ -182,7 +201,7 @@ namespace io_wally
 
     void mqtt_session::dispatch_decoded_packet( const mqtt_packet& packet )
     {
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "DISPATCHING: " << packet << " ...";
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << packet << " ...";
         switch ( packet.header( ).type( ) )
         {
             case packet::Type::CONNECT:
@@ -201,39 +220,46 @@ namespace io_wally
                 }
             }
             break;
+            case packet::Type::PINGREQ:
+            {
+                write_packet( pingresp( ) );
+            }
+            break;
             default:
                 break;
         }
-        BOOST_LOG_SEV( logger_, lvl::info ) << "DISPATCHED: " << packet;
+        BOOST_LOG_SEV( logger_, lvl::info ) << "--- DISPATCHED: " << packet;
     }
 
     void mqtt_session::write_packet( const mqtt_packet& packet )
     {
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "Sending packet " << packet << " ...";
+        BOOST_LOG_SEV( logger_, lvl::debug ) << ">>> SEND: " << packet << " ...";
         packet_encoder_.encode(
             packet, write_buffer_.begin( ), write_buffer_.begin( ) + packet.header( ).total_length( ) );
+        BOOST_LOG_SEV( logger_, lvl::debug ) << ">>> ENCODED: " << packet << " ...";
 
         auto self( shared_from_this( ) );
         boost::asio::async_write( socket_,
                                   boost::asio::buffer( write_buffer_, packet.header( ).total_length( ) ),
-                                  [this, self]( const boost::system::error_code& ec, size_t /* bytes_written */ )
+                                  [self]( const boost::system::error_code& ec, size_t /* bytes_written */ )
                                   {
-            write_buffer_.clear( );
+            self->write_buffer_.clear( );
             if ( ec )
             {
-                BOOST_LOG_SEV( logger_, lvl::error ) << "Failed to send packet - session will be closed: " << ec;
+                BOOST_LOG_SEV( self->logger_, lvl::error )
+                    << ">>> Failed to send packet - session will be closed: " << ec;
             }
             else
             {
-                BOOST_LOG_SEV( logger_, lvl::debug ) << "Packet successfully sent";
-                read_header( );
+                BOOST_LOG_SEV( self->logger_, lvl::debug ) << ">>> SENT";
+                self->read_header( );
             }
         } );
     }
 
     void mqtt_session::write_packet_and_close_session( const mqtt_packet& packet, const string& message )
     {
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "Sending packet " << packet << " - session will be closed: " << message
+        BOOST_LOG_SEV( logger_, lvl::debug ) << ">>> SEND: " << packet << " - SESSION WILL BE CLOSED: " << message
                                              << " ...";
         packet_encoder_.encode(
             packet, write_buffer_.begin( ), write_buffer_.begin( ) + packet.header( ).total_length( ) );
@@ -241,18 +267,18 @@ namespace io_wally
         auto self( shared_from_this( ) );
         boost::asio::async_write( socket_,
                                   boost::asio::buffer( write_buffer_.data( ), packet.header( ).total_length( ) ),
-                                  [this, self]( const boost::system::error_code& ec, size_t /* bytes_written */ )
+                                  [self]( const boost::system::error_code& ec, size_t /* bytes_written */ )
                                   {
-            write_buffer_.clear( );
+            self->write_buffer_.clear( );
             if ( ec )
             {
-                BOOST_LOG_SEV( logger_, lvl::error ) << "Failed to send packet: " << ec;
+                BOOST_LOG_SEV( self->logger_, lvl::error ) << ">>> Failed to send packet: " << ec;
             }
             else
             {
-                BOOST_LOG_SEV( logger_, lvl::debug ) << "Packet successfully sent";
+                BOOST_LOG_SEV( self->logger_, lvl::debug ) << ">>> SENT";
             }
-            session_manager_.stop( self );
+            self->session_manager_.stop( self );
         } );
     }
 }

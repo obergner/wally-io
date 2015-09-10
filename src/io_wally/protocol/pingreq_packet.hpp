@@ -30,7 +30,7 @@ namespace io_wally
             virtual const std::string to_string( ) const override
             {
                 std::ostringstream output;
-                output << "pingreq[" << header( ) << "]";
+                output << "pingreq[]";
 
                 return output.str( );
             }
