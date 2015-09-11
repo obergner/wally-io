@@ -234,17 +234,17 @@ namespace io_wally
     void mqtt_session::write_packet( const mqtt_packet& packet )
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << ">>> SEND: " << packet << " ...";
+
+        write_buffer_.clear( );
+        write_buffer_.resize( packet.header( ).total_length( ) );
         packet_encoder_.encode(
             packet, write_buffer_.begin( ), write_buffer_.begin( ) + packet.header( ).total_length( ) );
-        BOOST_LOG_SEV( logger_, lvl::debug ) << ">>> ENCODED: " << packet << " ...";
 
         auto self( shared_from_this( ) );
         boost::asio::async_write( socket_,
                                   boost::asio::buffer( write_buffer_, packet.header( ).total_length( ) ),
                                   [self]( const boost::system::error_code& ec, size_t /* bytes_written */ )
                                   {
-            self->write_buffer_.clear( );
-            self->write_buffer_.resize( self->initial_buffer_capacity );
             if ( ec )
             {
                 BOOST_LOG_SEV( self->logger_, lvl::error )
@@ -262,6 +262,8 @@ namespace io_wally
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << ">>> SEND: " << packet << " - SESSION WILL BE CLOSED: " << message
                                              << " ...";
+        write_buffer_.clear( );
+        write_buffer_.resize( packet.header( ).total_length( ) );
         packet_encoder_.encode(
             packet, write_buffer_.begin( ), write_buffer_.begin( ) + packet.header( ).total_length( ) );
 
@@ -270,8 +272,6 @@ namespace io_wally
                                   boost::asio::buffer( write_buffer_.data( ), packet.header( ).total_length( ) ),
                                   [self]( const boost::system::error_code& ec, size_t /* bytes_written */ )
                                   {
-            self->write_buffer_.clear( );
-            self->write_buffer_.resize( self->initial_buffer_capacity );
             if ( ec )
             {
                 BOOST_LOG_SEV( self->logger_, lvl::error ) << ">>> Failed to send packet: " << ec;
