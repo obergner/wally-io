@@ -244,6 +244,7 @@ namespace io_wally
                                   [self]( const boost::system::error_code& ec, size_t /* bytes_written */ )
                                   {
             self->write_buffer_.clear( );
+            self->write_buffer_.resize( self->initial_buffer_capacity );
             if ( ec )
             {
                 BOOST_LOG_SEV( self->logger_, lvl::error )
@@ -270,6 +271,7 @@ namespace io_wally
                                   [self]( const boost::system::error_code& ec, size_t /* bytes_written */ )
                                   {
             self->write_buffer_.clear( );
+            self->write_buffer_.resize( self->initial_buffer_capacity );
             if ( ec )
             {
                 BOOST_LOG_SEV( self->logger_, lvl::error ) << ">>> Failed to send packet: " << ec;
