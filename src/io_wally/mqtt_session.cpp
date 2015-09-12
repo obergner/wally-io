@@ -44,14 +44,19 @@ namespace io_wally
 
     void mqtt_session::start( )
     {
-        BOOST_LOG_SEV( logger_, lvl::info ) << "START: MQTT session " << socket_;
+        BOOST_LOG_SEV( logger_, lvl::info ) << "START: " << to_string( );
         read_header( );
     }
 
     void mqtt_session::stop( )
     {
-        socket_.close( );
-        BOOST_LOG_SEV( logger_, lvl::info ) << "STOP: MQTT session " << socket_;
+        // WARNING: Calling to_string() on a closed socket will crash process!
+        const string session_desc = to_string( );
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "STOPPING: " << session_desc;
+        boost::system::error_code ignored_ec;
+        socket_.shutdown( socket_.shutdown_both, ignored_ec );
+        socket_.close( ignored_ec );
+        BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPED: " << session_desc;
     }
 
     const string mqtt_session::to_string( ) const
