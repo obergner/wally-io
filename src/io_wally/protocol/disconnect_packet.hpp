@@ -11,14 +11,14 @@ namespace io_wally
 {
     namespace protocol
     {
-        /// \brief PINGRESP packet, sent by server in response to \c pingreq packet.
+        /// \brief DISCONNECT packet, sent by clients when about to terminate a session.
         ///
-        /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718086
-        struct pingresp : public mqtt_packet
+        /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718090
+        struct disconnect : public mqtt_packet
         {
            public:
-            /// \brief Create a new \c pingresp instance.
-            pingresp( ) : mqtt_packet( packet::header( 0x0D << 4, 0x00 ) )
+            /// \brief Create a new \c disconnect instance.
+            disconnect( ) : mqtt_packet( packet::header( 0x0E << 4, 0x00 ) )
             {
                 return;
             }
@@ -27,7 +27,7 @@ namespace io_wally
             virtual const std::string to_string( ) const override
             {
                 std::ostringstream output;
-                output << "pingresp[]";
+                output << "disconnect[]";
 
                 return output.str( );
             }

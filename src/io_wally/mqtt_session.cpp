@@ -24,14 +24,8 @@ namespace io_wally
                                 authentication_service& authentication_service )
         : id_( nullptr ),
           session_manager_( session_manager ),
-          read_buffer_( initial_buffer_capacity ),
-          write_buffer_( initial_buffer_capacity ),
           socket_( move( socket ) ),
-          header_decoder_( ),
-          packet_decoder_( ),
-          packet_encoder_( ),
-          authentication_service_( authentication_service ),
-          logger_( keywords::channel = "session", keywords::severity = lvl::trace )
+          authentication_service_( authentication_service )
     {
         return;
     }
@@ -216,6 +210,7 @@ namespace io_wally
                 }
                 else
                 {
+                    authenticated = true;
                     write_packet( connack( false, connect_return_code::CONNECTION_ACCEPTED ) );
                 }
             }
@@ -223,6 +218,12 @@ namespace io_wally
             case packet::Type::PINGREQ:
             {
                 write_packet( pingresp( ) );
+            }
+            break;
+            case packet::Type::DISCONNECT:
+            {
+                BOOST_LOG_SEV( logger_, lvl::info ) << "--- Session disconnected by client";
+                session_manager_.stop( shared_from_this( ) );
             }
             break;
             default:

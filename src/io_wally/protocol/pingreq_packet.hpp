@@ -3,9 +3,6 @@
 #include <string>
 #include <sstream>
 
-#include <boost/cstdint.hpp>
-#include <boost/optional.hpp>
-
 #include "io_wally/protocol/common.hpp"
 
 using boost::uint8_t;

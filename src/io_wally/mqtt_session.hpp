@@ -111,6 +111,9 @@ namespace io_wally
         /// Our ID, only assigned once we have been authenticated
         struct mqtt_session_id* id_;
 
+        /// Has this session been authenticated, i.e. received a successfully CONNECT request?
+        bool authenticated = false;
+
         /// Our session manager, responsible for managing our lifecycle
         mqtt_session_manager& session_manager_;
 
@@ -118,28 +121,31 @@ namespace io_wally
         const size_t initial_buffer_capacity = 256;
 
         /// Buffer incoming data
-        vector<uint8_t> read_buffer_;
+        vector<uint8_t> read_buffer_ = vector<uint8_t>( initial_buffer_capacity );
 
         /// Buffer outgoing data
-        vector<uint8_t> write_buffer_;
+        vector<uint8_t> write_buffer_ = vector<uint8_t>( initial_buffer_capacity );
 
         /// The client socket this session is connected to
         tcp::socket socket_;
 
         /// Somehow we need to parse those headers
-        header_decoder header_decoder_;
+        header_decoder header_decoder_ = header_decoder{};
 
         /// And while we are at it, why not parse the rest of those packets, too?
-        mqtt_packet_decoder<buf_iter> packet_decoder_;
+        mqtt_packet_decoder<buf_iter> packet_decoder_ = mqtt_packet_decoder<buf_iter>{};
 
         /// Encode outgoing packets
-        mqtt_packet_encoder<buf_iter> packet_encoder_;
+        mqtt_packet_encoder<buf_iter> packet_encoder_ = mqtt_packet_encoder<buf_iter>{};
 
         /// Handle connect requests
         authentication_service& authentication_service_;
 
         /// Our severity-enabled channel logger
-        boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_;
+        boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_ =
+            boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level>{
+                keywords::channel = "session",
+                keywords::severity = lvl::trace};
     };
 
     inline ostream& operator<<( ostream& output, mqtt_session const& mqtt_session )

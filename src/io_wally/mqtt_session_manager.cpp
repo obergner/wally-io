@@ -3,7 +3,6 @@
 namespace io_wally
 {
     mqtt_session_manager::mqtt_session_manager( )
-        : logger_( keywords::channel = "session-manager", keywords::severity = lvl::trace )
     {
         return;
     }
