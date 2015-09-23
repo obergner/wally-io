@@ -34,7 +34,7 @@ namespace io_wally
                 return;
             }
 
-            unique_ptr<authentication_service> operator( )( const string& /* service_name */ )
+            unique_ptr<authentication_service> operator( )( const options::variables_map& /* config */ )
             {
                 return unique_ptr<authentication_service>( new accept_all_authentication_service( ) );
             }

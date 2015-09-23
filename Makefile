@@ -27,6 +27,7 @@ LFLAGS          += -lboost_system
 LFLAGS          += -lboost_thread
 LFLAGS          += -lboost_log
 LFLAGS          += -lboost_log_setup
+LFLAGS          += -lboost_program_options
 LFLAGS          += -lpthread
 
 # Top level build directory

@@ -8,12 +8,13 @@ static const std::string port = "1883";
 static const std::string log_file_prefix = ".testlog";
 
 static io_wally::impl::accept_all_authentication_service_factory auth_service_factory;
+static options::variables_map config;
 
 int main( int /*  argc */, char** /* argv */ )
 {
     io_wally::logging::init_logging( log_file_prefix, true );
 
-    io_wally::mqtt_server srv( host, port, auth_service_factory( "ignored" ) );
+    io_wally::mqtt_server srv( host, port, auth_service_factory( config ) );
     srv.run( );
 
     return 0;

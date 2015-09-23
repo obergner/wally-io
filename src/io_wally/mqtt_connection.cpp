@@ -1,8 +1,8 @@
 #include <boost/bind.hpp>
 
 #include "io_wally/logging.hpp"
-#include "io_wally/mqtt_session.hpp"
-#include "io_wally/mqtt_session_manager.hpp"
+#include "io_wally/mqtt_connection.hpp"
+#include "io_wally/mqtt_connection_manager.hpp"
 
 using boost::asio::ip::tcp;
 
@@ -12,16 +12,16 @@ using namespace io_wally::decoder;
 
 namespace io_wally
 {
-    mqtt_session::pointer mqtt_session::create( tcp::socket socket,
-                                                mqtt_session_manager& session_manager,
-                                                authentication_service& authentication_service )
+    mqtt_connection::pointer mqtt_connection::create( tcp::socket socket,
+                                                      mqtt_connection_manager& session_manager,
+                                                      authentication_service& authentication_service )
     {
-        return pointer( new mqtt_session( move( socket ), session_manager, authentication_service ) );
+        return pointer( new mqtt_connection( move( socket ), session_manager, authentication_service ) );
     }
 
-    mqtt_session::mqtt_session( tcp::socket socket,
-                                mqtt_session_manager& session_manager,
-                                authentication_service& authentication_service )
+    mqtt_connection::mqtt_connection( tcp::socket socket,
+                                      mqtt_connection_manager& session_manager,
+                                      authentication_service& authentication_service )
         : id_( nullptr ),
           session_manager_( session_manager ),
           socket_( move( socket ) ),
@@ -30,36 +30,35 @@ namespace io_wally
         return;
     }
 
-    mqtt_session::~mqtt_session( )
+    mqtt_connection::~mqtt_connection( )
     {
         if ( id_ )
             delete id_;
         return;
     }
 
-    struct mqtt_session_id* mqtt_session::id( ) const
+    struct mqtt_connection_id* mqtt_connection::id( ) const
     {
         return id_;
     }
 
-    void mqtt_session::start( )
+    void mqtt_connection::start( )
     {
         BOOST_LOG_SEV( logger_, lvl::info ) << "START: " << to_string( );
         read_header( );
     }
 
-    void mqtt_session::stop( )
+    void mqtt_connection::stop( )
     {
         // WARNING: Calling to_string() on a closed socket will crash process!
         const string session_desc = to_string( );
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "STOPPING: " << session_desc;
         boost::system::error_code ignored_ec;
         socket_.shutdown( socket_.shutdown_both, ignored_ec );
         socket_.close( ignored_ec );
         BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPED: " << session_desc;
     }
 
-    const string mqtt_session::to_string( ) const
+    const string mqtt_connection::to_string( ) const
     {
         ostringstream output;
         output << "session[" << socket_ << "]";
@@ -67,20 +66,20 @@ namespace io_wally
         return output.str( );
     }
 
-    void mqtt_session::read_header( )
+    void mqtt_connection::read_header( )
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< READ: header [bufs:" << read_buffer_.size( ) << "] ...";
         boost::asio::async_read(
             socket_,
             boost::asio::buffer( read_buffer_ ),
             boost::asio::transfer_at_least( 2 ),  // FIXME: This won't work if we are called in a loop
-            boost::bind( &mqtt_session::on_header_data_read,
+            boost::bind( &mqtt_connection::on_header_data_read,
                          shared_from_this( ),
                          boost::asio::placeholders::error,
                          boost::asio::placeholders::bytes_transferred ) );
     }
 
-    void mqtt_session::on_header_data_read( const boost::system::error_code& ec, const size_t bytes_transferred )
+    void mqtt_connection::on_header_data_read( const boost::system::error_code& ec, const size_t bytes_transferred )
     {
         if ( ec )
         {
@@ -122,8 +121,8 @@ namespace io_wally
         }
     }
 
-    void mqtt_session::read_body( const header_decoder::result<buf_iter>& header_parse_result,
-                                  const size_t bytes_transferred )
+    void mqtt_connection::read_body( const header_decoder::result<buf_iter>& header_parse_result,
+                                     const size_t bytes_transferred )
     {
         const uint32_t total_length = header_parse_result.parsed_header( ).total_length( );
         const uint32_t remaining_length = header_parse_result.parsed_header( ).remaining_length( );
@@ -160,9 +159,9 @@ namespace io_wally
         }
     }
 
-    void mqtt_session::on_body_data_read( const header_decoder::result<buf_iter>& header_parse_result,
-                                          const boost::system::error_code& ec,
-                                          const size_t bytes_transferred )
+    void mqtt_connection::on_body_data_read( const header_decoder::result<buf_iter>& header_parse_result,
+                                             const boost::system::error_code& ec,
+                                             const size_t bytes_transferred )
     {
         if ( ec )
         {
@@ -198,7 +197,7 @@ namespace io_wally
         return;
     }
 
-    void mqtt_session::dispatch_decoded_packet( const mqtt_packet& packet )
+    void mqtt_connection::dispatch_decoded_packet( const mqtt_packet& packet )
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << packet << " ...";
         switch ( packet.header( ).type( ) )
@@ -237,7 +236,7 @@ namespace io_wally
         BOOST_LOG_SEV( logger_, lvl::info ) << "--- DISPATCHED: " << packet;
     }
 
-    void mqtt_session::write_packet( const mqtt_packet& packet )
+    void mqtt_connection::write_packet( const mqtt_packet& packet )
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << ">>> SEND: " << packet << " ...";
 
@@ -264,7 +263,7 @@ namespace io_wally
         } );
     }
 
-    void mqtt_session::write_packet_and_close_session( const mqtt_packet& packet, const string& message )
+    void mqtt_connection::write_packet_and_close_session( const mqtt_packet& packet, const string& message )
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << ">>> SEND: " << packet << " - SESSION WILL BE CLOSED: " << message
                                              << " ...";

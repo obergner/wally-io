@@ -3,8 +3,8 @@
 #include <boost/asio.hpp>
 
 #include "io_wally/logging.hpp"
-#include "io_wally/mqtt_session.hpp"
-#include "io_wally/mqtt_session_manager.hpp"
+#include "io_wally/mqtt_connection.hpp"
+#include "io_wally/mqtt_connection_manager.hpp"
 #include "io_wally/spi/authentication_service_factory.hpp"
 
 using boost::asio::ip::tcp;
@@ -50,7 +50,7 @@ namespace io_wally
         void do_await_stop( );
 
         /// Our session manager that manages all connections
-        mqtt_session_manager session_manager_;
+        mqtt_connection_manager session_manager_;
 
         /// Authentication service to be passed to each session
         unique_ptr<authentication_service> authentication_service_;

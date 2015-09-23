@@ -22,12 +22,13 @@ using namespace io_wally::spi;
 
 namespace io_wally
 {
-    class mqtt_session_manager;
+    class mqtt_connection_manager;
 
-    struct mqtt_session_id
+    struct mqtt_connection_id
     {
        public:
-        mqtt_session_id( const string username, const tcp::endpoint& client ) : username_( username ), client_( client )
+        mqtt_connection_id( const string username, const tcp::endpoint& client )
+            : username_( username ), client_( client )
         {
             return;
         }
@@ -52,27 +53,27 @@ namespace io_wally
     ///  \brief An MQTT client connection.
     ///
     /// Represents a persistent connection between a client and an \c mqtt_server.
-    class mqtt_session : public boost::enable_shared_from_this<mqtt_session>
+    class mqtt_connection : public boost::enable_shared_from_this<mqtt_connection>
     {
        public:
-        /// A pointer to an \c mqtt_session.
-        typedef boost::shared_ptr<mqtt_session> pointer;
+        /// A pointer to an \c mqtt_connection.
+        typedef boost::shared_ptr<mqtt_connection> pointer;
 
-        /// Factory method for \c mqtt_sessions.
+        /// Factory method for \c mqtt_connections.
         static pointer create( tcp::socket socket,
-                               mqtt_session_manager& session_manager,
+                               mqtt_connection_manager& session_manager,
                                authentication_service& authentication_service );
 
-        /// Naturally, mqtt_sessions cannot be copied.
-        mqtt_session( const mqtt_session& ) = delete;
-        /// Naturally, mqtt_sessions cannot be copied.
-        mqtt_session& operator=( const mqtt_session& ) = delete;
+        /// Naturally, mqtt_connections cannot be copied.
+        mqtt_connection( const mqtt_connection& ) = delete;
+        /// Naturally, mqtt_connections cannot be copied.
+        mqtt_connection& operator=( const mqtt_connection& ) = delete;
 
         /// TODO: I would like to make this destructor private, just like the constructor. Yet boost::shared_ptr
         /// requires a public destructor.
-        ~mqtt_session( );
+        ~mqtt_connection( );
 
-        struct mqtt_session_id* id( ) const;
+        struct mqtt_connection_id* id( ) const;
 
         /// \brief Start this session, initiating reading incoming data.
         void start( );
@@ -87,9 +88,9 @@ namespace io_wally
 
        private:
         /// Hide constructor since we MUST be created by static factory method 'create' above
-        explicit mqtt_session( tcp::socket socket,
-                               mqtt_session_manager& session_manager,
-                               authentication_service& authentication_service );
+        explicit mqtt_connection( tcp::socket socket,
+                                  mqtt_connection_manager& session_manager,
+                                  authentication_service& authentication_service );
 
         void read_header( );
 
@@ -109,13 +110,13 @@ namespace io_wally
 
        private:
         /// Our ID, only assigned once we have been authenticated
-        struct mqtt_session_id* id_;
+        struct mqtt_connection_id* id_;
 
         /// Has this session been authenticated, i.e. received a successfully CONNECT request?
         bool authenticated = false;
 
         /// Our session manager, responsible for managing our lifecycle
-        mqtt_session_manager& session_manager_;
+        mqtt_connection_manager& session_manager_;
 
         /// Initial read buffer capacity
         const size_t initial_buffer_capacity = 256;
@@ -148,9 +149,9 @@ namespace io_wally
                 keywords::severity = lvl::trace};
     };
 
-    inline ostream& operator<<( ostream& output, mqtt_session const& mqtt_session )
+    inline ostream& operator<<( ostream& output, mqtt_connection const& mqtt_connection )
     {
-        output << mqtt_session.to_string( );
+        output << mqtt_connection.to_string( );
 
         return output;
     }
