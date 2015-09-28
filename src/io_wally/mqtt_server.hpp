@@ -2,9 +2,10 @@
 
 #include <boost/asio.hpp>
 
-#include "io_wally/logging.hpp"
+#include "io_wally/context.hpp"
 #include "io_wally/mqtt_connection.hpp"
 #include "io_wally/mqtt_connection_manager.hpp"
+#include "io_wally/app/logging_support.hpp"
 #include "io_wally/spi/authentication_service_factory.hpp"
 
 using boost::asio::ip::tcp;
@@ -35,9 +36,7 @@ namespace io_wally
         mqtt_server& operator=( const mqtt_server& ) = delete;
 
         /// Construct the mqtt_server to listen on the specified TCP address and port.
-        explicit mqtt_server( const string& address,
-                              const string& port,
-                              unique_ptr<authentication_service> authentication_service );
+        explicit mqtt_server( io_wally::context context );
 
         /// Run the mqtt_server's io_service loop.
         void run( );
@@ -49,11 +48,11 @@ namespace io_wally
         /// Wait for a request to stop the mqtt_server.
         void do_await_stop( );
 
+        /// Context object
+        io_wally::context context_;
+
         /// Our session manager that manages all connections
         mqtt_connection_manager session_manager_;
-
-        /// Authentication service to be passed to each session
-        unique_ptr<authentication_service> authentication_service_;
 
         /// The io_service used to perform asynchronous operations.
         boost::asio::io_service io_service_;

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "io_wally/spi/authentication_service_factory.hpp"
 
 using namespace std;

@@ -1,23 +1,23 @@
 #include <sstream>
 
-#include "io_wally/logging.hpp"
+#include "io_wally/context.hpp"
+#include "io_wally/app/logging.hpp"
 
 namespace sinks = boost::log::sinks;
 
 namespace io_wally
 {
-    namespace logging
+    namespace app
     {
-
         /// \see: http://www.boost.org/doc/libs/1_55_0/libs/log/example/doc/tutorial_file.cpp
-        void init_logging( const std::string& log_file, bool enable_console_log )
+        void init_logging( const options::variables_map& config )
         {
             boost::log::add_common_attributes( );
 
             boost::log::register_simple_formatter_factory<boost::log::trivial::severity_level, char>( "Severity" );
 
             std::ostringstream log_file_name;
-            log_file_name << log_file << "_%N.log";
+            log_file_name << config[io_wally::context::LOG_FILE].as<const string>( ) << "_%N.log";
             boost::log::add_file_log(
                 keywords::file_name = log_file_name.str( ),
                 keywords::rotation_size = 10 * 1024 * 1024,
@@ -26,7 +26,7 @@ namespace io_wally
                     "[%TimeStamp%] [%ProcessID%] [%ThreadID%] [%LineID%] [%Channel%] | %Severity% | %Message%",
                 keywords::auto_flush = true );
 
-            if ( enable_console_log )
+            if ( config[io_wally::context::LOG_CONSOLE].as<bool>( ) )
             {
                 boost::log::add_console_log(
                     std::clog,

@@ -1,22 +1,19 @@
 #include <signal.h>
 #include <utility>
 
-#include "io_wally/logging.hpp"
+#include "io_wally/app/logging.hpp"
 #include "io_wally/mqtt_server.hpp"
 
 using boost::asio::ip::tcp;
 
 using namespace std;
-using namespace io_wally::logging;
 
 namespace io_wally
 {
 
-    mqtt_server::mqtt_server( const string& address,
-                              const string& port,
-                              unique_ptr<authentication_service> authentication_service )
-        : session_manager_( ),
-          authentication_service_( std::move( authentication_service ) ),
+    mqtt_server::mqtt_server( io_wally::context context )
+        : context_( move( context ) ),
+          session_manager_( ),
           io_service_( ),
           signals_( io_service_ ),
           acceptor_( io_service_ ),
@@ -33,10 +30,12 @@ namespace io_wally
 
         do_await_stop( );
 
-        // Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
+        const string& address = context.options( )[io_wally::context::SERVER_ADDRESS].as<const string>( );
+        const int port = context.options( )[io_wally::context::SERVER_PORT].as<const int>( );
         boost::asio::ip::tcp::resolver resolver( io_service_ );
-        boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve( {address, port} );
+        boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve( {address, to_string( port )} );
         acceptor_.open( endpoint.protocol( ) );
+        // Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
         acceptor_.set_option( boost::asio::ip::tcp::acceptor::reuse_address( true ) );
         acceptor_.bind( endpoint );
         acceptor_.listen( );
@@ -69,7 +68,7 @@ namespace io_wally
             if ( !ec )
             {
                 mqtt_connection::pointer session =
-                    mqtt_connection::create( move( socket_ ), session_manager_, *authentication_service_ );
+                    mqtt_connection::create( move( socket_ ), session_manager_, context_.authentication_service( ) );
                 session_manager_.start( session );
             }
 

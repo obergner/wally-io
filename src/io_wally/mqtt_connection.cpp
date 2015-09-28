@@ -1,6 +1,6 @@
 #include <boost/bind.hpp>
 
-#include "io_wally/logging.hpp"
+#include "io_wally/app/logging.hpp"
 #include "io_wally/mqtt_connection.hpp"
 #include "io_wally/mqtt_connection_manager.hpp"
 

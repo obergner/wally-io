@@ -4,9 +4,10 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
+
 #include <boost/asio.hpp>
 
-#include "io_wally/logging.hpp"
+#include "io_wally/app/logging_support.hpp"
 #include "io_wally/codec/decoder.hpp"
 #include "io_wally/codec/mqtt_packet_decoder.hpp"
 #include "io_wally/codec/mqtt_packet_encoder.hpp"

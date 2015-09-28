@@ -40,6 +40,7 @@ MSOURCES         += $(wildcard src/io_wally/protocol/*.cpp)
 MSOURCES         += $(wildcard src/io_wally/codec/*.cpp)
 MSOURCES         += $(wildcard src/io_wally/spi/*.cpp)
 MSOURCES         += $(wildcard src/io_wally/impl/*.cpp)
+MSOURCES         += $(wildcard src/io_wally/app/*.cpp)
 
 MEXECSOURCE      := $(wildcard src/*.cpp)
 
@@ -70,6 +71,8 @@ TSOURCES     	+= $(wildcard test/*.cpp)
 TSOURCES     	+= $(wildcard test/io_wally/*.cpp)
 TSOURCES     	+= $(wildcard test/io_wally/protocol/*.cpp)
 TSOURCES     	+= $(wildcard test/io_wally/codec/*.cpp)
+TSOURCES     	+= $(wildcard test/io_wally/impl/*.cpp)
+TSOURCES     	+= $(wildcard test/io_wally/app/*.cpp)
 
 TEXECSOURCE     := $(wildcard test/*.cpp)
 
