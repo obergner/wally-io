@@ -52,6 +52,20 @@ namespace io_wally
                         return connack_encoder_;
                     case packet::Type::PINGRESP:
                         return pingresp_encoder_;
+                    case packet::Type::CONNECT:
+                    case packet::Type::PINGREQ:
+                    case packet::Type::DISCONNECT:
+                    case packet::Type::PUBLISH:
+                    case packet::Type::PUBACK:
+                    case packet::Type::PUBREL:
+                    case packet::Type::PUBREC:
+                    case packet::Type::PUBCOMP:
+                    case packet::Type::SUBSCRIBE:
+                    case packet::Type::SUBACK:
+                    case packet::Type::UNSUBSCRIBE:
+                    case packet::Type::UNSUBACK:
+                    case packet::Type::RESERVED1:
+                    case packet::Type::RESERVED2:
                     default:
                         throw std::invalid_argument( "Unsupported packet type" );
                 }

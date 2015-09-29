@@ -67,6 +67,9 @@ namespace io_wally
                 case connect_return_code::NOT_AUTHORIZED:
                     output << "Not authorized";
                     break;
+                case connect_return_code::RESERVED:
+                    output << "Reserved for future use";
+                    break;
                 default:
                     output << "Reserved for future use";
                     break;

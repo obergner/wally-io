@@ -202,6 +202,9 @@ namespace io_wally
                     case packet::Type::DISCONNECT:
                         type_mask = ( 0x0E << 4 );
                         break;
+                    case packet::Type::RESERVED2:
+                        type_mask = ( 0x0F << 4 );
+                        break;
                     default:
                         type_mask = ( 0x0F << 4 );
                         break;
@@ -297,6 +300,9 @@ namespace io_wally
                         break;
                     case packet::QoS::EXACTLY_ONCE:
                         qos_string = "Exactly once";
+                        break;
+                    case packet::QoS::RESERVED:
+                        qos_string = "Reserved";
                         break;
                     default:
                         qos_string = "Reserved";
@@ -411,6 +417,9 @@ namespace io_wally
                     case packet::Type::PUBACK:
                         type_string = "Puback";
                         break;
+                    case packet::Type::PUBREL:
+                        type_string = "Pubrel";
+                        break;
                     case packet::Type::PUBREC:
                         type_string = "Pubrec";
                         break;
@@ -437,6 +446,9 @@ namespace io_wally
                         break;
                     case packet::Type::DISCONNECT:
                         type_string = "Disconnect";
+                        break;
+                    case packet::Type::RESERVED2:
+                        type_string = "Reserved2";
                         break;
                     default:
                         type_string = "Reserved2";

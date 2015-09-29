@@ -230,6 +230,19 @@ namespace io_wally
                 session_manager_.stop( shared_from_this( ) );
             }
             break;
+            case packet::Type::CONNACK:
+            case packet::Type::PINGRESP:
+            case packet::Type::PUBLISH:
+            case packet::Type::PUBACK:
+            case packet::Type::PUBREL:
+            case packet::Type::PUBREC:
+            case packet::Type::PUBCOMP:
+            case packet::Type::SUBSCRIBE:
+            case packet::Type::SUBACK:
+            case packet::Type::UNSUBSCRIBE:
+            case packet::Type::UNSUBACK:
+            case packet::Type::RESERVED1:
+            case packet::Type::RESERVED2:
             default:
                 break;
         }

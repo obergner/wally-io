@@ -182,6 +182,9 @@ namespace io_wally
                 case packet::QoS::EXACTLY_ONCE:
                     will_qos_string = "Exactly once";
                     break;
+                case packet::QoS::RESERVED:
+                    will_qos_string = "Reserved";
+                    break;
                 default:
                     will_qos_string = "Reserved";
                     break;

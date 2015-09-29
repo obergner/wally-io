@@ -60,6 +60,19 @@ namespace io_wally
                         return pingreq_packet_decoder_;
                     case packet::Type::DISCONNECT:
                         return disconnect_packet_decoder_;
+                    case packet::Type::CONNACK:
+                    case packet::Type::PUBLISH:
+                    case packet::Type::PUBACK:
+                    case packet::Type::PUBREL:
+                    case packet::Type::PUBREC:
+                    case packet::Type::PUBCOMP:
+                    case packet::Type::SUBSCRIBE:
+                    case packet::Type::SUBACK:
+                    case packet::Type::UNSUBSCRIBE:
+                    case packet::Type::UNSUBACK:
+                    case packet::Type::PINGRESP:
+                    case packet::Type::RESERVED1:
+                    case packet::Type::RESERVED2:
                     default:
                         throw std::invalid_argument( "Unsupported MQTT control packet type" );
                 }

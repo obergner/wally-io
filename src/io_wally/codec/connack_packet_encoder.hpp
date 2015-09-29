@@ -55,6 +55,9 @@ namespace io_wally
                     case connect_return_code::NOT_AUTHORIZED:
                         second_byte = 0x05;
                         break;
+                    case connect_return_code::RESERVED:
+                        second_byte = 0x06;
+                        break;
                     default:
                         second_byte = 0x06;
                         break;

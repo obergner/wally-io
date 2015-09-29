@@ -7,12 +7,23 @@ CXX		        := g++
 #CXX		     := clang++
 
 # Standard compiler flags
-CXXFLAGS	    += -Wall
-CXXFLAGS	    += -Wextra
 CXXFLAGS	    += -std=c++11
 CXXFLAGS        += -fdiagnostics-color=auto
 CXXFLAGS        += -MMD # automatically generate dependency rules on each run
 CXXFLAGS        += -I ./src
+CXXFLAGS	    += -Werror
+CXXFLAGS	    += -Wall
+CXXFLAGS	    += -Wextra
+CXXFLAGS	    += -Wcast-align
+CXXFLAGS	    += -Wformat-nonliteral
+CXXFLAGS	    += -Wformat=2
+CXXFLAGS	    += -Winvalid-pch
+CXXFLAGS	    += -Wmissing-declarations
+CXXFLAGS	    += -Wmissing-format-attribute
+CXXFLAGS	    += -Wmissing-include-dirs
+CXXFLAGS	    += -Wredundant-decls
+CXXFLAGS	    += -Wswitch-default
+CXXFLAGS	    += -Wswitch-enum
 
 CXXRELEASE_FLAGS	+= -O3 # -dNDEBUG
 CXXDEBUG_FLAGS	+= -O0 -g
@@ -60,9 +71,11 @@ MBUILDDIRS		:= $(sort $(dir $(MOBJS)))
 MEXEC 	    	:= $(MBUILD)/mqtt-serverd
 
 # Test compiler flags
-TCXXFLAGS      	= $(CXXFLAGS)
+TCXXFLAGS      	:= $(CXXFLAGS)
 TCXXFLAGS      	+= -O0 -g
 TCXXFLAGS      	+= -I ./test
+TCXXFLAGS      	:= $(filter-out -Wswitch-default, $(TCXXFLAGS))
+TCXXFLAGS      	:= $(filter-out -Wswitch-enum, $(TCXXFLAGS))
 
 # Test linker flags
 TLDLIBS      	= $(LDLIBS)
