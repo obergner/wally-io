@@ -49,10 +49,10 @@ namespace io_wally
                             const uint8_t prot_level,
                             const uint8_t con_flags,
                             const uint16_t keep_alive_secs )
-                : prot_name_( prot_name ),
-                  prot_level_( prot_level ),
-                  con_flags_( con_flags ),
-                  keep_alive_secs_( keep_alive_secs )
+                : prot_name_{prot_name},
+                  prot_level_{prot_level},
+                  con_flags_{con_flags},
+                  keep_alive_secs_{keep_alive_secs}
             {
                 return;
             }
@@ -222,15 +222,15 @@ namespace io_wally
                              const char* const will_message,
                              const char* const username,
                              const char* const password )
-                : client_id_( client_id ),
-                  will_topic_( will_topic ? optional<const std::string>( std::string( will_topic ) )
-                                          : optional<const std::string>( ) ),
-                  will_message_( will_message ? optional<const std::string>( std::string( will_message ) )
-                                              : optional<const std::string>( ) ),
-                  username_( username ? optional<const std::string>( std::string( username ) )
-                                      : optional<const std::string>( ) ),
-                  password_( password ? optional<const std::string>( std::string( password ) )
-                                      : optional<const std::string>( ) )
+                : client_id_{client_id},
+                  will_topic_{will_topic ? optional<const std::string>( std::string( will_topic ) )
+                                         : optional<const std::string>( )},
+                  will_message_{will_message ? optional<const std::string>( std::string( will_message ) )
+                                             : optional<const std::string>( )},
+                  username_{username ? optional<const std::string>( std::string( username ) )
+                                     : optional<const std::string>( )},
+                  password_{password ? optional<const std::string>( std::string( password ) )
+                                     : optional<const std::string>( )}
             {
                 return;
             }
@@ -312,9 +312,9 @@ namespace io_wally
             /// \param connect_header   Variable header, specific to CONNECT packet
             /// \param payload          Packet body/payload
             connect( const packet::header header, const connect_header connect_header, const connect_payload payload )
-                : mqtt_packet( std::move( header ) ),
-                  connect_header_( std::move( connect_header ) ),
-                  payload_( std::move( payload ) )
+                : mqtt_packet{std::move( header )},
+                  connect_header_{std::move( connect_header )},
+                  payload_{std::move( payload )}
             {
                 return;
             }

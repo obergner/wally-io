@@ -33,7 +33,6 @@ namespace io_wally
 
            private:
             authentication_service_factories( )
-                : factories_by_name_{{ACCEPT_ALL, io_wally::impl::accept_all_authentication_service_factory{}}}
             {
                 return;
             }
@@ -43,7 +42,8 @@ namespace io_wally
             void operator=( authentication_service_factories const& ) = delete;
 
            private:
-            const map<string, io_wally::spi::authentication_service_factory> factories_by_name_;
+            const map<string, io_wally::spi::authentication_service_factory> factories_by_name_{
+                {ACCEPT_ALL, io_wally::impl::accept_all_authentication_service_factory{}}};
 
         };  // class authentication_service_factories
     }

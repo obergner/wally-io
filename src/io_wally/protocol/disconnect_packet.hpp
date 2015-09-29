@@ -18,7 +18,7 @@ namespace io_wally
         {
            public:
             /// \brief Create a new \c disconnect instance.
-            disconnect( ) : mqtt_packet( packet::header( 0x0E << 4, 0x00 ) )
+            disconnect( ) : mqtt_packet{packet::header( 0x0E << 4, 0x00 )}
             {
                 return;
             }

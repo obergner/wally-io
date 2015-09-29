@@ -60,10 +60,9 @@ namespace io_wally
 
            private:
             /// Fields
-            const connack_packet_encoder<OutputIterator> connack_encoder_ = connack_packet_encoder<OutputIterator>( );
+            const connack_packet_encoder<OutputIterator> connack_encoder_{};
 
-            const pingresp_packet_encoder<OutputIterator> pingresp_encoder_ =
-                pingresp_packet_encoder<OutputIterator>( );
+            const pingresp_packet_encoder<OutputIterator> pingresp_encoder_{};
         };
 
     }  /// namespace decoder

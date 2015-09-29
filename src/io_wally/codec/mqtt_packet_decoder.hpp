@@ -69,14 +69,11 @@ namespace io_wally
 
            private:
             /// Fields
-            const connect_packet_decoder<InputIterator> connect_packet_decoder_ =
-                connect_packet_decoder<InputIterator>( );
+            const connect_packet_decoder<InputIterator> connect_packet_decoder_{};
 
-            const pingreq_packet_decoder<InputIterator> pingreq_packet_decoder_ =
-                pingreq_packet_decoder<InputIterator>( );
+            const pingreq_packet_decoder<InputIterator> pingreq_packet_decoder_{};
 
-            const disconnect_packet_decoder<InputIterator> disconnect_packet_decoder_ =
-                disconnect_packet_decoder<InputIterator>( );
+            const disconnect_packet_decoder<InputIterator> disconnect_packet_decoder_{};
         };
 
     }  /// namespace decoder

@@ -22,10 +22,10 @@ namespace io_wally
     mqtt_connection::mqtt_connection( tcp::socket socket,
                                       mqtt_connection_manager& session_manager,
                                       authentication_service& authentication_service )
-        : id_( nullptr ),
-          session_manager_( session_manager ),
-          socket_( move( socket ) ),
-          authentication_service_( authentication_service )
+        : id_{nullptr},
+          socket_{move( socket )},
+          authentication_service_{authentication_service},
+          session_manager_{session_manager}
     {
         return;
     }

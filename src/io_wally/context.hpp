@@ -40,13 +40,13 @@ namespace io_wally
        public:
         context( const options::variables_map options,
                  unique_ptr<io_wally::spi::authentication_service> authentication_service )
-            : options_( move( options ) ), authentication_service_( move( authentication_service ) )
+            : options_{move( options )}, authentication_service_{move( authentication_service )}
         {
             return;
         }
 
         context( context&& other )
-            : options_( move( other.options_ ) ), authentication_service_( move( other.authentication_service_ ) )
+            : options_{move( other.options_ )}, authentication_service_{move( other.authentication_service_ )}
         {
             return;
         }

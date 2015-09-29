@@ -134,9 +134,7 @@ namespace io_wally
                public:
                 /// \brief Create a result instance in \c ParseState \c ParseState::INCOMPLETE.
                 result( )
-                    : parse_state_( ParseState::INCOMPLETE ),
-                      parsed_header_( boost::none ),
-                      consumed_until_( boost::none )
+                    : parse_state_{ParseState::INCOMPLETE}, parsed_header_{boost::none}, consumed_until_{boost::none}
                 {
                     return;
                 }
@@ -149,9 +147,9 @@ namespace io_wally
                 result( const uint8_t type_and_flags,
                         const uint32_t remaining_length,
                         const InputIterator consumed_until )
-                    : parse_state_( ParseState::COMPLETE ),
-                      parsed_header_( packet::header( type_and_flags, remaining_length ) ),
-                      consumed_until_( consumed_until )
+                    : parse_state_{ParseState::COMPLETE},
+                      parsed_header_{packet::header( type_and_flags, remaining_length )},
+                      consumed_until_{consumed_until}
                 {
                     return;
                 }
@@ -189,7 +187,7 @@ namespace io_wally
             };
 
             /// \brief Create a default \c header_decoder.
-            header_decoder( ) : type_and_flags_( -1 ), remaining_length_( )
+            header_decoder( ) : type_and_flags_{-1}, remaining_length_{}
             {
                 return;
             }

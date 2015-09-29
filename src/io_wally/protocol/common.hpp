@@ -78,7 +78,7 @@ namespace io_wally
             };
 
             /// \brief Bit mask for extracting bits 4-7, the bits encoding a packet's \c Type, out of a byte.
-            constexpr uint8_t CONTROL_PACKET_TYPE_MASK = 0xF0;
+            constexpr const uint8_t CONTROL_PACKET_TYPE_MASK = 0xF0;
 
             /// \brief Determine type of control packet encoded in \c control_packet_type_and_flags and return it as
             ///         \c Type enum.
@@ -234,7 +234,7 @@ namespace io_wally
             {
                public:
                 /// \brief Construct a new \c header_flags instance from bits 0 - 3 in \c flags.
-                header_flags( const uint8_t flags ) : flags_( flags )
+                header_flags( const uint8_t flags ) : flags_{flags}
                 {
                     return;
                 }
@@ -309,9 +309,9 @@ namespace io_wally
                 return output;
             }
 
-            constexpr uint32_t MAX_ALLOWED_PACKET_LENGTH = 268435455;
+            constexpr const uint32_t MAX_ALLOWED_PACKET_LENGTH = 268435455;
 
-            constexpr uint32_t MAX_FIXED_HEADER_LENGTH = 5;
+            constexpr const uint32_t MAX_FIXED_HEADER_LENGTH = 5;
 
             /// \brief Represents an MQTT control packet's \c fixed header.
             ///
@@ -328,7 +328,7 @@ namespace io_wally
                 /// \brief Create a new \c header instance from the supplied \c type_and_flags and \c
                 /// remaining_length.
                 header( const uint8_t type_and_flags, const uint32_t remaining_length )
-                    : control_packet_type_and_flags_( type_and_flags ), remaining_length_( remaining_length )
+                    : control_packet_type_and_flags_{type_and_flags}, remaining_length_{remaining_length}
                 {
                     return;
                 }
@@ -471,7 +471,7 @@ namespace io_wally
             /// \brief Create a new \c mqtt_packet instance from the supplied \c packet::header.
             ///
             /// \param header This MQTT packet's packet::header
-            mqtt_packet( struct packet::header header ) : header_( std::move( header ) )
+            mqtt_packet( struct packet::header header ) : header_{std::move( header )}
             {
                 return;
             }
@@ -497,7 +497,7 @@ namespace io_wally
         {
            protected:
             mqtt_ack( const packet::Type type, const uint32_t remaining_length )
-                : mqtt_packet( header_for( type, remaining_length ) )
+                : mqtt_packet{header_for( type, remaining_length )}
             {
                 return;
             }

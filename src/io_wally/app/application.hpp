@@ -34,13 +34,13 @@ namespace io_wally
             int run( int argc, char** argv );
 
            private:
-            application( ) : server_( nullptr )
+            application( )
             {
                 return;
             }
 
            private:
-            unique_ptr<io_wally::mqtt_server> server_;
+            unique_ptr<io_wally::mqtt_server> server_{};
         };  // class application
     }       // namespace app
 }  // namespace io_wally

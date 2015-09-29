@@ -18,7 +18,7 @@ namespace io_wally
         {
            public:
             /// \brief Create a new \c pingreq instance.
-            pingreq( ) : mqtt_packet( packet::header( 0x0C << 4, 0x00 ) )
+            pingreq( ) : mqtt_packet{packet::header( 0x0C << 4, 0x00 )}
             {
                 return;
             }

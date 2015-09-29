@@ -113,7 +113,7 @@ namespace io_wally
         }
 
         /// \brief Maximum string length in bytes allowed by MQTT 3.1.1 - 65536.
-        constexpr uint16_t MAX_STRING_LENGTH = 0x00FF * 0x0100 + 0xFF;
+        constexpr const uint16_t MAX_STRING_LENGTH = 0x00FF * 0x0100 + 0xFF;
 
         /// \brief Encode a UTF-8 string into the supplied buffer.
         ///

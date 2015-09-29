@@ -33,12 +33,11 @@ namespace io_wally
 
        private:
         /// The managed sessions.
-        std::set<mqtt_connection::pointer> sessions_ = std::set<mqtt_connection::pointer>{};
+        std::set<mqtt_connection::pointer> sessions_{};
 
         /// Our severity-enabled channel logger
-        boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_ =
-            boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level>{
-                keywords::channel = "session-manager",
-                keywords::severity = lvl::trace};
+        boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
+            keywords::channel = "session-manager",
+            keywords::severity = lvl::trace};
     };
 }  // namespace io_wally

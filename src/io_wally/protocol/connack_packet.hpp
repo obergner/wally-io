@@ -92,7 +92,7 @@ namespace io_wally
             ///                            when it sent CONNECT
             /// \param return_code         Return code in response to CONNECT
             connack_header( const bool session_present, const connect_return_code return_code )
-                : session_present_( session_present ), return_code_( return_code )
+                : session_present_{session_present}, return_code_{return_code}
             {
                 return;
             }
@@ -139,7 +139,7 @@ namespace io_wally
         {
            public:
             connack( const bool session_present, const connect_return_code return_code )
-                : mqtt_ack( packet::Type::CONNACK, 2 ), connack_header_( session_present, return_code )
+                : mqtt_ack{packet::Type::CONNACK, 2}, connack_header_{session_present, return_code}
             {
                 return;
             }

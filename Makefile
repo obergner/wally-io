@@ -3,32 +3,33 @@
 ###############################################################################
 
 # GCC
-CC		        := g++
+CXX		        := g++
+#CXX		     := clang++
 
 # Standard compiler flags
-CFLAGS		    += -Wall
-CFLAGS		    += -Wextra
-CFLAGS		    += -std=c++11
-CFLAGS          += -fdiagnostics-color=auto
-CFLAGS          += -MMD # automatically generate dependency rules on each run
-CFLAGS          += -I ./src
+CXXFLAGS	    += -Wall
+CXXFLAGS	    += -Wextra
+CXXFLAGS	    += -std=c++11
+CXXFLAGS        += -fdiagnostics-color=auto
+CXXFLAGS        += -MMD # automatically generate dependency rules on each run
+CXXFLAGS        += -I ./src
 
-CRELEASE_FLAGS	+= -O3 # -dNDEBUG
-CDEBUG_FLAGS	+= -O0 -g
-CDEBUG_FLAGS	+= -D_GLIBCXX_DEBUG
-CDEBUG_FLAGS	+= -DBOOST_ASIO_ENABLE_HANDLER_TRACKING
+CXXRELEASE_FLAGS	+= -O3 # -dNDEBUG
+CXXDEBUG_FLAGS	+= -O0 -g
+CXXDEBUG_FLAGS	+= -D_GLIBCXX_DEBUG
+CXXDEBUG_FLAGS	+= -DBOOST_ASIO_ENABLE_HANDLER_TRACKING
 
 # Extra compiler flags
-CFLAGS 		    += $(shell pkg-config --cflags libsystemd-journal)
+CXXFLAGS 		+= $(shell pkg-config --cflags libsystemd-journal)
 
 # Extra linker flags
-LFLAGS		    += $(shell pkg-config --libs libsystemd-journal)
-LFLAGS          += -lboost_system
-LFLAGS          += -lboost_thread
-LFLAGS          += -lboost_log
-LFLAGS          += -lboost_log_setup
-LFLAGS          += -lboost_program_options
-LFLAGS          += -lpthread
+LDLIBS		    += $(shell pkg-config --libs libsystemd-journal)
+LDLIBS          += -lboost_system
+LDLIBS          += -lboost_thread
+LDLIBS          += -lboost_log
+LDLIBS          += -lboost_log_setup
+LDLIBS          += -lboost_program_options
+LDLIBS          += -lpthread
 
 # Top level build directory
 # see: http://blog.kompiler.org/post/6/2011-09-18/Separate_build_and_source_directories_in_Makefiles/
@@ -59,12 +60,12 @@ MBUILDDIRS		:= $(sort $(dir $(MOBJS)))
 MEXEC 	    	:= $(MBUILD)/mqtt-serverd
 
 # Test compiler flags
-TCFLAGS      	= $(CFLAGS)
-TCFLAGS      	+= -O0 -g
-TCFLAGS      	+= -I ./test
+TCXXFLAGS      	= $(CXXFLAGS)
+TCXXFLAGS      	+= -O0 -g
+TCXXFLAGS      	+= -I ./test
 
 # Test linker flags
-TLFLAGS      	= $(LFLAGS)
+TLDLIBS      	= $(LDLIBS)
 
 # Test sources
 TSOURCES     	+= $(wildcard test/*.cpp)
@@ -87,8 +88,11 @@ TEXECOBJ    	:= $(patsubst test/%.cpp, $(TBUILD)/%.o, $(TEXECSOURCE))
 # Subdirs in build directory need to reflect subdirs in test directory
 TBUILDDIRS		:= $(sort $(dir $(TOBJS)))
 
-# Main executable
+# Main test executable
 TEXEC 	    	:= $(TBUILD)/all-tests
+
+# Where to store scan-build's analysis results
+SBUILD          := $(BUILD)/scan
 
 # What may be rebuilt
 REBUILDABLES 	= $(MEXEC) $(MOBJS) $(TEXEC) $(TOBJS) 
@@ -105,11 +109,11 @@ COMPILATIONDB   := compile_commands.json
 
 # Main
 .PHONY 				: release
-release				: CFLAGS += $(CRELEASE_FLAGS)
+release				: CXXFLAGS += $(CXXRELEASE_FLAGS)
 release				: main
 
 .PHONY 				: debug
-debug				: CFLAGS += $(CDEBUG_FLAGS)
+debug				: CXXFLAGS += $(CXXDEBUG_FLAGS)
 debug				: main
 
 .PHONY 				: main
@@ -119,10 +123,10 @@ $(MBUILDDIRS)		:
 	@mkdir -p $@
 
 $(MEXEC)			: $(MOBJS) $(MEXECOBJ) 			| $(MBUILDDIRS)
-	$(CC) $(LFLAGS) -o $@ $^
+	$(CXX) $(LDLIBS) -o $@ $^
 
 $(MBUILD)/%.o		: src/%.cpp						| $(MBUILDDIRS)
-	$(CC) $(CFLAGS) -o $@ -c $<
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
 # Test
 .PHONY 				: test
@@ -133,10 +137,10 @@ $(TBUILDDIRS)		:
 	@mkdir -p $@
 
 $(TEXEC)			: $(MOBJS) $(TOBJS) $(TEXECOBJ)	| $(MBUILDDIRS)
-	$(CC) $(LFLAGS) -o $@ $^
+	$(CXX) $(LDLIBS) -o $@ $^
 
 $(TBUILD)/%.o		: test/%.cpp					| $(TBUILDDIRS)
-	$(CC) $(TCFLAGS) -o $@ -c $<
+	$(CXX) $(TCXXFLAGS) -o $@ -c $<
 
 # Clean
 .PHONY 				: clean
@@ -155,8 +159,9 @@ $(COMPILATIONDB)    : $(MSOURCES) $(MEXECSOURCE) $(TSOURCES) $(TEXECSOURCE)
 
 .PHONY				: macroexpand
 macroexpand			: $(MSOURCES) $(MEXECSOURCE)
-	$(CC) $(CFLAGS) -E $(MSOURCES) | source-highlight --failsafe --src-lang=cc -f esc --style-file=esc.style 
+	$(CXX) $(CXXFLAGS) -E $(MSOURCES) | source-highlight --failsafe --src-lang=cc -f esc --style-file=esc.style 
 
+# Running clang-check
 .PHONY 				: check-main
 check-main 			: $(MSOURCES) $(MEXECSOURCE)
 	@clang-check $(MSOURCES) $(MEXECSOURCE)
@@ -167,6 +172,14 @@ check-test 			: $(TSOURCES) $(TEXECSOURCE)
 
 .PHONY 				: check
 check	 			: check-main check-test
+
+# Running scan-build
+$(SBUILD)           :
+	@mkdir -p $@
+
+.PHONY 				: scan-main
+scan-main 			: $(SBUILD)
+	@scan-build -o $(SBUILD) -analyze-headers --status-bugs $(MAKE) clean release
 
 .PHONY 				: modernize
 modernize 			: $(MSOURCES) $(MEXECSOURCE) $(COMPILATIONDB)

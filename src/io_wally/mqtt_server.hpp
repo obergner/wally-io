@@ -1,5 +1,7 @@
 #pragma once
 
+#include <signal.h>
+
 #include <boost/asio.hpp>
 
 #include "io_wally/context.hpp"
@@ -49,27 +51,26 @@ namespace io_wally
         void do_await_stop( );
 
         /// Context object
-        io_wally::context context_;
+        const io_wally::context context_;
 
         /// Our session manager that manages all connections
-        mqtt_connection_manager session_manager_;
+        mqtt_connection_manager session_manager_{};
 
         /// The io_service used to perform asynchronous operations.
-        boost::asio::io_service io_service_;
+        boost::asio::io_service io_service_{};
 
         /// The signal_set is used to register for process termination notifications
-        boost::asio::signal_set signals_;
+        boost::asio::signal_set termination_signals_{io_service_, SIGINT, SIGTERM, SIGQUIT};
 
         /// Acceptor used to listen for incoming connections.
-        boost::asio::ip::tcp::acceptor acceptor_;
+        boost::asio::ip::tcp::acceptor acceptor_{io_service_};
 
         /// The next socket to be accepted.
-        boost::asio::ip::tcp::socket socket_;
+        boost::asio::ip::tcp::socket socket_{io_service_};
 
         /// Our severity-enabled channel logger
-        boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_ =
-            boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level>{
-                keywords::channel = "server",
-                keywords::severity = lvl::trace};
+        boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
+            keywords::channel = "server",
+            keywords::severity = lvl::trace};
     };
 }  // namespace io_wally
