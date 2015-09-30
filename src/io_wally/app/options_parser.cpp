@@ -1,27 +1,31 @@
 #include <iostream>
 #include <fstream>
 
+#include "io_wally/defaults.hpp"
 #include "io_wally/context.hpp"
-#include "io_wally/app/configuration.hpp"
+#include "io_wally/app/options_parser.hpp"
+
+using namespace io_wally::defaults;
 
 namespace io_wally
 {
     namespace app
     {
-        const pair<const options::variables_map, const options::options_description> parse_configuration( int argc,
-                                                                                                          char** argv )
+        const pair<const options::variables_map, const options::options_description> options_parser::parse(
+            int argc,
+            char** argv ) const
         {
             options::variables_map config;
 
             options::options_description cmd_line_opts( "Command line" );
             cmd_line_opts.add_options( )( io_wally::context::HELP, "Print help message and exit" )(
                 io_wally::context::CONFIG_FILE,
-                options::value<string>( )->default_value( defaults::DEFAULT_CONFIG_FILE ),
+                options::value<string>( )->default_value( DEFAULT_CONFIG_FILE ),
                 "Use configuration from <arg>" );
 
             options::options_description logging_opts( "Logging" );
             logging_opts.add_options( )( io_wally::context::LOG_FILE,
-                                         options::value<string>( )->default_value( defaults::DEFAULT_LOG_FILE ),
+                                         options::value<string>( )->default_value( DEFAULT_LOG_FILE ),
                                          "Log to file <arg>" )(
                 io_wally::context::LOG_SYNC,
                 options::bool_switch( ),
@@ -30,27 +34,25 @@ namespace io_wally
 
             options::options_description server_opts( "Server" );
             server_opts.add_options( )( io_wally::context::SERVER_ADDRESS,
-                                        options::value<string>( )->default_value( defaults::DEFAULT_SERVER_ADDRESS ),
+                                        options::value<string>( )->default_value( DEFAULT_SERVER_ADDRESS ),
                                         "Address server should listen on" )(
-                io_wally::context::SERVER_PORT,
-                options::value<int>( )->default_value( defaults::DEFAULT_SERVER_PORT ) );
+                io_wally::context::SERVER_PORT, options::value<int>( )->default_value( DEFAULT_SERVER_PORT ) );
 
             options::options_description authentication_opts( "Authentication" );
             authentication_opts.add_options( )(
                 io_wally::context::AUTHENTICATION_SERVICE_FACTORY,
-                options::value<string>( )->default_value( defaults::DEFAULT_AUTHENTICATION_SERVICE_FACTORY ),
+                options::value<string>( )->default_value( DEFAULT_AUTHENTICATION_SERVICE_FACTORY ),
                 "Name of authentication service factory" );
 
             options::options_description connection_opts( "Connection" );
-            connection_opts.add_options( )(
-                io_wally::context::CONNECT_TIMEOUT,
-                options::value<uint32_t>( )->default_value( defaults::DEFAULT_CONNECT_TIMEOUT_MS ),
-                "Connect timeout in ms" )(
+            connection_opts.add_options( )( io_wally::context::CONNECT_TIMEOUT,
+                                            options::value<uint32_t>( )->default_value( DEFAULT_CONNECT_TIMEOUT_MS ),
+                                            "Connect timeout in ms" )(
                 io_wally::context::READ_BUFFER_SIZE,
-                options::value<size_t>( )->default_value( defaults::DEFAULT_INITIAL_READ_BUFFER_SIZE ),
+                options::value<size_t>( )->default_value( DEFAULT_INITIAL_READ_BUFFER_SIZE ),
                 "Initial read buffer size in bytes" )(
                 io_wally::context::WRITE_BUFFER_SIZE,
-                options::value<size_t>( )->default_value( defaults::DEFAULT_INITIAL_WRITE_BUFFER_SIZE ),
+                options::value<size_t>( )->default_value( DEFAULT_INITIAL_WRITE_BUFFER_SIZE ),
                 "Initial write buffer size in bytes" );
 
             options::options_description all( "Allowed options" );

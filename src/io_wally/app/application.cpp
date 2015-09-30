@@ -4,7 +4,6 @@
 #include <io_wally/context.hpp>
 
 #include <io_wally/app/application.hpp>
-#include <io_wally/app/configuration.hpp>
 #include <io_wally/app/logging.hpp>
 #include <io_wally/app/authentication_service_factories.hpp>
 
@@ -18,7 +17,7 @@ namespace io_wally
             try
             {
                 const pair<const options::variables_map, const options::options_description> config_plus_desc =
-                    parse_configuration( argc, argv );
+                    options_parser_.parse( argc, argv );
                 options::variables_map config = config_plus_desc.first;
                 const options::options_description all_opts_desc = config_plus_desc.second;
 
