@@ -17,8 +17,9 @@ namespace io_wally
         class options_parser
         {
            public:
-            const pair<const options::variables_map, const options::options_description> parse( int argc,
-                                                                                                char** argv ) const;
+            const pair<const options::variables_map, const options::options_description> parse(
+                const int argc,
+                const char** argv ) const;
 
         };  // class options_parser
     }       // namespace app

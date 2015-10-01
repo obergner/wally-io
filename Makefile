@@ -143,8 +143,11 @@ $(MBUILD)/%.o		: src/%.cpp						| $(MBUILDDIRS)
 
 # Test
 .PHONY 				: test
-test 				: $(TEXEC) 						| $(TBUILDDIRS)
+test 				: test-compile
 	@./$(TEXEC) --success --durations yes
+
+.PHONY 				: test-compile
+test-compile 		: $(TEXEC)						| $(TBUILDDIRS)
 
 $(TBUILDDIRS)		:
 	@mkdir -p $@
@@ -167,8 +170,10 @@ doc 				: $(MSOURCES) $(MEXECSOURCE)
 	@doxygen ./.doxygen.cfg
 
 # Tools
+compilation-db 		: $(COMPILATIONDB)
+
 $(COMPILATIONDB)    : $(MSOURCES) $(MEXECSOURCE) $(TSOURCES) $(TEXECSOURCE)
-	@bear make clean main test
+	@bear $(MAKE) clean main test-compile
 
 .PHONY				: macroexpand
 macroexpand			: $(MSOURCES) $(MEXECSOURCE)
@@ -196,7 +201,7 @@ scan-main 			: $(SBUILD)
 
 .PHONY 				: modernize
 modernize 			: $(MSOURCES) $(MEXECSOURCE) $(COMPILATIONDB)
-	@clang-modernize -final-syntax-check -summary -format -style=file -include=src/ -p compile_commands.json
+	@clang-modernize -final-syntax-check -summary -format -style=file -include=src/ -p $(COMPILATIONDB)
 
 .PHONY 				: format-main
 format-main			: $(MSOURCES) $(MEXECSOURCE)
@@ -212,6 +217,14 @@ format  			: format-main format-test
 .PHONY 				: tags
 tags 				: $(MSOURCES) $(MEXECSOURCE) $(TSOURCES) $(TEXECSOURCE)
 	@ctags -R -f ./.tags ./src ./test
+
+.PHONY 				: prepare-commit
+prepare-commit 		: clean
+prepare-commit 		: format
+prepare-commit 		: main
+prepare-commit 		: test
+prepare-commit 		: check
+prepare-commit 		: scan-main
 
 ###############################################################################
 # Dependency rules: http://stackoverflow.com/questions/8025766/makefile-auto-dependency-generation

@@ -17,7 +17,7 @@ namespace io_wally
        public:
         static constexpr const char* HELP = "help";
 
-        static constexpr const char* CONFIG_FILE = "config";
+        static constexpr const char* CONFIG_FILE = "conf-file";
 
         static constexpr const char* LOG_FILE = "log-file";
 

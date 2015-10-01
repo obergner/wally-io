@@ -17,7 +17,7 @@ namespace io_wally
             try
             {
                 const pair<const options::variables_map, const options::options_description> config_plus_desc =
-                    options_parser_.parse( argc, argv );
+                    options_parser_.parse( argc, const_cast<const char**>( argv ) );
                 options::variables_map config = config_plus_desc.first;
                 const options::options_description all_opts_desc = config_plus_desc.second;
 

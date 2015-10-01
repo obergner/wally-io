@@ -12,8 +12,8 @@ namespace io_wally
     namespace app
     {
         const pair<const options::variables_map, const options::options_description> options_parser::parse(
-            int argc,
-            char** argv ) const
+            const int argc,
+            const char** argv ) const
         {
             options::variables_map config;
 
@@ -36,7 +36,9 @@ namespace io_wally
             server_opts.add_options( )( io_wally::context::SERVER_ADDRESS,
                                         options::value<string>( )->default_value( DEFAULT_SERVER_ADDRESS ),
                                         "Address server should listen on" )(
-                io_wally::context::SERVER_PORT, options::value<int>( )->default_value( DEFAULT_SERVER_PORT ) );
+                io_wally::context::SERVER_PORT,
+                options::value<int>( )->default_value( DEFAULT_SERVER_PORT ),
+                "Port server should listen on" );
 
             options::options_description authentication_opts( "Authentication" );
             authentication_opts.add_options( )(
