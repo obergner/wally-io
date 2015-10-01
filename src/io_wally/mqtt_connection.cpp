@@ -244,6 +244,7 @@ namespace io_wally
             case packet::Type::RESERVED1:
             case packet::Type::RESERVED2:
             default:
+                assert( false );
                 break;
         }
         BOOST_LOG_SEV( logger_, lvl::info ) << "--- DISPATCHED: " << packet;

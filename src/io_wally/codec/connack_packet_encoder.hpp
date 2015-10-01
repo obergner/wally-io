@@ -59,7 +59,7 @@ namespace io_wally
                         second_byte = 0x06;
                         break;
                     default:
-                        second_byte = 0x06;
+                        assert( false );
                         break;
                 }
 

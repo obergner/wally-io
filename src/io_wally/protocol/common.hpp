@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <iostream>
 
 #include <boost/cstdint.hpp>
@@ -206,7 +207,7 @@ namespace io_wally
                         type_mask = ( 0x0F << 4 );
                         break;
                     default:
-                        type_mask = ( 0x0F << 4 );
+                        assert( false );
                         break;
                 }
 

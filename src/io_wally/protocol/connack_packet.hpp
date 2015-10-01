@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <string>
 #include <sstream>
 
@@ -71,7 +72,7 @@ namespace io_wally
                     output << "Reserved for future use";
                     break;
                 default:
-                    output << "Reserved for future use";
+                    assert( false );
                     break;
             }
 
