@@ -99,4 +99,61 @@ SCENARIO( "options_parser", "[options]" )
             }
         }
     }
+
+    GIVEN( "a configuration file containing all supported options" )
+    {
+        const char* const conf_file = "./build/test/test.conf";
+
+        const char* const log_file = "/var/tmp/config-file-log.log";
+        const string server_address( "1.1.1.1" );
+        const int server_port = 99;
+        const string auth_service_factory( "config_file_auth_srvc_factory" );
+        const uint32_t connect_timeout_ms = 12;
+        const size_t read_buffer_size = 2345;
+        const size_t write_buffer_size = 8999;
+
+        const char* conf_file_contents = R"CONF(
+log-file = /var/tmp/config-file-log.log
+log-console = true
+log-sync = true
+server-address = 1.1.1.1
+server-port = 99
+authentication-service-factory = config_file_auth_srvc_factory
+connect-timeout = 12
+read-buffer-size = 2345
+write-buffer-size = 8999
+)CONF";
+        {
+            std::ofstream conf_file_ofs( conf_file );
+
+            conf_file_ofs << conf_file_contents;
+        }
+
+        const char* command_line_args[]{
+            "executable", "--conf-file", conf_file,
+        };
+
+        WHEN( "parsing a command line pointing to that configuration file" )
+        {
+            const std::pair<const options::variables_map, const options::options_description> config_plus_desc =
+                under_test.parse( sizeof( command_line_args ) / sizeof( *command_line_args ), command_line_args );
+
+            THEN( "it should return a variables_map with all options populated from configuration file" )
+            {
+                const options::variables_map config = config_plus_desc.first;
+
+                CHECK( config[io_wally::context::CONFIG_FILE].as<const string>( ) == conf_file );
+                CHECK( config[io_wally::context::LOG_FILE].as<const string>( ) == log_file );
+                CHECK( config[io_wally::context::LOG_CONSOLE].as<const bool>( ) == true );
+                CHECK( config[io_wally::context::LOG_SYNC].as<const bool>( ) == true );
+                CHECK( config[io_wally::context::SERVER_ADDRESS].as<const string>( ) == server_address );
+                CHECK( config[io_wally::context::SERVER_PORT].as<const int>( ) == server_port );
+                CHECK( config[io_wally::context::AUTHENTICATION_SERVICE_FACTORY].as<const string>( ) ==
+                       auth_service_factory );
+                CHECK( config[io_wally::context::CONNECT_TIMEOUT].as<const uint32_t>( ) == connect_timeout_ms );
+                CHECK( config[io_wally::context::READ_BUFFER_SIZE].as<const size_t>( ) == read_buffer_size );
+                REQUIRE( config[io_wally::context::WRITE_BUFFER_SIZE].as<const size_t>( ) == write_buffer_size );
+            }
+        }
+    }
 }

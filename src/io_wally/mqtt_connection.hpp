@@ -113,7 +113,7 @@ namespace io_wally
         /// Our ID, only assigned once we have been authenticated
         struct mqtt_connection_id* id_;
 
-        /// Has this session been authenticated, i.e. received a successfully CONNECT request?
+        /// Has this session been authenticated, i.e. received a successful CONNECT request?
         bool authenticated = false;
 
         /// The client socket this session is connected to
