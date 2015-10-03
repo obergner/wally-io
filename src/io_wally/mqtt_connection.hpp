@@ -7,6 +7,7 @@
 
 #include <boost/asio.hpp>
 
+#include "io_wally/context.hpp"
 #include "io_wally/app/logging_support.hpp"
 #include "io_wally/codec/decoder.hpp"
 #include "io_wally/codec/mqtt_packet_decoder.hpp"
@@ -61,9 +62,7 @@ namespace io_wally
         typedef boost::shared_ptr<mqtt_connection> pointer;
 
         /// Factory method for \c mqtt_connections.
-        static pointer create( tcp::socket socket,
-                               mqtt_connection_manager& session_manager,
-                               authentication_service& authentication_service );
+        static pointer create( tcp::socket socket, mqtt_connection_manager& session_manager, const context& context );
 
         /// Naturally, mqtt_connections cannot be copied.
         mqtt_connection( const mqtt_connection& ) = delete;
@@ -91,7 +90,7 @@ namespace io_wally
         /// Hide constructor since we MUST be created by static factory method 'create' above
         explicit mqtt_connection( tcp::socket socket,
                                   mqtt_connection_manager& session_manager,
-                                  authentication_service& authentication_service );
+                                  const context& context );
 
         void read_header( );
 
@@ -116,37 +115,34 @@ namespace io_wally
         /// Has this session been authenticated, i.e. received a successful CONNECT request?
         bool authenticated = false;
 
-        /// The client socket this session is connected to
-        tcp::socket socket_;
-
-        /// Handle connect requests
-        authentication_service& authentication_service_;
-
-        /// Our session manager, responsible for managing our lifecycle
-        mqtt_connection_manager& session_manager_;
-
-        /// Initial read buffer capacity
-        const size_t initial_buffer_capacity = 256;
-
-        /// Buffer incoming data
-        vector<uint8_t> read_buffer_ = vector<uint8_t>( initial_buffer_capacity );
-
-        /// Buffer outgoing data
-        vector<uint8_t> write_buffer_ = vector<uint8_t>( initial_buffer_capacity );
-
         /// Somehow we need to parse those headers
         header_decoder header_decoder_{};
 
         /// And while we are at it, why not parse the rest of those packets, too?
-        mqtt_packet_decoder<buf_iter> packet_decoder_{};
+        const mqtt_packet_decoder<buf_iter> packet_decoder_{};
 
         /// Encode outgoing packets
-        mqtt_packet_encoder<buf_iter> packet_encoder_{};
+        const mqtt_packet_encoder<buf_iter> packet_encoder_{};
 
         /// Our severity-enabled channel logger
         boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
             keywords::channel = "session",
             keywords::severity = lvl::trace};
+
+        /// The client socket this session is connected to
+        tcp::socket socket_;
+
+        /// Our session manager, responsible for managing our lifecycle
+        mqtt_connection_manager& session_manager_;
+
+        /// Our context reference, used for configuring ourselves etc
+        const context& context_;
+
+        /// Buffer incoming data
+        vector<uint8_t> read_buffer_;
+
+        /// Buffer outgoing data
+        vector<uint8_t> write_buffer_;
     };
 
     inline ostream& operator<<( ostream& output, mqtt_connection const& mqtt_connection )

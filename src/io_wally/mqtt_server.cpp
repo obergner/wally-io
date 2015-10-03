@@ -56,7 +56,7 @@ namespace io_wally
             if ( !ec )
             {
                 mqtt_connection::pointer session =
-                    mqtt_connection::create( move( socket_ ), session_manager_, context_.authentication_service( ) );
+                    mqtt_connection::create( move( socket_ ), session_manager_, context_ );
                 session_manager_.start( session );
             }
 

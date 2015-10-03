@@ -14,18 +14,20 @@ namespace io_wally
 {
     mqtt_connection::pointer mqtt_connection::create( tcp::socket socket,
                                                       mqtt_connection_manager& session_manager,
-                                                      authentication_service& authentication_service )
+                                                      const context& context )
     {
-        return pointer( new mqtt_connection( move( socket ), session_manager, authentication_service ) );
+        return pointer( new mqtt_connection( move( socket ), session_manager, context ) );
     }
 
     mqtt_connection::mqtt_connection( tcp::socket socket,
                                       mqtt_connection_manager& session_manager,
-                                      authentication_service& authentication_service )
+                                      const context& context )
         : id_{nullptr},
           socket_{move( socket )},
-          authentication_service_{authentication_service},
-          session_manager_{session_manager}
+          session_manager_{session_manager},
+          context_{context},
+          read_buffer_( context.options( )[context::READ_BUFFER_SIZE].as<const size_t>( ) ),
+          write_buffer_( context.options( )[context::WRITE_BUFFER_SIZE].as<const size_t>( ) )
     {
         return;
     }
@@ -183,7 +185,7 @@ namespace io_wally
                                                 << "|bufs:" << read_buffer_.size( ) << "]";
             // FIXME: This risks discarding (the first bytes of) another packet that might already have been received!
             read_buffer_.clear( );
-            read_buffer_.resize( initial_buffer_capacity );
+            read_buffer_.resize( context_.options( )[context::READ_BUFFER_SIZE].as<const size_t>( ) );
 
             dispatch_decoded_packet( *parsed_packet );
         }
@@ -205,9 +207,10 @@ namespace io_wally
             case packet::Type::CONNECT:
             {
                 const io_wally::protocol::connect& connect = dynamic_cast<const io_wally::protocol::connect&>( packet );
-                if ( !authentication_service_.authenticate( socket_.remote_endpoint( ).address( ).to_string( ),
-                                                            connect.payload( ).username( ),
-                                                            connect.payload( ).password( ) ) )
+                if ( !context_.authentication_service( ).authenticate(
+                         socket_.remote_endpoint( ).address( ).to_string( ),
+                         connect.payload( ).username( ),
+                         connect.payload( ).password( ) ) )
                 {
                     write_packet_and_close_session( connack( false, connect_return_code::BAD_USERNAME_OR_PASSWORD ),
                                                     "Authentication failed" );

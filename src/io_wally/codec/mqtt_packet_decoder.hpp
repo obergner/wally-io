@@ -43,14 +43,14 @@ namespace io_wally
             ///             \c mqtt_packet's on the wire format.
             std::unique_ptr<const mqtt_packet> decode( const packet::header& header,
                                                        InputIterator buf_start,
-                                                       const InputIterator buf_end )
+                                                       const InputIterator buf_end ) const
             {
                 return body_decoder_for( header ).decode( header, buf_start, buf_end );
             }
 
            private:
             /// Methods
-            const packet_body_decoder<InputIterator>& body_decoder_for( const packet::header& header )
+            const packet_body_decoder<InputIterator>& body_decoder_for( const packet::header& header ) const
             {
                 switch ( header.type( ) )
                 {
