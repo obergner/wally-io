@@ -1,5 +1,10 @@
 #include "catch.hpp"
 
+#include <cstdint>
+#include <string>
+
+#include <boost/optional.hpp>
+
 #include "io_wally/protocol/connect_packet.hpp"
 
 using namespace io_wally::protocol;
@@ -10,9 +15,9 @@ SCENARIO( "connect_header", "[packets]" )
     GIVEN( "a connect_header with default protocol name" )
     {
         const char* const prot_name = "MQTT";
-        const uint8_t prot_level = 0x04;
-        const uint8_t prot_flags = 0x00;
-        const uint16_t keep_alive_secs = 0x0000;
+        const std::uint8_t prot_level = 0x04;
+        const std::uint8_t prot_flags = 0x00;
+        const std::uint16_t keep_alive_secs = 0x0000;
         const connect_header under_test( prot_name, prot_level, prot_flags, keep_alive_secs );
 
         WHEN( "a caller asks for the protocol name" )
@@ -29,9 +34,9 @@ SCENARIO( "connect_header", "[packets]" )
     GIVEN( "a connect_header with protocol name 'Custom protocol'" )
     {
         const char* const prot_name = "Custom protocol";
-        const uint8_t prot_level = 0x04;
-        const uint8_t prot_flags = 0x00;
-        const uint16_t keep_alive_secs = 0x0000;
+        const std::uint8_t prot_level = 0x04;
+        const std::uint8_t prot_flags = 0x00;
+        const std::uint16_t keep_alive_secs = 0x0000;
         const connect_header under_test( prot_name, prot_level, prot_flags, keep_alive_secs );
 
         WHEN( "a caller asks for the protocol name" )
@@ -48,9 +53,9 @@ SCENARIO( "connect_header", "[packets]" )
     GIVEN( "a connect_header with default protocol level" )
     {
         const char* const prot_name = "MQTT";
-        const uint8_t prot_level = 0x04;
-        const uint8_t prot_flags = 0x00;
-        const uint16_t keep_alive_secs = 0x0000;
+        const std::uint8_t prot_level = 0x04;
+        const std::uint8_t prot_flags = 0x00;
+        const std::uint16_t keep_alive_secs = 0x0000;
         const connect_header under_test( prot_name, prot_level, prot_flags, keep_alive_secs );
 
         WHEN( "a caller asks for the protocol level" )
@@ -67,9 +72,9 @@ SCENARIO( "connect_header", "[packets]" )
     GIVEN( "a connect_header with non-default protocol level" )
     {
         const char* const prot_name = "MQTT";
-        const uint8_t prot_level = 0x03;
-        const uint8_t prot_flags = 0x00;
-        const uint16_t keep_alive_secs = 0x0000;
+        const std::uint8_t prot_level = 0x03;
+        const std::uint8_t prot_flags = 0x00;
+        const std::uint16_t keep_alive_secs = 0x0000;
         const connect_header under_test( prot_name, prot_level, prot_flags, keep_alive_secs );
 
         WHEN( "a caller asks for the protocol level" )
@@ -86,9 +91,9 @@ SCENARIO( "connect_header", "[packets]" )
     GIVEN( "a connect_header with username flag set" )
     {
         const char* const prot_name = "MQTT";
-        const uint8_t prot_level = 0x04;
-        const uint8_t prot_flags = 0x80;
-        const uint16_t keep_alive_secs = 0x0000;
+        const std::uint8_t prot_level = 0x04;
+        const std::uint8_t prot_flags = 0x80;
+        const std::uint16_t keep_alive_secs = 0x0000;
         const connect_header under_test( prot_name, prot_level, prot_flags, keep_alive_secs );
 
         WHEN( "a caller asks if the username flag is set" )
@@ -105,9 +110,9 @@ SCENARIO( "connect_header", "[packets]" )
     GIVEN( "a connect_header with username flag not set" )
     {
         const char* const prot_name = "MQTT";
-        const uint8_t prot_level = 0x04;
-        const uint8_t prot_flags = 0x7F;
-        const uint16_t keep_alive_secs = 0x0000;
+        const std::uint8_t prot_level = 0x04;
+        const std::uint8_t prot_flags = 0x7F;
+        const std::uint16_t keep_alive_secs = 0x0000;
         const connect_header under_test( prot_name, prot_level, prot_flags, keep_alive_secs );
 
         WHEN( "a caller asks if the username flag is set" )
@@ -124,9 +129,9 @@ SCENARIO( "connect_header", "[packets]" )
     GIVEN( "a connect_header with password flag set" )
     {
         const char* const prot_name = "MQTT";
-        const uint8_t prot_level = 0x04;
-        const uint8_t prot_flags = 0x40;
-        const uint16_t keep_alive_secs = 0x0000;
+        const std::uint8_t prot_level = 0x04;
+        const std::uint8_t prot_flags = 0x40;
+        const std::uint16_t keep_alive_secs = 0x0000;
         const connect_header under_test( prot_name, prot_level, prot_flags, keep_alive_secs );
 
         WHEN( "a caller asks if the password flag is set" )
@@ -143,9 +148,9 @@ SCENARIO( "connect_header", "[packets]" )
     GIVEN( "a connect_header with password flag not set" )
     {
         const char* const prot_name = "MQTT";
-        const uint8_t prot_level = 0x04;
-        const uint8_t prot_flags = 0xBF;
-        const uint16_t keep_alive_secs = 0x0000;
+        const std::uint8_t prot_level = 0x04;
+        const std::uint8_t prot_flags = 0xBF;
+        const std::uint16_t keep_alive_secs = 0x0000;
         const connect_header under_test( prot_name, prot_level, prot_flags, keep_alive_secs );
 
         WHEN( "a caller asks if the password flag is set" )
@@ -162,9 +167,9 @@ SCENARIO( "connect_header", "[packets]" )
     GIVEN( "a connect_header with last will retain flag set" )
     {
         const char* const prot_name = "MQTT";
-        const uint8_t prot_level = 0x04;
-        const uint8_t prot_flags = 0x20;
-        const uint16_t keep_alive_secs = 0x0000;
+        const std::uint8_t prot_level = 0x04;
+        const std::uint8_t prot_flags = 0x20;
+        const std::uint16_t keep_alive_secs = 0x0000;
         const connect_header under_test( prot_name, prot_level, prot_flags, keep_alive_secs );
 
         WHEN( "a caller asks if the receiver should retain any last will message" )
@@ -181,9 +186,9 @@ SCENARIO( "connect_header", "[packets]" )
     GIVEN( "a connect_header with last will retain flag not set" )
     {
         const char* const prot_name = "MQTT";
-        const uint8_t prot_level = 0x04;
-        const uint8_t prot_flags = 0xDF;
-        const uint16_t keep_alive_secs = 0x0000;
+        const std::uint8_t prot_level = 0x04;
+        const std::uint8_t prot_flags = 0xDF;
+        const std::uint16_t keep_alive_secs = 0x0000;
         const connect_header under_test( prot_name, prot_level, prot_flags, keep_alive_secs );
 
         WHEN( "a caller asks if the receiver should retain any last will message" )
@@ -200,9 +205,9 @@ SCENARIO( "connect_header", "[packets]" )
     GIVEN( "a connect_header with last will quality of service 'Exactly Once'" )
     {
         const char* const prot_name = "MQTT";
-        const uint8_t prot_level = 0x04;
-        const uint8_t prot_flags = 0x10;
-        const uint16_t keep_alive_secs = 0x0000;
+        const std::uint8_t prot_level = 0x04;
+        const std::uint8_t prot_flags = 0x10;
+        const std::uint16_t keep_alive_secs = 0x0000;
         const connect_header under_test( prot_name, prot_level, prot_flags, keep_alive_secs );
 
         WHEN( "a caller asks for the last will quality of service" )
@@ -219,9 +224,9 @@ SCENARIO( "connect_header", "[packets]" )
     GIVEN( "a connect_header with last will quality of service 'At least once'" )
     {
         const char* const prot_name = "MQTT";
-        const uint8_t prot_level = 0x04;
-        const uint8_t prot_flags = 0x08;
-        const uint16_t keep_alive_secs = 0x0000;
+        const std::uint8_t prot_level = 0x04;
+        const std::uint8_t prot_flags = 0x08;
+        const std::uint16_t keep_alive_secs = 0x0000;
         const connect_header under_test( prot_name, prot_level, prot_flags, keep_alive_secs );
 
         WHEN( "a caller asks for the last will quality of service" )
@@ -238,9 +243,9 @@ SCENARIO( "connect_header", "[packets]" )
     GIVEN( "a connect_header with last will quality of service 'At most once'" )
     {
         const char* const prot_name = "MQTT";
-        const uint8_t prot_level = 0x04;
-        const uint8_t prot_flags = 0xE7;
-        const uint16_t keep_alive_secs = 0x0000;
+        const std::uint8_t prot_level = 0x04;
+        const std::uint8_t prot_flags = 0xE7;
+        const std::uint16_t keep_alive_secs = 0x0000;
         const connect_header under_test( prot_name, prot_level, prot_flags, keep_alive_secs );
 
         WHEN( "a caller asks for the last will quality of service" )
@@ -257,9 +262,9 @@ SCENARIO( "connect_header", "[packets]" )
     GIVEN( "a connect_header with the last will flag set" )
     {
         const char* const prot_name = "MQTT";
-        const uint8_t prot_level = 0x04;
-        const uint8_t prot_flags = 0x04;
-        const uint16_t keep_alive_secs = 0x0000;
+        const std::uint8_t prot_level = 0x04;
+        const std::uint8_t prot_flags = 0x04;
+        const std::uint16_t keep_alive_secs = 0x0000;
         const connect_header under_test( prot_name, prot_level, prot_flags, keep_alive_secs );
 
         WHEN( "a caller asks whether the packet contains a last will message" )
@@ -276,9 +281,9 @@ SCENARIO( "connect_header", "[packets]" )
     GIVEN( "a connect_header with the last will flag not set" )
     {
         const char* const prot_name = "MQTT";
-        const uint8_t prot_level = 0x04;
-        const uint8_t prot_flags = 0xFB;
-        const uint16_t keep_alive_secs = 0x0000;
+        const std::uint8_t prot_level = 0x04;
+        const std::uint8_t prot_flags = 0xFB;
+        const std::uint16_t keep_alive_secs = 0x0000;
         const connect_header under_test( prot_name, prot_level, prot_flags, keep_alive_secs );
 
         WHEN( "a caller asks whether the packet contains a last will message" )
@@ -295,9 +300,9 @@ SCENARIO( "connect_header", "[packets]" )
     GIVEN( "a connect_header with the clean session flag set" )
     {
         const char* const prot_name = "MQTT";
-        const uint8_t prot_level = 0x04;
-        const uint8_t prot_flags = 0x02;
-        const uint16_t keep_alive_secs = 0x0000;
+        const std::uint8_t prot_level = 0x04;
+        const std::uint8_t prot_flags = 0x02;
+        const std::uint16_t keep_alive_secs = 0x0000;
         const connect_header under_test( prot_name, prot_level, prot_flags, keep_alive_secs );
 
         WHEN( "a caller asks whether the client session should be cleaned" )
@@ -314,9 +319,9 @@ SCENARIO( "connect_header", "[packets]" )
     GIVEN( "a connect_header with the clean session flag not set" )
     {
         const char* const prot_name = "MQTT";
-        const uint8_t prot_level = 0x04;
-        const uint8_t prot_flags = 0xFD;
-        const uint16_t keep_alive_secs = 0x0000;
+        const std::uint8_t prot_level = 0x04;
+        const std::uint8_t prot_flags = 0xFD;
+        const std::uint16_t keep_alive_secs = 0x0000;
         const connect_header under_test( prot_name, prot_level, prot_flags, keep_alive_secs );
 
         WHEN( "a caller asks whether the client session should be cleaned" )
@@ -346,10 +351,10 @@ SCENARIO( "connect_payload", "[packets]" )
         WHEN( "a caller calls accessors for all fields" )
         {
             const std::string client_id_ret = under_test.client_id( );
-            const optional<const std::string> will_topic_ret = under_test.will_topic( );
-            const optional<const std::string> will_message_ret = under_test.will_message( );
-            const optional<const std::string> username_ret = under_test.username( );
-            const optional<const std::string> password_ret = under_test.password( );
+            const boost::optional<const std::string> will_topic_ret = under_test.will_topic( );
+            const boost::optional<const std::string> will_message_ret = under_test.will_message( );
+            const boost::optional<const std::string> username_ret = under_test.username( );
+            const boost::optional<const std::string> password_ret = under_test.password( );
 
             THEN( "it should see the values passed in the constructor" )
             {
@@ -375,10 +380,10 @@ SCENARIO( "connect_payload", "[packets]" )
         WHEN( "a caller calls accessors for all fields" )
         {
             const std::string client_id_ret = under_test.client_id( );
-            const optional<const std::string> will_topic_ret = under_test.will_topic( );
-            const optional<const std::string> will_message_ret = under_test.will_message( );
-            const optional<const std::string> username_ret = under_test.username( );
-            const optional<const std::string> password_ret = under_test.password( );
+            const boost::optional<const std::string> will_topic_ret = under_test.will_topic( );
+            const boost::optional<const std::string> will_message_ret = under_test.will_message( );
+            const boost::optional<const std::string> username_ret = under_test.username( );
+            const boost::optional<const std::string> password_ret = under_test.password( );
 
             THEN( "it should see the values passed in the constructor" )
             {

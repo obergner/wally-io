@@ -1,20 +1,23 @@
 #include "catch.hpp"
 
+#include <cstdint>
+#include <array>
+
 #include "io_wally/codec/mqtt_packet_encoder.hpp"
 
 using namespace io_wally;
 
-typedef std::array<const uint8_t, 4>::iterator out_iter;
+typedef std::array<const std::uint8_t, 4>::iterator out_iter;
 
 SCENARIO( "mqtt_packet_encoder", "[encoder]" )
 {
-    encoder::mqtt_packet_encoder<uint8_t*> under_test;
+    encoder::mqtt_packet_encoder<std::uint8_t*> under_test;
 
     GIVEN( "an output buffer with insufficient capacity 3" )
     {
-        const connack connack( true, connect_return_code::NOT_AUTHORIZED );
+        const protocol::connack connack( true, protocol::connect_return_code::NOT_AUTHORIZED );
 
-        std::array<uint8_t, 3> result = {{0x00, 0x00, 0x00}};
+        std::array<std::uint8_t, 3> result = {{0x00, 0x00, 0x00}};
 
         WHEN( "a client passes that packet into mqtt_packet_encoder::encode" )
         {
@@ -28,10 +31,10 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
 
     GIVEN( "a connack packet with session present flag set and return code 'NOT_AUTHORIZED'" )
     {
-        const connack connack( true, connect_return_code::NOT_AUTHORIZED );
+        const protocol::connack connack( true, protocol::connect_return_code::NOT_AUTHORIZED );
 
-        std::array<uint8_t, 4> result = {{0x00, 0x00, 0x00, 0x00}};
-        const std::array<uint8_t, 4> expected_result = {{0x20, 0x02, 0x01, 0x05}};
+        std::array<std::uint8_t, 4> result = {{0x00, 0x00, 0x00, 0x00}};
+        const std::array<std::uint8_t, 4> expected_result = {{0x20, 0x02, 0x01, 0x05}};
 
         WHEN( "a client passes that packet into mqtt_packet_encoder::encode" )
         {
@@ -51,10 +54,10 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
 
     GIVEN( "a pingresp packet" )
     {
-        const pingresp pingresp;
+        const protocol::pingresp pingresp;
 
-        std::array<uint8_t, 2> result = {{0x00, 0x00}};
-        const std::array<uint8_t, 2> expected_result = {{0xD0, 0x00}};
+        std::array<std::uint8_t, 2> result = {{0x00, 0x00}};
+        const std::array<std::uint8_t, 2> expected_result = {{0xD0, 0x00}};
 
         WHEN( "a client passes that packet into mqtt_packet_encoder::encode" )
         {

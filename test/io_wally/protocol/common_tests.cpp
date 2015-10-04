@@ -1,5 +1,7 @@
 #include "catch.hpp"
 
+#include <cstdint>
+
 #include "io_wally/protocol/common.hpp"
 
 using namespace io_wally::protocol;
@@ -9,7 +11,7 @@ TEST_CASE( "MQTT header flags are read", "[header]" )
 
     SECTION( "all flags are set" )
     {
-        const uint8_t flgs = 0x0F;
+        const std::uint8_t flgs = 0x0F;
         packet::header_flags under_test( flgs );
 
         REQUIRE( under_test.dup( ) );
@@ -19,7 +21,7 @@ TEST_CASE( "MQTT header flags are read", "[header]" )
 
     SECTION( "only flags 0 and 1 are set" )
     {
-        const uint8_t flgs = 0x03;
+        const std::uint8_t flgs = 0x03;
         packet::header_flags under_test( flgs );
 
         REQUIRE( !under_test.dup( ) );
@@ -29,7 +31,7 @@ TEST_CASE( "MQTT header flags are read", "[header]" )
 
     SECTION( "only flags 1 and 2 are set" )
     {
-        const uint8_t flgs = 0x06;
+        const std::uint8_t flgs = 0x06;
         packet::header_flags under_test( flgs );
 
         REQUIRE( !under_test.dup( ) );
@@ -39,7 +41,7 @@ TEST_CASE( "MQTT header flags are read", "[header]" )
 
     SECTION( "only flags 2 and 3 are set" )
     {
-        const uint8_t flgs = 0x0C;
+        const std::uint8_t flgs = 0x0C;
         packet::header_flags under_test( flgs );
 
         REQUIRE( under_test.dup( ) );
@@ -53,8 +55,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
 
     SECTION( "no control packet type bits/no flags are set" )
     {
-        const uint8_t type_and_flags = 0x00;
-        const uint32_t remaining_length = 325678;
+        const std::uint8_t type_and_flags = 0x00;
+        const std::uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::Type::RESERVED1 );
@@ -62,8 +64,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
 
     SECTION( "control packet type bit 4/no flags are set" )
     {
-        const uint8_t type_and_flags = 0x10;
-        const uint32_t remaining_length = 325678;
+        const std::uint8_t type_and_flags = 0x10;
+        const std::uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::Type::CONNECT );
@@ -71,8 +73,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
 
     SECTION( "control packet type bit 5/no flags are set" )
     {
-        const uint8_t type_and_flags = 0x20;
-        const uint32_t remaining_length = 325678;
+        const std::uint8_t type_and_flags = 0x20;
+        const std::uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::Type::CONNACK );
@@ -80,8 +82,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
 
     SECTION( "control packet type bits 4 and 5/no flags are set" )
     {
-        const uint8_t type_and_flags = 0x30;
-        const uint32_t remaining_length = 325678;
+        const std::uint8_t type_and_flags = 0x30;
+        const std::uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::Type::PUBLISH );
@@ -89,8 +91,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
 
     SECTION( "control packet type bit 6/no flags are set" )
     {
-        const uint8_t type_and_flags = 0x40;
-        const uint32_t remaining_length = 325678;
+        const std::uint8_t type_and_flags = 0x40;
+        const std::uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::Type::PUBACK );
@@ -98,8 +100,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
 
     SECTION( "control packet type bits 6 and 4/no flags are set" )
     {
-        const uint8_t type_and_flags = 0x50;
-        const uint32_t remaining_length = 325678;
+        const std::uint8_t type_and_flags = 0x50;
+        const std::uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::Type::PUBREC );
@@ -107,8 +109,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
 
     SECTION( "control packet type bits 6 and 5/no flags are set" )
     {
-        const uint8_t type_and_flags = 0x60;
-        const uint32_t remaining_length = 325678;
+        const std::uint8_t type_and_flags = 0x60;
+        const std::uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::Type::PUBREL );
@@ -116,8 +118,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
 
     SECTION( "control packet type bits 6, 5 and 4/no flags are set" )
     {
-        const uint8_t type_and_flags = 0x70;
-        const uint32_t remaining_length = 325678;
+        const std::uint8_t type_and_flags = 0x70;
+        const std::uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::Type::PUBCOMP );
@@ -125,8 +127,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
 
     SECTION( "control packet type bit 7/no flags are set" )
     {
-        const uint8_t type_and_flags = 0x80;
-        const uint32_t remaining_length = 325678;
+        const std::uint8_t type_and_flags = 0x80;
+        const std::uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::Type::SUBSCRIBE );
@@ -134,8 +136,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
 
     SECTION( "control packet type bits 7 and 4/no flags are set" )
     {
-        const uint8_t type_and_flags = 0x90;
-        const uint32_t remaining_length = 325678;
+        const std::uint8_t type_and_flags = 0x90;
+        const std::uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::Type::SUBACK );
@@ -143,8 +145,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
 
     SECTION( "control packet type bits 7 and 5/no flags are set" )
     {
-        const uint8_t type_and_flags = 0xA0;
-        const uint32_t remaining_length = 325678;
+        const std::uint8_t type_and_flags = 0xA0;
+        const std::uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::Type::UNSUBSCRIBE );
@@ -152,8 +154,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
 
     SECTION( "control packet type bits 7, 5 and 4/no flags are set" )
     {
-        const uint8_t type_and_flags = 0xB0;
-        const uint32_t remaining_length = 325678;
+        const std::uint8_t type_and_flags = 0xB0;
+        const std::uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::Type::UNSUBACK );
@@ -161,8 +163,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
 
     SECTION( "control packet type bits 7 and 6/no flags are set" )
     {
-        const uint8_t type_and_flags = 0xC0;
-        const uint32_t remaining_length = 325678;
+        const std::uint8_t type_and_flags = 0xC0;
+        const std::uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::Type::PINGREQ );
@@ -170,8 +172,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
 
     SECTION( "control packet type bits 7, 6 and 4/no flags are set" )
     {
-        const uint8_t type_and_flags = 0xD0;
-        const uint32_t remaining_length = 325678;
+        const std::uint8_t type_and_flags = 0xD0;
+        const std::uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::Type::PINGRESP );
@@ -179,8 +181,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
 
     SECTION( "control packet type bits 7, 6 and 5/no flags are set" )
     {
-        const uint8_t type_and_flags = 0xE0;
-        const uint32_t remaining_length = 325678;
+        const std::uint8_t type_and_flags = 0xE0;
+        const std::uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::Type::DISCONNECT );
@@ -188,8 +190,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
 
     SECTION( "all control packet type bits/no flags are set" )
     {
-        const uint8_t type_and_flags = 0xF0;
-        const uint32_t remaining_length = 325678;
+        const std::uint8_t type_and_flags = 0xF0;
+        const std::uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.type( ) == packet::Type::RESERVED2 );
@@ -197,8 +199,8 @@ TEST_CASE( "An MQTT header is read", "[header]" )
 
     SECTION( "all control packet type bits/flag bit 0 are set" )
     {
-        const uint8_t type_and_flags = 0xF1;
-        const uint32_t remaining_length = 325678;
+        const std::uint8_t type_and_flags = 0xF1;
+        const std::uint32_t remaining_length = 325678;
         const packet::header under_test( type_and_flags, remaining_length );
 
         REQUIRE( under_test.flags( ).retain( ) );
@@ -209,7 +211,7 @@ SCENARIO( "converting a header byte into Type", "[packets]" )
 {
     GIVEN( "a byte encoding type PUBREL with some header flags set" )
     {
-        const uint8_t input = 0x6F;
+        const std::uint8_t input = 0x6F;
 
         WHEN( "a caller passes that byte into type_of()" )
         {
@@ -227,8 +229,8 @@ SCENARIO( "writing a Type into a header byte", "[packets]" )
 {
     GIVEN( "a header byte with type CONNECT and some flags set" )
     {
-        uint8_t header_byte = 0x1E;
-        const uint8_t expected_header_byte = 0x3E;
+        std::uint8_t header_byte = 0x1E;
+        const std::uint8_t expected_header_byte = 0x3E;
 
         WHEN( "a caller passes type PUBLISH and the given header byte into type_into()" )
         {
@@ -246,13 +248,13 @@ SCENARIO( "calculating a packet's total length in bytes on the wire", "[packets]
 {
     GIVEN( "a fixed header with remaining length 126" )
     {
-        const uint8_t type_and_flags = 0xF1;
-        const uint32_t remaining_length = 126;
+        const std::uint8_t type_and_flags = 0xF1;
+        const std::uint32_t remaining_length = 126;
         const packet::header under_test( type_and_flags, remaining_length );
 
         WHEN( "a caller calls total_length()" )
         {
-            const uint32_t total_length = under_test.total_length( );
+            const std::uint32_t total_length = under_test.total_length( );
 
             THEN( "it will see a total length of remaining_length + 2 bytes" )
             {
@@ -263,13 +265,13 @@ SCENARIO( "calculating a packet's total length in bytes on the wire", "[packets]
 
     GIVEN( "a fixed header with remaining length 128" )
     {
-        const uint8_t type_and_flags = 0xF1;
-        const uint32_t remaining_length = 128;
+        const std::uint8_t type_and_flags = 0xF1;
+        const std::uint32_t remaining_length = 128;
         const packet::header under_test( type_and_flags, remaining_length );
 
         WHEN( "a caller calls total_length()" )
         {
-            const uint32_t total_length = under_test.total_length( );
+            const std::uint32_t total_length = under_test.total_length( );
 
             THEN( "it will see a total length of remaining_length + 3 bytes" )
             {
@@ -280,13 +282,13 @@ SCENARIO( "calculating a packet's total length in bytes on the wire", "[packets]
 
     GIVEN( "a fixed header with remaining length 16383" )
     {
-        const uint8_t type_and_flags = 0xF1;
-        const uint32_t remaining_length = 16383;
+        const std::uint8_t type_and_flags = 0xF1;
+        const std::uint32_t remaining_length = 16383;
         const packet::header under_test( type_and_flags, remaining_length );
 
         WHEN( "a caller calls total_length()" )
         {
-            const uint32_t total_length = under_test.total_length( );
+            const std::uint32_t total_length = under_test.total_length( );
 
             THEN( "it will see a total length of remaining_length + 3 bytes" )
             {
@@ -297,13 +299,13 @@ SCENARIO( "calculating a packet's total length in bytes on the wire", "[packets]
 
     GIVEN( "a fixed header with remaining length 16384" )
     {
-        const uint8_t type_and_flags = 0xF1;
-        const uint32_t remaining_length = 16384;
+        const std::uint8_t type_and_flags = 0xF1;
+        const std::uint32_t remaining_length = 16384;
         const packet::header under_test( type_and_flags, remaining_length );
 
         WHEN( "a caller calls total_length()" )
         {
-            const uint32_t total_length = under_test.total_length( );
+            const std::uint32_t total_length = under_test.total_length( );
 
             THEN( "it will see a total length of remaining_length + 4 bytes" )
             {
@@ -314,13 +316,13 @@ SCENARIO( "calculating a packet's total length in bytes on the wire", "[packets]
 
     GIVEN( "a fixed header with remaining length 2097151" )
     {
-        const uint8_t type_and_flags = 0xF1;
-        const uint32_t remaining_length = 2097151;
+        const std::uint8_t type_and_flags = 0xF1;
+        const std::uint32_t remaining_length = 2097151;
         const packet::header under_test( type_and_flags, remaining_length );
 
         WHEN( "a caller calls total_length()" )
         {
-            const uint32_t total_length = under_test.total_length( );
+            const std::uint32_t total_length = under_test.total_length( );
 
             THEN( "it will see a total length of remaining_length + 4 bytes" )
             {
@@ -331,13 +333,13 @@ SCENARIO( "calculating a packet's total length in bytes on the wire", "[packets]
 
     GIVEN( "a fixed header with remaining length 2097152" )
     {
-        const uint8_t type_and_flags = 0xF1;
-        const uint32_t remaining_length = 2097152;
+        const std::uint8_t type_and_flags = 0xF1;
+        const std::uint32_t remaining_length = 2097152;
         const packet::header under_test( type_and_flags, remaining_length );
 
         WHEN( "a caller calls total_length()" )
         {
-            const uint32_t total_length = under_test.total_length( );
+            const std::uint32_t total_length = under_test.total_length( );
 
             THEN( "it will see a total length of remaining_length + 5 bytes" )
             {
@@ -348,13 +350,13 @@ SCENARIO( "calculating a packet's total length in bytes on the wire", "[packets]
 
     GIVEN( "a fixed header with remaining length 268435455" )
     {
-        const uint8_t type_and_flags = 0xF1;
-        const uint32_t remaining_length = 268435455;
+        const std::uint8_t type_and_flags = 0xF1;
+        const std::uint32_t remaining_length = 268435455;
         const packet::header under_test( type_and_flags, remaining_length );
 
         WHEN( "a caller calls total_length()" )
         {
-            const uint32_t total_length = under_test.total_length( );
+            const std::uint32_t total_length = under_test.total_length( );
 
             THEN( "it will see a total length of remaining_length + 5 bytes" )
             {

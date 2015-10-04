@@ -7,29 +7,30 @@
 
 #include <boost/asio.hpp>
 
+#include <boost/log/common.hpp>
+#include <boost/log/trivial.hpp>
+
 #include "io_wally/context.hpp"
-#include "io_wally/app/logging_support.hpp"
+#include "io_wally/logging_support.hpp"
+
+#include "io_wally/protocol/common.hpp"
+
 #include "io_wally/codec/decoder.hpp"
 #include "io_wally/codec/mqtt_packet_decoder.hpp"
 #include "io_wally/codec/mqtt_packet_encoder.hpp"
+
 #include "io_wally/spi/authentication_service_factory.hpp"
-
-using boost::asio::ip::tcp;
-
-using namespace std;
-using namespace io_wally::protocol;
-using namespace io_wally::decoder;
-using namespace io_wally::encoder;
-using namespace io_wally::spi;
 
 namespace io_wally
 {
+    using namespace std;
+
     class mqtt_connection_manager;
 
     struct mqtt_connection_id
     {
        public:
-        mqtt_connection_id( const string username, const tcp::endpoint& client )
+        mqtt_connection_id( const string username, const boost::asio::ip::tcp::endpoint& client )
             : username_( username ), client_( client )
         {
             return;
@@ -40,14 +41,14 @@ namespace io_wally
             return username_;
         }
 
-        const tcp::endpoint& client( )
+        const boost::asio::ip::tcp::endpoint& client( )
         {
             return client_;
         }
 
        private:
         const string username_;
-        const tcp::endpoint& client_;
+        const boost::asio::ip::tcp::endpoint& client_;
     };
 
     typedef vector<uint8_t>::iterator buf_iter;
@@ -62,7 +63,9 @@ namespace io_wally
         typedef boost::shared_ptr<mqtt_connection> pointer;
 
         /// Factory method for \c mqtt_connections.
-        static pointer create( tcp::socket socket, mqtt_connection_manager& session_manager, const context& context );
+        static pointer create( boost::asio::ip::tcp::socket socket,
+                               mqtt_connection_manager& session_manager,
+                               const context& context );
 
         /// Naturally, mqtt_connections cannot be copied.
         mqtt_connection( const mqtt_connection& ) = delete;
@@ -88,7 +91,7 @@ namespace io_wally
 
        private:
         /// Hide constructor since we MUST be created by static factory method 'create' above
-        explicit mqtt_connection( tcp::socket socket,
+        explicit mqtt_connection( boost::asio::ip::tcp::socket socket,
                                   mqtt_connection_manager& session_manager,
                                   const context& context );
 
@@ -96,17 +99,18 @@ namespace io_wally
 
         void on_header_data_read( const boost::system::error_code& ec, const size_t bytes_transferred );
 
-        void read_body( const header_decoder::result<buf_iter>& header_parse_result, const size_t bytes_transferred );
+        void read_body( const decoder::header_decoder::result<buf_iter>& header_parse_result,
+                        const size_t bytes_transferred );
 
-        void on_body_data_read( const header_decoder::result<buf_iter>& header_parse_result,
+        void on_body_data_read( const decoder::header_decoder::result<buf_iter>& header_parse_result,
                                 const boost::system::error_code& ec,
                                 const size_t bytes_transferred );
 
-        void dispatch_decoded_packet( const mqtt_packet& packet );
+        void dispatch_decoded_packet( const protocol::mqtt_packet& packet );
 
-        void write_packet( const mqtt_packet& packet );
+        void write_packet( const protocol::mqtt_packet& packet );
 
-        void write_packet_and_close_session( const mqtt_packet& packet, const string& message );
+        void write_packet_and_close_session( const protocol::mqtt_packet& packet, const string& message );
 
        private:
         /// Our ID, only assigned once we have been authenticated
@@ -116,13 +120,13 @@ namespace io_wally
         bool authenticated = false;
 
         /// Somehow we need to parse those headers
-        header_decoder header_decoder_{};
+        decoder::header_decoder header_decoder_{};
 
         /// And while we are at it, why not parse the rest of those packets, too?
-        const mqtt_packet_decoder<buf_iter> packet_decoder_{};
+        const decoder::mqtt_packet_decoder<buf_iter> packet_decoder_{};
 
         /// Encode outgoing packets
-        const mqtt_packet_encoder<buf_iter> packet_encoder_{};
+        const encoder::mqtt_packet_encoder<buf_iter> packet_encoder_{};
 
         /// Our severity-enabled channel logger
         boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
@@ -130,7 +134,7 @@ namespace io_wally
             keywords::severity = lvl::trace};
 
         /// The client socket this session is connected to
-        tcp::socket socket_;
+        boost::asio::ip::tcp::socket socket_;
 
         /// Our session manager, responsible for managing our lifecycle
         mqtt_connection_manager& session_manager_;

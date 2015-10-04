@@ -3,10 +3,10 @@
 #include "io_wally/codec/encoder.hpp"
 #include "io_wally/protocol/pingresp_packet.hpp"
 
-using namespace io_wally::protocol;
-
 namespace io_wally
 {
+    using namespace std;
+
     namespace encoder
     {
         /// \brief Encoder for PINGRESP packet bodies.
@@ -26,10 +26,10 @@ namespace io_wally
             /// \param buf_start      Start of buffer to encode \c mqtt_packet into
             /// \return         \c OutputIterator that points immediately past the last byte written
             /// \throws std::invalid_argument   If \c pingresp_packet is not a \c pingresp instance
-            OutputIterator encode( const mqtt_packet& pingresp_packet, OutputIterator buf_start ) const
+            OutputIterator encode( const protocol::mqtt_packet& pingresp_packet, OutputIterator buf_start ) const
             {
-                if ( pingresp_packet.header( ).type( ) != packet::Type::PINGRESP )
-                    throw std::invalid_argument( "Supplied packet is not a PINGRESP packet" );
+                if ( pingresp_packet.header( ).type( ) != protocol::packet::Type::PINGRESP )
+                    throw invalid_argument( "Supplied packet is not a PINGRESP packet" );
 
                 return buf_start;
             }

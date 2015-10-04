@@ -7,11 +7,11 @@
 
 #include "io_wally/spi/authentication_service_factory.hpp"
 
-using namespace std;
-namespace options = boost::program_options;
-
 namespace io_wally
 {
+    using namespace std;
+    namespace options = boost::program_options;
+
     struct context
     {
        public:

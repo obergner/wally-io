@@ -3,10 +3,10 @@
 #include <cstdint>
 #include <string>
 
-using namespace std;
-
 namespace io_wally
 {
+    using namespace std;
+
     namespace defaults
     {
         static const uint32_t DEFAULT_CONNECT_TIMEOUT_MS = 1000;

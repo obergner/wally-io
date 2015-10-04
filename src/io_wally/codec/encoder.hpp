@@ -1,20 +1,15 @@
 #pragma once
 
-#include <stdio.h>
-#include <string.h>
-
+#include <string>
+#include <cstdint>
 #include <stdexcept>
-#include <memory>
-#include <tuple>
-
-#include <boost/optional.hpp>
 
 #include "io_wally/protocol/common.hpp"
 
-using namespace io_wally::protocol;
-
 namespace io_wally
 {
+    using namespace std;
+
     /// \brief Namespace for grouping types and functions related to encoding \c mqtt_packets.
     ///
     /// Most important classes in this namespace are arguably
@@ -36,13 +31,13 @@ namespace io_wally
             ///
             ///  - Packet is longer than allowed by the rules around remaining lengt
             ///
-            class illegal_mqtt_packet : public std::runtime_error
+            class illegal_mqtt_packet : public runtime_error
             {
                public:
                 /// Create a new illegal_mqtt_packet, using the supplied reason.
                 ///
                 /// \param what      Reason
-                illegal_mqtt_packet( const std::string& what ) : runtime_error( what )
+                illegal_mqtt_packet( const string& what ) : runtime_error( what )
                 {
                     return;
                 }
@@ -129,7 +124,7 @@ namespace io_wally
         ///
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718016
         template <typename OutputIterator>
-        inline OutputIterator encode_utf8_string( const std::string& value, OutputIterator buf_start )
+        inline OutputIterator encode_utf8_string( const string& value, OutputIterator buf_start )
         {
             if ( value.length( ) > MAX_STRING_LENGTH )
                 throw error::illegal_mqtt_packet( "Supplied UTF-8 string is longer than allowed maximum" );
@@ -153,7 +148,7 @@ namespace io_wally
         ///
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718020
         template <typename OutputIterator>
-        OutputIterator encode_header( const packet::header& header, OutputIterator buf_start )
+        OutputIterator encode_header( const protocol::packet::header& header, OutputIterator buf_start )
         {
             *buf_start++ = header.type_and_flags( );
             buf_start = encode_remaining_length( header.remaining_length( ), buf_start );
@@ -175,7 +170,7 @@ namespace io_wally
             /// \param packet        \c mqtt_packet to encode the body of
             /// \param buf_start     Start of buffer to encode packet body into
             /// \return              An \c OutputIterator pointing immediately past the last byte written
-            virtual OutputIterator encode( const mqtt_packet& packet, OutputIterator buf_start ) const = 0;
+            virtual OutputIterator encode( const protocol::mqtt_packet& packet, OutputIterator buf_start ) const = 0;
         };  // packet_body_encoder
 
     }  /// namespace encoder

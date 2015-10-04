@@ -1,12 +1,14 @@
-#include "io_wally/app/logging.hpp"
 #include "io_wally/mqtt_server.hpp"
 
-using boost::asio::ip::tcp;
+#include <boost/log/common.hpp>
+#include <boost/log/trivial.hpp>
 
-using namespace std;
+#include "io_wally/logging_support.hpp"
+#include "io_wally/app/logging.hpp"
 
 namespace io_wally
 {
+    using namespace std;
 
     mqtt_server::mqtt_server( io_wally::context context ) : context_{move( context )}
     {

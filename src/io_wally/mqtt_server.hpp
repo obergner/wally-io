@@ -4,16 +4,14 @@
 
 #include <boost/asio.hpp>
 
+#include <boost/log/common.hpp>
+#include <boost/log/trivial.hpp>
+
+#include "io_wally/logging_support.hpp"
 #include "io_wally/context.hpp"
 #include "io_wally/mqtt_connection.hpp"
 #include "io_wally/mqtt_connection_manager.hpp"
-#include "io_wally/app/logging_support.hpp"
 #include "io_wally/spi/authentication_service_factory.hpp"
-
-using boost::asio::ip::tcp;
-
-using namespace std;
-using namespace io_wally::spi;
 
 namespace io_wally
 {

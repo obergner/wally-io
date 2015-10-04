@@ -1,16 +1,9 @@
 #pragma once
 
-#include <cstdint>
-
 #include <boost/program_options.hpp>
 
 #include "io_wally/mqtt_server.hpp"
 #include "io_wally/app/options_parser.hpp"
-#include "io_wally/spi/authentication_service_factory.hpp"
-
-using namespace std;
-
-namespace options = boost::program_options;
 
 namespace io_wally
 {
@@ -42,7 +35,7 @@ namespace io_wally
 
            private:
             const options_parser options_parser_{};
-            unique_ptr<io_wally::mqtt_server> server_{};
+            unique_ptr<mqtt_server> server_{};
         };  // class application
     }       // namespace app
 }  // namespace io_wally

@@ -2,6 +2,10 @@
 
 #include <set>
 
+#include <boost/log/common.hpp>
+#include <boost/log/trivial.hpp>
+
+#include "io_wally/logging_support.hpp"
 #include "io_wally/mqtt_connection.hpp"
 
 namespace io_wally

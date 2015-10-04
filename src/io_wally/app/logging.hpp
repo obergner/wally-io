@@ -1,18 +1,10 @@
 #pragma once
 
-#include "io_wally/app/logging_support.hpp"
+#include <ostream>
 
 #include <boost/asio.hpp>
 
 #include <boost/program_options.hpp>
-
-#include <boost/log/expressions.hpp>
-#include <boost/log/sinks/text_file_backend.hpp>
-#include <boost/log/utility/setup/console.hpp>
-#include <boost/log/utility/setup/file.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
-
-namespace options = boost::program_options;
 
 namespace io_wally
 {
@@ -27,7 +19,7 @@ namespace io_wally
         /// console logging.
         ///
         /// \param config    Configuration to use when setting up logging
-        void init_logging( const options::variables_map& config );
+        void init_logging( const boost::program_options::variables_map& config );
     }
 }
 

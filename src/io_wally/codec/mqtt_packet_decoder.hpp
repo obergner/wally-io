@@ -1,13 +1,18 @@
 #pragma once
 
+#include <cassert>
+#include <memory>
+
+#include "io_wally/protocol/common.hpp"
+
 #include "io_wally/codec/connect_packet_decoder.hpp"
 #include "io_wally/codec/disconnect_packet_decoder.hpp"
 #include "io_wally/codec/pingreq_packet_decoder.hpp"
 
-using namespace io_wally::protocol;
-
 namespace io_wally
 {
+    using namespace std;
+
     namespace decoder
     {
         /// \brief Decoder for MQTT packets of arbitrary but known type.
@@ -41,40 +46,40 @@ namespace io_wally
             ///             an \c mqtt_packet's on the wire format.
             /// \pre        \c buf_end points immediately past the last byte in a buffer representing an
             ///             \c mqtt_packet's on the wire format.
-            std::unique_ptr<const mqtt_packet> decode( const packet::header& header,
-                                                       InputIterator buf_start,
-                                                       const InputIterator buf_end ) const
+            unique_ptr<const protocol::mqtt_packet> decode( const protocol::packet::header& header,
+                                                            InputIterator buf_start,
+                                                            const InputIterator buf_end ) const
             {
                 return body_decoder_for( header ).decode( header, buf_start, buf_end );
             }
 
            private:
             /// Methods
-            const packet_body_decoder<InputIterator>& body_decoder_for( const packet::header& header ) const
+            const packet_body_decoder<InputIterator>& body_decoder_for( const protocol::packet::header& header ) const
             {
                 switch ( header.type( ) )
                 {
-                    case packet::Type::CONNECT:
+                    case protocol::packet::Type::CONNECT:
                         return connect_packet_decoder_;
-                    case packet::Type::PINGREQ:
+                    case protocol::packet::Type::PINGREQ:
                         return pingreq_packet_decoder_;
-                    case packet::Type::DISCONNECT:
+                    case protocol::packet::Type::DISCONNECT:
                         return disconnect_packet_decoder_;
-                    case packet::Type::CONNACK:
-                    case packet::Type::PUBLISH:
-                    case packet::Type::PUBACK:
-                    case packet::Type::PUBREL:
-                    case packet::Type::PUBREC:
-                    case packet::Type::PUBCOMP:
-                    case packet::Type::SUBSCRIBE:
-                    case packet::Type::SUBACK:
-                    case packet::Type::UNSUBSCRIBE:
-                    case packet::Type::UNSUBACK:
-                    case packet::Type::PINGRESP:
-                    case packet::Type::RESERVED1:
-                    case packet::Type::RESERVED2:
+                    case protocol::packet::Type::CONNACK:
+                    case protocol::packet::Type::PUBLISH:
+                    case protocol::packet::Type::PUBACK:
+                    case protocol::packet::Type::PUBREL:
+                    case protocol::packet::Type::PUBREC:
+                    case protocol::packet::Type::PUBCOMP:
+                    case protocol::packet::Type::SUBSCRIBE:
+                    case protocol::packet::Type::SUBACK:
+                    case protocol::packet::Type::UNSUBSCRIBE:
+                    case protocol::packet::Type::UNSUBACK:
+                    case protocol::packet::Type::PINGRESP:
+                    case protocol::packet::Type::RESERVED1:
+                    case protocol::packet::Type::RESERVED2:
                     default:
-                        throw std::invalid_argument( "Unsupported MQTT control packet type" );
+                        throw invalid_argument( "Unsupported MQTT control packet type" );
                 }
 
                 assert( false );

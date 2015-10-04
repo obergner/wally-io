@@ -1,5 +1,7 @@
 #include "catch.hpp"
 
+#include <cstdint>
+
 #include "io_wally/protocol/pingreq_packet.hpp"
 
 using namespace io_wally::protocol;
@@ -28,7 +30,7 @@ SCENARIO( "pingreq packet", "[packets]" )
 
         WHEN( "a caller asks for its remaining_length" )
         {
-            const uint32_t remaining_length = under_test.header( ).remaining_length( );
+            const std::uint32_t remaining_length = under_test.header( ).remaining_length( );
 
             THEN( "it should see 0" )
             {
@@ -43,7 +45,7 @@ SCENARIO( "pingreq packet", "[packets]" )
 
         WHEN( "a caller asks for its total_length" )
         {
-            const uint32_t total_length = under_test.header( ).total_length( );
+            const std::uint32_t total_length = under_test.header( ).total_length( );
 
             THEN( "it should see 2" )
             {

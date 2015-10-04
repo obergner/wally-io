@@ -1,21 +1,24 @@
 #include "catch.hpp"
 
+#include <cstdint>
+#include <array>
+
 #include "io_wally/codec/connack_packet_encoder.hpp"
 
 using namespace io_wally;
 
-typedef std::array<const uint8_t, 2>::iterator out_iter;
+typedef std::array<const std::uint8_t, 2>::iterator out_iter;
 
 SCENARIO( "connack_packet_encoder", "[encoder]" )
 {
-    encoder::connack_packet_encoder<uint8_t*> under_test;
+    encoder::connack_packet_encoder<std::uint8_t*> under_test;
 
     GIVEN( "a connack packet with session present flag set and return code 'CONNECTION_ACCEPTED'" )
     {
-        const connack connack( true, connect_return_code::CONNECTION_ACCEPTED );
+        const protocol::connack connack( true, protocol::connect_return_code::CONNECTION_ACCEPTED );
 
-        std::array<uint8_t, 2> result = {{0x00, 0x00}};
-        const std::array<uint8_t, 2> expected_result = {{0x01, 0x00}};
+        std::array<std::uint8_t, 2> result = {{0x00, 0x00}};
+        const std::array<std::uint8_t, 2> expected_result = {{0x01, 0x00}};
 
         WHEN( "a client passes that packet into connack_packet_encoder::encode" )
         {
@@ -35,10 +38,10 @@ SCENARIO( "connack_packet_encoder", "[encoder]" )
 
     GIVEN( "a connack packet with session present flag not set and return code 'IDENTIFIER_REJECTED'" )
     {
-        const connack connack( false, connect_return_code::IDENTIFIER_REJECTED );
+        const protocol::connack connack( false, protocol::connect_return_code::IDENTIFIER_REJECTED );
 
-        std::array<uint8_t, 2> result = {{0xFF, 0xFF}};
-        const std::array<uint8_t, 2> expected_result = {{0x00, 0x02}};
+        std::array<std::uint8_t, 2> result = {{0xFF, 0xFF}};
+        const std::array<std::uint8_t, 2> expected_result = {{0x00, 0x02}};
 
         WHEN( "a client passes that packet into connack_packet_encoder::encode" )
         {

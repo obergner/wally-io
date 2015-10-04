@@ -5,10 +5,10 @@
 
 #include "io_wally/protocol/common.hpp"
 
-using boost::uint8_t;
-
 namespace io_wally
 {
+    using namespace std;
+
     namespace protocol
     {
         /// \brief DISCONNECT packet, sent by clients when about to terminate a session.
@@ -24,9 +24,9 @@ namespace io_wally
             }
 
             /// \return A string representation to be used in log output
-            virtual const std::string to_string( ) const override
+            virtual const string to_string( ) const override
             {
-                std::ostringstream output;
+                ostringstream output;
                 output << "disconnect[]";
 
                 return output.str( );

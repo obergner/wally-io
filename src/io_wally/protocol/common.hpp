@@ -1,14 +1,14 @@
 #pragma once
 
+#include <cstdint>
+#include <string>
 #include <cassert>
 #include <iostream>
 
-#include <boost/cstdint.hpp>
-
-using boost::uint8_t;
-
 namespace io_wally
 {
+    using namespace std;
+
     /// \brief Namespace for MQTT Control Packet implementations.
     ///
     /// This namespace models MQTT "domain" classes, i.e. all MQTT Control Packets:

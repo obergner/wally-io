@@ -1,5 +1,10 @@
 #include "io_wally/mqtt_connection_manager.hpp"
 
+#include <boost/log/common.hpp>
+#include <boost/log/trivial.hpp>
+
+#include "io_wally/logging_support.hpp"
+
 namespace io_wally
 {
     mqtt_connection_manager::mqtt_connection_manager( )

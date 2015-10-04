@@ -1,20 +1,19 @@
 #pragma once
 
-#include <stdio.h>
-#include <string.h>
-
+#include <cstdint>
+#include <cstring>
+#include <string>
 #include <stdexcept>
 #include <memory>
-#include <tuple>
 
 #include <boost/optional.hpp>
 
 #include "io_wally/protocol/common.hpp"
 
-using namespace io_wally::protocol;
-
 namespace io_wally
 {
+    using namespace std;
+
     /// \brief Namespace for grouping types and functions related to decoding \c mqtt_packets.
     ///
     /// Most important classes in this namespace are arguably
@@ -40,13 +39,13 @@ namespace io_wally
             ///  - Username field was flagged as being present in a \c connect packet's variable header, yet is
             ///    actually missing in the payload
             ///
-            class malformed_mqtt_packet : public std::runtime_error
+            class malformed_mqtt_packet : public runtime_error
             {
                public:
                 /// Create a new \c malformed_mqtt_packet instance, using the supplied reason.
                 ///
                 /// \param what      Reason
-                malformed_mqtt_packet( const std::string& what ) : runtime_error( what )
+                malformed_mqtt_packet( const string& what ) : runtime_error( what )
                 {
                     return;
                 }
@@ -148,7 +147,7 @@ namespace io_wally
                         const uint32_t remaining_length,
                         const InputIterator consumed_until )
                     : parse_state_{ParseState::COMPLETE},
-                      parsed_header_{packet::header( type_and_flags, remaining_length )},
+                      parsed_header_{protocol::packet::header( type_and_flags, remaining_length )},
                       consumed_until_{consumed_until}
                 {
                     return;
@@ -169,7 +168,7 @@ namespace io_wally
                 /// \brief Return the parsed \c header.
                 ///
                 /// \attention This method MUST NOT BE CALLED if \c parse_state() is \c ParseState::INCOMPLETE.
-                const packet::header parsed_header( ) const
+                const protocol::packet::header parsed_header( ) const
                 {
                     return parsed_header_.get( );
                 }
@@ -182,7 +181,7 @@ namespace io_wally
 
                private:
                 const ParseState parse_state_;
-                const boost::optional<packet::header> parsed_header_;
+                const boost::optional<protocol::packet::header> parsed_header_;
                 const boost::optional<InputIterator> consumed_until_;
             };
 
@@ -398,9 +397,9 @@ namespace io_wally
             ///             \c mqtt_packet's on the wire format.
             /// \pre        \c header is of the same MQTT Control Packet type as this \c packet_body_decoder
             ///             expects to decode.
-            virtual std::unique_ptr<const mqtt_packet> decode( const packet::header& header,
-                                                               InputIterator buf_start,
-                                                               const InputIterator buf_end ) const = 0;
+            virtual unique_ptr<const protocol::mqtt_packet> decode( const protocol::packet::header& header,
+                                                                    InputIterator buf_start,
+                                                                    const InputIterator buf_end ) const = 0;
         };  // packet_body_decoder
 
     }  /// namespace decoder

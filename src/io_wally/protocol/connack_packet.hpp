@@ -1,19 +1,18 @@
 #pragma once
 
+#include <cstdint>
 #include <cassert>
 #include <string>
 #include <sstream>
 
-#include <boost/cstdint.hpp>
 #include <boost/optional.hpp>
 
 #include "io_wally/protocol/common.hpp"
 
-using boost::uint8_t;
-using boost::optional;
-
 namespace io_wally
 {
+    using namespace std;
+
     namespace protocol
     {
         /// \brief Allowed connect return codes as defined by MQTT 3.1.1
@@ -46,7 +45,7 @@ namespace io_wally
         /// \brief Overload stream output operator for \c connect_return_code.
         ///
         /// Overload stream output operator for \c connect_return_code, primarily to facilitate logging.
-        inline std::ostream& operator<<( std::ostream& output, connect_return_code const& return_code )
+        inline ostream& operator<<( ostream& output, connect_return_code const& return_code )
         {
             switch ( return_code )
             {
@@ -128,7 +127,7 @@ namespace io_wally
         /// \brief Overload stream output operator for \c connack_header.
         ///
         /// Overload stream output operator for \c connack_header, primarily to facilitate logging.
-        inline std::ostream& operator<<( std::ostream& output, connack_header const& connack_header )
+        inline ostream& operator<<( ostream& output, connack_header const& connack_header )
         {
             output << "connack_header[session_present:" << connack_header.is_session_present( )
                    << "|return_code:" << connack_header.return_code( ) << "]";
@@ -154,9 +153,9 @@ namespace io_wally
             }
 
             /// \return A string representation to be used in log output
-            virtual const std::string to_string( ) const override
+            virtual const string to_string( ) const override
             {
-                std::ostringstream output;
+                ostringstream output;
                 output << "connack[" << connack_header( ) << "]";
 
                 return output.str( );

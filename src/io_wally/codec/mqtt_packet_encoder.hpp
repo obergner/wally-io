@@ -4,10 +4,10 @@
 #include "io_wally/codec/connack_packet_encoder.hpp"
 #include "io_wally/codec/pingresp_packet_encoder.hpp"
 
-using namespace io_wally::protocol;
-
 namespace io_wally
 {
+    using namespace std;
+
     namespace encoder
     {
         /// \brief Encoder for MQTT packets.
@@ -22,52 +22,53 @@ namespace io_wally
             ///
             /// Encode \c mqtt_packet into buffer starting at \c buf_start, extending to \c buf_end. Return an
             /// \c OutputIterator that points immediately past the last byte written.
-            /// If buffer is too small to accommodate \c mqtt_packet, throw std::invalid_argument. If \c mqtt_packet
+            /// If buffer is too small to accommodate \c mqtt_packet, throw invalid_argument. If \c mqtt_packet
             /// does not conform to spec, throw error::invalid_mqtt_packet.
             ///
             /// \param mqtt_packet      \c mqtt_packet to encode
             /// \param buf_start        Start of buffer to encode \c mqtt_packet into
             /// \param buf_end          End of buffer to encode \c mqtt_packet into
             /// \return         \c OutputIterator that points immediately past the last byte written
-            /// \throws std::invalid_argument   If buffer is too small for \c mqtt_packet
+            /// \throws invalid_argument   If buffer is too small for \c mqtt_packet
             /// \throws error::invalid_mqtt_packet      If \c mqtt_packet does not conform to spec
-            OutputIterator encode( const mqtt_packet& mqtt_packet,
+            OutputIterator encode( const protocol::mqtt_packet& mqtt_packet,
                                    OutputIterator buf_start,
                                    OutputIterator buf_end ) const
             {
                 buf_start = encode_header( mqtt_packet.header( ), buf_start );
                 if ( ( buf_end - buf_start ) < mqtt_packet.header( ).remaining_length( ) )
-                    throw std::invalid_argument( "Supplied buffer is too small for encoding mqtt packet" );
+                    throw invalid_argument( "Supplied buffer is too small for encoding mqtt packet" );
 
                 return body_encoder_for( mqtt_packet ).encode( mqtt_packet, buf_start );
             }
 
            private:
             /// Methods
-            const packet_body_encoder<OutputIterator>& body_encoder_for( const mqtt_packet& mqtt_packet ) const
+            const packet_body_encoder<OutputIterator>& body_encoder_for(
+                const protocol::mqtt_packet& mqtt_packet ) const
             {
                 switch ( mqtt_packet.header( ).type( ) )
                 {
-                    case packet::Type::CONNACK:
+                    case protocol::packet::Type::CONNACK:
                         return connack_encoder_;
-                    case packet::Type::PINGRESP:
+                    case protocol::packet::Type::PINGRESP:
                         return pingresp_encoder_;
-                    case packet::Type::CONNECT:
-                    case packet::Type::PINGREQ:
-                    case packet::Type::DISCONNECT:
-                    case packet::Type::PUBLISH:
-                    case packet::Type::PUBACK:
-                    case packet::Type::PUBREL:
-                    case packet::Type::PUBREC:
-                    case packet::Type::PUBCOMP:
-                    case packet::Type::SUBSCRIBE:
-                    case packet::Type::SUBACK:
-                    case packet::Type::UNSUBSCRIBE:
-                    case packet::Type::UNSUBACK:
-                    case packet::Type::RESERVED1:
-                    case packet::Type::RESERVED2:
+                    case protocol::packet::Type::CONNECT:
+                    case protocol::packet::Type::PINGREQ:
+                    case protocol::packet::Type::DISCONNECT:
+                    case protocol::packet::Type::PUBLISH:
+                    case protocol::packet::Type::PUBACK:
+                    case protocol::packet::Type::PUBREL:
+                    case protocol::packet::Type::PUBREC:
+                    case protocol::packet::Type::PUBCOMP:
+                    case protocol::packet::Type::SUBSCRIBE:
+                    case protocol::packet::Type::SUBACK:
+                    case protocol::packet::Type::UNSUBSCRIBE:
+                    case protocol::packet::Type::UNSUBACK:
+                    case protocol::packet::Type::RESERVED1:
+                    case protocol::packet::Type::RESERVED2:
                     default:
-                        throw std::invalid_argument( "Unsupported packet type" );
+                        throw invalid_argument( "Unsupported packet type" );
                 }
                 assert( false );
             }

@@ -1,12 +1,15 @@
 #pragma once
 
-#include "io_wally/codec/encoder.hpp"
-#include "io_wally/protocol/connack_packet.hpp"
+#include <cstdint>
 
-using namespace io_wally::protocol;
+#include "io_wally/codec/encoder.hpp"
+#include "io_wally/protocol/common.hpp"
+#include "io_wally/protocol/connack_packet.hpp"
 
 namespace io_wally
 {
+    using namespace std;
+
     namespace encoder
     {
         /// \brief Encoder for CONNACK packet bodies.
@@ -26,12 +29,14 @@ namespace io_wally
             /// \param connack_packet \c connack packet to encode
             /// \param buf_start      Start of buffer to encode \c mqtt_packet into
             /// \return         \c OutputIterator that points immediately past the last byte written
-            /// \throws std::invalid_argument   If \c connack_packet is not a \c connack instance
+            /// \throws invalid_argument   If \c connack_packet is not a \c connack instance
             /// \throws error::invalid_mqtt_packet      If \c connack does not conform to spec
-            OutputIterator encode( const mqtt_packet& connack_packet, OutputIterator buf_start ) const
+            OutputIterator encode( const protocol::mqtt_packet& connack_packet, OutputIterator buf_start ) const
             {
+                using namespace io_wally::protocol;
+
                 if ( connack_packet.header( ).type( ) != packet::Type::CONNACK )
-                    throw std::invalid_argument( "Supplied packet is not a CONNACK packet" );
+                    throw invalid_argument( "Supplied packet is not a CONNACK packet" );
                 const connack& connack = dynamic_cast<const struct connack&>( connack_packet );
                 const uint8_t first_byte = ( connack.connack_header( ).is_session_present( ) ? 0x01 : 0x00 );
                 uint8_t second_byte;

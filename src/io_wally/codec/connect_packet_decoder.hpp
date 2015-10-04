@@ -1,14 +1,17 @@
 #pragma once
 
+#include <cassert>
+#include <cstdint>
 #include <sstream>
+#include <memory>
 
 #include "io_wally/protocol/connect_packet.hpp"
 #include "io_wally/codec/decoder.hpp"
 
-using namespace io_wally::protocol;
-
 namespace io_wally
 {
+    using namespace std;
+
     namespace decoder
     {
         /// \brief \c packet_body_decoder implementation for CONNECT packets.
@@ -25,17 +28,19 @@ namespace io_wally
             ///
             /// \see io_wally::protocol::decoder::packet_body_decoder::parse
             ///
-            virtual std::unique_ptr<const mqtt_packet> decode( const packet::header& header,
-                                                               InputIterator buf_start,
-                                                               const InputIterator buf_end ) const
+            virtual unique_ptr<const protocol::mqtt_packet> decode( const protocol::packet::header& header,
+                                                                    InputIterator buf_start,
+                                                                    const InputIterator buf_end ) const
             {
+                using namespace io_wally::protocol;
+
                 // TODO:: consider removing this assert in release build
                 assert( header.type( ) == packet::Type::CONNECT );
 
                 // Check that size of supplied buffer corresponds to remaining length as advertised in header
                 if ( ( buf_end - buf_start ) != header.remaining_length( ) )
                 {
-                    std::ostringstream message;
+                    ostringstream message;
                     message << "Size of supplied buffer does not correspond to "
                             << "remaining length as advertised in header: [expected:" << header.remaining_length( )
                             << "|actual:" << ( buf_end - buf_start ) << "]";
@@ -91,8 +96,8 @@ namespace io_wally
 
                 struct connect_payload connect_pyl( client_id, last_will_topic, last_will_msg, username, password );
 
-                std::unique_ptr<const mqtt_packet> result(
-                    new protocol::connect( std::move( header ), std::move( connect_hdr ), std::move( connect_pyl ) ) );
+                unique_ptr<const mqtt_packet> result(
+                    new protocol::connect( move( header ), move( connect_hdr ), move( connect_pyl ) ) );
 
                 return result;
             }

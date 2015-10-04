@@ -25,6 +25,9 @@ CXXFLAGS	    += -Wredundant-decls
 CXXFLAGS	    += -Wswitch-default
 CXXFLAGS	    += -Wswitch-enum
 
+# Standard preprocessor flags
+CPPFLAGS 		:= -DBOOST_ALL_DYN_LINK
+
 CXXRELEASE_FLAGS	+= -O3 # -dNDEBUG
 CXXDEBUG_FLAGS	+= -O0 -g
 CXXDEBUG_FLAGS	+= -D_GLIBCXX_DEBUG
@@ -139,7 +142,7 @@ $(MEXEC)			: $(MOBJS) $(MEXECOBJ) 			| $(MBUILDDIRS)
 	$(CXX) $(LDLIBS) -o $@ $^
 
 $(MBUILD)/%.o		: src/%.cpp						| $(MBUILDDIRS)
-	$(CXX) $(CXXFLAGS) -o $@ -c $<
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ -c $<
 
 # Test
 .PHONY 				: test
