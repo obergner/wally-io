@@ -7,7 +7,6 @@
 
 #include "io_wally/logging_support.hpp"
 #include "io_wally/mqtt_connection_manager.hpp"
-#include "io_wally/app/logging.hpp"
 
 namespace io_wally
 {

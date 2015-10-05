@@ -26,44 +26,57 @@ namespace io_wally
             options::options_description cmd_line_opts( "Command line" );
             cmd_line_opts.add_options( )( context::HELP, "Print help message and exit" )(
                 context::CONFIG_FILE,
-                options::value<string>( )->default_value( DEFAULT_CONFIG_FILE ),
-                "Use configuration from <arg>" );
+                options::value<string>( )->default_value( DEFAULT_CONFIG_FILE )->value_name( "<file>" ),
+                "Read configuration from <file>" );
 
             options::options_description logging_opts( "Logging" );
             logging_opts.add_options( )(
-                context::LOG_FILE, options::value<string>( )->default_value( DEFAULT_LOG_FILE ), "Log to file <arg>" )(
-                context::LOG_SYNC, options::bool_switch( ), "Whether logging should be synchronous (not recommended)" )(
-                context::LOG_CONSOLE, options::bool_switch( ), "Whether to log to console" );
+                context::LOG_FILE,
+                options::value<string>( )->default_value( DEFAULT_LOG_FILE )->value_name( "<file>" ),
+                "Direct log output to <file>" )(
+                context::LOG_SYNC, options::bool_switch( ), "Use synchronous logging (not recommended)" )(
+                context::LOG_CONSOLE, options::bool_switch( ), "Log to console" );
 
             options::options_description server_opts( "Server" );
-            server_opts.add_options( )( context::SERVER_ADDRESS,
-                                        options::value<string>( )->default_value( DEFAULT_SERVER_ADDRESS ),
-                                        "Address server should listen on" )(
+            server_opts.add_options( )(
+                context::SERVER_ADDRESS,
+                options::value<string>( )->default_value( DEFAULT_SERVER_ADDRESS )->value_name( "<IP>" ),
+                "Bind server to <IP>" )(
                 context::SERVER_PORT,
-                options::value<int>( )->default_value( DEFAULT_SERVER_PORT ),
-                "Port server should listen on" );
+                options::value<int>( )->default_value( DEFAULT_SERVER_PORT )->value_name( "<port>" ),
+                "Bind server to <port>" );
 
             options::options_description authentication_opts( "Authentication" );
             authentication_opts.add_options( )(
                 context::AUTHENTICATION_SERVICE_FACTORY,
-                options::value<string>( )->default_value( DEFAULT_AUTHENTICATION_SERVICE_FACTORY ),
-                "Name of authentication service factory" );
+                options::value<string>( )->default_value( DEFAULT_AUTHENTICATION_SERVICE_FACTORY )->value_name(
+                    "<name>" ),
+                "Use authentication service factory <name>" );
 
             options::options_description connection_opts( "Connection" );
-            connection_opts.add_options( )( context::CONNECT_TIMEOUT,
-                                            options::value<uint32_t>( )->default_value( DEFAULT_CONNECT_TIMEOUT_MS ),
-                                            "Connect timeout in ms" )(
+            connection_opts.add_options( )(
+                context::CONNECT_TIMEOUT,
+                options::value<uint32_t>( )->default_value( DEFAULT_CONNECT_TIMEOUT_MS )->value_name( "<timeout>" ),
+                "Close new client connection if not receiving a CONNECT request within <timeout> ms" )(
                 context::READ_BUFFER_SIZE,
-                options::value<size_t>( )->default_value( DEFAULT_INITIAL_READ_BUFFER_SIZE ),
-                "Initial read buffer size in bytes" )(
+                options::value<size_t>( )->default_value( DEFAULT_INITIAL_READ_BUFFER_SIZE )->value_name( "<bytes>" ),
+                "Use initial read buffer of size <bytes>" )(
                 context::WRITE_BUFFER_SIZE,
                 options::value<size_t>( )->default_value( DEFAULT_INITIAL_WRITE_BUFFER_SIZE ),
-                "Initial write buffer size in bytes" );
+                "Use initial write buffer of size <bytes>" );
 
             options::options_description all( "Allowed options" );
             all.add( cmd_line_opts ).add( logging_opts ).add( server_opts ).add( authentication_opts ).add(
                 connection_opts );
             options::store( options::parse_command_line( argc, argv, all ), config );
+
+            //            for ( auto it = config.begin( ); it != config.end( ); ++it )
+            //            {
+            //                std::string raw_option_name = it->first;
+            //                options::variable_value option_value = it->second;
+            //
+            //                raw_option_name.replace( 0, 1, );
+            //            }
 
             options::options_description config_file( "Config file options" );
             config_file.add( logging_opts ).add( server_opts ).add( authentication_opts ).add( connection_opts );

@@ -4,7 +4,6 @@
 #include <boost/log/trivial.hpp>
 
 #include "io_wally/logging_support.hpp"
-#include "io_wally/app/logging.hpp"
 
 namespace io_wally
 {
