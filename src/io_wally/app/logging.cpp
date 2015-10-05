@@ -1,5 +1,6 @@
 #include "io_wally/app/logging.hpp"
 
+#include <string>
 #include <sstream>
 
 #include <boost/program_options.hpp>
@@ -7,51 +8,59 @@
 #include <boost/log/common.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/expressions/keyword.hpp>
-#include <boost/log/sinks/text_file_backend.hpp>
-#include <boost/log/utility/setup/console.hpp>
-#include <boost/log/utility/setup/file.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
+#include <boost/log/utility/setup/formatter_parser.hpp>
+#include <boost/log/utility/setup/settings.hpp>
+#include <boost/log/utility/setup/from_settings.hpp>
 
 #include "io_wally/logging_support.hpp"
 #include "io_wally/context.hpp"
 
 namespace io_wally
 {
+    using namespace std;
     namespace options = boost::program_options;
 
     namespace app
     {
-        /// \see: http://www.boost.org/doc/libs/1_55_0/libs/log/example/doc/tutorial_file.cpp
+        /// \see:
+        /// http://www.boost.org/doc/libs/develop/libs/log/doc/html/log/detailed/utilities.html#log.detailed.utilities.setup
         void init_logging( const options::variables_map& config )
         {
-            namespace sinks = boost::log::sinks;
-
             boost::log::add_common_attributes( );
 
             boost::log::register_simple_formatter_factory<boost::log::trivial::severity_level, char>( "Severity" );
 
-            std::ostringstream log_file_name;
+            ostringstream log_file_name;
             log_file_name << config[context::LOG_FILE].as<const string>( ) << "_%N.log";
-            boost::log::add_file_log(
-                keywords::file_name = log_file_name.str( ),
-                keywords::rotation_size = 10 * 1024 * 1024,
-                keywords::time_based_rotation = sinks::file::rotation_at_time_point( 0, 0, 0 ),
-                keywords::format =
-                    "[%TimeStamp%] [%ProcessID%] [%ThreadID%] [%LineID%] [%Channel%] | %Severity% | %Message%",
-                keywords::auto_flush = true );
+
+            const string log_format =
+                "[%TimeStamp%] [%ProcessID%] [%ThreadID%] [%LineID%] [%Channel%] | %Severity% | %Message%";
+
+            // FIXME: Filter expressions currently do not work using settings container below
+
+            // boost::log::core::get( )->set_filter( boost::log::trivial::severity >= boost::log::trivial::debug );
+            boost::log::settings setts;
+
+            setts["Core"]["DisableLogging"] = false;
+            // setts["Core"]["Filter"] = "%Severity% >= trace"; FIXME
+
+            setts["Sinks"]["File"]["Destination"] = "TextFile";
+            setts["Sinks"]["File"]["FileName"] = log_file_name.str( );
+            setts["Sinks"]["File"]["Format"] = log_format;
+            setts["Sinks"]["File"]["Asynchronous"] = !config[context::LOG_SYNC].as<const bool>( );
+            setts["Sinks"]["File"]["AutoFlush"] = true;
+            setts["Sinks"]["File"]["RotationSize"] = 10 * 1024 * 1024;  // 10 MiB
 
             if ( config[context::LOG_CONSOLE].as<bool>( ) )
             {
-                boost::log::add_console_log(
-                    std::clog,
-                    keywords::format =
-                        "[%TimeStamp%] [%ProcessID%] [%ThreadID%] [%LineID%] [%Channel%] | %Severity% | %Message%",
-                    keywords::auto_flush = true );
+                setts["Sinks"]["Console"]["Destination"] = "Console";
+                setts["Sinks"]["Console"]["Format"] = log_format;
+                setts["Sinks"]["Console"]["AutoFlush"] = true;
+                // setts["Sinks.Console"]["Filter"] = "%Severity% >= 0"; FIXME
             }
 
-            boost::log::core::get( )->set_filter( boost::log::trivial::severity >= boost::log::trivial::debug );
+            boost::log::init_from_settings( setts );
         }
     }
 }
