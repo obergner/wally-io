@@ -5,6 +5,7 @@
 
 #include <boost/program_options.hpp>
 
+#include "io_wally/app/options_parser.hpp"
 #include "io_wally/spi/authentication_service_factory.hpp"
 
 namespace io_wally
@@ -15,27 +16,28 @@ namespace io_wally
     struct context
     {
        public:
-        static constexpr const char* HELP = "help";
+        static constexpr const char* HELP = io_wally::app::options_parser::HELP;
 
-        static constexpr const char* CONFIG_FILE = "conf-file";
+        static constexpr const char* CONFIG_FILE = io_wally::app::options_parser::CONFIG_FILE;
 
-        static constexpr const char* LOG_FILE = "log-file";
+        static constexpr const char* LOG_FILE = io_wally::app::options_parser::LOG_FILE;
 
-        static constexpr const char* LOG_CONSOLE = "log-console";
+        static constexpr const char* LOG_CONSOLE = io_wally::app::options_parser::LOG_CONSOLE;
 
-        static constexpr const char* LOG_SYNC = "log-sync";
+        static constexpr const char* LOG_SYNC = io_wally::app::options_parser::LOG_SYNC;
 
-        static constexpr const char* SERVER_ADDRESS = "server-address";
+        static constexpr const char* SERVER_ADDRESS = io_wally::app::options_parser::SERVER_ADDRESS;
 
-        static constexpr const char* SERVER_PORT = "server-port";
+        static constexpr const char* SERVER_PORT = io_wally::app::options_parser::SERVER_PORT;
 
-        static constexpr const char* AUTHENTICATION_SERVICE_FACTORY = "authentication-service-factory";
+        static constexpr const char* AUTHENTICATION_SERVICE_FACTORY =
+            io_wally::app::options_parser::AUTHENTICATION_SERVICE_FACTORY;
 
-        static constexpr const char* CONNECT_TIMEOUT = "connect-timeout";
+        static constexpr const char* CONNECT_TIMEOUT = io_wally::app::options_parser::CONNECT_TIMEOUT;
 
-        static constexpr const char* READ_BUFFER_SIZE = "read-buffer-size";
+        static constexpr const char* READ_BUFFER_SIZE = io_wally::app::options_parser::READ_BUFFER_SIZE;
 
-        static constexpr const char* WRITE_BUFFER_SIZE = "write-buffer-size";
+        static constexpr const char* WRITE_BUFFER_SIZE = io_wally::app::options_parser::WRITE_BUFFER_SIZE;
 
        public:
         context( const options::variables_map options,

@@ -1,5 +1,6 @@
 #include "io_wally/app/application.hpp"
 
+#include <string>
 #include <iostream>
 #include <fstream>
 
@@ -12,10 +13,28 @@
 
 namespace io_wally
 {
+    using namespace std;
     namespace options = boost::program_options;
 
     namespace app
     {
+        static const string USAGE = R"USG(
+mqttd: MQTT 3.1.1 Broker v. 0.0.1-PREALPHA
+
+mqttd is a fledgling MQTT 3.1.1 broker currently undergoing heavy development.
+PLANNED features include:
+
+ * Full support for the MQTT 3.1.1 specification (way to go)
+ * DBus interface
+ * SYS topics suport
+ * Pluggable authentication providers
+
+DISCLAIMER:
+
+  THIS IS PRE-ALPHA SOFTWARE. It's woefully incomplete, doesn't hold water,
+  and may, and WILL (on a bad day), crash your kernel, nuke your hard drive
+  and insult your girl/boy friend. YOU HAVE BEEN WARNED.
+)USG";
 
         int application::run( int argc, char** argv )
         {
@@ -28,8 +47,8 @@ namespace io_wally
 
                 if ( config.count( context::HELP ) )
                 {
-                    cout << "MQTT 3.1.1 server" << endl << all_opts_desc << endl;
-                    return application::EC_OK;
+                    cout << USAGE << endl << all_opts_desc << endl;
+                    return EC_OK;
                 }
 
                 options::notify( config );
@@ -49,14 +68,14 @@ namespace io_wally
             catch ( const options::error& e )
             {
                 cerr << "Wrong usage: " << e.what( ) << endl;
-                return application::EC_MALFORMED_CMDLINE;
+                return EC_MALFORMED_CMDLINE;
             }
             catch ( const std::exception& e )
             {
                 cerr << "Error: " << e.what( ) << endl;
-                return application::EC_RUNTIME_ERROR;
+                return EC_RUNTIME_ERROR;
             }
-            return application::EC_OK;
+            return EC_OK;
         }
     }  // namespace app
 }

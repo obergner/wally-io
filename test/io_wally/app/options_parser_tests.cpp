@@ -73,13 +73,13 @@ SCENARIO( "options_parser", "[options]" )
                                         "8.9.10.11",
                                         "--server-port",
                                         "1234",
-                                        "--authentication-service-factory",
+                                        "--auth-service-factory",
                                         "test_auth_srvc_factory",
-                                        "--connect-timeout",
+                                        "--conn-timeout",
                                         "3456",
-                                        "--read-buffer-size",
+                                        "--conn-rbuf-size",
                                         "1024",
-                                        "--write-buffer-size",
+                                        "--conn-wbuf-size",
                                         "4096"};
 
         WHEN( "parsing that command line" )
@@ -125,10 +125,10 @@ log-console = true
 log-sync = true
 server-address = 1.1.1.1
 server-port = 99
-authentication-service-factory = config_file_auth_srvc_factory
-connect-timeout = 12
-read-buffer-size = 2345
-write-buffer-size = 8999
+auth-service-factory = config_file_auth_srvc_factory
+conn-timeout = 12
+conn-rbuf-size = 2345
+conn-wbuf-size = 8999
 )CONF";
         {
             std::ofstream conf_file_ofs( conf_file );
