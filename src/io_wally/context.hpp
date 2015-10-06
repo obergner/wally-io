@@ -22,7 +22,11 @@ namespace io_wally
 
         static constexpr const char* LOG_FILE = io_wally::app::options_parser::LOG_FILE;
 
+        static constexpr const char* LOG_FILE_LEVEL = io_wally::app::options_parser::LOG_FILE_LEVEL;
+
         static constexpr const char* LOG_CONSOLE = io_wally::app::options_parser::LOG_CONSOLE;
+
+        static constexpr const char* LOG_CONSOLE_LEVEL = io_wally::app::options_parser::LOG_CONSOLE_LEVEL;
 
         static constexpr const char* LOG_SYNC = io_wally::app::options_parser::LOG_SYNC;
 

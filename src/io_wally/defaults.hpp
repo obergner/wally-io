@@ -19,6 +19,10 @@ namespace io_wally
 
         static const string DEFAULT_LOG_FILE = "/var/log/mqttd.log";
 
+        static const string DEFAULT_LOG_FILE_LEVEL = "debug";
+
+        static const string DEFAULT_LOG_CONSOLE_LEVEL = "info";
+
         static const string DEFAULT_SERVER_ADDRESS = "0.0.0.0";
 
         static const int DEFAULT_SERVER_PORT = 1883;

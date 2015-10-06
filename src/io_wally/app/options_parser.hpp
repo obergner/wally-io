@@ -23,8 +23,14 @@ namespace io_wally
             static constexpr const char* LOG_FILE = "log-file";
             static constexpr const char* LOG_FILE_SPEC = "log-file,f";
 
+            static constexpr const char* LOG_FILE_LEVEL = "log-file-level";
+            static constexpr const char* LOG_FILE_LEVEL_SPEC = "log-file-level";
+
             static constexpr const char* LOG_CONSOLE = "log-console";
             static constexpr const char* LOG_CONSOLE_SPEC = "log-console";
+
+            static constexpr const char* LOG_CONSOLE_LEVEL = "log-console-level";
+            static constexpr const char* LOG_CONSOLE_LEVEL_SPEC = "log-console-level";
 
             static constexpr const char* LOG_SYNC = "log-sync";
             static constexpr const char* LOG_SYNC_SPEC = "log-sync";

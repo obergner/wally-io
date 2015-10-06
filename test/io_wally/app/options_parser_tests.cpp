@@ -33,7 +33,11 @@ SCENARIO( "options_parser", "[options]" )
                        io_wally::defaults::DEFAULT_CONFIG_FILE );
                 CHECK( config[io_wally::context::LOG_FILE].as<const std::string>( ) ==
                        io_wally::defaults::DEFAULT_LOG_FILE );
+                CHECK( config[io_wally::context::LOG_FILE_LEVEL].as<const std::string>( ) ==
+                       io_wally::defaults::DEFAULT_LOG_FILE_LEVEL );
                 CHECK( config[io_wally::context::LOG_CONSOLE].as<const bool>( ) == false );
+                CHECK( config[io_wally::context::LOG_CONSOLE_LEVEL].as<const std::string>( ) ==
+                       io_wally::defaults::DEFAULT_LOG_CONSOLE_LEVEL );
                 CHECK( config[io_wally::context::LOG_SYNC].as<const bool>( ) == false );
                 CHECK( config[io_wally::context::SERVER_ADDRESS].as<const std::string>( ) ==
                        io_wally::defaults::DEFAULT_SERVER_ADDRESS );
@@ -55,6 +59,8 @@ SCENARIO( "options_parser", "[options]" )
     {
         const char* const conf_file = "/etc/conf.file";
         const char* const log_file = "/var/log/log.file";
+        const char* const log_file_level = "fatal";
+        const char* const log_console_level = "error";
         const std::string server_address( "8.9.10.11" );
         const int server_port = 1234;
         const std::string auth_service_factory( "test_auth_srvc_factory" );
@@ -67,7 +73,11 @@ SCENARIO( "options_parser", "[options]" )
                                         conf_file,
                                         "--log-file",
                                         log_file,
+                                        "--log-file-level",
+                                        log_file_level,
                                         "--log-console",
+                                        "--log-console-level",
+                                        log_console_level,
                                         "--log-sync",
                                         "--server-address",
                                         "8.9.10.11",
@@ -94,7 +104,9 @@ SCENARIO( "options_parser", "[options]" )
 
                 CHECK( config[io_wally::context::CONFIG_FILE].as<const std::string>( ) == conf_file );
                 CHECK( config[io_wally::context::LOG_FILE].as<const std::string>( ) == log_file );
+                CHECK( config[io_wally::context::LOG_FILE_LEVEL].as<const std::string>( ) == log_file_level );
                 CHECK( config[io_wally::context::LOG_CONSOLE].as<const bool>( ) == true );
+                CHECK( config[io_wally::context::LOG_CONSOLE_LEVEL].as<const std::string>( ) == log_console_level );
                 CHECK( config[io_wally::context::LOG_SYNC].as<const bool>( ) == true );
                 CHECK( config[io_wally::context::SERVER_ADDRESS].as<const std::string>( ) == server_address );
                 CHECK( config[io_wally::context::SERVER_PORT].as<const int>( ) == server_port );
@@ -112,6 +124,8 @@ SCENARIO( "options_parser", "[options]" )
         const char* const conf_file = "./build/test/test.conf";
 
         const char* const log_file = "/var/tmp/config-file-log.log";
+        const char* const log_file_level = "fatal";
+        const char* const log_console_level = "error";
         const std::string server_address( "1.1.1.1" );
         const int server_port = 99;
         const std::string auth_service_factory( "config_file_auth_srvc_factory" );
@@ -121,7 +135,9 @@ SCENARIO( "options_parser", "[options]" )
 
         const char* conf_file_contents = R"CONF(
 log-file = /var/tmp/config-file-log.log
+log-file-level = fatal
 log-console = true
+log-console-level = error
 log-sync = true
 server-address = 1.1.1.1
 server-port = 99
@@ -152,7 +168,9 @@ conn-wbuf-size = 8999
 
                 CHECK( config[io_wally::context::CONFIG_FILE].as<const std::string>( ) == conf_file );
                 CHECK( config[io_wally::context::LOG_FILE].as<const std::string>( ) == log_file );
+                CHECK( config[io_wally::context::LOG_FILE_LEVEL].as<const std::string>( ) == log_file_level );
                 CHECK( config[io_wally::context::LOG_CONSOLE].as<const bool>( ) == true );
+                CHECK( config[io_wally::context::LOG_CONSOLE_LEVEL].as<const std::string>( ) == log_console_level );
                 CHECK( config[io_wally::context::LOG_SYNC].as<const bool>( ) == true );
                 CHECK( config[io_wally::context::SERVER_ADDRESS].as<const std::string>( ) == server_address );
                 CHECK( config[io_wally::context::SERVER_PORT].as<const int>( ) == server_port );

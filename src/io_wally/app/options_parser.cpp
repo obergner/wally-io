@@ -54,8 +54,14 @@ namespace io_wally
                 LOG_FILE_SPEC,
                 options::value<string>( )->default_value( DEFAULT_LOG_FILE )->value_name( "<file>" ),
                 "Direct log output to <file>" )(
+                LOG_FILE_LEVEL_SPEC,
+                options::value<string>( )->default_value( DEFAULT_LOG_FILE_LEVEL )->value_name( "<level>" ),
+                "Restrict file log output to <level> or above:\n  (trace|debug|info|warning|error|fatal)" )(
                 LOG_SYNC_SPEC, options::bool_switch( ), "Use synchronous logging (not recommended)" )(
-                LOG_CONSOLE_SPEC, options::bool_switch( ), "Log to console" );
+                LOG_CONSOLE_SPEC, options::bool_switch( ), "Log to console" )(
+                LOG_CONSOLE_LEVEL_SPEC,
+                options::value<string>( )->default_value( DEFAULT_LOG_CONSOLE_LEVEL )->value_name( "<level>" ),
+                "Restrict console log output to <level> or above:\n  (trace|debug|info|warning|error|fatal)" );
 
             options::options_description authentication_opts( "Authentication", 100, 50 );
             authentication_opts.add_options( )(
