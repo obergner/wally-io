@@ -1,7 +1,7 @@
 #include "io_wally/app/logging.hpp"
 
 #include <string>
-#include <sstream>
+#include <algorithm>
 #include <iostream>
 #include <exception>
 
@@ -19,6 +19,7 @@
 
 #include "io_wally/logging_support.hpp"
 #include "io_wally/context.hpp"
+#include "io_wally/defaults.hpp"
 
 namespace io_wally
 {
@@ -36,7 +37,30 @@ namespace io_wally
                     cerr << "ERROR (logging subsystem): " << ex.what( ) << endl;
                 }
             };
-        }
+
+            const vector<string> SUPPORTED_LOG_LEVELS = {"trace", "debug", "info", "warning", "error", "fatal"};
+
+            bool is_supported_log_level( const string& log_level )
+            {
+                return find( SUPPORTED_LOG_LEVELS.begin( ), SUPPORTED_LOG_LEVELS.end( ), log_level ) !=
+                       SUPPORTED_LOG_LEVELS.end( );
+            }
+
+            const string safe_log_level_filter( const string& log_level, const string& default_level )
+            {
+                if ( !is_supported_log_level( log_level ) )
+                {
+                    cerr << "ERROR: log level \"" << log_level
+                         << "\" is not supported and will be replaced with default log level \"" << default_level
+                         << "\"" << endl << "HINT:  supported log levels are: (trace|debug|info|warning|error|fatal)"
+                         << endl;
+
+                    return "%Severity% >= " + default_level;
+                }
+
+                return "%Severity% >= " + log_level;
+            }
+        }  // namespace
 
         /// \see:
         /// http://www.boost.org/doc/libs/develop/libs/log/doc/html/log/detailed/utilities.html#log.detailed.utilities.setup
@@ -57,9 +81,10 @@ namespace io_wally
             const string log_format =
                 "[%TimeStamp%] [%ProcessID%] [%ThreadID%] [%LineID%] [%Channel%] | %Severity% | %Message%";
 
-            // FIXME: We will terminate with an uncaught exception if user specifies invalid log level - BAD
-            const string log_file_filter = "%Severity% >= " + config[context::LOG_FILE_LEVEL].as<const string>( );
-            const string log_console_filter = "%Severity% >= " + config[context::LOG_CONSOLE_LEVEL].as<const string>( );
+            const string log_file_filter = safe_log_level_filter( config[context::LOG_FILE_LEVEL].as<const string>( ),
+                                                                  defaults::DEFAULT_LOG_FILE_LEVEL );
+            const string log_console_filter = safe_log_level_filter(
+                config[context::LOG_CONSOLE_LEVEL].as<const string>( ), defaults::DEFAULT_LOG_CONSOLE_LEVEL );
 
             boost::log::settings setts;
 
