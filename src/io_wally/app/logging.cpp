@@ -38,6 +38,7 @@ namespace io_wally
                 }
             };
 
+            // Vector of supported log levels
             const vector<string> SUPPORTED_LOG_LEVELS = {"trace", "debug", "info", "warning", "error", "fatal"};
 
             bool is_supported_log_level( const string& log_level )
