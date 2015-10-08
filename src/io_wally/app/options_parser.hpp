@@ -35,6 +35,9 @@ namespace io_wally
             static constexpr const char* LOG_SYNC = "log-sync";
             static constexpr const char* LOG_SYNC_SPEC = "log-sync";
 
+            static constexpr const char* LOG_DISABLE = "log-disable";
+            static constexpr const char* LOG_DISABLE_SPEC = "log-disable,s";
+
             static constexpr const char* SERVER_ADDRESS = "server-address";
             static constexpr const char* SERVER_ADDRESS_SPEC = "server-address,l";
 

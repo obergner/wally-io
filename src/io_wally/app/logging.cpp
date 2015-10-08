@@ -89,7 +89,7 @@ namespace io_wally
 
             boost::log::settings setts;
 
-            setts["Core"]["DisableLogging"] = false;
+            setts["Core"]["DisableLogging"] = config[context::LOG_DISABLE].as<const bool>( );
             setts["Core"]["Filter"] = log_file_filter;
 
             setts["Sinks"]["File"]["Destination"] = "TextFile";

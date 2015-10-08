@@ -61,7 +61,11 @@ namespace io_wally
                 LOG_CONSOLE_SPEC, options::bool_switch( ), "Log to console" )(
                 LOG_CONSOLE_LEVEL_SPEC,
                 options::value<string>( )->default_value( DEFAULT_LOG_CONSOLE_LEVEL )->value_name( "<level>" ),
-                "Restrict console log output to <level> or above:\n  (trace|debug|info|warning|error|fatal)" );
+                "Restrict console log output to <level> or above:\n  (trace|debug|info|warning|error|fatal)" )(
+                LOG_DISABLE_SPEC,
+                options::bool_switch( ),
+                "Do not log, neither to file nor to console\nIf this option is set --log-file, --log-console, "
+                "--log-file-level and --log-console-level will be ignored" );
 
             options::options_description authentication_opts( "Authentication", 100, 50 );
             authentication_opts.add_options( )(

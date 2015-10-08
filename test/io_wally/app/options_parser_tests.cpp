@@ -39,6 +39,7 @@ SCENARIO( "options_parser", "[options]" )
                 CHECK( config[io_wally::context::LOG_CONSOLE_LEVEL].as<const std::string>( ) ==
                        io_wally::defaults::DEFAULT_LOG_CONSOLE_LEVEL );
                 CHECK( config[io_wally::context::LOG_SYNC].as<const bool>( ) == false );
+                CHECK( config[io_wally::context::LOG_DISABLE].as<const bool>( ) == false );
                 CHECK( config[io_wally::context::SERVER_ADDRESS].as<const std::string>( ) ==
                        io_wally::defaults::DEFAULT_SERVER_ADDRESS );
                 CHECK( config[io_wally::context::SERVER_PORT].as<const int>( ) ==
@@ -79,6 +80,7 @@ SCENARIO( "options_parser", "[options]" )
                                         "--log-console-level",
                                         log_console_level,
                                         "--log-sync",
+                                        "--log-disable",
                                         "--server-address",
                                         "8.9.10.11",
                                         "--server-port",
@@ -108,6 +110,7 @@ SCENARIO( "options_parser", "[options]" )
                 CHECK( config[io_wally::context::LOG_CONSOLE].as<const bool>( ) == true );
                 CHECK( config[io_wally::context::LOG_CONSOLE_LEVEL].as<const std::string>( ) == log_console_level );
                 CHECK( config[io_wally::context::LOG_SYNC].as<const bool>( ) == true );
+                CHECK( config[io_wally::context::LOG_DISABLE].as<const bool>( ) == true );
                 CHECK( config[io_wally::context::SERVER_ADDRESS].as<const std::string>( ) == server_address );
                 CHECK( config[io_wally::context::SERVER_PORT].as<const int>( ) == server_port );
                 CHECK( config[io_wally::context::AUTHENTICATION_SERVICE_FACTORY].as<const std::string>( ) ==
@@ -139,6 +142,7 @@ log-file-level = fatal
 log-console = true
 log-console-level = error
 log-sync = true
+log-disable = true
 server-address = 1.1.1.1
 server-port = 99
 auth-service-factory = config_file_auth_srvc_factory
@@ -172,6 +176,7 @@ conn-wbuf-size = 8999
                 CHECK( config[io_wally::context::LOG_CONSOLE].as<const bool>( ) == true );
                 CHECK( config[io_wally::context::LOG_CONSOLE_LEVEL].as<const std::string>( ) == log_console_level );
                 CHECK( config[io_wally::context::LOG_SYNC].as<const bool>( ) == true );
+                CHECK( config[io_wally::context::LOG_DISABLE].as<const bool>( ) == true );
                 CHECK( config[io_wally::context::SERVER_ADDRESS].as<const std::string>( ) == server_address );
                 CHECK( config[io_wally::context::SERVER_PORT].as<const int>( ) == server_port );
                 CHECK( config[io_wally::context::AUTHENTICATION_SERVICE_FACTORY].as<const std::string>( ) ==
