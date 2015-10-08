@@ -2,6 +2,10 @@
 
 #include <boost/bind.hpp>
 
+#include <boost/date_time/posix_time/posix_time.hpp>
+
+#include <boost/asio.hpp>
+
 #include <boost/log/common.hpp>
 #include <boost/log/trivial.hpp>
 
@@ -31,7 +35,8 @@ namespace io_wally
           session_manager_{session_manager},
           context_{context},
           read_buffer_( context.options( )[context::READ_BUFFER_SIZE].as<const size_t>( ) ),
-          write_buffer_( context.options( )[context::WRITE_BUFFER_SIZE].as<const size_t>( ) )
+          write_buffer_( context.options( )[context::WRITE_BUFFER_SIZE].as<const size_t>( ) ),
+          close_on_connection_timeout_{socket.get_io_service( )}
     {
         return;
     }
@@ -51,6 +56,22 @@ namespace io_wally
     void mqtt_connection::start( )
     {
         BOOST_LOG_SEV( logger_, lvl::info ) << "START: " << to_string( );
+
+        // Start deadline timer that will close this connection if connect timeout expires without receiving CONNECT
+        // request
+        auto self( shared_from_this( ) );
+        close_on_connection_timeout_.expires_from_now(
+            boost::posix_time::milliseconds( context_.options( )[context::CONNECT_TIMEOUT].as<const uint32_t>( ) ) );
+        close_on_connection_timeout_.async_wait(
+            [self]( const boost::system::error_code& /* ec */ )
+            {
+                BOOST_LOG_SEV( self->logger_, lvl::warning )
+                    << "CONNECTION TIMEOUT EXPIRED after ["
+                    << self->context_.options( )[context::CONNECT_TIMEOUT].as<const uint32_t>( )
+                    << "] ms - connection [" << self->socket_ << "] will be closed";
+                self->stop( );
+            } );
+
         read_header( );
     }
 
@@ -221,6 +242,7 @@ namespace io_wally
                 }
                 else
                 {
+                    close_on_connection_timeout_.cancel( );
                     authenticated = true;
                     write_packet( connack( false, connect_return_code::CONNECTION_ACCEPTED ) );
                 }

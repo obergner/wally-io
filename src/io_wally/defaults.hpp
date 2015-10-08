@@ -9,7 +9,7 @@ namespace io_wally
 
     namespace defaults
     {
-        static const uint32_t DEFAULT_CONNECT_TIMEOUT_MS = 1000;
+        static const uint32_t DEFAULT_CONNECT_TIMEOUT_MS = 10000;
 
         static const size_t DEFAULT_INITIAL_READ_BUFFER_SIZE = 256;
 

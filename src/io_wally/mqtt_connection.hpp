@@ -147,6 +147,9 @@ namespace io_wally
 
         /// Buffer outgoing data
         vector<uint8_t> write_buffer_;
+
+        /// Timer, will fire if connection timeout expires without receiving a CONNECT request
+        boost::asio::deadline_timer close_on_connection_timeout_;
     };
 
     inline ostream& operator<<( ostream& output, mqtt_connection const& mqtt_connection )
