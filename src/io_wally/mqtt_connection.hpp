@@ -136,6 +136,9 @@ namespace io_wally
         /// The client socket this session is connected to
         boost::asio::ip::tcp::socket socket_;
 
+        /// Strand used to serialize access to socket and timer
+        boost::asio::io_service::strand strand_;
+
         /// Our session manager, responsible for managing our lifecycle
         mqtt_connection_manager& session_manager_;
 

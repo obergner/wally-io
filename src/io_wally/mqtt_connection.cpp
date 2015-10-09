@@ -32,6 +32,7 @@ namespace io_wally
                                       const context& context )
         : id_{nullptr},
           socket_{move( socket )},
+          strand_{socket.get_io_service( )},
           session_manager_{session_manager},
           context_{context},
           read_buffer_( context.options( )[context::READ_BUFFER_SIZE].as<const size_t>( ) ),
@@ -63,14 +64,14 @@ namespace io_wally
         close_on_connection_timeout_.expires_from_now(
             boost::posix_time::milliseconds( context_.options( )[context::CONNECT_TIMEOUT].as<const uint32_t>( ) ) );
         close_on_connection_timeout_.async_wait(
-            [self]( const boost::system::error_code& /* ec */ )
-            {
-                BOOST_LOG_SEV( self->logger_, lvl::warning )
-                    << "CONNECTION TIMEOUT EXPIRED after ["
-                    << self->context_.options( )[context::CONNECT_TIMEOUT].as<const uint32_t>( )
-                    << "] ms - connection [" << self->socket_ << "] will be closed";
-                self->stop( );
-            } );
+            strand_.wrap( [self]( const boost::system::error_code& /* ec */ )
+                          {
+                              BOOST_LOG_SEV( self->logger_, lvl::warning )
+                                  << "CONNECTION TIMEOUT EXPIRED after ["
+                                  << self->context_.options( )[context::CONNECT_TIMEOUT].as<const uint32_t>( )
+                                  << "] ms - connection [" << self->socket_ << "] will be closed";
+                              self->stop( );
+                          } ) );
 
         read_header( );
     }
@@ -100,10 +101,10 @@ namespace io_wally
             socket_,
             boost::asio::buffer( read_buffer_ ),
             boost::asio::transfer_at_least( 2 ),  // FIXME: This won't work if we are called in a loop
-            boost::bind( &mqtt_connection::on_header_data_read,
-                         shared_from_this( ),
-                         boost::asio::placeholders::error,
-                         boost::asio::placeholders::bytes_transferred ) );
+            strand_.wrap( boost::bind( &mqtt_connection::on_header_data_read,
+                                       shared_from_this( ),
+                                       boost::asio::placeholders::error,
+                                       boost::asio::placeholders::bytes_transferred ) ) );
     }
 
     void mqtt_connection::on_header_data_read( const boost::system::error_code& ec, const size_t bytes_transferred )
@@ -179,10 +180,11 @@ namespace io_wally
                 socket_,
                 boost::asio::buffer( read_buffer_, total_length ),
                 boost::asio::transfer_at_least( total_length - bytes_transferred ),
-                [self, header_parse_result]( const boost::system::error_code& ec, const size_t bytes_transferred )
-                {
-                    self->on_body_data_read( header_parse_result, ec, bytes_transferred );
-                } );
+                strand_.wrap(
+                    [self, header_parse_result]( const boost::system::error_code& ec, const size_t bytes_transferred )
+                    {
+                        self->on_body_data_read( header_parse_result, ec, bytes_transferred );
+                    } ) );
         }
     }
 
@@ -289,21 +291,22 @@ namespace io_wally
             packet, write_buffer_.begin( ), write_buffer_.begin( ) + packet.header( ).total_length( ) );
 
         auto self( shared_from_this( ) );
-        boost::asio::async_write( socket_,
-                                  boost::asio::buffer( write_buffer_, packet.header( ).total_length( ) ),
-                                  [self]( const boost::system::error_code& ec, size_t /* bytes_written */ )
-                                  {
-            if ( ec )
-            {
-                BOOST_LOG_SEV( self->logger_, lvl::error )
-                    << ">>> Failed to send packet - session will be closed: " << ec;
-            }
-            else
-            {
-                BOOST_LOG_SEV( self->logger_, lvl::debug ) << ">>> SENT";
-                self->read_header( );
-            }
-        } );
+        boost::asio::async_write(
+            socket_,
+            boost::asio::buffer( write_buffer_, packet.header( ).total_length( ) ),
+            strand_.wrap( [self]( const boost::system::error_code& ec, size_t /* bytes_written */ )
+                          {
+                              if ( ec )
+                              {
+                                  BOOST_LOG_SEV( self->logger_, lvl::error )
+                                      << ">>> Failed to send packet - session will be closed: " << ec;
+                              }
+                              else
+                              {
+                                  BOOST_LOG_SEV( self->logger_, lvl::debug ) << ">>> SENT";
+                                  self->read_header( );
+                              }
+                          } ) );
     }
 
     void mqtt_connection::write_packet_and_close_session( const mqtt_packet& packet, const string& message )
@@ -316,19 +319,20 @@ namespace io_wally
             packet, write_buffer_.begin( ), write_buffer_.begin( ) + packet.header( ).total_length( ) );
 
         auto self( shared_from_this( ) );
-        boost::asio::async_write( socket_,
-                                  boost::asio::buffer( write_buffer_.data( ), packet.header( ).total_length( ) ),
-                                  [self]( const boost::system::error_code& ec, size_t /* bytes_written */ )
-                                  {
-            if ( ec )
-            {
-                BOOST_LOG_SEV( self->logger_, lvl::error ) << ">>> Failed to send packet: " << ec;
-            }
-            else
-            {
-                BOOST_LOG_SEV( self->logger_, lvl::debug ) << ">>> SENT";
-            }
-            self->session_manager_.stop( self );
-        } );
+        boost::asio::async_write(
+            socket_,
+            boost::asio::buffer( write_buffer_.data( ), packet.header( ).total_length( ) ),
+            strand_.wrap( [self]( const boost::system::error_code& ec, size_t /* bytes_written */ )
+                          {
+                              if ( ec )
+                              {
+                                  BOOST_LOG_SEV( self->logger_, lvl::error ) << ">>> Failed to send packet: " << ec;
+                              }
+                              else
+                              {
+                                  BOOST_LOG_SEV( self->logger_, lvl::debug ) << ">>> SENT";
+                              }
+                              self->session_manager_.stop( self );
+                          } ) );
     }
 }
