@@ -159,7 +159,7 @@ ITEXEC 	    	:= $(ITBUILD)/all-integrationtests
 SBUILD          := $(BUILD)/scan
 
 # What may be rebuilt
-REBUILDABLES 	= $(MEXEC) $(MOBJS) $(TEXEC) $(TOBJS) 
+REBUILDABLES 	= $(MEXEC) $(MOBJS) $(TEXEC) $(TOBJS) $(ITEXEC) $(ITOBJS)
 
 # All things doxygen
 DOCDIR			:= $(BUILD)/doc
