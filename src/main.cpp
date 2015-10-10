@@ -4,5 +4,5 @@ static io_wally::app::application& application = io_wally::app::application::ins
 
 int main( int argc, char** argv )
 {
-    return application.run( argc, argv );
+    return application.run( argc, const_cast<const char**>( argv ) );
 }

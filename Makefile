@@ -5,9 +5,10 @@
 # GCC
 CXX		        := g++
 #CXX		     := clang++
+CC 				:= gcc
 
 # Standard compiler flags
-CXXFLAGS	    += -std=c++11
+CXXFLAGS	    := -std=c++11
 CXXFLAGS        += -fdiagnostics-color=auto
 CXXFLAGS        += -MMD # automatically generate dependency rules on each run
 CXXFLAGS        += -I ./src
@@ -33,12 +34,8 @@ CXXDEBUG_FLAGS	+= -O0 -g
 CXXDEBUG_FLAGS	+= -D_GLIBCXX_DEBUG
 CXXDEBUG_FLAGS	+= -DBOOST_ASIO_ENABLE_HANDLER_TRACKING
 
-# Extra compiler flags
-CXXFLAGS 		+= $(shell pkg-config --cflags libsystemd-journal)
-
 # Extra linker flags
-LDLIBS		    += $(shell pkg-config --libs libsystemd-journal)
-LDLIBS          += -lboost_system
+LDLIBS          := -lboost_system
 LDLIBS          += -lboost_thread
 LDLIBS          += -lboost_log
 LDLIBS          += -lboost_log_setup
@@ -49,21 +46,21 @@ LDLIBS          += -lpthread
 # see: http://blog.kompiler.org/post/6/2011-09-18/Separate_build_and_source_directories_in_Makefiles/
 BUILD 		    := build
 
-# Sources
-MSOURCES         += $(wildcard src/io_wally/*.cpp)
-MSOURCES         += $(wildcard src/io_wally/protocol/*.cpp)
-MSOURCES         += $(wildcard src/io_wally/codec/*.cpp)
-MSOURCES         += $(wildcard src/io_wally/spi/*.cpp)
-MSOURCES         += $(wildcard src/io_wally/impl/*.cpp)
-MSOURCES         += $(wildcard src/io_wally/app/*.cpp)
+# SRCS
+MSRCS           := $(wildcard src/io_wally/*.cpp)
+MSRCS           += $(wildcard src/io_wally/protocol/*.cpp)
+MSRCS           += $(wildcard src/io_wally/codec/*.cpp)
+MSRCS           += $(wildcard src/io_wally/spi/*.cpp)
+MSRCS           += $(wildcard src/io_wally/impl/*.cpp)
+MSRCS           += $(wildcard src/io_wally/app/*.cpp)
 
 MEXECSOURCE      := $(wildcard src/*.cpp)
 
-# Build dir for sources
+# Build dir for SRCS
 MBUILD       	:= $(BUILD)/main
 
 # Objects
-MOBJS	    	:= $(patsubst src/%.cpp, $(MBUILD)/%.o, $(MSOURCES))
+MOBJS	    	:= $(patsubst src/%.cpp, $(MBUILD)/%.o, $(MSRCS))
 
 MEXECOBJ    	:= $(patsubst src/%.cpp, $(MBUILD)/%.o, $(MEXECSOURCE))
 
@@ -83,13 +80,13 @@ TCXXFLAGS      	:= $(filter-out -Wswitch-enum, $(TCXXFLAGS))
 # Test linker flags
 TLDLIBS      	= $(LDLIBS)
 
-# Test sources
-TSOURCES     	+= $(wildcard test/*.cpp)
-TSOURCES     	+= $(wildcard test/io_wally/*.cpp)
-TSOURCES     	+= $(wildcard test/io_wally/protocol/*.cpp)
-TSOURCES     	+= $(wildcard test/io_wally/codec/*.cpp)
-TSOURCES     	+= $(wildcard test/io_wally/impl/*.cpp)
-TSOURCES     	+= $(wildcard test/io_wally/app/*.cpp)
+# Test SRCS
+TSRCS       	:= $(wildcard test/*.cpp)
+TSRCS       	+= $(wildcard test/io_wally/*.cpp)
+TSRCS       	+= $(wildcard test/io_wally/protocol/*.cpp)
+TSRCS       	+= $(wildcard test/io_wally/codec/*.cpp)
+TSRCS       	+= $(wildcard test/io_wally/impl/*.cpp)
+TSRCS       	+= $(wildcard test/io_wally/app/*.cpp)
 
 TEXECSOURCE     := $(wildcard test/*.cpp)
 
@@ -97,7 +94,7 @@ TEXECSOURCE     := $(wildcard test/*.cpp)
 TBUILD       	:= $(BUILD)/test
 
 # Test objects
-TOBJS	    	:= $(patsubst test/%.cpp, $(TBUILD)/%.o, $(TSOURCES))
+TOBJS	    	:= $(patsubst test/%.cpp, $(TBUILD)/%.o, $(TSRCS))
 
 TEXECOBJ    	:= $(patsubst test/%.cpp, $(TBUILD)/%.o, $(TEXECSOURCE))
 
@@ -106,6 +103,57 @@ TBUILDDIRS		:= $(sort $(dir $(TOBJS)))
 
 # Main test executable
 TEXEC 	    	:= $(TBUILD)/all-tests
+
+# Support libraries
+SUPPORTBUILD    := $(BUILD)/support
+
+# Support: Paho MQTT client
+PAHOPINC        := support/paho/packet
+PAHOCINC        := support/paho/client
+
+PAHOPSRCS       := $(wildcard support/paho/packet/*.c)
+PAHOCSRCS       := $(wildcard support/paho/client/*.cpp)
+
+PAHOPBUILD      := $(SUPPORTBUILD)/paho/packet
+PAHOCBUILD      := $(SUPPORTBUILD)/paho/client
+
+PAHOOBJS        := $(patsubst support/paho/packet/%.c, $(PAHOPBUILD)/%.o, $(PAHOPSRCS))
+PAHOOBJS        += $(patsubst support/paho/client/%.cpp, $(PAHOCBUILD)/%.o, $(PAHOCSRCS))
+
+# Integrationtest compiler flags
+ITCXXFLAGS     	:= $(CXXFLAGS)
+ITCXXFLAGS     	+= -O0 -g
+ITCXXFLAGS     	+= -I ./itest
+ITCXXFLAGS     	+= -I $(PAHOPINC)
+ITCXXFLAGS     	+= -I $(PAHOCINC)
+ITCXXFLAGS     	+= -fpermissive
+ITCXXFLAGS     	:= $(filter-out -Wswitch-default, $(ITCXXFLAGS))
+ITCXXFLAGS     	:= $(filter-out -Wswitch-enum, $(ITCXXFLAGS))
+ITCXXFLAGS     	:= $(filter-out -Werror, $(ITCXXFLAGS))
+
+# Integrationtest linker flags
+ITLDLIBS      	:= $(LDLIBS)
+
+# Integrationtest SRCS
+ITSRCS       	:= $(wildcard itest/*.cpp)
+ITSRCS       	+= $(wildcard itest/framework/*.cpp)
+ITSRCS       	+= $(wildcard itest/io_wally/*.cpp)
+
+ITEXECSOURCE    := $(wildcard itest/*.cpp)
+
+# Build dir for integrationtests
+ITBUILD       	:= $(BUILD)/itest
+
+# Intgegrationtest objects
+ITOBJS	    	:= $(patsubst itest/%.cpp, $(ITBUILD)/%.o, $(ITSRCS))
+
+ITEXECOBJ    	:= $(patsubst itest/%.cpp, $(ITBUILD)/%.o, $(ITEXECSOURCE))
+
+# Subdirs in build directory need to reflect subdirs in integrationtest directory
+ITBUILDDIRS		:= $(sort $(dir $(ITOBJS)))
+
+# Main integrationtest executable
+ITEXEC 	    	:= $(ITBUILD)/all-integrationtests
 
 # Where to store scan-build's analysis results
 SBUILD          := $(BUILD)/scan
@@ -155,11 +203,41 @@ test-compile 		: $(TEXEC)						| $(TBUILDDIRS)
 $(TBUILDDIRS)		:
 	@mkdir -p $@
 
-$(TEXEC)			: $(MOBJS) $(TOBJS) $(TEXECOBJ)	| $(MBUILDDIRS)
-	$(CXX) $(LDLIBS) -o $@ $^
+$(TEXEC)			: $(MOBJS) $(TOBJS) $(TEXECOBJ)	| $(TBUILDDIRS)
+	$(CXX) $(TLDLIBS) -o $@ $^
 
 $(TBUILD)/%.o		: test/%.cpp					| $(TBUILDDIRS)
 	$(CXX) $(TCXXFLAGS) -o $@ -c $<
+
+# Support: Paho MQTT client
+$(PAHOPBUILD)       :
+	@mkdir -p $@
+
+$(PAHOPBUILD)/%.o   : support/paho/packet/%.c       | $(PAHOPBUILD)
+	$(CC) -o $@ -c $<
+
+$(PAHOCBUILD)       :
+	@mkdir -p $@
+
+$(PAHOCBUILD)/%.o   : support/paho/client/%.cpp     | $(PAHOCBUILD)
+	$(CXX) -o $@ -c $<
+
+# Integrationtests
+.PHONY 				: itest
+itest 				: itest-compile
+	@./$(ITEXEC) --success --durations yes
+
+.PHONY 				: itest-compile
+itest-compile 		: $(ITEXEC)						| $(ITBUILDDIRS)
+
+$(ITBUILDDIRS)		:
+	@mkdir -p $@
+
+$(ITEXEC)			: $(MOBJS) $(ITOBJS) $(ITEXECOBJ) $(PAHOOBJS)	| $(ITBUILDDIRS)
+	$(CXX) $(ITLDLIBS) -o $@ $^
+
+$(ITBUILD)/%.o		: itest/%.cpp					| $(ITBUILDDIRS)
+	$(CXX) $(CPPFLAGS) $(ITCXXFLAGS) -o $@ -c $<
 
 # Clean
 .PHONY 				: clean
@@ -168,31 +246,35 @@ clean				:
 
 # Documentation
 .PHONY 				: doc
-doc 				: $(MSOURCES) $(MEXECSOURCE)
+doc 				: $(MSRCS) $(MEXECSOURCE)
 	@rm -rf $(DOCDIR)
 	@doxygen ./.doxygen.cfg
 
 # Tools
 compilation-db 		: $(COMPILATIONDB)
 
-$(COMPILATIONDB)    : $(MSOURCES) $(MEXECSOURCE) $(TSOURCES) $(TEXECSOURCE)
-	@bear $(MAKE) clean main test-compile
+$(COMPILATIONDB)    : $(MSRCS) $(MEXECSOURCE) $(TSRCS) $(TEXECSOURCE) $(ITSRCS) $(ITEXECSOURCE)
+	@bear $(MAKE) clean main test-compile itest-compile
 
 .PHONY				: macroexpand
-macroexpand			: $(MSOURCES) $(MEXECSOURCE)
-	$(CXX) $(CXXFLAGS) -E $(MSOURCES) | source-highlight --failsafe --src-lang=cc -f esc --style-file=esc.style 
+macroexpand			: $(MSRCS) $(MEXECSOURCE)
+	$(CXX) $(CXXFLAGS) -E $(MSRCS) | source-highlight --failsafe --src-lang=cc -f esc --style-file=esc.style 
 
 # Running clang-check
 .PHONY 				: check-main
-check-main 			: $(MSOURCES) $(MEXECSOURCE)
-	@clang-check $(MSOURCES) $(MEXECSOURCE)
+check-main 			: $(MSRCS) $(MEXECSOURCE)
+	@clang-check $(MSRCS) $(MEXECSOURCE)
 
 .PHONY 				: check-test
-check-test 			: $(TSOURCES) $(TEXECSOURCE)
-	@clang-check $(TSOURCES) $(TEXECSOURCE)
+check-test 			: $(TSRCS) $(TEXECSOURCE)
+	@clang-check $(TSRCS) $(TEXECSOURCE)
+
+.PHONY 				: check-itest
+check-itest			: $(ITSRCS) $(ITEXECSOURCE)
+	@clang-check $(ITSRCS) $(ITEXECSOURCE)
 
 .PHONY 				: check
-check	 			: check-main check-test
+check	 			: check-main check-test 
 
 # Running scan-build
 $(SBUILD)           :
@@ -203,29 +285,34 @@ scan-main 			: $(SBUILD)
 	@scan-build -o $(SBUILD) -analyze-headers --status-bugs $(MAKE) clean release
 
 .PHONY 				: modernize
-modernize 			: $(MSOURCES) $(MEXECSOURCE) $(COMPILATIONDB)
+modernize 			: $(MSRCS) $(MEXECSOURCE) $(COMPILATIONDB)
 	@clang-modernize -final-syntax-check -summary -format -style=file -include=src/ -p $(COMPILATIONDB)
 
 .PHONY 				: format-main
-format-main			: $(MSOURCES) $(MEXECSOURCE)
-	@clang-format -i -style=file $(MSOURCES) $(MEXECSOURCE)
+format-main			: $(MSRCS) $(MEXECSOURCE)
+	@clang-format -i -style=file $(MSRCS) $(MEXECSOURCE)
 
 .PHONY 				: format-test
-format-test			: $(TSOURCES) $(TEXECSOURCE)
-	@clang-format -i -style=file $(TSOURCES) $(TEXECSOURCE)
+format-test			: $(TSRCS) $(TEXECSOURCE)
+	@clang-format -i -style=file $(TSRCS) $(TEXECSOURCE)
+
+.PHONY 				: format-itest
+format-itest		: $(ITSRCS) $(ITEXECSOURCE)
+	@clang-format -i -style=file $(ITSRCS) $(ITEXECSOURCE)
 
 .PHONY 				: format
-format  			: format-main format-test
+format  			: format-main format-test format-itest
 
 .PHONY 				: tags
-tags 				: $(MSOURCES) $(MEXECSOURCE) $(TSOURCES) $(TEXECSOURCE)
-	@ctags -R -f ./.tags ./src ./test
+tags 				: $(MSRCS) $(MEXECSOURCE) $(TSRCS) $(TEXECSOURCE) $(ITSRCS) $(ITEXECSOURCE)
+	@ctags -R -f ./.tags ./src ./test ./itest
 
 .PHONY 				: prepare-commit
 prepare-commit 		: clean
 prepare-commit 		: format
 prepare-commit 		: main
 prepare-commit 		: test
+prepare-commit 		: itest
 prepare-commit 		: check
 prepare-commit 		: scan-main
 
@@ -235,3 +322,4 @@ prepare-commit 		: scan-main
 
 -include 	$(MOBJS:.o=.d)
 -include 	$(TOBJS:.o=.d)
+-include 	$(ITOBJS:.o=.d)

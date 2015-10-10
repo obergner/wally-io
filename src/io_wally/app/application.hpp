@@ -25,12 +25,19 @@ namespace io_wally
             }
 
            public:
-            int run( int argc, char** argv );
+            int run( int argc, const char** argv );
+
+            void shutdown( );
 
            private:
             application( )
             {
                 return;
+            }
+
+            virtual ~application( )
+            {
+                shutdown( );
             }
 
            private:

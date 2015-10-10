@@ -57,8 +57,8 @@ namespace io_wally
             if ( !ec )
             {
                 mqtt_connection::pointer session =
-                    mqtt_connection::create( move( socket_ ), session_manager_, context_ );
-                session_manager_.start( session );
+                    mqtt_connection::create( move( socket_ ), connection_manager_, context_ );
+                connection_manager_.start( session );
             }
 
             do_accept( );
@@ -77,16 +77,21 @@ namespace io_wally
                                              BOOST_LOG_SEV( logger_, lvl::debug ) << "Received termination signal ("
                                                                                   << signo
                                                                                   << ") - MQTT server will stop ...";
-                                             // The mqtt_server is stopped by cancelling all outstanding asynchronous
-                                             // operations. Once all operations have finished the io_service::run( )
-                                             // call will
-                                             // exit.
-                                             acceptor_.close( );
-                                             session_manager_.stop_all( );
-                                             io_service_.stop( );
-
-                                             BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPED: MQTT server";
+                                             shutdown( );
                                          } );
+    }
+
+    void mqtt_server::shutdown( )
+    {
+        // The mqtt_server is stopped by cancelling all outstanding asynchronous operations. Once all operations have
+        // finished the io_service::run( ) call will exit.
+        if ( acceptor_.is_open( ) )
+            acceptor_.close( );
+        connection_manager_.stop_all( );
+        if ( !io_service_.stopped( ) )
+            io_service_.stop( );
+
+        BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPED: MQTT server";
     }
 
 }  // namespace io_wally

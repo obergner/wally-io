@@ -21,5 +21,6 @@
 /*.tar.xz
 /.tags
 build/
+work/
 compile_commands.json
 

@@ -36,12 +36,12 @@ DISCLAIMER:
   and insult your girl/boy friend. YOU HAVE BEEN WARNED.
 )USG";
 
-        int application::run( int argc, char** argv )
+        int application::run( int argc, const char** argv )
         {
             try
             {
                 const pair<const options::variables_map, const options::options_description> config_plus_desc =
-                    options_parser_.parse( argc, const_cast<const char**>( argv ) );
+                    options_parser_.parse( argc, argv );
                 options::variables_map config = config_plus_desc.first;
                 const options::options_description all_opts_desc = config_plus_desc.second;
 
@@ -76,6 +76,11 @@ DISCLAIMER:
                 return EC_RUNTIME_ERROR;
             }
             return EC_OK;
+        }
+
+        void application::shutdown( )
+        {
+            server_->shutdown( );
         }
     }  // namespace app
 }

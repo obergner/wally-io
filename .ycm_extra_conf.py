@@ -42,6 +42,12 @@ flags = [
     './src',
     '-I',
     './test',
+    '-I',
+    './itest',
+    '-I',
+    './support/paho/packet',
+    '-I',
+    './support/paho/client',
 ]
 
 

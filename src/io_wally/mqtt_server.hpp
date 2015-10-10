@@ -41,6 +41,9 @@ namespace io_wally
         /// Run the mqtt_server's io_service loop.
         void run( );
 
+        /// Shut down this server, closing all client connections
+        void shutdown( );
+
        private:
         /// Perform an asynchronous accept operation.
         void do_accept( );
@@ -52,7 +55,7 @@ namespace io_wally
         const io_wally::context context_;
 
         /// Our session manager that manages all connections
-        mqtt_connection_manager session_manager_{};
+        mqtt_connection_manager connection_manager_{};
 
         /// The io_service used to perform asynchronous operations.
         boost::asio::io_service io_service_{};
