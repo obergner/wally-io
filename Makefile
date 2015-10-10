@@ -250,6 +250,10 @@ doc 				: $(MSRCS) $(MEXECSOURCE)
 	@rm -rf $(DOCDIR)
 	@doxygen ./.doxygen.cfg
 
+.PHONY              : doc-publish
+doc-publish         : doc
+	@pushd $(DOCDIR); python -mSimpleHTTPServer 8000; popd
+
 # Tools
 compilation-db 		: $(COMPILATIONDB)
 
