@@ -176,11 +176,11 @@ COMPILATIONDB   := compile_commands.json
 release             : CXXFLAGS += $(CXXRELEASE_FLAGS)
 release             : main
 
-.PHONY                 : debug
+.PHONY              : debug
 debug               : CXXFLAGS += $(CXXDEBUG_FLAGS)
 debug               : main
 
-.PHONY                 : main
+.PHONY              : main
 main                : $(MEXEC)                         | $(MBUILDDIRS)
 
 $(MBUILDDIRS)       :
