@@ -9,6 +9,11 @@ namespace io_wally
 {
     using namespace std;
 
+    mqtt_server::pointer mqtt_server::create( context context )
+    {
+        return pointer( new mqtt_server( move( context ) ) );
+    }
+
     mqtt_server::mqtt_server( io_wally::context context ) : context_{move( context )}
     {
         return;
@@ -44,46 +49,56 @@ namespace io_wally
 
     void mqtt_server::do_accept( )
     {
+        auto self( shared_from_this( ) );
         acceptor_.async_accept( socket_,
-                                [this]( const boost::system::error_code& ec )
+                                [self]( const boost::system::error_code& ec )
                                 {
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "ACCEPTED: " << socket_;
+            BOOST_LOG_SEV( self->logger_, lvl::debug ) << "ACCEPTED: " << self->socket_;
             // Check whether the mqtt_server was stopped by a signal before this
             // completion handler had a chance to run.
-            if ( !acceptor_.is_open( ) )
+            if ( !self->acceptor_.is_open( ) )
             {
                 return;
             }
             if ( !ec )
             {
                 mqtt_connection::pointer session =
-                    mqtt_connection::create( move( socket_ ), connection_manager_, context_ );
-                connection_manager_.start( session );
+                    mqtt_connection::create( move( self->socket_ ), self->connection_manager_, self->context_ );
+                self->connection_manager_.start( session );
             }
 
-            do_accept( );
+            self->do_accept( );
         } );
     }
 
     void mqtt_server::do_await_stop( )
     {
         // See: http://www.boost.org/doc/libs/1_59_0/doc/html/boost_asio/reference/basic_signal_set/async_wait.html
-        termination_signals_.async_wait( [this]( const boost::system::error_code& ec, int signo )
+        auto self( shared_from_this( ) );
+        termination_signals_.async_wait( [self]( const boost::system::error_code& ec, int signo )
                                          {
                                              // Signal set was cancelled. Should not happen since termination_signals_
                                              // is private to this class and we sure don't want to cancel it, by golly!
                                              assert( !ec );
 
-                                             BOOST_LOG_SEV( logger_, lvl::debug ) << "Received termination signal ("
-                                                                                  << signo
-                                                                                  << ") - MQTT server will stop ...";
-                                             shutdown( );
+                                             self->do_shutdown( "Received termination signal [" + to_string( signo ) +
+                                                                "] - MQTT server will stop ..." );
                                          } );
     }
 
-    void mqtt_server::shutdown( )
+    void mqtt_server::shutdown( const std::string message )
     {
-        // The mqtt_server is stopped by cancelling all outstanding asynchronous operations. Once all operations have
+        auto self( shared_from_this( ) );
+        io_service_.post( [self, message]( )
+                          {
+                              self->do_shutdown( message );
+                          } );
+    }
+
+    void mqtt_server::do_shutdown( const std::string& message )
+    {
+        BOOST_LOG_SEV( logger_, lvl::debug ) << message;
+        // The mqtt_server is stopped by cancelling all outstanding asynchronous operations.Once all operations have
         // finished the io_service::run( ) call will exit.
         if ( acceptor_.is_open( ) )
             acceptor_.close( );

@@ -175,7 +175,7 @@ namespace io_wally
             // its initial default capacity
             read_buffer_.resize( total_length );
 
-            pointer self( shared_from_this( ) );
+            auto self( shared_from_this( ) );
             boost::asio::async_read(
                 socket_,
                 boost::asio::buffer( read_buffer_, total_length ),

@@ -2,9 +2,6 @@
 
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
-
 #include <boost/asio.hpp>
 
 #include <boost/log/common.hpp>
@@ -56,11 +53,11 @@ namespace io_wally
     ///  \brief An MQTT client connection.
     ///
     /// Represents a persistent connection between a client and an \c mqtt_server.
-    class mqtt_connection : public boost::enable_shared_from_this<mqtt_connection>
+    class mqtt_connection : public enable_shared_from_this<mqtt_connection>
     {
        public:
-        /// A pointer to an \c mqtt_connection.
-        typedef boost::shared_ptr<mqtt_connection> pointer;
+        /// A \c shared_ptr to an \c mqtt_connection.
+        typedef shared_ptr<mqtt_connection> pointer;
 
         /// Factory method for \c mqtt_connections.
         static pointer create( boost::asio::ip::tcp::socket socket,

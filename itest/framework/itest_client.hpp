@@ -36,7 +36,7 @@ namespace framework
             return ( rc == 0 ? true : false );
         }
 
-        int send_connect_packet( string& client_id,
+        int send_connect_packet( const string& client_id,
                                  const boost::optional<const string>& username = boost::none,
                                  const boost::optional<const string>& password = boost::none )
         {

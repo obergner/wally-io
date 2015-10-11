@@ -61,8 +61,9 @@ DISCLAIMER:
                 unique_ptr<spi::authentication_service> auth_service = auth_service_factory( config );
 
                 context context( move( config ), move( auth_service ) );
-                server_.reset( new mqtt_server( move( context ) ) );
+                server_ = mqtt_server::create( move( context ) );
 
+                // This will not return until process terminates
                 server_->run( );
             }
             catch ( const options::error& e )
@@ -78,9 +79,15 @@ DISCLAIMER:
             return EC_OK;
         }
 
-        void application::shutdown( )
+        void application::shutdown( const string& message )
         {
-            server_->shutdown( );
+            // TODO: When called from server_controller destructor in integration tests, this intermittently fails with:
+            //
+            // due to a fatal error condition:
+            //   SIGSEGV - Segmentation violation signal
+            //
+            // In that case, server_.use_count() == 0
+            server_->shutdown( message );
         }
     }  // namespace app
 }

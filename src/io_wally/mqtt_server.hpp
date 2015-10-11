@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include <signal.h>
 
 #include <boost/asio.hpp>
@@ -26,33 +28,43 @@ namespace io_wally
     /// \todo Provide an explicit stop method.
     ///
     /// \see http://www.boost.org/doc/libs/1_58_0/doc/html/boost_asio/example/cpp11/http/server/server.hpp
-    class mqtt_server
+    class mqtt_server : public std::enable_shared_from_this<mqtt_server>
     {
        public:
+        /// A \c shared_ptr to an \c mqtt_server.
+        typedef shared_ptr<mqtt_server> pointer;
+
+        /// Factory method for \c mqtt_connections.
+        static pointer create( context );
+
         /// \brief \c mqtt_server instances cannot be copied
         mqtt_server( const mqtt_server& ) = delete;
 
         /// \brief \c mqtt_server instances cannot be copied
         mqtt_server& operator=( const mqtt_server& ) = delete;
 
-        /// Construct the mqtt_server to listen on the specified TCP address and port.
-        explicit mqtt_server( io_wally::context context );
-
         /// Run the mqtt_server's io_service loop.
         void run( );
 
         /// Shut down this server, closing all client connections
-        void shutdown( );
+        void shutdown( const std::string message = "" );
 
        private:
+        /// Construct the mqtt_server to listen on the specified TCP address and port.
+        explicit mqtt_server( context context );
+
         /// Perform an asynchronous accept operation.
         void do_accept( );
 
         /// Wait for a request to stop the mqtt_server.
         void do_await_stop( );
 
+        /// Internal shutdown method, delegated to by \c shutdown().
+        void do_shutdown( const std::string& message = "" );
+
+       private:
         /// Context object
-        const io_wally::context context_;
+        const context context_;
 
         /// Our session manager that manages all connections
         mqtt_connection_manager connection_manager_{};
