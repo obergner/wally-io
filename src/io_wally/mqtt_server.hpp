@@ -37,6 +37,7 @@ namespace io_wally
         /// Factory method for \c mqtt_connections.
         static pointer create( context );
 
+       public:
         /// \brief \c mqtt_server instances cannot be copied
         mqtt_server( const mqtt_server& ) = delete;
 

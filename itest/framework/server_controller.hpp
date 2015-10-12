@@ -18,6 +18,7 @@ namespace framework
             const char* command_line_args[]{"executable", "--log-file", log_file, "--log-file-level", log_file_level};
 
             app_thread_ = std::thread( std::bind( &server_controller::run, this, command_line_args ) );
+            app_.wait_for_startup( );  // TODO: Probably not the best idea to wait in a constructor
         }
 
         virtual ~server_controller( )
@@ -28,18 +29,19 @@ namespace framework
        private:
         void run( const char** command_line_args )
         {
-            io_wally::app::application::instance( ).run( sizeof( command_line_args ) / sizeof( *command_line_args ),
-                                                         command_line_args );
+            app_.run( sizeof( command_line_args ) / sizeof( *command_line_args ), command_line_args );
         }
 
         void shutdown( )
         {
-            io_wally::app::application::instance( ).shutdown( "Integration test run done" );
+            app_.shutdown( "Integration test run done" );
 
             app_thread_.join( );
         }
 
        private:
+        io_wally::app::application app_{};
+
         std::thread app_thread_;
     };  // class server_controller
 

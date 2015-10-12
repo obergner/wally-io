@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <mutex>
 
 #include <boost/program_options.hpp>
 
@@ -40,28 +41,35 @@ DISCLAIMER:
         {
             try
             {
-                const pair<const options::variables_map, const options::options_description> config_plus_desc =
-                    options_parser_.parse( argc, argv );
-                options::variables_map config = config_plus_desc.first;
-                const options::options_description all_opts_desc = config_plus_desc.second;
-
-                if ( config.count( context::HELP ) )
                 {
-                    cout << USAGE << endl << all_opts_desc << endl;
-                    return EC_OK;
+                    // Nested scope to reliable release lock before we call server_.run(), which will block "forever".
+                    unique_lock<mutex> ul( startup_mutex_ );
+
+                    const pair<const options::variables_map, const options::options_description> config_plus_desc =
+                        options_parser_.parse( argc, argv );
+                    options::variables_map config = config_plus_desc.first;
+                    const options::options_description all_opts_desc = config_plus_desc.second;
+
+                    if ( config.count( context::HELP ) )
+                    {
+                        cout << USAGE << endl << all_opts_desc << endl;
+                        return EC_OK;
+                    }
+
+                    options::notify( config );
+
+                    app::init_logging( config );
+
+                    const spi::authentication_service_factory& auth_service_factory =
+                        app::authentication_service_factories::instance( )
+                            [config[context::AUTHENTICATION_SERVICE_FACTORY].as<string>( )];
+                    unique_ptr<spi::authentication_service> auth_service = auth_service_factory( config );
+
+                    context context( move( config ), move( auth_service ) );
+                    server_ = mqtt_server::create( move( context ) );
+
+                    startup_completed_.notify_all( );
                 }
-
-                options::notify( config );
-
-                app::init_logging( config );
-
-                const spi::authentication_service_factory& auth_service_factory =
-                    app::authentication_service_factories::instance( )[config[context::AUTHENTICATION_SERVICE_FACTORY]
-                                                                           .as<string>( )];
-                unique_ptr<spi::authentication_service> auth_service = auth_service_factory( config );
-
-                context context( move( config ), move( auth_service ) );
-                server_ = mqtt_server::create( move( context ) );
 
                 // This will not return until process terminates
                 server_->run( );
@@ -79,14 +87,19 @@ DISCLAIMER:
             return EC_OK;
         }
 
+        void application::wait_for_startup( )
+        {
+            unique_lock<mutex> ul( startup_mutex_ );
+
+            startup_completed_.wait( ul,
+                                     [this]( )
+                                     {
+                return server_.use_count( ) > 0;
+            } );
+        }
+
         void application::shutdown( const string& message )
         {
-            // TODO: When called from server_controller destructor in integration tests, this intermittently fails with:
-            //
-            // due to a fatal error condition:
-            //   SIGSEGV - Segmentation violation signal
-            //
-            // In that case, server_.use_count() == 0
             server_->shutdown( message );
         }
     }  // namespace app

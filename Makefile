@@ -135,11 +135,10 @@ ITCXXFLAGS      := $(filter-out -Werror, $(ITCXXFLAGS))
 ITLDLIBS        := $(LDLIBS)
 
 # Integrationtest SRCS
-ITSRCS          := $(wildcard itest/*.cpp)
-ITSRCS          += $(wildcard itest/framework/*.cpp)
+ITSRCS          := $(wildcard itest/framework/*.cpp)
 ITSRCS          += $(wildcard itest/io_wally/*.cpp)
 
-ITEXECSOURCE    := $(wildcard itest/*.cpp)
+ITEXECSOURCE    := itest/itests_main.cpp
 
 # Build dir for integrationtests
 ITBUILD         := $(BUILD)/itest

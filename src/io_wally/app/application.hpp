@@ -2,6 +2,8 @@
 
 #include <string>
 #include <memory>
+#include <mutex>
+#include <condition_variable>
 
 #include <boost/program_options.hpp>
 
@@ -14,7 +16,7 @@ namespace io_wally
     /// file handling and application initialization.
     namespace app
     {
-        /// \brief Singleton managing \c mqtt_server lifecycle
+        /// \brief Manage \c mqtt_server lifecycle
         ///
         /// Responsibilities:
         ///
@@ -25,7 +27,6 @@ namespace io_wally
         ///  * Hold on to \c mqtt_server instance, keeping it alive
         ///  * Forward shutdown requests to \c mqtt_server instance
         ///
-        /// TODO: Revisit decision to model \c application as a singleton.
         class application
         {
            public:
@@ -40,30 +41,31 @@ namespace io_wally
             static constexpr const int EC_RUNTIME_ERROR = 2;
 
            public:
-            /// \brief Return the singleton \c application instance.
-            static application& instance( )
+            /// \brief Create new \c application instance.
+            ///
+            application( )
             {
-                static application instance;
-
-                return instance;
+                return;
             }
 
-           public:
             /// \brief Run this application.
             ///
             int run( int argc, const char** argv );
+
+            /// \brief Wait until this instance has completed its \c run() method.
+            ///
+            /// Block calling thread until this instance's \c run() has completed. This method has been introduced to
+            /// facilitate integration tests yet may one day prove useful in application code.
+            void wait_for_startup( );
 
             /// \brief Shutdown this application, releasing all resources.
             ///
             void shutdown( const std::string& message = "Shutdown request by application" );
 
            private:
-            application( )
-            {
-                return;
-            }
+            std::mutex startup_mutex_{};
+            std::condition_variable startup_completed_{};
 
-           private:
             const options_parser options_parser_{};
 
             /// std::shared_ptr "owning" THE reference to out mqtt_server instance.
