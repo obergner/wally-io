@@ -56,6 +56,11 @@ namespace framework
             return client_.disconnect( );
         }
 
+        bool is_connected( )
+        {
+            return client_.isConnected( );
+        }
+
         bool disconnect( )
         {
             const int rc = ipstack_.disconnect( );

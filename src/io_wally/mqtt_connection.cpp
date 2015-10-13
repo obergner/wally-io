@@ -234,13 +234,22 @@ namespace io_wally
             case packet::Type::CONNECT:
             {
                 const io_wally::protocol::connect& connect = dynamic_cast<const io_wally::protocol::connect&>( packet );
-                if ( !context_.authentication_service( ).authenticate(
-                         socket_.remote_endpoint( ).address( ).to_string( ),
-                         connect.payload( ).username( ),
-                         connect.payload( ).password( ) ) )
+                if ( authenticated )
+                {
+                    // [MQTT-3.1.0-2]: If receiving a second CONNECT on an already authenticated connection, that
+                    // connection MUST be closed
+                    BOOST_LOG_SEV( logger_, lvl::error )
+                        << "--- [MQTT-3.1.0-2] Received CONNECT on already authenticated "
+                           "connection - connection will be closed";
+                    session_manager_.stop( shared_from_this( ) );
+                }
+                else if ( !context_.authentication_service( ).authenticate(
+                              socket_.remote_endpoint( ).address( ).to_string( ),
+                              connect.payload( ).username( ),
+                              connect.payload( ).password( ) ) )
                 {
                     write_packet_and_close_session( connack( false, connect_return_code::BAD_USERNAME_OR_PASSWORD ),
-                                                    "Authentication failed" );
+                                                    "--- Authentication failed" );
                 }
                 else
                 {
