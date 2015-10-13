@@ -52,10 +52,12 @@ namespace io_wally
             ///
             int run( int argc, const char** argv );
 
-            /// \brief Wait until this instance has completed its \c run() method.
+            /// \brief Wait until \c mqtt_server instance created by this \c application has started listening on its
+            ///        server socket.
             ///
-            /// Block calling thread until this instance's \c run() has completed. This method has been introduced to
-            /// facilitate integration tests yet may one day prove useful in application code.
+            /// Block calling thread until \c mqtt_server instance created by this \c application has started listening
+            /// for incoming connection requests. This method has been introduced to facilitate integration tests yet
+            /// may one day prove useful in application code.
             void wait_for_startup( );
 
             /// \brief Shutdown this application, releasing all resources.
@@ -63,6 +65,7 @@ namespace io_wally
             void shutdown( const std::string& message = "Shutdown request by application" );
 
            private:
+            /// Signal that this \c application instance has completed its \c run() method.
             std::mutex startup_mutex_{};
             std::condition_variable startup_completed_{};
 

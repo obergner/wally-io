@@ -81,7 +81,6 @@ TCXXFLAGS       := $(filter-out -Wswitch-enum, $(TCXXFLAGS))
 TLDLIBS         := $(LDLIBS)
 
 # Test SRCS
-TSRCS           := $(wildcard test/*.cpp)
 TSRCS           += $(wildcard test/io_wally/*.cpp)
 TSRCS           += $(wildcard test/io_wally/protocol/*.cpp)
 TSRCS           += $(wildcard test/io_wally/codec/*.cpp)
@@ -315,7 +314,7 @@ prepare-commit      : clean
 prepare-commit      : format
 prepare-commit      : main
 prepare-commit      : test
-#prepare-commit      : itest # TODO: integration tests suffer from intermittent failure due to segfault. Fix.
+prepare-commit      : itest
 prepare-commit      : check
 prepare-commit      : scan-main
 
@@ -324,5 +323,8 @@ prepare-commit      : scan-main
 ###############################################################################
 
 -include            $(MOBJS:.o=.d)
+-include            $(MEXECOBJ:.o=.d)
 -include            $(TOBJS:.o=.d)
+-include            $(TEXECOBJ:.o=.d)
 -include            $(ITOBJS:.o=.d)
+-include            $(ITEXECOBJ:.o=.d)

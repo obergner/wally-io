@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <mutex>
+#include <condition_variable>
 
 #include <signal.h>
 
@@ -47,6 +49,9 @@ namespace io_wally
         /// Run the mqtt_server's io_service loop.
         void run( );
 
+        /// Wait for this server to have bound to its server socket
+        void wait_for_bound( );
+
         /// Shut down this server, closing all client connections
         void shutdown( const std::string message = "" );
 
@@ -64,6 +69,10 @@ namespace io_wally
         void do_shutdown( const std::string& message = "" );
 
        private:
+        /// Signal when we are bound to our server socket
+        std::mutex bind_mutex_{};
+        std::condition_variable bound_{};
+
         /// Context object
         const context context_;
 

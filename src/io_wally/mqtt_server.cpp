@@ -1,5 +1,7 @@
 #include "io_wally/mqtt_server.hpp"
 
+#include <mutex>
+
 #include <boost/log/common.hpp>
 #include <boost/log/trivial.hpp>
 
@@ -37,6 +39,11 @@ namespace io_wally
         acceptor_.listen( );
 
         do_accept( );
+        {
+            // Use nested scope to guaratuee that lock is released
+            unique_lock<mutex> ul{bind_mutex_};
+            bound_.notify_all( );
+        }
 
         BOOST_LOG_SEV( logger_, lvl::info ) << "STARTED: MQTT server (" << acceptor_ << ")";
 
@@ -45,6 +52,16 @@ namespace io_wally
         // asynchronous operation outstanding: the asynchronous accept call waiting
         // for new incoming connections.
         io_service_.run( );
+    }
+
+    void mqtt_server::wait_for_bound( )
+    {
+        unique_lock<mutex> ul{bind_mutex_};
+        bound_.wait( ul,
+                     [this]( )
+                     {
+            return acceptor_.is_open( );
+        } );
     }
 
     void mqtt_server::do_accept( )
