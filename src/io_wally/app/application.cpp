@@ -88,13 +88,16 @@ DISCLAIMER:
 
         void application::wait_for_startup( )
         {
-            unique_lock<mutex> ul{startup_mutex_};
+            {
+                // Nested block: we don't want to hold this lock when calling wait_for_bound() below
+                unique_lock<mutex> ul{startup_mutex_};
 
-            startup_completed_.wait( ul,
-                                     [this]( )
-                                     {
-                return server_.use_count( ) > 0;
-            } );
+                startup_completed_.wait( ul,
+                                         [this]( )
+                                         {
+                    return server_.use_count( ) > 0;
+                } );
+            }
 
             server_->wait_for_bound( );
         }
