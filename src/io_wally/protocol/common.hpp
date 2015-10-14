@@ -7,8 +7,6 @@
 
 namespace io_wally
 {
-    using namespace std;
-
     /// \brief Namespace for MQTT Control Packet implementations.
     ///
     /// This namespace models MQTT "domain" classes, i.e. all MQTT Control Packets:
