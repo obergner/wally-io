@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <array>
 
+#include "io_wally/error/protocol.hpp"
 #include "io_wally/codec/pingreq_packet_decoder.hpp"
 
 using namespace io_wally;
@@ -56,10 +57,10 @@ SCENARIO( "pingreq_packet_decoder", "[decoder]" )
         WHEN( "a client passes that array into pingreq_packet_decoder::decode" )
         {
 
-            THEN( "that client should see a decoder::error::malformed_mqtt_packet being thrown" )
+            THEN( "that client should see a error::malformed_mqtt_packet being thrown" )
             {
                 REQUIRE_THROWS_AS( under_test.decode( fixed_header, buffer.begin( ), buffer.end( ) ),
-                                   decoder::error::malformed_mqtt_packet );
+                                   error::malformed_mqtt_packet );
             }
         }
     }
@@ -79,10 +80,10 @@ SCENARIO( "pingreq_packet_decoder", "[decoder]" )
         WHEN( "a client passes that array into pingreq_packet_decoder::decode" )
         {
 
-            THEN( "that client should see a decoder::error::malformed_mqtt_packet being thrown" )
+            THEN( "that client should see a error::malformed_mqtt_packet being thrown" )
             {
                 REQUIRE_THROWS_AS( under_test.decode( fixed_header, buffer.begin( ), buffer.end( ) ),
-                                   decoder::error::malformed_mqtt_packet );
+                                   error::malformed_mqtt_packet );
             }
         }
     }

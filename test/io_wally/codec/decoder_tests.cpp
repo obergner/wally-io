@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <array>
 
+#include "io_wally/error/protocol.hpp"
 #include "io_wally/codec/decoder.hpp"
 
 using namespace io_wally;
@@ -126,7 +127,7 @@ SCENARIO( "remaining_length functor", "[packets]" )
                 REQUIRE( st1 == decoder::ParseState::INCOMPLETE );
                 REQUIRE( st2 == decoder::ParseState::INCOMPLETE );
                 REQUIRE( st3 == decoder::ParseState::INCOMPLETE );
-                REQUIRE_THROWS_AS( under_test( actual_result, fourth_byte ), decoder::error::malformed_mqtt_packet );
+                REQUIRE_THROWS_AS( under_test( actual_result, fourth_byte ), error::malformed_mqtt_packet );
             }
         }
     }
@@ -291,10 +292,9 @@ SCENARIO( "header_decoder", "[decoder]" )
 
         WHEN( "a client passes that array into header_decoder" )
         {
-            THEN( "that client should see a decoder::error::malformed_mqtt_packet being thrown" )
+            THEN( "that client should see a error::malformed_mqtt_packet being thrown" )
             {
-                REQUIRE_THROWS_AS( under_test.decode( buffer.begin( ), buffer.end( ) ),
-                                   decoder::error::malformed_mqtt_packet );
+                REQUIRE_THROWS_AS( under_test.decode( buffer.begin( ), buffer.end( ) ), error::malformed_mqtt_packet );
             }
         }
     }
@@ -310,10 +310,10 @@ SCENARIO( "parsing a 16 bit unsigned integer", "[packets]" )
 
         WHEN( "a client passes that buffer into parse_std::uint16" )
         {
-            THEN( "the client should see a decoder::error::malformed_mqtt_packet being thrown" )
+            THEN( "the client should see a error::malformed_mqtt_packet being thrown" )
             {
                 REQUIRE_THROWS_AS( decoder::decode_uint16( buffer.begin( ), buffer.cend( ), &parsed_int ),
-                                   decoder::error::malformed_mqtt_packet );
+                                   error::malformed_mqtt_packet );
             }
         }
     }
@@ -325,10 +325,10 @@ SCENARIO( "parsing a 16 bit unsigned integer", "[packets]" )
 
         WHEN( "a client passes that buffer into parse_std::uint16" )
         {
-            THEN( "the client should see a decoder::error::malformed_mqtt_packet being thrown" )
+            THEN( "the client should see a error::malformed_mqtt_packet being thrown" )
             {
                 REQUIRE_THROWS_AS( decoder::decode_uint16( buffer.begin( ), buffer.cend( ), &parsed_int ),
-                                   decoder::error::malformed_mqtt_packet );
+                                   error::malformed_mqtt_packet );
             }
         }
     }
@@ -370,10 +370,10 @@ SCENARIO( "parsing a UTF-8 string", "[packets]" )
 
         WHEN( "a client passes that buffer into decode_utf8_string" )
         {
-            THEN( "the client should see a decoder::error::malformed_mqtt_packet being thrown" )
+            THEN( "the client should see a error::malformed_mqtt_packet being thrown" )
             {
                 REQUIRE_THROWS_AS( decoder::decode_utf8_string( buffer.begin( ), buffer.cend( ), &parsed_string ),
-                                   decoder::error::malformed_mqtt_packet );
+                                   error::malformed_mqtt_packet );
             }
         }
     }
@@ -385,10 +385,10 @@ SCENARIO( "parsing a UTF-8 string", "[packets]" )
 
         WHEN( "a client passes that buffer into decode_utf8_string" )
         {
-            THEN( "the client should see a decoder::error::malformed_mqtt_packet being thrown" )
+            THEN( "the client should see a error::malformed_mqtt_packet being thrown" )
             {
                 REQUIRE_THROWS_AS( decoder::decode_utf8_string( buffer.begin( ), buffer.cend( ), &parsed_string ),
-                                   decoder::error::malformed_mqtt_packet );
+                                   error::malformed_mqtt_packet );
             }
         }
     }

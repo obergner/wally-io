@@ -9,6 +9,7 @@
 #include <boost/log/common.hpp>
 #include <boost/log/trivial.hpp>
 
+#include "io_wally/error/protocol.hpp"
 #include "io_wally/logging_support.hpp"
 #include "io_wally/mqtt_connection_manager.hpp"
 
@@ -141,7 +142,7 @@ namespace io_wally
                                                 << "]";
             read_body( result, bytes_transferred );
         }
-        catch ( const io_wally::decoder::error::malformed_mqtt_packet& e )
+        catch ( const error::malformed_mqtt_packet& e )
         {
             BOOST_LOG_SEV( logger_, lvl::error )
                 << "Malformed control packet header - will stop this session: " << e.what( );
@@ -216,7 +217,7 @@ namespace io_wally
 
             dispatch_decoded_packet( *parsed_packet );
         }
-        catch ( const io_wally::decoder::error::malformed_mqtt_packet& e )
+        catch ( const error::malformed_mqtt_packet& e )
         {
             BOOST_LOG_SEV( logger_, lvl::error )
                 << "<<< Malformed control packet body - will stop this session: " << e.what( );
@@ -233,7 +234,7 @@ namespace io_wally
         {
             case packet::Type::CONNECT:
             {
-                const io_wally::protocol::connect& connect = dynamic_cast<const io_wally::protocol::connect&>( packet );
+                const protocol::connect& connect = dynamic_cast<const protocol::connect&>( packet );
                 if ( authenticated )
                 {
                     // [MQTT-3.1.0-2]: If receiving a second CONNECT on an already authenticated connection, that

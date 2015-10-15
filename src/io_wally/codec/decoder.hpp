@@ -8,6 +8,7 @@
 
 #include <boost/optional.hpp>
 
+#include "io_wally/error/protocol.hpp"
 #include "io_wally/protocol/common.hpp"
 
 namespace io_wally
@@ -23,33 +24,6 @@ namespace io_wally
     ///             implementations of \c packet_body_decoder, one for each concrete \c mqtt_packet.
     namespace decoder
     {
-
-        /// \brief Namespace for grouping all exceptions that may be thrown when decoding an \c mqtt_packet's on
-        ///        the wire representation.
-        namespace error
-        {
-            /// \brief Signals an incorrectly encoded MQTT control packet.
-            ///
-            /// Examples of when a \c malformed_mqtt_packet will be thrown include, but are not limited to:
-            ///
-            ///  - Incorrectly encoded remaining length
-            ///  - Packet is actually shorter than advertised in its remaining length field
-            ///  - Username field was flagged as being present in a \c connect packet's variable header, yet is
-            ///    actually missing in the payload
-            ///
-            class malformed_mqtt_packet : public std::runtime_error
-            {
-               public:
-                /// Create a new \c malformed_mqtt_packet instance, using the supplied reason.
-                ///
-                /// \param what      Reason
-                malformed_mqtt_packet( const std::string& what ) : std::runtime_error( what )
-                {
-                    return;
-                }
-            };
-        }
-
         /// \brief Denotes whether decoding a datum has been completed (sufficient input) or not (furhter input
         ///        needed).
         ///
@@ -109,8 +83,10 @@ namespace io_wally
             }
 
            private:
-            const uint8_t MSB_MASK = 0x80;
-            const uint32_t MAX_MULTIPLIER = 128 * 128 * 128;
+            static constexpr const uint8_t MSB_MASK = 0x80;
+            static constexpr const uint32_t MAX_MULTIPLIER = 128 * 128 * 128;
+
+           private:
             uint32_t current_ = 0;
             uint32_t multiplier_ = 1;
         };
