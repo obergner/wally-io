@@ -8,8 +8,6 @@
 
 namespace io_wally
 {
-    using namespace std;
-
     namespace encoder
     {
         /// \brief Encoder for CONNACK packet bodies.
@@ -36,7 +34,7 @@ namespace io_wally
                 using namespace io_wally::protocol;
 
                 if ( connack_packet.header( ).type( ) != packet::Type::CONNACK )
-                    throw invalid_argument( "Supplied packet is not a CONNACK packet" );
+                    throw std::invalid_argument( "Supplied packet is not a CONNACK packet" );
                 const connack& connack = dynamic_cast<const struct connack&>( connack_packet );
                 const uint8_t first_byte = ( connack.connack_header( ).is_session_present( ) ? 0x01 : 0x00 );
                 uint8_t second_byte;

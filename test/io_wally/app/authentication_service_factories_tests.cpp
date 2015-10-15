@@ -2,8 +2,6 @@
 
 #include "io_wally/app/authentication_service_factories.hpp"
 
-using namespace io_wally;
-
 SCENARIO( "authentication_service_factories", "[authentication]" )
 {
     GIVEN( "the authentication_service_factories instance" )
@@ -20,10 +18,10 @@ SCENARIO( "authentication_service_factories", "[authentication]" )
             {
                 const boost::program_options::variables_map config;
 
-                unique_ptr<io_wally::spi::authentication_service> accept_all_auth_srvc = accept_all( config );
+                std::unique_ptr<io_wally::spi::authentication_service> accept_all_auth_srvc = accept_all( config );
 
-                const boost::optional<const string> usr = string( "usr" );
-                const boost::optional<const string> pwd = string( "pwd" );
+                const boost::optional<const std::string> usr = std::string( "usr" );
+                const boost::optional<const std::string> pwd = std::string( "pwd" );
 
                 REQUIRE( accept_all_auth_srvc->authenticate( "", usr, pwd ) );
             }

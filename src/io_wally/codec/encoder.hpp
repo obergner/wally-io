@@ -8,8 +8,6 @@
 
 namespace io_wally
 {
-    using namespace std;
-
     /// \brief Namespace for grouping types and functions related to encoding \c mqtt_packets.
     ///
     /// Most important classes in this namespace are arguably
@@ -31,13 +29,13 @@ namespace io_wally
             ///
             ///  - Packet is longer than allowed by the rules around remaining lengt
             ///
-            class illegal_mqtt_packet : public runtime_error
+            class illegal_mqtt_packet : public std::runtime_error
             {
                public:
                 /// Create a new illegal_mqtt_packet, using the supplied reason.
                 ///
                 /// \param what      Reason
-                illegal_mqtt_packet( const string& what ) : runtime_error( what )
+                illegal_mqtt_packet( const std::string& what ) : std::runtime_error( what )
                 {
                     return;
                 }
@@ -124,7 +122,7 @@ namespace io_wally
         ///
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718016
         template <typename OutputIterator>
-        inline OutputIterator encode_utf8_string( const string& value, OutputIterator buf_start )
+        inline OutputIterator encode_utf8_string( const std::string& value, OutputIterator buf_start )
         {
             if ( value.length( ) > MAX_STRING_LENGTH )
                 throw error::illegal_mqtt_packet( "Supplied UTF-8 string is longer than allowed maximum" );

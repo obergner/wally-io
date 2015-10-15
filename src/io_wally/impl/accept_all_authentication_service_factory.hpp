@@ -10,9 +10,6 @@
 
 namespace io_wally
 {
-    using namespace std;
-    namespace options = boost::program_options;
-
     namespace impl
     {
         /// \brief Trivial \c authentication_service that simply accepts all incoming connect requests.
@@ -23,9 +20,9 @@ namespace io_wally
         {
            public:
             /// \brief Always return \c true.
-            bool authenticate( const string& /* client_ip */,
-                               const boost::optional<const string>& /* username  */,
-                               const boost::optional<const string>& /* password */ ) override
+            bool authenticate( const std::string& /* client_ip */,
+                               const boost::optional<const std::string>& /* username  */,
+                               const boost::optional<const std::string>& /* password */ ) override
             {
                 return true;
             }
@@ -42,9 +39,10 @@ namespace io_wally
                 return;
             }
 
-            unique_ptr<spi::authentication_service> operator( )( const options::variables_map& /* config */ )
+            std::unique_ptr<spi::authentication_service> operator( )(
+                const boost::program_options::variables_map& /* config */ )
             {
-                return unique_ptr<spi::authentication_service>( new accept_all_authentication_service( ) );
+                return std::unique_ptr<spi::authentication_service>( new accept_all_authentication_service( ) );
             }
         };
     }  // namespace spi

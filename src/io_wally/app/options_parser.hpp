@@ -6,8 +6,6 @@
 
 namespace io_wally
 {
-    using namespace std;
-
     namespace app
     {
         /// \brief Utility class for reading program options from command line and configuration file.
@@ -57,7 +55,8 @@ namespace io_wally
             static constexpr const char* WRITE_BUFFER_SIZE_SPEC = "conn-wbuf-size";
 
            public:
-            const pair<const boost::program_options::variables_map, const boost::program_options::options_description>
+            const std::pair<const boost::program_options::variables_map,
+                            const boost::program_options::options_description>
             parse( const int argc, const char** argv ) const;
 
         };  // class options_parser

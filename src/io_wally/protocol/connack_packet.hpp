@@ -11,8 +11,6 @@
 
 namespace io_wally
 {
-    using namespace std;
-
     namespace protocol
     {
         /// \brief Allowed connect return codes as defined by MQTT 3.1.1
@@ -45,7 +43,7 @@ namespace io_wally
         /// \brief Overload stream output operator for \c connect_return_code.
         ///
         /// Overload stream output operator for \c connect_return_code, primarily to facilitate logging.
-        inline ostream& operator<<( ostream& output, connect_return_code const& return_code )
+        inline std::ostream& operator<<( std::ostream& output, connect_return_code const& return_code )
         {
             switch ( return_code )
             {
@@ -119,21 +117,21 @@ namespace io_wally
                 return return_code_;
             }
 
+            /// \brief Overload stream output operator for \c connack_header.
+            ///
+            /// Overload stream output operator for \c connack_header, primarily to facilitate logging.
+            friend inline std::ostream& operator<<( std::ostream& output, connack_header const& connack_header )
+            {
+                output << "connack_header[session_present:" << connack_header.is_session_present( )
+                       << "|return_code:" << connack_header.return_code( ) << "]";
+
+                return output;
+            }
+
            private:
             const bool session_present_;
             const connect_return_code return_code_;
         };
-
-        /// \brief Overload stream output operator for \c connack_header.
-        ///
-        /// Overload stream output operator for \c connack_header, primarily to facilitate logging.
-        inline ostream& operator<<( ostream& output, connack_header const& connack_header )
-        {
-            output << "connack_header[session_present:" << connack_header.is_session_present( )
-                   << "|return_code:" << connack_header.return_code( ) << "]";
-
-            return output;
-        }
 
         /// \brief CONNACK packet, sent in response to a \c connect packet.
         ///
@@ -153,9 +151,9 @@ namespace io_wally
             }
 
             /// \return A string representation to be used in log output
-            virtual const string to_string( ) const override
+            virtual const std::string to_string( ) const override
             {
-                ostringstream output;
+                std::ostringstream output;
                 output << "connack[" << connack_header( ) << "]";
 
                 return output.str( );

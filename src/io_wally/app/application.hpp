@@ -78,7 +78,7 @@ namespace io_wally
             /// By rights, this should be a unique_ptr. HOWEVER: in mqtt_server we use shared_from_this(), and the
             /// contract around this is that it will return a shared_ptr(this) IFF there is already a shared_ptr
             /// pointing to \c this.
-            shared_ptr<mqtt_server> server_{};
+            std::shared_ptr<mqtt_server> server_{};
         };  // class application
     }       // namespace app
 }  // namespace io_wally

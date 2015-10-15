@@ -34,9 +34,9 @@ namespace io_wally
     {
        public:
         /// A \c shared_ptr to an \c mqtt_server.
-        typedef shared_ptr<mqtt_server> pointer;
+        typedef std::shared_ptr<mqtt_server> pointer;
 
-        /// Factory method for \c mqtt_connections.
+        /// Factory method for \c mqtt_servers.
         static pointer create( context );
 
        public:

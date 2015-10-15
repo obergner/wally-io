@@ -8,8 +8,6 @@
 
 namespace io_wally
 {
-    using namespace std;
-
     /// \brief Namespace defining interfaces to be implemented by "user" code that plugs in to the WallyIO
     ///        framework.
     namespace spi
@@ -17,12 +15,12 @@ namespace io_wally
         class authentication_service
         {
            public:
-            virtual bool authenticate( const string& client_ip,
-                                       const boost::optional<const string>& username,
-                                       const boost::optional<const string>& password ) = 0;
+            virtual bool authenticate( const std::string& client_ip,
+                                       const boost::optional<const std::string>& username,
+                                       const boost::optional<const std::string>& password ) = 0;
         };
 
-        typedef function<unique_ptr<authentication_service>( const boost::program_options::variables_map& config )>
-            authentication_service_factory;
+        typedef std::function<std::unique_ptr<authentication_service>(
+            const boost::program_options::variables_map& config )> authentication_service_factory;
     }  // namespace spi
 }  // namespace io_wally

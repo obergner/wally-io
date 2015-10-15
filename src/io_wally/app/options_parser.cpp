@@ -10,6 +10,7 @@
 
 namespace io_wally
 {
+    using namespace std;
     namespace options = boost::program_options;
 
     namespace app

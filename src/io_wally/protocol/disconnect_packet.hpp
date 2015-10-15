@@ -7,8 +7,6 @@
 
 namespace io_wally
 {
-    using namespace std;
-
     namespace protocol
     {
         /// \brief DISCONNECT packet, sent by clients when about to terminate a session.
@@ -18,15 +16,15 @@ namespace io_wally
         {
            public:
             /// \brief Create a new \c disconnect instance.
-            disconnect( ) : mqtt_packet{packet::header( 0x0E << 4, 0x00 )}
+            disconnect( ) : mqtt_packet{packet::header{0x0E << 4, 0x00}}
             {
                 return;
             }
 
             /// \return A string representation to be used in log output
-            virtual const string to_string( ) const override
+            virtual const std::string to_string( ) const override
             {
-                ostringstream output;
+                std::ostringstream output;
                 output << "disconnect[]";
 
                 return output.str( );

@@ -5,8 +5,6 @@
 
 namespace io_wally
 {
-    using namespace std;
-
     namespace encoder
     {
         /// \brief Encoder for PINGRESP packet bodies.
@@ -29,7 +27,7 @@ namespace io_wally
             OutputIterator encode( const protocol::mqtt_packet& pingresp_packet, OutputIterator buf_start ) const
             {
                 if ( pingresp_packet.header( ).type( ) != protocol::packet::Type::PINGRESP )
-                    throw invalid_argument( "Supplied packet is not a PINGRESP packet" );
+                    throw std::invalid_argument( "Supplied packet is not a PINGRESP packet" );
 
                 return buf_start;
             }

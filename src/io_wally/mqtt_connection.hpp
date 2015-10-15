@@ -21,20 +21,18 @@
 
 namespace io_wally
 {
-    using namespace std;
-
     class mqtt_connection_manager;
 
     struct mqtt_connection_id
     {
        public:
-        mqtt_connection_id( const string username, const boost::asio::ip::tcp::endpoint& client )
+        mqtt_connection_id( const std::string username, const boost::asio::ip::tcp::endpoint& client )
             : username_( username ), client_( client )
         {
             return;
         }
 
-        const string& username( )
+        const std::string& username( )
         {
             return username_;
         }
@@ -45,20 +43,20 @@ namespace io_wally
         }
 
        private:
-        const string username_;
+        const std::string username_;
         const boost::asio::ip::tcp::endpoint& client_;
     };
 
-    typedef vector<uint8_t>::iterator buf_iter;
+    typedef std::vector<uint8_t>::iterator buf_iter;
 
     ///  \brief An MQTT client connection.
     ///
     /// Represents a persistent connection between a client and an \c mqtt_server.
-    class mqtt_connection : public enable_shared_from_this<mqtt_connection>
+    class mqtt_connection : public std::enable_shared_from_this<mqtt_connection>
     {
        public:
         /// A \c shared_ptr to an \c mqtt_connection.
-        typedef shared_ptr<mqtt_connection> pointer;
+        typedef std::shared_ptr<mqtt_connection> pointer;
 
         /// Factory method for \c mqtt_connections.
         static pointer create( boost::asio::ip::tcp::socket socket,
@@ -85,7 +83,14 @@ namespace io_wally
         /// \brief Return a string representation to be used in log output.
         ///
         /// \return A string representation to be used in log output
-        const string to_string( ) const;
+        const std::string to_string( ) const;
+
+        inline friend std::ostream& operator<<( std::ostream& output, mqtt_connection const& mqtt_connection )
+        {
+            output << mqtt_connection.to_string( );
+
+            return output;
+        }
 
        private:
         /// Hide constructor since we MUST be created by static factory method 'create' above
@@ -108,7 +113,7 @@ namespace io_wally
 
         void write_packet( const protocol::mqtt_packet& packet );
 
-        void write_packet_and_close_session( const protocol::mqtt_packet& packet, const string& message );
+        void write_packet_and_close_session( const protocol::mqtt_packet& packet, const std::string& message );
 
        private:
         /// Our ID, only assigned once we have been authenticated
@@ -144,19 +149,12 @@ namespace io_wally
         const context& context_;
 
         /// Buffer incoming data
-        vector<uint8_t> read_buffer_;
+        std::vector<uint8_t> read_buffer_;
 
         /// Buffer outgoing data
-        vector<uint8_t> write_buffer_;
+        std::vector<uint8_t> write_buffer_;
 
         /// Timer, will fire if connection timeout expires without receiving a CONNECT request
         boost::asio::deadline_timer close_on_connection_timeout_;
     };
-
-    inline ostream& operator<<( ostream& output, mqtt_connection const& mqtt_connection )
-    {
-        output << mqtt_connection.to_string( );
-
-        return output;
-    }
 }

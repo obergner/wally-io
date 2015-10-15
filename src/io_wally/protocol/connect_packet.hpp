@@ -10,12 +10,8 @@
 
 namespace io_wally
 {
-    using namespace std;
-    using boost::optional;
-
     namespace protocol
     {
-
         /// \brief Represents a CONNECT control packet's \c variable header.
         ///
         /// In a CONNECT control packet the \c fixed \c packet::header shared by all MQTT control packet's is
@@ -60,7 +56,7 @@ namespace io_wally
             /// \brief Return \c protocol name, almost always "MQTT"
             ///
             /// \return Protocol name used by this CONNECT packet, almost always "MQTT"
-            const string protocol_name( ) const
+            const std::string protocol_name( ) const
             {
                 return prot_name_;
             }
@@ -158,47 +154,48 @@ namespace io_wally
                 return keep_alive_secs_;
             }
 
+            /// \brief Overload stream output operator for \c connect_header.
+            ///
+            /// Overload stream output operator for \c connect_header, primarily to facilitate logging.
+            inline friend std::ostream& operator<<( std::ostream& output, connect_header const& connect_header )
+            {
+                std::string will_qos_string;
+                switch ( connect_header.last_will_qos( ) )
+                {
+                    case packet::QoS::AT_MOST_ONCE:
+                        will_qos_string = "At most once";
+                        break;
+                    case packet::QoS::AT_LEAST_ONCE:
+                        will_qos_string = "At least once";
+                        break;
+                    case packet::QoS::EXACTLY_ONCE:
+                        will_qos_string = "Exactly once";
+                        break;
+                    case packet::QoS::RESERVED:
+                        will_qos_string = "Reserved";
+                        break;
+                    default:
+                        will_qos_string = "Reserved";
+                        break;
+                }
+
+                output << "connect_header[has_username:" << connect_header.has_username( )
+                       << "|has_password:" << connect_header.has_password( )
+                       << "|retain_last_will:" << connect_header.retain_last_will( )
+                       << "|last_will_qos:" << will_qos_string
+                       << "|contains_last_will:" << connect_header.contains_last_will( )
+                       << "|clean_session:" << connect_header.clean_session( )
+                       << "|keep_alive_secs:" << connect_header.keep_alive_secs( ) << "]";
+
+                return output;
+            }
+
            private:
-            const string prot_name_;
+            const std::string prot_name_;
             const uint8_t prot_level_;
             const uint8_t con_flags_;
             const uint16_t keep_alive_secs_;
         };  /// struct connect_header
-
-        /// \brief Overload stream output operator for \c connect_header.
-        ///
-        /// Overload stream output operator for \c connect_header, primarily to facilitate logging.
-        inline ostream& operator<<( ostream& output, connect_header const& connect_header )
-        {
-            string will_qos_string;
-            switch ( connect_header.last_will_qos( ) )
-            {
-                case packet::QoS::AT_MOST_ONCE:
-                    will_qos_string = "At most once";
-                    break;
-                case packet::QoS::AT_LEAST_ONCE:
-                    will_qos_string = "At least once";
-                    break;
-                case packet::QoS::EXACTLY_ONCE:
-                    will_qos_string = "Exactly once";
-                    break;
-                case packet::QoS::RESERVED:
-                    will_qos_string = "Reserved";
-                    break;
-                default:
-                    will_qos_string = "Reserved";
-                    break;
-            }
-
-            output << "connect_header[has_username:" << connect_header.has_username( )
-                   << "|has_password:" << connect_header.has_password( )
-                   << "|retain_last_will:" << connect_header.retain_last_will( ) << "|last_will_qos:" << will_qos_string
-                   << "|contains_last_will:" << connect_header.contains_last_will( )
-                   << "|clean_session:" << connect_header.clean_session( )
-                   << "|keep_alive_secs:" << connect_header.keep_alive_secs( ) << "]";
-
-            return output;
-        }
 
         /// \brief A CONNECT control packet's payload.
         ///
@@ -226,11 +223,14 @@ namespace io_wally
                              const char* const username,
                              const char* const password )
                 : client_id_{client_id},
-                  will_topic_{will_topic ? optional<const string>( string( will_topic ) ) : optional<const string>( )},
-                  will_message_{will_message ? optional<const string>( string( will_message ) )
-                                             : optional<const string>( )},
-                  username_{username ? optional<const string>( string( username ) ) : optional<const string>( )},
-                  password_{password ? optional<const string>( string( password ) ) : optional<const string>( )}
+                  will_topic_{will_topic ? boost::optional<const std::string>( std::string( will_topic ) )
+                                         : boost::optional<const std::string>( )},
+                  will_message_{will_message ? boost::optional<const std::string>( std::string( will_message ) )
+                                             : boost::optional<const std::string>( )},
+                  username_{username ? boost::optional<const std::string>( std::string( username ) )
+                                     : boost::optional<const std::string>( )},
+                  password_{password ? boost::optional<const std::string>( std::string( password ) )
+                                     : boost::optional<const std::string>( )}
             {
                 return;
             }
@@ -238,7 +238,7 @@ namespace io_wally
             /// \brief Return remote client's unique ID
             ///
             /// \return Remote client ID
-            const string& client_id( ) const
+            const std::string& client_id( ) const
             {
                 return client_id_;
             }
@@ -246,7 +246,7 @@ namespace io_wally
             /// \brief Return last will topic (if present)
             ///
             /// \return Topic this client's last will message should be published to (if present)
-            const optional<const string>& will_topic( ) const
+            const boost::optional<const std::string>& will_topic( ) const
             {
                 return will_topic_;
             }
@@ -254,7 +254,7 @@ namespace io_wally
             /// \brief Return last will message (if present)
             ///
             /// \return Message to publish in case this remote client "dies", i.e. unexpectedly disconnects (if present)
-            const optional<const string>& will_message( ) const
+            const boost::optional<const std::string>& will_message( ) const
             {
                 return will_message_;
             }
@@ -262,7 +262,7 @@ namespace io_wally
             /// \brief Return \c username (if present)
             ///
             /// \return Username authenticating remote client (if present)
-            const optional<const string>& username( ) const
+            const boost::optional<const std::string>& username( ) const
             {
                 return username_;
             }
@@ -270,32 +270,32 @@ namespace io_wally
             /// \brief Return \c password (if present)
             ///
             /// \return Password authenticating remote client (if present)
-            const optional<const string>& password( ) const
+            const boost::optional<const std::string>& password( ) const
             {
                 return password_;
             }
 
+            /// \brief Overload stream output operator for \c connect_payload.
+            ///
+            /// Overload stream output operator for \c connect_payload, primarily to facilitate logging.
+            inline friend std::ostream& operator<<( std::ostream& output, connect_payload const& connect_payload )
+            {
+                output << "connect_payload[client_id:" << connect_payload.client_id( ) << "|will_topic:"
+                       << ( connect_payload.will_topic( ) ? *connect_payload.will_topic( ) : "[NULL]" )
+                       << "|will_message:" << ( connect_payload.will_message( ) ? "[MESSAGE]" : "[NULL]" )
+                       << "|username:" << ( connect_payload.username( ) ? *connect_payload.username( ) : "[NULL]" )
+                       << "|password:" << ( connect_payload.password( ) ? "[PROTECTED]" : "[NULL]" ) << "]";
+
+                return output;
+            }
+
            private:
-            const string client_id_;                     // mandatory
-            const optional<const string> will_topic_;    // MUST be present iff will flag is set
-            const optional<const string> will_message_;  // MUST be present iff will flag is set
-            const optional<const string> username_;      // MUST be present iff username flag is set
-            const optional<const string> password_;      // MUST be present iff password flag is set
-        };
-
-        /// \brief Overload stream output operator for \c connect_payload.
-        ///
-        /// Overload stream output operator for \c connect_payload, primarily to facilitate logging.
-        inline ostream& operator<<( ostream& output, connect_payload const& connect_payload )
-        {
-            output << "connect_payload[client_id:" << connect_payload.client_id( )
-                   << "|will_topic:" << ( connect_payload.will_topic( ) ? *connect_payload.will_topic( ) : "[NULL]" )
-                   << "|will_message:" << ( connect_payload.will_message( ) ? "[MESSAGE]" : "[NULL]" )
-                   << "|username:" << ( connect_payload.username( ) ? *connect_payload.username( ) : "[NULL]" )
-                   << "|password:" << ( connect_payload.password( ) ? "[PROTECTED]" : "[NULL]" ) << "]";
-
-            return output;
-        }
+            const std::string client_id_;                            // mandatory
+            const boost::optional<const std::string> will_topic_;    // MUST be present iff will flag is set
+            const boost::optional<const std::string> will_message_;  // MUST be present iff will flag is set
+            const boost::optional<const std::string> username_;      // MUST be present iff username flag is set
+            const boost::optional<const std::string> password_;      // MUST be present iff password flag is set
+        };                                                           // struct connect_payload
 
         /// \brief CONNECT control packet, sent by a client to establish a new session.
         ///
@@ -312,7 +312,9 @@ namespace io_wally
             /// \param connect_header   Variable header, specific to CONNECT packet
             /// \param payload          Packet body/payload
             connect( const packet::header header, const connect_header connect_header, const connect_payload payload )
-                : mqtt_packet{move( header )}, connect_header_{move( connect_header )}, payload_{move( payload )}
+                : mqtt_packet{std::move( header )},
+                  connect_header_{std::move( connect_header )},
+                  payload_{std::move( payload )}
             {
                 return;
             }
@@ -336,9 +338,9 @@ namespace io_wally
             /// \brief Return a string representation to be used in log output.
             ///
             /// \return A string representation to be used in log output
-            virtual const string to_string( ) const override
+            virtual const std::string to_string( ) const override
             {
-                ostringstream output;
+                std::ostringstream output;
                 output << "connect[" << header( ) << "|" << connect_header( ) << "|" << payload( ) << "]";
 
                 return output.str( );
@@ -347,7 +349,7 @@ namespace io_wally
            private:
             const struct connect_header connect_header_;
             const struct connect_payload payload_;
-        };
+        };  // struct connect
 
     }  // namespace protocol
 }  // namespace io_wally

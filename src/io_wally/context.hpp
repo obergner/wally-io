@@ -10,9 +10,6 @@
 
 namespace io_wally
 {
-    using namespace std;
-    namespace options = boost::program_options;
-
     struct context
     {
        public:
@@ -46,19 +43,20 @@ namespace io_wally
         static constexpr const char* WRITE_BUFFER_SIZE = app::options_parser::WRITE_BUFFER_SIZE;
 
        public:
-        context( const options::variables_map options, unique_ptr<spi::authentication_service> authentication_service )
-            : options_{move( options )}, authentication_service_{move( authentication_service )}
+        context( const boost::program_options::variables_map options,
+                 std::unique_ptr<spi::authentication_service> authentication_service )
+            : options_{move( options )}, authentication_service_{std::move( authentication_service )}
         {
             return;
         }
 
         context( context&& other )
-            : options_{move( other.options_ )}, authentication_service_{move( other.authentication_service_ )}
+            : options_{move( other.options_ )}, authentication_service_{std::move( other.authentication_service_ )}
         {
             return;
         }
 
-        const options::variables_map& options( ) const
+        const boost::program_options::variables_map& options( ) const
         {
             return options_;
         }
@@ -69,7 +67,7 @@ namespace io_wally
         }
 
        private:
-        const options::variables_map options_;
-        unique_ptr<spi::authentication_service> authentication_service_;
+        const boost::program_options::variables_map options_;
+        std::unique_ptr<spi::authentication_service> authentication_service_;
     };
 }

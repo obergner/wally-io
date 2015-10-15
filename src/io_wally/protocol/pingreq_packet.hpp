@@ -7,8 +7,6 @@
 
 namespace io_wally
 {
-    using namespace std;
-
     namespace protocol
     {
         /// \brief PINGREQ packet, sent by clients to ascertain connectivity.
@@ -18,15 +16,15 @@ namespace io_wally
         {
            public:
             /// \brief Create a new \c pingreq instance.
-            pingreq( ) : mqtt_packet{packet::header( 0x0C << 4, 0x00 )}
+            pingreq( ) : mqtt_packet{packet::header{0x0C << 4, 0x00}}
             {
                 return;
             }
 
             /// \return A string representation to be used in log output
-            virtual const string to_string( ) const override
+            virtual const std::string to_string( ) const override
             {
-                ostringstream output;
+                std::ostringstream output;
                 output << "pingreq[]";
 
                 return output.str( );

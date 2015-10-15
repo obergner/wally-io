@@ -32,7 +32,7 @@ namespace io_wally
             ///
             /// TODO: check that parameter is a well-formed topic filter. Otherwise, throw an appropriate custom
             /// exception.
-            topic_filter( const std::string topic_filter ) : topic_filter_{topic_filter}
+            topic_filter( const std::string topic_filter ) : topic_filter_{std::move( topic_filter )}
             {
                 return;
             }

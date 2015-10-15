@@ -6,8 +6,6 @@
 
 namespace io_wally
 {
-    using namespace std;
-
     namespace encoder
     {
         /// \brief Encoder for MQTT packets.
@@ -29,7 +27,7 @@ namespace io_wally
             /// \param buf_start        Start of buffer to encode \c mqtt_packet into
             /// \param buf_end          End of buffer to encode \c mqtt_packet into
             /// \return         \c OutputIterator that points immediately past the last byte written
-            /// \throws invalid_argument   If buffer is too small for \c mqtt_packet
+            /// \throws std::invalid_argument   If buffer is too small for \c mqtt_packet
             /// \throws error::invalid_mqtt_packet      If \c mqtt_packet does not conform to spec
             OutputIterator encode( const protocol::mqtt_packet& mqtt_packet,
                                    OutputIterator buf_start,
@@ -37,7 +35,7 @@ namespace io_wally
             {
                 buf_start = encode_header( mqtt_packet.header( ), buf_start );
                 if ( ( buf_end - buf_start ) < mqtt_packet.header( ).remaining_length( ) )
-                    throw invalid_argument( "Supplied buffer is too small for encoding mqtt packet" );
+                    throw std::invalid_argument( "Supplied buffer is too small for encoding mqtt packet" );
 
                 return body_encoder_for( mqtt_packet ).encode( mqtt_packet, buf_start );
             }
@@ -68,7 +66,7 @@ namespace io_wally
                     case protocol::packet::Type::RESERVED1:
                     case protocol::packet::Type::RESERVED2:
                     default:
-                        throw invalid_argument( "Unsupported packet type" );
+                        throw std::invalid_argument( "Unsupported packet type" );
                 }
                 assert( false );
             }
