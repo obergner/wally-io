@@ -75,18 +75,18 @@ namespace io_wally
                 return topic_filter_;
             }
 
+            /// \brief Overload stream output operator for \c topic_filter.
+            ///
+            /// Overload stream output operator for \c topic_filter, primarily meant to facilitate logging.
+            inline friend std::ostream& operator<<( std::ostream& output, topic_filter const& topic_filter )
+            {
+                output << topic_filter.to_string( );
+
+                return output;
+            }
+
            private:
             const std::string topic_filter_;
         };  // struct topic_filter
-
-        /// \brief Overload stream output operator for \c topic_filter.
-        ///
-        /// Overload stream output operator for \c topic_filter, primarily meant to facilitate logging.
-        inline std::ostream& operator<<( std::ostream& output, topic_filter const& topic_filter )
-        {
-            output << topic_filter.to_string( );
-
-            return output;
-        }
-    }  // namespace protocol
+    }       // namespace protocol
 }  // namespace io_wally

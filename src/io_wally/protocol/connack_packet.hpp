@@ -120,7 +120,7 @@ namespace io_wally
             /// \brief Overload stream output operator for \c connack_header.
             ///
             /// Overload stream output operator for \c connack_header, primarily to facilitate logging.
-            friend inline std::ostream& operator<<( std::ostream& output, connack_header const& connack_header )
+            inline friend std::ostream& operator<<( std::ostream& output, connack_header const& connack_header )
             {
                 output << "connack_header[session_present:" << connack_header.is_session_present( )
                        << "|return_code:" << connack_header.return_code( ) << "]";
