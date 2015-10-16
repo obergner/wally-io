@@ -311,7 +311,7 @@ namespace io_wally
             /// \param header           Fixed header, common to all MQTT control packets
             /// \param connect_header   Variable header, specific to CONNECT packet
             /// \param payload          Packet body/payload
-            connect( const packet::header header, const connect_header connect_header, const connect_payload payload )
+            connect( packet::header header, connect_header connect_header, connect_payload payload )
                 : mqtt_packet{std::move( header )},
                   connect_header_{std::move( connect_header )},
                   payload_{std::move( payload )}

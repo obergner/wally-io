@@ -13,7 +13,6 @@ namespace io_wally
         /// \brief Represents a list of MQTT topics a client wishes to subscribe to combined with the maximum
         /// \c packet::QoS an MQTT should use when publishing messages received on one of those topics to this client.
         ///
-        ///
         /// A \c topic_filter is a hierarchical UTF-8 string pattern, using a forward slash ("/" U+002F) to separate
         /// topic levels. In a \c topic_filter, all UTF-8 characters besides the special wildcard characters "#"
         /// (U+0023) and "+" (U+002B) match themselves if a \c topic_filter is compared to a candidate topic string.
@@ -33,6 +32,9 @@ namespace io_wally
             /// \brief Create a \c subscription instance from the supplied argument.
             ///
             /// \param topic_filter Topic filter representing list of topics a client wants to subscribe to
+            /// \param maximum_qos Maximum \c QOS - Quality of Service - level an MQTT server is allowed to use when
+            /// delivering a message published to one of the topics matched by \c topic_filter to the client who sent
+            /// this \c subscription.
             ///
             /// \throws error::malformed_mqtt_packet If \c topic_filter is illegal
             subscription( std::string topic_filter, packet::QoS maximum_qos )

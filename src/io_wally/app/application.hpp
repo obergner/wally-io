@@ -43,10 +43,7 @@ namespace io_wally
            public:
             /// \brief Create new \c application instance.
             ///
-            application( )
-            {
-                return;
-            }
+            application( ) = default;
 
             /// \brief Run this application.
             ///

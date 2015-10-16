@@ -43,7 +43,7 @@ namespace io_wally
         static constexpr const char* WRITE_BUFFER_SIZE = app::options_parser::WRITE_BUFFER_SIZE;
 
        public:
-        context( const boost::program_options::variables_map options,
+        context( boost::program_options::variables_map options,
                  std::unique_ptr<spi::authentication_service> authentication_service )
             : options_{move( options )}, authentication_service_{std::move( authentication_service )}
         {
