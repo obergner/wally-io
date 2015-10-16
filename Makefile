@@ -125,10 +125,8 @@ ITCXXFLAGS      += -O0 -g
 ITCXXFLAGS      += -I ./itest
 ITCXXFLAGS      += -I $(PAHOPINC)
 ITCXXFLAGS      += -I $(PAHOCINC)
-ITCXXFLAGS      += -fpermissive
 ITCXXFLAGS      := $(filter-out -Wswitch-default, $(ITCXXFLAGS))
 ITCXXFLAGS      := $(filter-out -Wswitch-enum, $(ITCXXFLAGS))
-ITCXXFLAGS      := $(filter-out -Werror, $(ITCXXFLAGS))
 
 # Integrationtest linker flags
 ITLDLIBS        := $(LDLIBS)
@@ -164,6 +162,14 @@ DOCDIR          := $(BUILD)/doc
 
 # Clang's compilation database needed for some of its tooling
 COMPILATIONDB   := compile_commands.json
+
+# Snippets SRCS
+SNEXECSOURCE    := itest/snippets_main.cpp
+
+SNEXECOBJ       := $(patsubst itest/%.cpp, $(ITBUILD)/%.o, $(SNEXECSOURCE))
+
+# Main integrationtest executable
+SNEXEC          := $(ITBUILD)/snippets
 
 ###############################################################################
 # Rules
@@ -236,6 +242,17 @@ $(ITEXEC)           : $(MOBJS) $(ITOBJS) $(ITEXECOBJ) $(PAHOOBJS)    | $(ITBUILD
 
 $(ITBUILD)/%.o      : itest/%.cpp                      | $(ITBUILDDIRS)
 	$(CXX) $(CPPFLAGS) $(ITCXXFLAGS) -o $@ -c $<
+
+# Snippets
+.PHONY              : snippets 
+snippets            : snippets-compile
+	@./$(SNEXEC)
+
+.PHONY              : snippets-compile
+snippets-compile    : $(SNEXEC)                        | $(ITBUILDDIRS)
+
+$(SNEXEC)           : $(MOBJS) $(SNEXECOBJ)            | $(ITBUILDDIRS)
+	$(CXX) $(ITLDLIBS) -o $@ $^
 
 # Clean
 .PHONY              : clean

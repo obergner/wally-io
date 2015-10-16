@@ -26,6 +26,7 @@ namespace io_wally
         ///  - Username field was flagged as being present in a \c connect packet's variable header, yet is
         ///    actually missing in the payload
         ///
+        /// \todo Consider adding an MQTT specification reference of the form "[MQTT-1.2.3-5]".
         class malformed_mqtt_packet : public std::runtime_error
         {
            public:

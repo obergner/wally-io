@@ -54,6 +54,35 @@ namespace io_wally
                 RESERVED
             };
 
+            /// \brief Overload stream output operator for \c header_flags.
+            ///
+            /// Overload stream output operator for \c header_flag, primarily meant to facilitate logging.
+            inline std::ostream& operator<<( std::ostream& output, packet::QoS const& qos )
+            {
+                std::string qos_string;
+                switch ( qos )
+                {
+                    case packet::QoS::AT_MOST_ONCE:
+                        qos_string = "At most once";
+                        break;
+                    case packet::QoS::AT_LEAST_ONCE:
+                        qos_string = "At least once";
+                        break;
+                    case packet::QoS::EXACTLY_ONCE:
+                        qos_string = "Exactly once";
+                        break;
+                    case packet::QoS::RESERVED:
+                        qos_string = "Reserved";
+                        break;
+                    default:
+                        qos_string = "Reserved";
+                        break;
+                }
+                output << qos_string;
+
+                return output;
+            }
+
             /// \brief Type of MQTT control packet.
             ///
             enum class Type : int
@@ -278,41 +307,41 @@ namespace io_wally
                     return res;
                 }
 
+                /// \brief Overload stream output operator for \c header_flags.
+                ///
+                /// Overload stream output operator for \c header_flag, primarily meant to facilitate logging.
+                inline friend std::ostream& operator<<( std::ostream& output, header_flags const& header_flags )
+                {
+                    std::string qos_string;
+                    switch ( header_flags.qos( ) )
+                    {
+                        case packet::QoS::AT_MOST_ONCE:
+                            qos_string = "At most once";
+                            break;
+                        case packet::QoS::AT_LEAST_ONCE:
+                            qos_string = "At least once";
+                            break;
+                        case packet::QoS::EXACTLY_ONCE:
+                            qos_string = "Exactly once";
+                            break;
+                        case packet::QoS::RESERVED:
+                            qos_string = "Reserved";
+                            break;
+                        default:
+                            qos_string = "Reserved";
+                            break;
+                    }
+
+                    output << "header_flags[dup:" << header_flags.dup( ) << "|retain:" << header_flags.retain( )
+                           << "|qos:" << qos_string << "]";
+
+                    return output;
+                }
+
                private:
                 /// Fields
                 const uint8_t flags_;
             };  /// struct header_flags
-
-            /// \brief Overload stream output operator for \c header_flags.
-            ///
-            /// Overload stream output operator for \c header_flag, primarily meant to facilitate logging.
-            inline std::ostream& operator<<( std::ostream& output, header_flags const& header_flags )
-            {
-                std::string qos_string;
-                switch ( header_flags.qos( ) )
-                {
-                    case packet::QoS::AT_MOST_ONCE:
-                        qos_string = "At most once";
-                        break;
-                    case packet::QoS::AT_LEAST_ONCE:
-                        qos_string = "At least once";
-                        break;
-                    case packet::QoS::EXACTLY_ONCE:
-                        qos_string = "Exactly once";
-                        break;
-                    case packet::QoS::RESERVED:
-                        qos_string = "Reserved";
-                        break;
-                    default:
-                        qos_string = "Reserved";
-                        break;
-                }
-
-                output << "header_flags[dup:" << header_flags.dup( ) << "|retain:" << header_flags.retain( )
-                       << "|qos:" << qos_string << "]";
-
-                return output;
-            }
 
             constexpr const uint32_t MAX_ALLOWED_PACKET_LENGTH = 268435455;
 
@@ -387,78 +416,78 @@ namespace io_wally
                     return 1 + rem_length_bytes + remaining_length_;
                 }
 
+                /// \brief Overload stream output operator for \c headers.
+                ///
+                /// Overload stream output operator for \c headers, primarily meant to facilitate logging.
+                inline friend std::ostream& operator<<( std::ostream& output, header const& header )
+                {
+                    std::string type_string;
+                    switch ( header.type( ) )
+                    {
+                        case packet::Type::RESERVED1:
+                            type_string = "Reserved1";
+                            break;
+                        case packet::Type::CONNECT:
+                            type_string = "Connect";
+                            break;
+                        case packet::Type::CONNACK:
+                            type_string = "Connack";
+                            break;
+                        case packet::Type::PUBLISH:
+                            type_string = "Publish";
+                            break;
+                        case packet::Type::PUBACK:
+                            type_string = "Puback";
+                            break;
+                        case packet::Type::PUBREL:
+                            type_string = "Pubrel";
+                            break;
+                        case packet::Type::PUBREC:
+                            type_string = "Pubrec";
+                            break;
+                        case packet::Type::PUBCOMP:
+                            type_string = "Pubcomp";
+                            break;
+                        case packet::Type::SUBSCRIBE:
+                            type_string = "Subscribe";
+                            break;
+                        case packet::Type::SUBACK:
+                            type_string = "Suback";
+                            break;
+                        case packet::Type::UNSUBSCRIBE:
+                            type_string = "Unsubscribe";
+                            break;
+                        case packet::Type::UNSUBACK:
+                            type_string = "Unsuback";
+                            break;
+                        case packet::Type::PINGREQ:
+                            type_string = "Pingreq";
+                            break;
+                        case packet::Type::PINGRESP:
+                            type_string = "Pingresp";
+                            break;
+                        case packet::Type::DISCONNECT:
+                            type_string = "Disconnect";
+                            break;
+                        case packet::Type::RESERVED2:
+                            type_string = "Reserved2";
+                            break;
+                        default:
+                            type_string = "Reserved2";
+                            break;
+                    }
+
+                    output << "header[type:" << type_string << "|" << header.flags( ) << "]";
+
+                    return output;
+                }
+
                private:
                 /// Fields
                 const uint8_t control_packet_type_and_flags_;
                 const uint32_t remaining_length_;
             };  /// struct header
-
-            /// \brief Overload stream output operator for \c headers.
-            ///
-            /// Overload stream output operator for \c headers, primarily meant to facilitate logging.
-            inline std::ostream& operator<<( std::ostream& output, header const& header )
-            {
-                std::string type_string;
-                switch ( header.type( ) )
-                {
-                    case packet::Type::RESERVED1:
-                        type_string = "Reserved1";
-                        break;
-                    case packet::Type::CONNECT:
-                        type_string = "Connect";
-                        break;
-                    case packet::Type::CONNACK:
-                        type_string = "Connack";
-                        break;
-                    case packet::Type::PUBLISH:
-                        type_string = "Publish";
-                        break;
-                    case packet::Type::PUBACK:
-                        type_string = "Puback";
-                        break;
-                    case packet::Type::PUBREL:
-                        type_string = "Pubrel";
-                        break;
-                    case packet::Type::PUBREC:
-                        type_string = "Pubrec";
-                        break;
-                    case packet::Type::PUBCOMP:
-                        type_string = "Pubcomp";
-                        break;
-                    case packet::Type::SUBSCRIBE:
-                        type_string = "Subscribe";
-                        break;
-                    case packet::Type::SUBACK:
-                        type_string = "Suback";
-                        break;
-                    case packet::Type::UNSUBSCRIBE:
-                        type_string = "Unsubscribe";
-                        break;
-                    case packet::Type::UNSUBACK:
-                        type_string = "Unsuback";
-                        break;
-                    case packet::Type::PINGREQ:
-                        type_string = "Pingreq";
-                        break;
-                    case packet::Type::PINGRESP:
-                        type_string = "Pingresp";
-                        break;
-                    case packet::Type::DISCONNECT:
-                        type_string = "Disconnect";
-                        break;
-                    case packet::Type::RESERVED2:
-                        type_string = "Reserved2";
-                        break;
-                    default:
-                        type_string = "Reserved2";
-                        break;
-                }
-
-                output << "header[type:" << type_string << "|" << header.flags( ) << "]";
-
-                return output;
-            }
-        }  // namespace packet
+        }       // namespace packet
 
         /// \brief Base class for all MQTT control packets.
         ///
@@ -478,6 +507,16 @@ namespace io_wally
             /// \return A string representation of this MQTT packet suitable for log output.
             virtual const std::string to_string( ) const = 0;
 
+            /// \brief Overload stream output operator for \c mqtt_packet.
+            ///
+            /// Overload stream output operator for \c mqtt_packet, primarily meant to facilitate logging.
+            inline friend std::ostream& operator<<( std::ostream& output, mqtt_packet const& mqtt_packet )
+            {
+                output << mqtt_packet.to_string( );
+
+                return output;
+            }
+
            protected:
             /// \brief Create a new \c mqtt_packet instance from the supplied \c packet::header.
             ///
@@ -491,16 +530,6 @@ namespace io_wally
             /// Fields
             const struct packet::header header_;
         };
-
-        /// \brief Overload stream output operator for \c mqtt_packet.
-        ///
-        /// Overload stream output operator for \c mqtt_packet, primarily meant to facilitate logging.
-        inline std::ostream& operator<<( std::ostream& output, mqtt_packet const& mqtt_packet )
-        {
-            output << mqtt_packet.to_string( );
-
-            return output;
-        }
 
         /// \brief Base class for MQTT acks.
         ///
