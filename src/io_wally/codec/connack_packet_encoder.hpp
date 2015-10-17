@@ -36,9 +36,9 @@ namespace io_wally
                 if ( connack_packet.header( ).type( ) != packet::Type::CONNACK )
                     throw std::invalid_argument( "Supplied packet is not a CONNACK packet" );
                 const connack& connack = dynamic_cast<const struct connack&>( connack_packet );
-                const uint8_t first_byte = ( connack.connack_header( ).is_session_present( ) ? 0x01 : 0x00 );
+                const uint8_t first_byte = ( connack.is_session_present( ) ? 0x01 : 0x00 );
                 uint8_t second_byte;
-                switch ( connack.connack_header( ).return_code( ) )
+                switch ( connack.return_code( ) )
                 {
                     case connect_return_code::CONNECTION_ACCEPTED:
                         second_byte = 0x00;

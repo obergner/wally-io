@@ -76,24 +76,14 @@ namespace io_wally
             return output;
         }
 
-        /// \brief A CONNACK control packet's variable header.
-        ///
-        /// Contains a CONNACK control packet's variable header, i.e.
-        ///
-        ///  - \c session_present (MANDATORY)
-        ///  - \c connect_return_code (MANDATORY)
+        /// \brief CONNACK packet, sent in response to a \c connect packet.
         ///
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718035
-        struct connack_header
+        struct connack : public mqtt_ack
         {
            public:
-            /// \brief Create a new \c connack_header instance.
-            ///
-            /// \param session_present     Whether there already was a persistent session present for this client
-            ///                            when it sent CONNECT
-            /// \param return_code         Return code in response to CONNECT
-            connack_header( const bool session_present, const connect_return_code return_code )
-                : session_present_{session_present}, return_code_{return_code}
+            connack( const bool session_present, const connect_return_code return_code )
+                : mqtt_ack{packet::Type::CONNACK, 2}, session_present_{session_present}, return_code_{return_code}
             {
                 return;
             }
@@ -117,50 +107,18 @@ namespace io_wally
                 return return_code_;
             }
 
-            /// \brief Overload stream output operator for \c connack_header.
-            ///
-            /// Overload stream output operator for \c connack_header, primarily to facilitate logging.
-            inline friend std::ostream& operator<<( std::ostream& output, connack_header const& connack_header )
-            {
-                output << "connack_header[session_present:" << connack_header.is_session_present( )
-                       << "|return_code:" << connack_header.return_code( ) << "]";
-
-                return output;
-            }
-
-           private:
-            const bool session_present_;
-            const connect_return_code return_code_;
-        };
-
-        /// \brief CONNACK packet, sent in response to a \c connect packet.
-        ///
-        /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718035
-        struct connack : public mqtt_ack
-        {
-           public:
-            connack( const bool session_present, const connect_return_code return_code )
-                : mqtt_ack{packet::Type::CONNACK, 2}, connack_header_{session_present, return_code}
-            {
-                return;
-            }
-
-            const struct connack_header& connack_header( ) const
-            {
-                return connack_header_;
-            }
-
             /// \return A string representation to be used in log output
             virtual const std::string to_string( ) const override
             {
                 std::ostringstream output;
-                output << "connack[" << connack_header( ) << "]";
+                output << "connack[rc:" << return_code_ << "|sp:" << session_present_ << "]";
 
                 return output.str( );
             }
 
            private:
-            const struct connack_header connack_header_;
+            const bool session_present_;
+            const connect_return_code return_code_;
         };
 
     }  // namespace protocol

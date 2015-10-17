@@ -159,30 +159,10 @@ namespace io_wally
             /// Overload stream output operator for \c connect_header, primarily to facilitate logging.
             inline friend std::ostream& operator<<( std::ostream& output, connect_header const& connect_header )
             {
-                std::string will_qos_string;
-                switch ( connect_header.last_will_qos( ) )
-                {
-                    case packet::QoS::AT_MOST_ONCE:
-                        will_qos_string = "At most once";
-                        break;
-                    case packet::QoS::AT_LEAST_ONCE:
-                        will_qos_string = "At least once";
-                        break;
-                    case packet::QoS::EXACTLY_ONCE:
-                        will_qos_string = "Exactly once";
-                        break;
-                    case packet::QoS::RESERVED:
-                        will_qos_string = "Reserved";
-                        break;
-                    default:
-                        will_qos_string = "Reserved";
-                        break;
-                }
-
                 output << "connect_header[has_username:" << connect_header.has_username( )
                        << "|has_password:" << connect_header.has_password( )
                        << "|retain_last_will:" << connect_header.retain_last_will( )
-                       << "|last_will_qos:" << will_qos_string
+                       << "|last_will_qos:" << connect_header.last_will_qos( )
                        << "|contains_last_will:" << connect_header.contains_last_will( )
                        << "|clean_session:" << connect_header.clean_session( )
                        << "|keep_alive_secs:" << connect_header.keep_alive_secs( ) << "]";

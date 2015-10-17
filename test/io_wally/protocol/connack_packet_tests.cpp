@@ -4,14 +4,14 @@
 
 using namespace io_wally::protocol;
 
-SCENARIO( "connack_header", "[packets]" )
+SCENARIO( "connack", "[packets]" )
 {
 
-    GIVEN( "a connack_header with session_present set to false" )
+    GIVEN( "a connack with session_present set to false" )
     {
         const bool session_present = false;
         connect_return_code return_code = connect_return_code::NOT_AUTHORIZED;
-        const connack_header under_test( session_present, return_code );
+        const connack under_test( session_present, return_code );
 
         WHEN( "a caller asks for the session_present flag" )
         {
@@ -24,11 +24,11 @@ SCENARIO( "connack_header", "[packets]" )
         }
     }
 
-    GIVEN( "a connack_header with session_present set to true" )
+    GIVEN( "a connack with session_present set to true" )
     {
         const bool session_present = true;
         connect_return_code return_code = connect_return_code::NOT_AUTHORIZED;
-        const connack_header under_test( session_present, return_code );
+        const connack under_test( session_present, return_code );
 
         WHEN( "a caller asks for the session_present flag" )
         {
@@ -41,11 +41,11 @@ SCENARIO( "connack_header", "[packets]" )
         }
     }
 
-    GIVEN( "a connack_header with return_code set to NOT_AUTHORIZED" )
+    GIVEN( "a connack with return_code set to NOT_AUTHORIZED" )
     {
         const bool session_present = true;
         connect_return_code return_code = connect_return_code::NOT_AUTHORIZED;
-        const connack_header under_test( session_present, return_code );
+        const connack under_test( session_present, return_code );
 
         WHEN( "a caller asks for the return_code" )
         {
@@ -58,11 +58,11 @@ SCENARIO( "connack_header", "[packets]" )
         }
     }
 
-    GIVEN( "a connack_header with return_code set to UNACCEPTABLE_PROTOCOL_VERSION" )
+    GIVEN( "a connack with return_code set to UNACCEPTABLE_PROTOCOL_VERSION" )
     {
         const bool session_present = true;
         connect_return_code return_code = connect_return_code::UNACCEPTABLE_PROTOCOL_VERSION;
-        const connack_header under_test( session_present, return_code );
+        const connack under_test( session_present, return_code );
 
         WHEN( "a caller asks for the return_code" )
         {
@@ -75,11 +75,11 @@ SCENARIO( "connack_header", "[packets]" )
         }
     }
 
-    GIVEN( "a connack_header with return_code set to IDENTIFIER_REJECTED" )
+    GIVEN( "a connack with return_code set to IDENTIFIER_REJECTED" )
     {
         const bool session_present = true;
         connect_return_code return_code = connect_return_code::IDENTIFIER_REJECTED;
-        const connack_header under_test( session_present, return_code );
+        const connack under_test( session_present, return_code );
 
         WHEN( "a caller asks for the return_code" )
         {
@@ -92,11 +92,11 @@ SCENARIO( "connack_header", "[packets]" )
         }
     }
 
-    GIVEN( "a connack_header with return_code set to SERVER_UNAVAILABLE" )
+    GIVEN( "a connack with return_code set to SERVER_UNAVAILABLE" )
     {
         const bool session_present = true;
         connect_return_code return_code = connect_return_code::SERVER_UNAVAILABLE;
-        const connack_header under_test( session_present, return_code );
+        const connack under_test( session_present, return_code );
 
         WHEN( "a caller asks for the return_code" )
         {
@@ -109,11 +109,11 @@ SCENARIO( "connack_header", "[packets]" )
         }
     }
 
-    GIVEN( "a connack_header with return_code set to BAD_USERNAME_OR_PASSWORD" )
+    GIVEN( "a connack with return_code set to BAD_USERNAME_OR_PASSWORD" )
     {
         const bool session_present = true;
         connect_return_code return_code = connect_return_code::BAD_USERNAME_OR_PASSWORD;
-        const connack_header under_test( session_present, return_code );
+        const connack under_test( session_present, return_code );
 
         WHEN( "a caller asks for the return_code" )
         {
@@ -126,11 +126,11 @@ SCENARIO( "connack_header", "[packets]" )
         }
     }
 
-    GIVEN( "a connack_header with return_code set to CONNECTION_ACCEPTED" )
+    GIVEN( "a connack with return_code set to CONNECTION_ACCEPTED" )
     {
         const bool session_present = true;
         connect_return_code return_code = connect_return_code::CONNECTION_ACCEPTED;
-        const connack_header under_test( session_present, return_code );
+        const connack under_test( session_present, return_code );
 
         WHEN( "a caller asks for the return_code" )
         {
