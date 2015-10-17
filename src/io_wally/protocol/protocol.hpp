@@ -8,3 +8,4 @@
 #include "io_wally/protocol/pingresp_packet.hpp"
 #include "io_wally/protocol/subscription.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
+#include "io_wally/protocol/suback_packet.hpp"
