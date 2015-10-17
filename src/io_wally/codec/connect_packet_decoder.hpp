@@ -56,12 +56,10 @@ namespace io_wally
                 const uint8_t protocol_level = (const uint8_t)*new_buf_start++;
 
                 const uint8_t connect_flags = (const uint8_t)*new_buf_start++;
+                const protocol::connect_flags cf{connect_flags};
 
                 uint16_t keep_alive_secs = -1;
                 new_buf_start = decode_uint16( new_buf_start, buf_end, &keep_alive_secs );
-
-                const struct connect_header connect_hdr(
-                    protocol_name, protocol_level, connect_flags, keep_alive_secs );
 
                 // Parse payload connect_payload
                 char* client_id = nullptr;
@@ -69,7 +67,7 @@ namespace io_wally
 
                 char* last_will_topic = nullptr;
                 char* last_will_msg = nullptr;
-                if ( connect_hdr.contains_last_will( ) )
+                if ( cf.contains_last_will( ) )
                 {
                     new_buf_start = decode_utf8_string( new_buf_start, buf_end, &last_will_topic );
 
@@ -77,13 +75,13 @@ namespace io_wally
                 }
 
                 char* username = nullptr;
-                if ( connect_hdr.has_username( ) )
+                if ( cf.has_username( ) )
                 {
                     new_buf_start = decode_utf8_string( new_buf_start, buf_end, &username );
                 }
 
                 char* password = nullptr;
-                if ( connect_hdr.has_password( ) )
+                if ( cf.has_password( ) )
                 {
                     new_buf_start = decode_utf8_string( new_buf_start, buf_end, &password );
                 }
@@ -92,12 +90,16 @@ namespace io_wally
                     throw error::malformed_mqtt_packet(
                         "Combined size of fields in buffers does not add up to advertised remaining length" );
 
-                struct connect_payload connect_pyl( client_id, last_will_topic, last_will_msg, username, password );
-
-                std::unique_ptr<const mqtt_packet> result(
-                    new protocol::connect( std::move( header ), std::move( connect_hdr ), std::move( connect_pyl ) ) );
-
-                return result;
+                return std::make_unique<const protocol::connect>( header,
+                                                                  protocol_name,
+                                                                  protocol_level,
+                                                                  connect_flags,
+                                                                  keep_alive_secs,
+                                                                  client_id,
+                                                                  last_will_topic,
+                                                                  last_will_msg,
+                                                                  username,
+                                                                  password );
             }
         };  // class connect_packet_decoder
 

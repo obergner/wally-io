@@ -8,7 +8,7 @@ CXX             := g++
 CC              := gcc
 
 # Standard compiler flags
-CXXFLAGS        := -std=c++11
+CXXFLAGS        := -std=c++14
 CXXFLAGS        += -fdiagnostics-color=auto
 CXXFLAGS        += -MMD # automatically generate dependency rules on each run
 CXXFLAGS        += -I ./src

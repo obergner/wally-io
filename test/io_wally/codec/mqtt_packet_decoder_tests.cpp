@@ -99,26 +99,26 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
 
                 CHECK( connect_packet.header( ).type( ) == protocol::packet::Type::CONNECT );
 
-                CHECK( connect_packet.connect_header( ).contains_last_will( ) );
-                CHECK( connect_packet.connect_header( ).last_will_qos( ) == protocol::packet::QoS::AT_LEAST_ONCE );
-                CHECK( !connect_packet.connect_header( ).retain_last_will( ) );
-                CHECK( connect_packet.connect_header( ).protocol_level( ) == protocol::packet::ProtocolLevel::LEVEL4 );
-                CHECK( connect_packet.connect_header( ).protocol_name( ) == "MQTT" );
-                CHECK( connect_packet.connect_header( ).clean_session( ) );
-                CHECK( connect_packet.connect_header( ).has_username( ) );
-                CHECK( connect_packet.connect_header( ).has_password( ) );
-                CHECK( connect_packet.connect_header( ).has_password( ) );
-                CHECK( connect_packet.connect_header( ).keep_alive_secs( ) == 10 );
+                CHECK( connect_packet.contains_last_will( ) );
+                CHECK( connect_packet.last_will_qos( ) == protocol::packet::QoS::AT_LEAST_ONCE );
+                CHECK( !connect_packet.retain_last_will( ) );
+                CHECK( connect_packet.protocol_level( ) == protocol::packet::ProtocolLevel::LEVEL4 );
+                CHECK( connect_packet.protocol_name( ) == "MQTT" );
+                CHECK( connect_packet.clean_session( ) );
+                CHECK( connect_packet.has_username( ) );
+                CHECK( connect_packet.has_password( ) );
+                CHECK( connect_packet.has_password( ) );
+                CHECK( connect_packet.keep_alive_secs( ) == 10 );
 
-                CHECK( connect_packet.payload( ).client_id( ) == "surgemq" );
-                CHECK( connect_packet.payload( ).will_topic( ) );
-                CHECK( *connect_packet.payload( ).will_topic( ) == "will" );
-                CHECK( connect_packet.payload( ).will_message( ) );
-                CHECK( *connect_packet.payload( ).will_message( ) == "send me home" );
-                CHECK( connect_packet.payload( ).username( ) );
-                CHECK( *connect_packet.payload( ).username( ) == "surgemq" );
-                CHECK( connect_packet.payload( ).password( ) );
-                CHECK( *connect_packet.payload( ).password( ) == "verysecret" );
+                CHECK( connect_packet.client_id( ) == "surgemq" );
+                CHECK( connect_packet.will_topic( ) );
+                CHECK( *connect_packet.will_topic( ) == "will" );
+                CHECK( connect_packet.will_message( ) );
+                CHECK( *connect_packet.will_message( ) == "send me home" );
+                CHECK( connect_packet.username( ) );
+                CHECK( *connect_packet.username( ) == "surgemq" );
+                CHECK( connect_packet.password( ) );
+                CHECK( *connect_packet.password( ) == "verysecret" );
             }
         }
     }

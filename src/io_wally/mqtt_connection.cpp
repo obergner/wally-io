@@ -246,8 +246,8 @@ namespace io_wally
                 }
                 else if ( !context_.authentication_service( ).authenticate(
                               socket_.remote_endpoint( ).address( ).to_string( ),
-                              connect.payload( ).username( ),
-                              connect.payload( ).password( ) ) )
+                              connect.username( ),
+                              connect.password( ) ) )
                 {
                     write_packet_and_close_session( connack( false, connect_return_code::BAD_USERNAME_OR_PASSWORD ),
                                                     "--- Authentication failed" );
