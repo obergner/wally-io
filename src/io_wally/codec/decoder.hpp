@@ -235,23 +235,20 @@ namespace io_wally
             remaining_length remaining_length_;
         };  // header_decoder
 
-        /// \brief Parse a 16 bit wide unsigned int in the supplied buffer.
+        /// \brief Parse a 8 bit wide unsigned int in the supplied buffer into a \c packet::QoS.
         ///
-        /// Start decoding at \c uint16_start, interpreting the supplied buffer as a 16 bit unsigned int in big
-        /// endian byte order, as mandated by MQTT. Stop decoding when reaching the end of unsigned int to parse,
-        /// or \c buf_end, whichever comes first. Return the parsed unsigned int, or throw
+        /// Start decoding at \c uint8_start, interpreting the supplied buffer as a 8 bit unsigned int. Stop decoding
+        /// when reaching the end of unsigned int to parse, or \c buf_end, whichever comes first. Transform parsed
+        /// unsigned int into \c packet::QoS and assign the result to \c parsed_qos, or throw
         /// \c error::malformed_mqtt_packet if input is malformed.
         ///
-        /// \note           In MQTT 3.1.1 integers are encoded in big endian byte order.
-        ///
-        /// \param uint16_start     Start of buffer to parse.
+        /// \param uint8_start      Start of buffer to parse.
         /// \param buf_end          End of entire packet buffer, NOT end of uint16_t buffer (although that would
         ///                         work, too). Needed for range checks.
-        /// \param parsed_uint16    A pointer to the parsed integer (out parameter), will never be \c nullptr.
-        /// \return                 The updated \c InputIterator \c uint16_start, thus telling the caller where to
+        /// \param parsed_qos       A pointer to the parsed \c packet::QoS (out parameter), will never be \c nullptr.
+        /// \return                 The updated \c InputIterator \c uint8_start, thus telling the caller where to
         ///                         continue decoding.
         /// \throws error::malformed_mqtt_packet        If decoding fails due to malformed input.
-        /// \throws std::bad_alloc          If failing to allocate heap memory for \c parsed_string
         ///
         /// \pre        \c uint16_start initially points to the first byte of a two byte sequence in big endian.
         /// \pre        \c buf_end points immediately past the last byte in a buffer representing an
@@ -276,6 +273,61 @@ namespace io_wally
 
             return uint16_start;
         }
+
+        /// \brief Parse a 16 bit wide unsigned int in the supplied buffer.
+        ///
+        /// Start decoding at \c uint16_start, interpreting the supplied buffer as a 16 bit unsigned int in big
+        /// endian byte order, as mandated by MQTT. Stop decoding when reaching the end of unsigned int to parse,
+        /// or \c buf_end, whichever comes first. Return the updated input iterator, or throw
+        /// \c error::malformed_mqtt_packet if input is malformed.
+        ///
+        /// \note           In MQTT 3.1.1 integers are encoded in big endian byte order.
+        ///
+        /// \param uint16_start     Start of buffer to parse.
+        /// \param buf_end          End of entire packet buffer, NOT end of uint16_t buffer (although that would
+        ///                         work, too). Needed for range checks.
+        /// \param parsed_uint16    A pointer to the parsed integer (out parameter), will never be \c nullptr.
+        /// \return                 The updated \c InputIterator \c uint16_start, thus telling the caller where to
+        ///                         continue decoding.
+        /// \throws error::malformed_mqtt_packet        If decoding fails due to malformed input.
+        ///
+        /// \pre        \c uint8_start initially points to an unsigned int, 8 bits, representing a \c packet::QoS
+        /// \pre        \c buf_end points immediately past the last byte in a buffer representing an
+        ///             \c mqtt_packet's on the wire format.
+        /// \post       The \c InputIterator returned points to the first unconsumed byte.
+        ///
+        /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718016
+        template <typename InputIterator>
+        inline InputIterator decode_qos( InputIterator uint8_start,
+                                         const InputIterator buf_end,
+                                         io_wally::protocol::packet::QoS* const parsed_qos )
+        {
+            using namespace io_wally::protocol;
+            // We need at least one byte for encoding a packet::QoS
+            if ( uint8_start + 1 > buf_end )
+            {
+                throw error::malformed_mqtt_packet( "Encoding QoS needs at least one byte" );
+            }
+
+            const uint8_t qos_bits = *uint8_start++;
+            switch ( qos_bits )
+            {
+                case 0x00:
+                    *parsed_qos = packet::QoS::AT_MOST_ONCE;
+                    break;
+                case 0x01:
+                    *parsed_qos = packet::QoS::AT_LEAST_ONCE;
+                    break;
+                case 0x02:
+                    *parsed_qos = packet::QoS::EXACTLY_ONCE;
+                    break;
+                default:
+                    *parsed_qos = packet::QoS::RESERVED;
+                    break;
+            }
+
+            return uint8_start;
+        }  // decode_qos
 
         /// \brief Parse a UTF-8 string in the supplied buffer.
         ///

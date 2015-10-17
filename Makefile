@@ -199,6 +199,10 @@ $(MBUILD)/%.o       : src/%.cpp                        | $(MBUILDDIRS)
 # Test
 .PHONY              : test
 test                : test-compile
+	@./$(TEXEC)
+
+.PHONY              : test-success
+test-success        : test-compile
 	@./$(TEXEC) --success --durations yes
 
 .PHONY              : test-compile

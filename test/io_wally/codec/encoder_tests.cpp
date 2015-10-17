@@ -146,7 +146,7 @@ SCENARIO( "encoding a 16 bit unsigned integer", "[packets]" )
         std::array<std::uint8_t, 2> result = {{0x00, 0x00}};
         const std::array<std::uint8_t, 2> expected_result = {{0x00, 0x00}};
 
-        WHEN( "a client passes that buffer into encode_std::uint16" )
+        WHEN( "a client passes that buffer into encode_uint16" )
         {
             const out_iter buf_end = encoder::encode_uint16( value, result.begin( ) );
 
@@ -164,7 +164,7 @@ SCENARIO( "encoding a 16 bit unsigned integer", "[packets]" )
         std::array<std::uint8_t, 2> result = {{0x00, 0x00}};
         const std::array<std::uint8_t, 2> expected_result = {{0x00, 0xF0}};
 
-        WHEN( "a client passes that buffer into encode_std::uint16" )
+        WHEN( "a client passes that buffer into encode_uint16" )
         {
             const out_iter buf_end = encoder::encode_uint16( value, result.begin( ) );
 
@@ -182,15 +182,12 @@ SCENARIO( "encoding a 16 bit unsigned integer", "[packets]" )
         std::array<std::uint8_t, 2> result = {{0x00, 0x00}};
         const std::array<std::uint8_t, 2> expected_result = {{0xB3, 0x45}};
 
-        WHEN( "a client passes that buffer into encode_std::uint16" )
+        WHEN( "a client passes that buffer into encode_uint16" )
         {
             const out_iter buf_end = encoder::encode_uint16( value, result.begin( ) );
 
             THEN( "the client should see a correctly encoded value and a correctly updated buffer iterator" )
             {
-                for ( const std::uint8_t& v : result )
-                    std::cout << "RES: " << (int)v << std::endl;
-                std::cout.flush( );
                 CHECK( result == expected_result );
                 REQUIRE( ( buf_end - result.begin( ) ) == 2 );
             }

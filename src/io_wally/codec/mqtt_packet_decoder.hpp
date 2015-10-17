@@ -8,6 +8,7 @@
 #include "io_wally/codec/connect_packet_decoder.hpp"
 #include "io_wally/codec/disconnect_packet_decoder.hpp"
 #include "io_wally/codec/pingreq_packet_decoder.hpp"
+#include "io_wally/codec/subscribe_packet_decoder.hpp"
 
 namespace io_wally
 {
@@ -63,13 +64,14 @@ namespace io_wally
                         return pingreq_packet_decoder_;
                     case protocol::packet::Type::DISCONNECT:
                         return disconnect_packet_decoder_;
+                    case protocol::packet::Type::SUBSCRIBE:
+                        return subscribe_packet_decoder_;
                     case protocol::packet::Type::CONNACK:
                     case protocol::packet::Type::PUBLISH:
                     case protocol::packet::Type::PUBACK:
                     case protocol::packet::Type::PUBREL:
                     case protocol::packet::Type::PUBREC:
                     case protocol::packet::Type::PUBCOMP:
-                    case protocol::packet::Type::SUBSCRIBE:
                     case protocol::packet::Type::SUBACK:
                     case protocol::packet::Type::UNSUBSCRIBE:
                     case protocol::packet::Type::UNSUBACK:
@@ -86,10 +88,9 @@ namespace io_wally
            private:
             /// Fields
             const connect_packet_decoder<InputIterator> connect_packet_decoder_{};
-
             const pingreq_packet_decoder<InputIterator> pingreq_packet_decoder_{};
-
             const disconnect_packet_decoder<InputIterator> disconnect_packet_decoder_{};
+            const subscribe_packet_decoder<InputIterator> subscribe_packet_decoder_{};
         };
 
     }  /// namespace decoder
