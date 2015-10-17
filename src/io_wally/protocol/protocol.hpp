@@ -7,3 +7,4 @@
 #include "io_wally/protocol/pingreq_packet.hpp"
 #include "io_wally/protocol/pingresp_packet.hpp"
 #include "io_wally/protocol/subscription.hpp"
+#include "io_wally/protocol/subscription_packet.hpp"

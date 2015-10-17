@@ -14,7 +14,7 @@ namespace io_wally
 {
     namespace protocol
     {
-        /// \brief Represents a SUBSCRIBE control packet's \c variable header.
+        /// \brief SUBSCRIBE control packet, sent by a client to subscribe to a list of \c topics.
         ///
         /// In a SUBSCRIBE control packet the \c fixed \c packet::header shared by all MQTT control packet's is
         /// immediately followed by a \c variable header. This encodes
@@ -24,14 +24,24 @@ namespace io_wally
         ///                       until it (the client) has processed the SUBACK packet sent by a server in response to
         ///                       this SUBSCRIBE packet.
         ///
+        /// The \c variable \c header, in turn, is followed by the packet payload. This contains a
+        ///
+        ///  - list of \c subscriptions: a list of \c topic_filter + \c QoS pairs.
+        ///
+        /// \see \c subscription
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718063
-        struct subscribe_header
+        struct subscribe : public mqtt_packet
         {
            public:
-            /// \brief Create a new \c subscribe_header instance.
+            /// \brief Create a new \c subscribe instance.
             ///
-            /// \param packet_identifier 16 bit unsigned integer identifying this packet
-            subscribe_header( const uint16_t packet_identifier ) : packet_identifier_{packet_identifier}
+            /// \param header           Fixed header, common to all MQTT control packets
+            subscribe( packet::header header,
+                       const uint16_t packet_identifier,
+                       std::vector<subscription> subscriptions )
+                : mqtt_packet{std::move( header )},
+                  packet_identifier_{packet_identifier},
+                  subscriptions_{std::move( subscriptions )}
             {
                 return;
             }
@@ -44,39 +54,6 @@ namespace io_wally
                 return packet_identifier_;
             }
 
-            /// \brief Overload stream output operator for \c subscribe_header.
-            ///
-            /// Overload stream output operator for \c subscribe_header, primarily to facilitate logging.
-            inline friend std::ostream& operator<<( std::ostream& output, subscribe_header const& subscribe_header )
-            {
-                output << "subscribe_header[pkt_id:" << subscribe_header.packet_identifier_ << "]";
-                return output;
-            }
-
-           private:
-            const uint16_t packet_identifier_;
-        };  /// struct subscribe_header
-
-        /// \brief A SUBSCRIBE control packet's payload.
-        ///
-        /// Contains a list of \c subscriptions, i.e. a list of \c topic_filter + \c QoS pairs.
-        ///
-        /// \see \c subscription
-        /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718063
-        ///
-        /// \todo: Consider rule of five
-        struct subscribe_payload
-        {
-           public:
-            /// \brief Create a new \c subscribe_payload instance.
-            ///
-            /// \param subscriptions Vector of \c subscription instances representing topics a client wants to subscribe
-            ///                      to
-            subscribe_payload( std::vector<subscription> subscriptions ) : subscriptions_{std::move( subscriptions )}
-            {
-                return;
-            }
-
             /// \brief Return SUBSCRIBE packet's vector of \c subscriptions.
             ///
             /// \return Vector of \c subscriptions
@@ -85,75 +62,25 @@ namespace io_wally
                 return subscriptions_;
             }
 
-            /// \brief Overload stream output operator for \c subscribe_payload.
-            ///
-            /// Overload stream output operator for \c subscribe_payload, primarily to facilitate logging.
-            inline friend std::ostream& operator<<( std::ostream& output, subscribe_payload const& subscribe_payload )
-            {
-                output << "subscribe_payload[subscriptions:";
-                for ( auto& subscr : subscribe_payload.subscriptions_ )
-                    output << subscr << "|";
-                const long pos = output.tellp( );
-                output.seekp( pos - 1 );  // Delete last "|"
-                output << "]";
-
-                return output;
-            }
-
-           private:
-            const std::vector<subscription> subscriptions_;
-        };  // struct subscribe_payload
-
-        /// \brief SUBSCRIBE control packet, sent by a client to subscribe to a list of \c topics.
-        ///
-        /// Combines \c packet::header (fixed header), \c subscribe_header (variable header) and \c subscribe_payload
-        /// (SUBSCRIBE packet body).
-        ///
-        /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718063
-        struct subscribe : public mqtt_packet
-        {
-           public:
-            /// \brief Create a new \c subscribe instance.
-            ///
-            /// \param header           Fixed header, common to all MQTT control packets
-            /// \param subscribe_header   Variable header, specific to SUBSCRIBE packet
-            /// \param payload          Packet body/payload
-            subscribe( packet::header header, subscribe_header subscribe_header, subscribe_payload payload )
-                : mqtt_packet{std::move( header )}, subscribe_header_{subscribe_header}, payload_{std::move( payload )}
-            {
-                return;
-            }
-
-            /// \brief Return variable header.
-            ///
-            /// \return SUBSCRIBE packet variable header
-            const struct subscribe_header& subscribe_header( ) const
-            {
-                return subscribe_header_;
-            }
-
-            /// \brief Return packet body/payload
-            ///
-            /// \return SUBSCRIBE packet payload/body
-            const struct subscribe_payload& payload( ) const
-            {
-                return payload_;
-            }
-
             /// \brief Return a string representation to be used in log output.
             ///
             /// \return A string representation to be used in log output
             virtual const std::string to_string( ) const override
             {
                 std::ostringstream output;
-                output << "subscribe[" << header( ) << "|" << subscribe_header( ) << "|" << payload( ) << "]";
+                output << "subscribe[" << header( ) << "|pktid:" << packet_identifier_ << "|";
+                for ( auto& subscr : subscriptions_ )
+                    output << subscr << " ";
+                const long pos = output.tellp( );
+                output.seekp( pos - 1 );  // Delete last " "
+                output << "]";
 
                 return output.str( );
             }
 
            private:
-            const struct subscribe_header subscribe_header_;
-            const struct subscribe_payload payload_;
+            const uint16_t packet_identifier_;
+            const std::vector<subscription> subscriptions_;
         };  // struct subscribe
 
     }  // namespace protocol
