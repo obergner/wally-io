@@ -1,8 +1,11 @@
 #pragma once
 
+#include <cassert>
+
 #include "io_wally/codec/encoder.hpp"
 #include "io_wally/codec/connack_packet_encoder.hpp"
 #include "io_wally/codec/pingresp_packet_encoder.hpp"
+#include "io_wally/codec/suback_packet_encoder.hpp"
 
 namespace io_wally
 {
@@ -27,15 +30,12 @@ namespace io_wally
             /// \param buf_start        Start of buffer to encode \c mqtt_packet into
             /// \param buf_end          End of buffer to encode \c mqtt_packet into
             /// \return         \c OutputIterator that points immediately past the last byte written
-            /// \throws std::invalid_argument   If buffer is too small for \c mqtt_packet
-            /// \throws error::invalid_mqtt_packet      If \c mqtt_packet does not conform to spec
             OutputIterator encode( const protocol::mqtt_packet& mqtt_packet,
                                    OutputIterator buf_start,
                                    OutputIterator buf_end ) const
             {
                 buf_start = encode_header( mqtt_packet.header( ), buf_start );
-                if ( ( buf_end - buf_start ) < mqtt_packet.header( ).remaining_length( ) )
-                    throw std::invalid_argument( "Supplied buffer is too small for encoding mqtt packet" );
+                assert( ( buf_end - buf_start ) >= mqtt_packet.header( ).remaining_length( ) );
 
                 return body_encoder_for( mqtt_packet ).encode( mqtt_packet, buf_start );
             }
@@ -51,6 +51,8 @@ namespace io_wally
                         return connack_encoder_;
                     case protocol::packet::Type::PINGRESP:
                         return pingresp_encoder_;
+                    case protocol::packet::Type::UNSUBACK:
+                        return suback_encoder_;
                     case protocol::packet::Type::CONNECT:
                     case protocol::packet::Type::PINGREQ:
                     case protocol::packet::Type::DISCONNECT:
@@ -62,20 +64,18 @@ namespace io_wally
                     case protocol::packet::Type::SUBSCRIBE:
                     case protocol::packet::Type::SUBACK:
                     case protocol::packet::Type::UNSUBSCRIBE:
-                    case protocol::packet::Type::UNSUBACK:
                     case protocol::packet::Type::RESERVED1:
                     case protocol::packet::Type::RESERVED2:
                     default:
-                        throw std::invalid_argument( "Unsupported packet type" );
+                        assert( false );
                 }
-                assert( false );
             }
 
            private:
             /// Fields
             const connack_packet_encoder<OutputIterator> connack_encoder_{};
-
             const pingresp_packet_encoder<OutputIterator> pingresp_encoder_{};
+            const suback_packet_encoder<OutputIterator> suback_encoder_{};
         };
 
     }  /// namespace decoder

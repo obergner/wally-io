@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cassert>
+
 #include "io_wally/codec/encoder.hpp"
 #include "io_wally/protocol/pingresp_packet.hpp"
 
@@ -23,11 +25,9 @@ namespace io_wally
             /// \param pingresp_packet \c pingresp packet to encode
             /// \param buf_start      Start of buffer to encode \c mqtt_packet into
             /// \return         \c OutputIterator that points immediately past the last byte written
-            /// \throws std::invalid_argument   If \c pingresp_packet is not a \c pingresp instance
             OutputIterator encode( const protocol::mqtt_packet& pingresp_packet, OutputIterator buf_start ) const
             {
-                if ( pingresp_packet.header( ).type( ) != protocol::packet::Type::PINGRESP )
-                    throw std::invalid_argument( "Supplied packet is not a PINGRESP packet" );
+                assert( pingresp_packet.header( ).type( ) == protocol::packet::Type::PINGRESP );
 
                 return buf_start;
             }

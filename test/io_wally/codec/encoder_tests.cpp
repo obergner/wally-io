@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <array>
 
+#include "io_wally/error/protocol.hpp"
 #include "io_wally/codec/encoder.hpp"
 
 using namespace io_wally;
@@ -130,7 +131,7 @@ SCENARIO( "remaining_length_encoder", "[packets]" )
             THEN( "it should see an encoder::error::illegal_mqtt_packet" )
             {
                 REQUIRE_THROWS_AS( encoder::encode_remaining_length( remaining_length, buf.begin( ) ),
-                                   encoder::error::illegal_mqtt_packet );
+                                   io_wally::error::malformed_mqtt_packet );
             }
         }
     }
@@ -282,7 +283,7 @@ SCENARIO( "encoding a UTF-8 string", "[packets]" )
             THEN( "the client should see an encoder::error::illegal_mqtt_packet being thrown" )
             {
                 REQUIRE_THROWS_AS( encoder::encode_utf8_string( value, result.begin( ) ),
-                                   encoder::error::illegal_mqtt_packet );
+                                   io_wally::error::malformed_mqtt_packet );
             }
         }
     }

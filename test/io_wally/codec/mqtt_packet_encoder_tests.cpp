@@ -7,27 +7,11 @@
 
 using namespace io_wally;
 
-typedef std::array<const std::uint8_t, 4>::iterator out_iter;
+using out_iter = std::array<const std::uint8_t, 4>::iterator;
 
 SCENARIO( "mqtt_packet_encoder", "[encoder]" )
 {
     encoder::mqtt_packet_encoder<std::uint8_t*> under_test;
-
-    GIVEN( "an output buffer with insufficient capacity 3" )
-    {
-        const protocol::connack connack( true, protocol::connect_return_code::NOT_AUTHORIZED );
-
-        std::array<std::uint8_t, 3> result = {{0x00, 0x00, 0x00}};
-
-        WHEN( "a client passes that packet into mqtt_packet_encoder::encode" )
-        {
-            THEN( "that client should see a std::invalid_argument exception being thrown" )
-            {
-                REQUIRE_THROWS_AS( under_test.encode( connack, result.begin( ), result.end( ) ),
-                                   std::invalid_argument );
-            }
-        }
-    }
 
     GIVEN( "a connack packet with session present flag set and return code 'NOT_AUTHORIZED'" )
     {

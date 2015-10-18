@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <cstdint>
 
 #include "io_wally/codec/encoder.hpp"
@@ -27,14 +28,12 @@ namespace io_wally
             /// \param connack_packet \c connack packet to encode
             /// \param buf_start      Start of buffer to encode \c mqtt_packet into
             /// \return         \c OutputIterator that points immediately past the last byte written
-            /// \throws invalid_argument   If \c connack_packet is not a \c connack instance
-            /// \throws error::invalid_mqtt_packet      If \c connack does not conform to spec
             OutputIterator encode( const protocol::mqtt_packet& connack_packet, OutputIterator buf_start ) const
             {
                 using namespace io_wally::protocol;
 
-                if ( connack_packet.header( ).type( ) != packet::Type::CONNACK )
-                    throw std::invalid_argument( "Supplied packet is not a CONNACK packet" );
+                assert( connack_packet.header( ).type( ) == packet::Type::CONNACK );
+
                 const connack& connack = dynamic_cast<const struct connack&>( connack_packet );
                 const uint8_t first_byte = ( connack.is_session_present( ) ? 0x01 : 0x00 );
                 uint8_t second_byte;

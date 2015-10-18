@@ -7,7 +7,7 @@
 
 using namespace io_wally;
 
-typedef std::array<const std::uint8_t, 2>::iterator out_iter;
+using out_iter = std::array<const std::uint8_t, 2>::iterator;
 
 SCENARIO( "connack_packet_encoder", "[encoder]" )
 {

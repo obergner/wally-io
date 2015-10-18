@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <stdexcept>
 
+#include "io_wally/error/protocol.hpp"
 #include "io_wally/protocol/common.hpp"
 
 namespace io_wally
@@ -19,29 +20,6 @@ namespace io_wally
     ///             implementations of \c packet_body_encoder, one for each concrete \c mqtt_packet.
     namespace encoder
     {
-
-        /// \brief Namespace for grouping all exceptions that may be thrown when encoding an \c mqtt_packet.
-        namespace error
-        {
-            /// \brief Signals an \c mqtt_packet that violates the spec.
-            ///
-            /// Examples of when a \c malformed_mqtt_packet will be thrown include, but are not limited to:
-            ///
-            ///  - Packet is longer than allowed by the rules around remaining lengt
-            ///
-            class illegal_mqtt_packet : public std::runtime_error
-            {
-               public:
-                /// Create a new illegal_mqtt_packet, using the supplied reason.
-                ///
-                /// \param what      Reason
-                illegal_mqtt_packet( const std::string& what ) : std::runtime_error( what )
-                {
-                    return;
-                }
-            };
-        }  /// namespace error
-
         /// \brief Encode supplied \c remaing_length according to the rules mandated by MQTT 3.1.1.
         ///
         /// Encode supplied \c remaining_length assumed to represent an MQTT packet's remaining length (length
@@ -57,7 +35,7 @@ namespace io_wally
         /// \param buf_start            Buffer iterator pointing to where to start encdoding
         /// \return                     An iterator pointing immediately past the last byte written into the
         ///                             supplied buffer
-        /// \throws io_wally::encoder::error::illegal_mqtt_packet If \c remaining_length is greater
+        /// \throws io_wally::error::malformed_mqtt_packet If \c remaining_length is greater
         ///             than maximum value allowed by MQTT 3.1.1: 268,435,455
         ///
         /// \pre        \c buf_start points to second byte in a fixed header
@@ -77,7 +55,7 @@ namespace io_wally
             } while ( remaining_length > 0 );
 
             if ( buf_start - saved_buf_start > 4 )
-                throw error::illegal_mqtt_packet( "Supplied remaining_length greater than allowed maximum" );
+                throw error::malformed_mqtt_packet( "Supplied remaining_length greater than allowed maximum" );
 
             return buf_start;
         }
@@ -119,13 +97,15 @@ namespace io_wally
         ///                     encoded in UTF-8, although this function does in fact not care.
         /// \param buf_start    Start of buffer to encode \c value into
         /// \return             An \c OutputIterator pointing immediately past the last byte written
+        /// \throws io_wally::error::malformed_mqtt_packet If \c value is greater than maximum value allowed by
+        //          MQTT 3.1.1: 65536
         ///
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718016
         template <typename OutputIterator>
         inline OutputIterator encode_utf8_string( const std::string& value, OutputIterator buf_start )
         {
             if ( value.length( ) > MAX_STRING_LENGTH )
-                throw error::illegal_mqtt_packet( "Supplied UTF-8 string is longer than allowed maximum" );
+                throw error::malformed_mqtt_packet( "Supplied UTF-8 string is longer than allowed maximum" );
 
             const uint16_t string_length = value.length( );
             buf_start = encode_uint16( string_length, buf_start );
