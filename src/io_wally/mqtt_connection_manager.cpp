@@ -22,14 +22,14 @@ namespace io_wally
     void mqtt_connection_manager::stop( mqtt_connection::ptr session )
     {
         sessions_.erase( session );
-        session->stop( );
+        session->do_stop( );
         BOOST_LOG_SEV( logger_, lvl::debug ) << "Stopped: " << session;
     }
 
     void mqtt_connection_manager::stop_all( )
     {
         for ( auto c : sessions_ )
-            c->stop( );
+            c->do_stop( );
         sessions_.clear( );
         BOOST_LOG_SEV( logger_, lvl::debug ) << "All sessions stopped";
     }

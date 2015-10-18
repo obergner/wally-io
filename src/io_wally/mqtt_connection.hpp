@@ -34,6 +34,8 @@ namespace io_wally
     /// Represents a persistent connection between a client and an \c mqtt_server.
     class mqtt_connection : public std::enable_shared_from_this<mqtt_connection>
     {
+        friend class mqtt_connection_manager;
+
        public:
         /// A \c shared_ptr to an \c mqtt_connection.
         using ptr = std::shared_ptr<mqtt_connection>;
@@ -54,7 +56,8 @@ namespace io_wally
         void start( );
 
         /// \brief Stop this session, closing its \c tcp::socket.
-        void stop( );
+        void stop( const std::string& message = "",
+                   const boost::log::trivial::severity_level log_level = boost::log::trivial::info );
 
         /// \brief Return a string representation to be used in log output.
         ///
@@ -73,6 +76,8 @@ namespace io_wally
         explicit mqtt_connection( boost::asio::ip::tcp::socket socket,
                                   mqtt_connection_manager& session_manager,
                                   const context& context );
+
+        void do_stop( );
 
         void read_header( );
 
@@ -104,8 +109,8 @@ namespace io_wally
         const encoder::mqtt_packet_encoder<buf_iter> packet_encoder_{};
         /// Our severity-enabled channel logger
         boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
-            keywords::channel = "session",
-            keywords::severity = lvl::trace};
+            boost::log::keywords::channel = "session",
+            boost::log::keywords::severity = boost::log::trivial::trace};
         /// The client socket this session is connected to
         boost::asio::ip::tcp::socket socket_;
         /// Strand used to serialize access to socket and timer
