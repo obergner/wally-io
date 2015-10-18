@@ -49,17 +49,20 @@ namespace io_wally
 
         // Start deadline timer that will close this connection if connect timeout expires without receiving CONNECT
         // request
-        auto self( shared_from_this( ) );
+        auto self = shared_from_this( );
         close_on_connection_timeout_.expires_from_now(
             boost::posix_time::milliseconds( context_.options( )[context::CONNECT_TIMEOUT].as<const uint32_t>( ) ) );
         close_on_connection_timeout_.async_wait(
-            strand_.wrap( [self]( const boost::system::error_code& /* ec */ )
+            strand_.wrap( [self]( const boost::system::error_code& ec )
                           {
-                              BOOST_LOG_SEV( self->logger_, lvl::warning )
-                                  << "CONNECTION TIMEOUT EXPIRED after ["
-                                  << self->context_.options( )[context::CONNECT_TIMEOUT].as<const uint32_t>( )
-                                  << "] ms - connection [" << self->socket_ << "] will be closed";
-                              self->stop( );
+                              if ( !ec )
+                              {
+                                  BOOST_LOG_SEV( self->logger_, lvl::warning )
+                                      << "CONNECTION TIMEOUT EXPIRED after ["
+                                      << self->context_.options( )[context::CONNECT_TIMEOUT].as<const uint32_t>( )
+                                      << "] ms - connection [" << self->socket_ << "] will be closed";
+                                  self->stop( );
+                              }
                           } ) );
 
         read_header( );
@@ -85,6 +88,9 @@ namespace io_wally
 
     void mqtt_connection::read_header( )
     {
+        if ( !socket_.is_open( ) )  // Socket was closed
+            return;
+
         BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< READ: header [bufs:" << read_buffer_.size( ) << "] ...";
         boost::asio::async_read(
             socket_,
@@ -158,12 +164,14 @@ namespace io_wally
         else
         {
             // FIXME: This code path has probably never been excercised and needs to be revisited.
+            if ( !socket_.is_open( ) )  // Socket was asynchronously closed
+                return;
 
             // Resize read buffer to allow for storing the control packet, but do NOT shrink it below
             // its initial default capacity
             read_buffer_.resize( total_length );
 
-            auto self( shared_from_this( ) );
+            auto self = shared_from_this( );
             boost::asio::async_read(
                 socket_,
                 boost::asio::buffer( read_buffer_, total_length ),
@@ -297,7 +305,7 @@ namespace io_wally
         packet_encoder_.encode(
             packet, write_buffer_.begin( ), write_buffer_.begin( ) + packet.header( ).total_length( ) );
 
-        auto self( shared_from_this( ) );
+        auto self = shared_from_this( );
         boost::asio::async_write(
             socket_,
             boost::asio::buffer( write_buffer_, packet.header( ).total_length( ) ),
@@ -325,7 +333,7 @@ namespace io_wally
         packet_encoder_.encode(
             packet, write_buffer_.begin( ), write_buffer_.begin( ) + packet.header( ).total_length( ) );
 
-        auto self( shared_from_this( ) );
+        auto self = shared_from_this( );
         boost::asio::async_write(
             socket_,
             boost::asio::buffer( write_buffer_.data( ), packet.header( ).total_length( ) ),
@@ -347,17 +355,19 @@ namespace io_wally
     {
         if ( keep_alive_ )
         {
-            auto self( shared_from_this( ) );
+            auto self = shared_from_this( );
             close_on_keep_alive_timeout_.expires_from_now( *keep_alive_ );
-            close_on_connection_timeout_.async_wait( strand_.wrap( [self]( const boost::system::error_code& /* ec */ )
-                                                                   {
-                                                                       BOOST_LOG_SEV( self->logger_, lvl::warning )
-                                                                           << "KEEP ALIVE TIMEOUT EXPIRED after ["
-                                                                           << ( self->keep_alive_ )->total_seconds( )
-                                                                           << "] s - connection [" << self->socket_
-                                                                           << "] will be closed";
-                                                                       self->stop( );
-                                                                   } ) );
+            close_on_connection_timeout_.async_wait( strand_.wrap(
+                [self]( const boost::system::error_code& ec )
+                {
+                    if ( !ec )
+                    {
+                        BOOST_LOG_SEV( self->logger_, lvl::warning )
+                            << "KEEP ALIVE TIMEOUT EXPIRED after [" << ( self->keep_alive_ )->total_seconds( )
+                            << "] s - connection [" << self->socket_ << "] will be closed";
+                        self->stop( );
+                    }
+                } ) );
         }
     }
 }
