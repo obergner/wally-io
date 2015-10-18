@@ -68,10 +68,19 @@ namespace io_wally
         read_header( );
     }
 
+    void mqtt_connection::send( mqtt_packet::ptr packet )
+    {
+        write_packet( *packet );
+    }
+
     void mqtt_connection::stop( const std::string& message, const boost::log::trivial::severity_level log_level )
     {
         BOOST_LOG_SEV( logger_, log_level ) << message;
-        session_manager_.stop( shared_from_this( ) );
+        auto self = shared_from_this( );
+        strand_.get_io_service( ).dispatch( strand_.wrap( [self]( )
+                                                          {
+                                                              self->session_manager_.stop( self );
+                                                          } ) );
     }
 
     void mqtt_connection::do_stop( )
@@ -81,6 +90,7 @@ namespace io_wally
         auto ignored_ec = boost::system::error_code{};
         socket_.shutdown( socket_.shutdown_both, ignored_ec );
         socket_.close( ignored_ec );
+
         BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPED: " << session_desc;
     }
 
@@ -112,11 +122,8 @@ namespace io_wally
     {
         if ( ec )
         {
-            BOOST_LOG_SEV( logger_, lvl::error ) << "<<< Failed to read header: [ec:" << ec << "|emsg:" << ec.message( )
-                                                 << "|bt:" << bytes_transferred << "|bufs:" << read_buffer_.size( )
-                                                 << "]";
-            if ( ec != boost::asio::error::operation_aborted )
-                session_manager_.stop( shared_from_this( ) );
+            stop( "<<< Failed to read header: [ec:" + std::to_string( ec.value( ) ) + "|emsg:" + ec.message( ) + "]",
+                  lvl::error );
             return;
         }
 

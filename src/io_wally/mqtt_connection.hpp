@@ -55,6 +55,9 @@ namespace io_wally
         /// \brief Start this session, initiating reading incoming data.
         void start( );
 
+        /// \brief Send an \c mqtt_packet to connected client.
+        void send( protocol::mqtt_packet::ptr packet );
+
         /// \brief Stop this session, closing its \c tcp::socket.
         void stop( const std::string& message = "",
                    const boost::log::trivial::severity_level log_level = boost::log::trivial::info );

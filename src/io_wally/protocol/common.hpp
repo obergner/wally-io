@@ -4,6 +4,7 @@
 #include <string>
 #include <cassert>
 #include <iostream>
+#include <memory>
 
 namespace io_wally
 {
@@ -494,6 +495,8 @@ namespace io_wally
         struct mqtt_packet
         {
            public:
+            using ptr = std::shared_ptr<const mqtt_packet>;
+
             /// \brief Return this \c mqtt_packet's \c packet::header.
             ///
             /// \return This MQTT packet's packet::header
