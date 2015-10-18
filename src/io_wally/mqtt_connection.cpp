@@ -2,7 +2,7 @@
 
 #include <boost/bind.hpp>
 
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/posix_time/posix_time_types.hpp>
 
 #include <boost/asio.hpp>
 
@@ -21,38 +21,26 @@ namespace io_wally
     using namespace io_wally::protocol;
     using namespace io_wally::decoder;
 
-    mqtt_connection::pointer mqtt_connection::create( tcp::socket socket,
-                                                      mqtt_connection_manager& session_manager,
-                                                      const context& context )
+    mqtt_connection::ptr mqtt_connection::create( tcp::socket socket,
+                                                  mqtt_connection_manager& session_manager,
+                                                  const context& context )
     {
-        return pointer( new mqtt_connection( move( socket ), session_manager, context ) );
+        return mqtt_connection::ptr( new mqtt_connection( move( socket ), session_manager, context ) );
     }
 
     mqtt_connection::mqtt_connection( tcp::socket socket,
                                       mqtt_connection_manager& session_manager,
                                       const context& context )
-        : id_{nullptr},
-          socket_{move( socket )},
+        : socket_{move( socket )},
           strand_{socket.get_io_service( )},
           session_manager_{session_manager},
           context_{context},
           read_buffer_( context.options( )[context::READ_BUFFER_SIZE].as<const size_t>( ) ),
           write_buffer_( context.options( )[context::WRITE_BUFFER_SIZE].as<const size_t>( ) ),
-          close_on_connection_timeout_{socket.get_io_service( )}
+          close_on_connection_timeout_{socket.get_io_service( )},
+          close_on_keep_alive_timeout_{socket.get_io_service( )}
     {
         return;
-    }
-
-    mqtt_connection::~mqtt_connection( )
-    {
-        if ( id_ )
-            delete id_;
-        return;
-    }
-
-    struct mqtt_connection_id* mqtt_connection::id( ) const
-    {
-        return id_;
     }
 
     void mqtt_connection::start( )
@@ -80,8 +68,8 @@ namespace io_wally
     void mqtt_connection::stop( )
     {
         // WARNING: Calling to_string() on a closed socket will crash process!
-        const string session_desc = to_string( );
-        boost::system::error_code ignored_ec;
+        auto session_desc = to_string( );
+        auto ignored_ec = boost::system::error_code{};
         socket_.shutdown( socket_.shutdown_both, ignored_ec );
         socket_.close( ignored_ec );
         BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPED: " << session_desc;
@@ -89,7 +77,7 @@ namespace io_wally
 
     const string mqtt_connection::to_string( ) const
     {
-        ostringstream output;
+        auto output = ostringstream{};
         output << "session[" << socket_ << "]";
 
         return output.str( );
@@ -124,8 +112,7 @@ namespace io_wally
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< Header data read [bt:" << bytes_transferred
                                                  << "|bufs:" << read_buffer_.size( ) << "]";
-            const header_decoder::result<buf_iter> result =
-                header_decoder_.decode( read_buffer_.begin( ), read_buffer_.begin( ) + bytes_transferred );
+            auto result = header_decoder_.decode( read_buffer_.begin( ), read_buffer_.begin( ) + bytes_transferred );
             if ( !result.is_parsing_complete( ) )
             {
                 // HIGHLY UNLIKELY: header is at most 5 bytes.
@@ -153,9 +140,9 @@ namespace io_wally
     void mqtt_connection::read_body( const header_decoder::result<buf_iter>& header_parse_result,
                                      const size_t bytes_transferred )
     {
-        const uint32_t total_length = header_parse_result.parsed_header( ).total_length( );
-        const uint32_t remaining_length = header_parse_result.parsed_header( ).remaining_length( );
-        const uint32_t header_length = total_length - remaining_length;
+        auto total_length = header_parse_result.parsed_header( ).total_length( );
+        auto remaining_length = header_parse_result.parsed_header( ).remaining_length( );
+        auto header_length = total_length - remaining_length;
 
         BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< Reading body [tl:" << total_length << "|rl:" << remaining_length
                                              << "|bt:" << bytes_transferred << "|bufs:" << read_buffer_.size( )
@@ -205,7 +192,10 @@ namespace io_wally
         try
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< Body data read. Decoding ...";
-            const unique_ptr<const mqtt_packet> parsed_packet = packet_decoder_.decode(
+            // We received a packet, so let's cancel keep alive timer
+            close_on_keep_alive_timeout_.cancel( );
+
+            auto parsed_packet = packet_decoder_.decode(
                 header_parse_result.parsed_header( ),
                 header_parse_result.consumed_until( ),
                 header_parse_result.consumed_until( ) + header_parse_result.parsed_header( ).remaining_length( ) );
@@ -234,7 +224,7 @@ namespace io_wally
         {
             case packet::Type::CONNECT:
             {
-                const protocol::connect& connect = dynamic_cast<const protocol::connect&>( packet );
+                auto connect = dynamic_cast<const protocol::connect&>( packet );
                 if ( authenticated )
                 {
                     // [MQTT-3.1.0-2]: If receiving a second CONNECT on an already authenticated connection, that
@@ -256,6 +246,13 @@ namespace io_wally
                 {
                     close_on_connection_timeout_.cancel( );
                     authenticated = true;
+
+                    if ( connect.keep_alive_secs( ) > 0 )
+                    {
+                        keep_alive_ = boost::posix_time::seconds( connect.keep_alive_secs( ) );
+                        close_on_keep_alive_timeout( );
+                    }
+
                     write_packet( connack( false, connect_return_code::CONNECTION_ACCEPTED ) );
                 }
             }
@@ -344,5 +341,23 @@ namespace io_wally
                               }
                               self->session_manager_.stop( self );
                           } ) );
+    }
+
+    void mqtt_connection::close_on_keep_alive_timeout( )
+    {
+        if ( keep_alive_ )
+        {
+            auto self( shared_from_this( ) );
+            close_on_keep_alive_timeout_.expires_from_now( *keep_alive_ );
+            close_on_connection_timeout_.async_wait( strand_.wrap( [self]( const boost::system::error_code& /* ec */ )
+                                                                   {
+                                                                       BOOST_LOG_SEV( self->logger_, lvl::warning )
+                                                                           << "KEEP ALIVE TIMEOUT EXPIRED after ["
+                                                                           << ( self->keep_alive_ )->total_seconds( )
+                                                                           << "] s - connection [" << self->socket_
+                                                                           << "] will be closed";
+                                                                       self->stop( );
+                                                                   } ) );
+        }
     }
 }

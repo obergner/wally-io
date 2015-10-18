@@ -77,17 +77,17 @@ namespace io_wally
             boost::log::register_simple_formatter_factory<boost::log::trivial::severity_level, char>( "Severity" );
             boost::log::register_simple_filter_factory<boost::log::trivial::severity_level, char>( "Severity" );
 
-            const string log_file_name = config[context::LOG_FILE].as<const string>( ) + "_%N.log";
+            auto log_file_name = config[context::LOG_FILE].as<const string>( ) + "_%N.log";
 
-            const string log_format =
+            auto log_format =
                 "[%TimeStamp%] [%ProcessID%] [%ThreadID%] [%LineID%] [%Channel%] | %Severity% | %Message%";
 
-            const string log_file_filter = safe_log_level_filter( config[context::LOG_FILE_LEVEL].as<const string>( ),
-                                                                  defaults::DEFAULT_LOG_FILE_LEVEL );
-            const string log_console_filter = safe_log_level_filter(
-                config[context::LOG_CONSOLE_LEVEL].as<const string>( ), defaults::DEFAULT_LOG_CONSOLE_LEVEL );
+            auto log_file_filter = safe_log_level_filter( config[context::LOG_FILE_LEVEL].as<const string>( ),
+                                                          defaults::DEFAULT_LOG_FILE_LEVEL );
+            auto log_console_filter = safe_log_level_filter( config[context::LOG_CONSOLE_LEVEL].as<const string>( ),
+                                                             defaults::DEFAULT_LOG_CONSOLE_LEVEL );
 
-            boost::log::settings setts;
+            auto setts = boost::log::settings{};
 
             setts["Core"]["DisableLogging"] = config[context::LOG_DISABLE].as<const bool>( );
             setts["Core"]["Filter"] = log_file_filter;

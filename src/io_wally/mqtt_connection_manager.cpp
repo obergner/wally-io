@@ -12,14 +12,14 @@ namespace io_wally
         return;
     }
 
-    void mqtt_connection_manager::start( mqtt_connection::pointer session )
+    void mqtt_connection_manager::start( mqtt_connection::ptr session )
     {
         sessions_.insert( session );
         session->start( );
         BOOST_LOG_SEV( logger_, lvl::debug ) << "Started: " << session;
     }
 
-    void mqtt_connection_manager::stop( mqtt_connection::pointer session )
+    void mqtt_connection_manager::stop( mqtt_connection::ptr session )
     {
         sessions_.erase( session );
         session->stop( );

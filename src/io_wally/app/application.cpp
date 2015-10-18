@@ -41,10 +41,9 @@ DISCLAIMER:
         {
             try
             {
-                const pair<const options::variables_map, const options::options_description> config_plus_desc =
-                    options_parser_.parse( argc, argv );
-                options::variables_map config = config_plus_desc.first;
-                const options::options_description all_opts_desc = config_plus_desc.second;
+                auto config_plus_desc = options_parser_.parse( argc, argv );
+                auto config = config_plus_desc.first;
+                auto all_opts_desc = config_plus_desc.second;
 
                 if ( config.count( context::HELP ) )
                 {
@@ -56,16 +55,16 @@ DISCLAIMER:
 
                 app::init_logging( config );
 
-                const spi::authentication_service_factory& auth_service_factory =
+                auto auth_service_factory =
                     app::authentication_service_factories::instance( )[config[context::AUTHENTICATION_SERVICE_FACTORY]
                                                                            .as<string>( )];
-                unique_ptr<spi::authentication_service> auth_service = auth_service_factory( config );
+                auto auth_service = auth_service_factory( config );
 
-                context context( move( config ), move( auth_service ) );
-                server_ = mqtt_server::create( move( context ) );
+                auto ctx = context( move( config ), move( auth_service ) );
+                server_ = mqtt_server::create( move( ctx ) );
                 {
                     // Nested scope to reliable release lock before we call server_.run(), which will block "forever".
-                    unique_lock<mutex> ul{startup_mutex_};
+                    auto ul = unique_lock<mutex>{startup_mutex_};
 
                     startup_completed_.notify_all( );
                 }
@@ -90,7 +89,7 @@ DISCLAIMER:
         {
             {
                 // Nested block: we don't want to hold this lock when calling wait_for_bound() below
-                unique_lock<mutex> ul{startup_mutex_};
+                auto ul = unique_lock<mutex>{startup_mutex_};
 
                 startup_completed_.wait( ul,
                                          [this]( )

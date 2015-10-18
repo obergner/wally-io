@@ -38,7 +38,8 @@ namespace framework
 
         int send_connect_packet( const string& client_id,
                                  const boost::optional<const string>& username = boost::none,
-                                 const boost::optional<const string>& password = boost::none )
+                                 const boost::optional<const string>& password = boost::none,
+                                 const unsigned long keep_alive_secs = 0L )
         {
             MQTTPacket_connectData connect_packet = MQTTPacket_connectData_initializer;
             connect_packet.MQTTVersion = 3;
@@ -47,6 +48,8 @@ namespace framework
                 connect_packet.username.cstring = const_cast<char*>( ( *username ).c_str( ) );
             if ( password )
                 connect_packet.password.cstring = const_cast<char*>( ( *password ).c_str( ) );
+            if ( keep_alive_secs > 0 )
+                connect_packet.keepAliveInterval = keep_alive_secs;
 
             return client_.connect( connect_packet );
         }

@@ -27,17 +27,17 @@ namespace io_wally
         mqtt_connection_manager( );
 
         /// Add the specified \c mqtt_connection to the manager and start it.
-        void start( mqtt_connection::pointer session );
+        void start( mqtt_connection::ptr session );
 
         /// Stop the specified \c mqtt_connection.
-        void stop( mqtt_connection::pointer session );
+        void stop( mqtt_connection::ptr session );
 
         /// Stop all \c mqtt_connections.
         void stop_all( );
 
        private:
         /// The managed sessions.
-        std::set<mqtt_connection::pointer> sessions_{};
+        std::set<mqtt_connection::ptr> sessions_{};
 
         /// Our severity-enabled channel logger
         boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{

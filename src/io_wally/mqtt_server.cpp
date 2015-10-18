@@ -11,9 +11,9 @@ namespace io_wally
 {
     using namespace std;
 
-    mqtt_server::pointer mqtt_server::create( context context )
+    mqtt_server::ptr mqtt_server::create( context context )
     {
-        return pointer( new mqtt_server( move( context ) ) );
+        return ptr( new mqtt_server( move( context ) ) );
     }
 
     mqtt_server::mqtt_server( io_wally::context context ) : context_{move( context )}
@@ -27,9 +27,9 @@ namespace io_wally
 
         do_await_stop( );
 
-        const string& address = context_.options( )[io_wally::context::SERVER_ADDRESS].as<const string>( );
-        const int port = context_.options( )[io_wally::context::SERVER_PORT].as<const int>( );
-        boost::asio::ip::tcp::resolver resolver( io_service_ );
+        auto address = context_.options( )[io_wally::context::SERVER_ADDRESS].as<const string>( );
+        auto port = context_.options( )[io_wally::context::SERVER_PORT].as<const int>( );
+        boost::asio::ip::tcp::resolver resolver{io_service_};
         const boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve( {address, to_string( port )} );
 
         acceptor_.open( endpoint.protocol( ) );
@@ -56,7 +56,7 @@ namespace io_wally
 
     void mqtt_server::wait_for_bound( )
     {
-        unique_lock<mutex> ul{bind_mutex_};
+        auto ul = unique_lock<mutex>{bind_mutex_};
         bound_.wait( ul,
                      [this]( )
                      {
@@ -79,7 +79,7 @@ namespace io_wally
             }
             if ( !ec )
             {
-                mqtt_connection::pointer session =
+                mqtt_connection::ptr session =
                     mqtt_connection::create( move( self->socket_ ), self->connection_manager_, self->context_ );
                 self->connection_manager_.start( session );
             }
@@ -106,10 +106,10 @@ namespace io_wally
     void mqtt_server::shutdown( const std::string message )
     {
         auto self( shared_from_this( ) );
-        io_service_.post( [self, message]( )
-                          {
-                              self->do_shutdown( message );
-                          } );
+        io_service_.dispatch( [self, message]( )
+                              {
+                                  self->do_shutdown( message );
+                              } );
     }
 
     void mqtt_server::do_shutdown( const std::string& message )
