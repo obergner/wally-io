@@ -7,6 +7,8 @@
 
 namespace io_wally
 {
+    namespace lvl = boost::log::trivial;
+
     mqtt_connection_manager::mqtt_connection_manager( )
     {
         return;

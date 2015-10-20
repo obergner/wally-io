@@ -2,12 +2,12 @@
 
 #include <vector>
 #include <memory>
+#include <chrono>
 
 #include <boost/asio.hpp>
+#include <boost/asio/steady_timer.hpp>
 
 #include <boost/optional.hpp>
-
-#include <boost/date_time/posix_time/posix_time_types.hpp>
 
 #include <boost/log/common.hpp>
 #include <boost/log/trivial.hpp>
@@ -76,9 +76,9 @@ namespace io_wally
 
        private:
         /// Hide constructor since we MUST be created by static factory method 'create' above
-        explicit mqtt_connection( boost::asio::ip::tcp::socket socket,
-                                  mqtt_connection_manager& session_manager,
-                                  const context& context );
+        mqtt_connection( boost::asio::ip::tcp::socket socket,
+                         mqtt_connection_manager& session_manager,
+                         const context& context );
 
         void do_stop( );
 
@@ -93,7 +93,7 @@ namespace io_wally
                                 const boost::system::error_code& ec,
                                 const size_t bytes_transferred );
 
-        void dispatch_decoded_packet( const protocol::mqtt_packet& packet );
+        void process_decoded_packet( std::unique_ptr<const protocol::mqtt_packet> packet );
 
         void write_packet( const protocol::mqtt_packet& packet );
 
@@ -127,10 +127,10 @@ namespace io_wally
         /// Buffer outgoing data
         std::vector<uint8_t> write_buffer_;
         /// Timer, will fire if connection timeout expires without receiving a CONNECT request
-        boost::asio::deadline_timer close_on_connection_timeout_;
+        boost::asio::steady_timer close_on_connection_timeout_;
         /// Keep alive duration (seconds)
-        boost::optional<boost::posix_time::time_duration> keep_alive_ = boost::none;
+        boost::optional<std::chrono::duration<uint16_t>> keep_alive_ = boost::none;
         /// Timer, will fire if keep alive timeout expires without receiving a message
-        boost::asio::deadline_timer close_on_keep_alive_timeout_;
+        boost::asio::steady_timer close_on_keep_alive_timeout_;
     };  // class mqtt_connection
 }

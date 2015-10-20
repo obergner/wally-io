@@ -12,6 +12,7 @@ CXXFLAGS        := -std=c++14
 CXXFLAGS        += -fdiagnostics-color=auto
 CXXFLAGS        += -MMD # automatically generate dependency rules on each run
 CXXFLAGS        += -I ./src
+CXXFLAGS        += -I ./libs/boost-asio-queue-extension
 CXXFLAGS        += -Werror
 CXXFLAGS        += -Wall
 CXXFLAGS        += -Wextra
@@ -28,6 +29,9 @@ CXXFLAGS        += -Wswitch-enum
 
 # Standard preprocessor flags
 CPPFLAGS        := -DBOOST_ALL_DYN_LINK
+# Needed for clang:
+# http://stackoverflow.com/questions/27552028/who-is-failing-boost-clang-or-gcc-issue-with-stdchrono-used-with-boostas
+CPPFLAGS        += -DBOOST_ASIO_HAS_STD_CHRONO 
 
 CXXRELEASE_FLAGS += -O3 # -dNDEBUG
 CXXDEBUG_FLAGS  += -O0 -g
@@ -338,6 +342,11 @@ prepare-commit      : test
 prepare-commit      : itest
 prepare-commit      : check
 prepare-commit      : scan-main
+
+# Run server with some convenient default settings
+.PHONY              : run-server
+run-server          : $(MEXEC)
+	$(MEXEC) --log-file .testlog --log-file-level trace --log-console --log-console-level trace --conn-timeout 1000000
 
 ###############################################################################
 # Dependency rules: http://stackoverflow.com/questions/8025766/makefile-auto-dependency-generation

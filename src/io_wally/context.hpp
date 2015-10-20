@@ -56,9 +56,9 @@ namespace io_wally
             return;
         }
 
-        const boost::program_options::variables_map& options( ) const
+        const boost::program_options::variable_value& operator[]( const std::string& name ) const
         {
-            return options_;
+            return options_[name];
         }
 
         spi::authentication_service& authentication_service( ) const

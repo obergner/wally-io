@@ -41,7 +41,7 @@ namespace io_wally
 
         /// Our severity-enabled channel logger
         boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
-            keywords::channel = "session-manager",
-            keywords::severity = lvl::trace};
+            boost::log::keywords::channel = "session-manager",
+            boost::log::keywords::severity = boost::log::trivial::trace};
     };
 }  // namespace io_wally

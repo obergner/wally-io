@@ -41,6 +41,8 @@ flags = [
     '-I',
     './src',
     '-I',
+    './libs/boost-asio-queue-extension',
+    '-I',
     './test',
     '-I',
     './itest',
@@ -48,6 +50,7 @@ flags = [
     './support/paho/packet',
     '-I',
     './support/paho/client',
+    '-DBOOST_ASIO_HAS_STD_CHRONO',
 ]
 
 

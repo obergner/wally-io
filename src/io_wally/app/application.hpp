@@ -9,6 +9,7 @@
 
 #include "io_wally/mqtt_server.hpp"
 #include "io_wally/app/options_parser.hpp"
+#include "io_wally/dispatch/dispatcher.hpp"
 
 namespace io_wally
 {
@@ -65,9 +66,8 @@ namespace io_wally
             /// Signal that this \c application instance has completed its \c run() method.
             std::mutex startup_mutex_{};
             std::condition_variable startup_completed_{};
-
             const options_parser options_parser_{};
-
+            dispatch::dispatcher::ptr dispatcher_{};
             /// std::shared_ptr "owning" THE reference to out mqtt_server instance.
             ///
             /// NOTE:
@@ -75,7 +75,7 @@ namespace io_wally
             /// By rights, this should be a unique_ptr. HOWEVER: in mqtt_server we use shared_from_this(), and the
             /// contract around this is that it will return a shared_ptr(this) IFF there is already a shared_ptr
             /// pointing to \c this.
-            std::shared_ptr<mqtt_server> server_{};
+            mqtt_server::ptr server_{};
         };  // class application
     }       // namespace app
 }  // namespace io_wally

@@ -10,6 +10,7 @@
 namespace io_wally
 {
     using namespace std;
+    namespace lvl = boost::log::trivial;
 
     mqtt_server::ptr mqtt_server::create( context context )
     {
@@ -27,8 +28,8 @@ namespace io_wally
 
         do_await_stop( );
 
-        auto address = context_.options( )[io_wally::context::SERVER_ADDRESS].as<const string>( );
-        auto port = context_.options( )[io_wally::context::SERVER_PORT].as<const int>( );
+        auto address = context_[io_wally::context::SERVER_ADDRESS].as<const string>( );
+        auto port = context_[io_wally::context::SERVER_PORT].as<const int>( );
         boost::asio::ip::tcp::resolver resolver{io_service_};
         const boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve( {address, to_string( port )} );
 
@@ -47,11 +48,11 @@ namespace io_wally
 
         BOOST_LOG_SEV( logger_, lvl::info ) << "STARTED: MQTT server (" << acceptor_ << ")";
 
-        // The io_service::run() call will block until all asynchronous operations
+        // The io_service_pool::run() call will block until all asynchronous operations
         // have finished. While the mqtt_server is running, there is always at least one
         // asynchronous operation outstanding: the asynchronous accept call waiting
         // for new incoming connections.
-        io_service_.run( );
+        network_service_pool_.run( );
     }
 
     void mqtt_server::wait_for_bound( )
@@ -120,8 +121,7 @@ namespace io_wally
         if ( acceptor_.is_open( ) )
             acceptor_.close( );
         connection_manager_.stop_all( );
-        if ( !io_service_.stopped( ) )
-            io_service_.stop( );
+        network_service_pool_.stop( );
 
         BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPED: MQTT server";
     }
