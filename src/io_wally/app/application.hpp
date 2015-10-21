@@ -56,11 +56,11 @@ namespace io_wally
             /// Block calling thread until \c mqtt_server instance created by this \c application has started listening
             /// for incoming connection requests. This method has been introduced to facilitate integration tests yet
             /// may one day prove useful in application code.
-            void wait_for_startup( );
+            void wait_until_started( );
 
             /// \brief Shutdown this application, releasing all resources.
             ///
-            void shutdown( const std::string& message = "Shutdown request by application" );
+            void stop( const std::string& message = "Shutdown request by application" );
 
            private:
             /// Signal that this \c application instance has completed its \c run() method.

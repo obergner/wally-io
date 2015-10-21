@@ -51,10 +51,19 @@ namespace io_wally
         void run( );
 
         /// Wait for this server to have bound to its server socket
-        void wait_for_bound( );
+        void wait_until_bound( );
+
+        /// Request to close all client connections
+        void close_connections( const std::string& message = "" );
+
+        /// Wait for this server to have unbound from its server socket
+        void wait_until_connections_closed( );
 
         /// Shut down this server, closing all client connections
-        void shutdown( const std::string message = "" );
+        void stop( const std::string& message = "" );
+
+        /// Wait for for this server to have stopped, i.e. its internal \c io_service_pool to have stopped
+        void wait_until_stopped( );
 
        private:
         /// Construct the mqtt_server to listen on the specified TCP address and port.
@@ -63,16 +72,19 @@ namespace io_wally
         /// Perform an asynchronous accept operation.
         void do_accept( );
 
-        /// Wait for a request to stop the mqtt_server.
+        /// Wait for a shutdown signal, one of SIGINT, SIGTERM, SIGQUIT.
         void do_await_stop( );
 
-        /// Internal shutdown method, delegated to by \c shutdown().
-        void do_shutdown( const std::string& message = "" );
+        /// Internal unbind method
+        void do_close_connections( const std::string& message = "" );
 
        private:
-        /// Signal when we are bound to our server socket
         std::mutex bind_mutex_{};
+        /// Signal when we are bound to our server socket
         std::condition_variable bound_{};
+        /// Signal when all client connections have been closed
+        bool connections_closed_{false};
+        std::condition_variable conn_closed_{};
         /// Context object
         const context context_;
         /// Our session manager that manages all connections

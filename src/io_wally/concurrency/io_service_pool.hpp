@@ -6,6 +6,8 @@
 #include <vector>
 #include <atomic>
 #include <functional>
+#include <mutex>
+#include <condition_variable>
 
 #include <boost/asio.hpp>
 
@@ -30,7 +32,7 @@ namespace io_wally
             io_service_pool( const std::string& name, std::size_t pool_size = 1 )
                 : name_{name},
                   pool_size_{pool_size},
-                  logger_{boost::log::keywords::channel = "iosp-" + name,
+                  logger_{boost::log::keywords::channel = "io-srvc-pool-" + name,
                           boost::log::keywords::severity = boost::log::trivial::trace}
             {
                 assert( pool_size > 0 );
@@ -51,15 +53,11 @@ namespace io_wally
                 return name_;
             }
 
-            /// \brief Run all \c io_service objects, each in its dedicated thread, and wait for all threads to
-            /// terminate.
-            ///
-            /// This method blocks until all threads have terminated.
+            /// \brief Run all \c io_service objects, each in its dedicated thread, and return immediately.
             void run( )
             {
                 BOOST_LOG_SEV( logger_, boost::log::trivial::info ) << "START:   IO service pool [" << name_
                                                                     << "|threads:" << pool_size_ << "]";
-                auto threads = std::vector<thread_ptr>{};
                 for ( std::size_t i = 0; i < pool_size_; ++i )
                 {
                     // see:
@@ -67,24 +65,15 @@ namespace io_wally
                     auto th = std::make_shared<std::thread>( std::bind(
                         static_cast<std::size_t (boost::asio::io_service::*)( )>( &boost::asio::io_service::run ),
                         io_services_[i] ) );
-                    threads.push_back( th );
+                    threads_.push_back( th );
                 }
                 BOOST_LOG_SEV( logger_, boost::log::trivial::info ) << "STARTED: IO service pool [" << name_
-                                                                    << "|threads:" << pool_size_ << "]";
-
-                for ( auto& th : threads )
-                {
-                    if ( th->joinable( ) )
-                        th->join( );
-                }
-                BOOST_LOG_SEV( logger_, boost::log::trivial::info ) << "STOPPED: IO service pool [" << name_
                                                                     << "|threads:" << pool_size_ << "]";
             }
 
             /// \brief Stop all \c io_service objects, and return immediately.
             ///
-            /// This method does NOT wait until all threads have terminated. However, a caller waiting in \c run() will
-            /// eventually unblock and return.
+            /// This method blocks until all threads have terminated.
             void stop( )
             {
                 BOOST_LOG_SEV( logger_, boost::log::trivial::info ) << "STOPPING: IO service pool [" << name_
@@ -93,6 +82,18 @@ namespace io_wally
                     work.reset( );
                 for ( auto& ios : io_services_ )
                     ios->stop( );
+                for ( auto& th : threads_ )
+                {
+                    if ( th->joinable( ) )
+                        th->join( );
+                }
+                {
+                    auto ul = std::unique_lock<std::mutex>{stop_mutex_};
+                    running_ = false;
+                    stopped_.notify_all( );
+                }
+                BOOST_LOG_SEV( logger_, boost::log::trivial::info ) << "STOPPED: IO service pool [" << name_
+                                                                    << "|threads:" << pool_size_ << "]";
             }
 
             /// \brief Get next available \c io_service object in pool.
@@ -118,6 +119,16 @@ namespace io_wally
                 return *io_services_[next % pool_size_];
             }
 
+            void wait_until_stopped( )
+            {
+                auto ul = std::unique_lock<std::mutex>{stop_mutex_};
+                stopped_.wait( ul,
+                               [this]( )
+                               {
+                    return !running_;
+                } );
+            }
+
            private:  // static
             using io_service_ptr = std::shared_ptr<boost::asio::io_service>;
             using work_ptr = std::shared_ptr<boost::asio::io_service::work>;
@@ -128,7 +139,12 @@ namespace io_wally
             const std::size_t pool_size_;
             std::vector<io_service_ptr> io_services_{};
             std::vector<work_ptr> work_{};
+            std::vector<thread_ptr> threads_{};
             std::atomic_size_t next_io_service_{0};
+            bool running_{true};
+            /// Signal when we have been stopped and all threads have terminated
+            std::mutex stop_mutex_{};
+            std::condition_variable stopped_{};
             /// Our severity-enabled channel logger
             boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_;
         };  // class io_service_pool

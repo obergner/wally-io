@@ -69,8 +69,13 @@ DISCLAIMER:
                     startup_completed_.notify_all( );
                 }
 
-                // This will not return until process terminates
                 server_->run( );
+
+                server_->wait_until_connections_closed( );
+
+                server_->stop( "Server has completed shutdown sequence" );
+
+                server_->wait_until_stopped( );
             }
             catch ( const options::error& e )
             {
@@ -85,7 +90,7 @@ DISCLAIMER:
             return EC_OK;
         }
 
-        void application::wait_for_startup( )
+        void application::wait_until_started( )
         {
             {
                 // Nested block: we don't want to hold this lock when calling wait_for_bound() below
@@ -98,12 +103,15 @@ DISCLAIMER:
                 } );
             }
 
-            server_->wait_for_bound( );
+            server_->wait_until_bound( );
         }
 
-        void application::shutdown( const string& message )
+        void application::stop( const string& message )
         {
-            server_->shutdown( message );
+            server_->close_connections( message );
+            server_->wait_until_connections_closed( );
+            server_->stop( message );
+            server_->wait_until_stopped( );
         }
     }  // namespace app
 }

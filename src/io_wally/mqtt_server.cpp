@@ -12,6 +12,10 @@ namespace io_wally
     using namespace std;
     namespace lvl = boost::log::trivial;
 
+    // ---------------------------------------------------------------------------------------------------------------
+    // Public
+    // ---------------------------------------------------------------------------------------------------------------
+
     mqtt_server::ptr mqtt_server::create( context context )
     {
         return ptr( new mqtt_server( move( context ) ) );
@@ -40,22 +44,18 @@ namespace io_wally
         acceptor_.listen( );
 
         do_accept( );
+
+        network_service_pool_.run( );
+        BOOST_LOG_SEV( logger_, lvl::info ) << "STARTED: MQTT server (" << acceptor_ << ")";
+
         {
             // Use nested scope to guaratuee that lock is released
             unique_lock<mutex> ul{bind_mutex_};
             bound_.notify_all( );
         }
-
-        BOOST_LOG_SEV( logger_, lvl::info ) << "STARTED: MQTT server (" << acceptor_ << ")";
-
-        // The io_service_pool::run() call will block until all asynchronous operations
-        // have finished. While the mqtt_server is running, there is always at least one
-        // asynchronous operation outstanding: the asynchronous accept call waiting
-        // for new incoming connections.
-        network_service_pool_.run( );
     }
 
-    void mqtt_server::wait_for_bound( )
+    void mqtt_server::wait_until_bound( )
     {
         auto ul = unique_lock<mutex>{bind_mutex_};
         bound_.wait( ul,
@@ -65,9 +65,44 @@ namespace io_wally
         } );
     }
 
+    void mqtt_server::close_connections( const std::string& message )
+    {
+        auto self = shared_from_this( );
+        io_service_.post( [self, message]( )
+                          {
+                              self->do_close_connections( message );
+                          } );
+    }
+
+    void mqtt_server::wait_until_connections_closed( )
+    {
+        auto ul = unique_lock<mutex>{bind_mutex_};
+        conn_closed_.wait( ul,
+                           [this]( )
+                           {
+            return connections_closed_;
+        } );
+    }
+
+    void mqtt_server::stop( const std::string& message )
+    {
+        network_service_pool_.stop( );
+
+        BOOST_LOG_SEV( logger_, lvl::debug ) << message;
+    }
+
+    void mqtt_server::wait_until_stopped( )
+    {
+        network_service_pool_.wait_until_stopped( );
+    }
+
+    // ---------------------------------------------------------------------------------------------------------------
+    // Private
+    // ---------------------------------------------------------------------------------------------------------------
+
     void mqtt_server::do_accept( )
     {
-        auto self( shared_from_this( ) );
+        auto self = shared_from_this( );
         acceptor_.async_accept( socket_,
                                 [self]( const boost::system::error_code& ec )
                                 {
@@ -92,38 +127,32 @@ namespace io_wally
     void mqtt_server::do_await_stop( )
     {
         // See: http://www.boost.org/doc/libs/1_59_0/doc/html/boost_asio/reference/basic_signal_set/async_wait.html
-        auto self( shared_from_this( ) );
-        termination_signals_.async_wait( [self]( const boost::system::error_code& ec, int signo )
-                                         {
-                                             // Signal set was cancelled. Should not happen since termination_signals_
-                                             // is private to this class and we sure don't want to cancel it, by golly!
-                                             assert( !ec );
+        auto self = shared_from_this( );
+        termination_signals_.async_wait(
+            [self]( const boost::system::error_code& ec, int signo )
+            {
+                // Signal set was cancelled. Should not happen since termination_signals_
+                // is private to this class and we sure don't want to cancel it, by golly!
+                assert( !ec );
 
-                                             self->do_shutdown( "Received termination signal [" + to_string( signo ) +
-                                                                "] - MQTT server will stop ..." );
-                                         } );
+                self->do_close_connections( "Received termination signal [" + to_string( signo ) +
+                                            "] - MQTT server close all client connections ..." );
+            } );
     }
 
-    void mqtt_server::shutdown( const std::string message )
-    {
-        auto self( shared_from_this( ) );
-        io_service_.dispatch( [self, message]( )
-                              {
-                                  self->do_shutdown( message );
-                              } );
-    }
-
-    void mqtt_server::do_shutdown( const std::string& message )
+    void mqtt_server::do_close_connections( const std::string& message )
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << message;
-        // The mqtt_server is stopped by cancelling all outstanding asynchronous operations.Once all operations have
-        // finished the io_service::run( ) call will exit.
-        if ( acceptor_.is_open( ) )
-            acceptor_.close( );
-        connection_manager_.stop_all( );
-        network_service_pool_.stop( );
 
-        BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPED: MQTT server";
+        connection_manager_.stop_all( );
+
+        {
+            unique_lock<mutex>{bind_mutex_};
+            connections_closed_ = true;
+            conn_closed_.notify_all( );
+        }
+
+        BOOST_LOG_SEV( logger_, lvl::info ) << "UNBOUND: MQTT server";
     }
 
 }  // namespace io_wally
