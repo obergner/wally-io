@@ -6,6 +6,7 @@
 #include <boost/log/trivial.hpp>
 
 #include "io_wally/logging_support.hpp"
+#include "io_wally/dispatch/common.hpp"
 
 namespace io_wally
 {
@@ -16,12 +17,13 @@ namespace io_wally
     // Public
     // ---------------------------------------------------------------------------------------------------------------
 
-    mqtt_server::ptr mqtt_server::create( context context )
+    mqtt_server::ptr mqtt_server::create( context context, mqtt_connection::packetq_t& dispatchq )
     {
-        return ptr( new mqtt_server( move( context ) ) );
+        return ptr( new mqtt_server( move( context ), dispatchq ) );
     }
 
-    mqtt_server::mqtt_server( io_wally::context context ) : context_{move( context )}
+    mqtt_server::mqtt_server( io_wally::context context, mqtt_connection::packetq_t& dispatchq )
+        : context_{move( context )}, dispatchq_{dispatchq}
     {
         return;
     }
@@ -115,8 +117,8 @@ namespace io_wally
             }
             if ( !ec )
             {
-                mqtt_connection::ptr session =
-                    mqtt_connection::create( move( self->socket_ ), self->connection_manager_, self->context_ );
+                mqtt_connection::ptr session = mqtt_connection::create(
+                    move( self->socket_ ), self->connection_manager_, self->context_, self->dispatchq_ );
                 self->connection_manager_.start( session );
             }
 

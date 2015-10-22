@@ -2,6 +2,9 @@
 
 #include <memory>
 #include <chrono>
+#include <functional>
+
+#include <boost/system/error_code.hpp>
 
 #include <boost/bind.hpp>
 
@@ -24,20 +27,28 @@ namespace io_wally
 
     namespace lvl = boost::log::trivial;
 
+    // ---------------------------------------------------------------------------------------------------------------
+    // Public
+    // ---------------------------------------------------------------------------------------------------------------
+
     mqtt_connection::ptr mqtt_connection::create( tcp::socket socket,
                                                   mqtt_connection_manager& session_manager,
-                                                  const context& context )
+                                                  const context& context,
+                                                  packetq_t& dispatchq )
     {
-        return std::shared_ptr<mqtt_connection>{new mqtt_connection{move( socket ), session_manager, context}};
+        return std::shared_ptr<mqtt_connection>{
+            new mqtt_connection{move( socket ), session_manager, context, dispatchq}};
     }
 
     mqtt_connection::mqtt_connection( tcp::socket socket,
                                       mqtt_connection_manager& session_manager,
-                                      const context& context )
+                                      const context& context,
+                                      packetq_t& dispatchq )
         : socket_{move( socket )},
           strand_{socket.get_io_service( )},
           session_manager_{session_manager},
           context_{context},
+          dispatchq_{dispatchq},
           read_buffer_( context[context::READ_BUFFER_SIZE].as<const size_t>( ) ),
           write_buffer_( context[context::WRITE_BUFFER_SIZE].as<const size_t>( ) ),
           close_on_connection_timeout_{socket.get_io_service( )},
@@ -86,6 +97,18 @@ namespace io_wally
                                                           } ) );
     }
 
+    const string mqtt_connection::to_string( ) const
+    {
+        auto output = ostringstream{};
+        output << "session[" << socket_ << "]";
+
+        return output.str( );
+    }
+
+    // ---------------------------------------------------------------------------------------------------------------
+    // Private
+    // ---------------------------------------------------------------------------------------------------------------
+
     void mqtt_connection::do_stop( )
     {
         // WARNING: Calling to_string() on a closed socket will crash process!
@@ -95,14 +118,6 @@ namespace io_wally
         socket_.close( ignored_ec );
 
         BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPED: " << session_desc;
-    }
-
-    const string mqtt_connection::to_string( ) const
-    {
-        auto output = ostringstream{};
-        output << "session[" << socket_ << "]";
-
-        return output.str( );
     }
 
     void mqtt_connection::read_header( )
@@ -242,38 +257,7 @@ namespace io_wally
         {
             case packet::Type::CONNECT:
             {
-                auto connect = dynamic_cast<const protocol::connect&>( *packet );
-                if ( authenticated )
-                {
-                    // [MQTT-3.1.0-2]: If receiving a second CONNECT on an already authenticated connection, that
-                    // connection MUST be closed
-                    stop(
-                        "--- [MQTT-3.1.0-2] Received CONNECT on already authenticated "
-                        "connection - connection will be closed",
-                        lvl::error );
-                }
-                else if ( !context_.authentication_service( ).authenticate(
-                              socket_.remote_endpoint( ).address( ).to_string( ),
-                              connect.username( ),
-                              connect.password( ) ) )
-                {
-                    write_packet_and_close_session( connack{false, connect_return_code::BAD_USERNAME_OR_PASSWORD},
-                                                    "--- Authentication failed" );
-                }
-                else
-                {
-                    close_on_connection_timeout_.cancel( );
-                    authenticated = true;
-
-                    if ( connect.keep_alive_secs( ) > 0 )
-                    {
-                        keep_alive_ = chrono::seconds{connect.keep_alive_secs( )};
-                        close_on_keep_alive_timeout( );
-                    }
-
-                    write_packet( connack{false, connect_return_code::CONNECTION_ACCEPTED} );
-                }
-                BOOST_LOG_SEV( logger_, lvl::info ) << "--- PROCESSED: " << *packet;
+                process_connect_packet( move( packet ) );
             }
             break;
             case packet::Type::PINGREQ:
@@ -305,6 +289,93 @@ namespace io_wally
                 assert( false );
                 break;
         }
+    }
+
+    void mqtt_connection::process_connect_packet( std::unique_ptr<const protocol::mqtt_packet> packet )
+    {
+        auto connect = dynamic_cast<const protocol::connect&>( *packet );
+        if ( authenticated )
+        {
+            // [MQTT-3.1.0-2]: If receiving a second CONNECT on an already authenticated connection, that
+            // connection MUST be closed
+            stop(
+                "--- [MQTT-3.1.0-2] Received CONNECT on already authenticated "
+                "connection - connection will be closed",
+                lvl::error );
+        }
+        else if ( !context_.authentication_service( ).authenticate(
+                      socket_.remote_endpoint( ).address( ).to_string( ), connect.username( ), connect.password( ) ) )
+        {
+            write_packet_and_close_session( connack{false, connect_return_code::BAD_USERNAME_OR_PASSWORD},
+                                            "--- Authentication failed" );
+        }
+        else
+        {
+            close_on_connection_timeout_.cancel( );
+            authenticated = true;
+
+            if ( connect.keep_alive_secs( ) > 0 )
+            {
+                keep_alive_ = chrono::seconds{connect.keep_alive_secs( )};
+                close_on_keep_alive_timeout( );
+            }
+            // FIXME: We should conditionally send connack in queue_sender handler if pushing to dispatcher
+            // queue was successful, otherwise send nack
+            write_packet( connack{false, connect_return_code::CONNECTION_ACCEPTED} );
+            BOOST_LOG_SEV( logger_, lvl::info ) << "--- PROCESSED: " << *packet;
+
+            dispatch_decoded_packet( move( packet ) );
+        }
+    }
+
+    void mqtt_connection::dispatch_decoded_packet( unique_ptr<const mqtt_packet> packet )
+    {
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *packet << " ...";
+        switch ( packet->header( ).type( ) )
+        {
+            case packet::Type::CONNECT:
+            {
+                auto connect_ptr =
+                    dynamic_pointer_cast<const protocol::connect>( shared_ptr<const mqtt_packet>{move( packet )} );
+                auto connect_container = packet_container_t::connect_packet( shared_from_this( ), connect_ptr );
+
+                auto self = shared_from_this( );
+                dispatcher_.async_enq( connect_container,
+                                       [self, connect_container]( const boost::system::error_code& ec )
+                                       {
+                    self->handle_dispatch( ec, connect_container );
+                } );
+            }
+            break;
+            case packet::Type::SUBSCRIBE:
+            case packet::Type::PINGREQ:
+            case packet::Type::DISCONNECT:
+            case packet::Type::CONNACK:
+            case packet::Type::PINGRESP:
+            case packet::Type::PUBLISH:
+            case packet::Type::PUBACK:
+            case packet::Type::PUBREL:
+            case packet::Type::PUBREC:
+            case packet::Type::PUBCOMP:
+            case packet::Type::SUBACK:
+            case packet::Type::UNSUBSCRIBE:
+            case packet::Type::UNSUBACK:
+            case packet::Type::RESERVED1:
+            case packet::Type::RESERVED2:
+            default:
+                assert( false );
+                break;
+        }
+    }
+
+    void mqtt_connection::handle_dispatch( const boost::system::error_code& ec,
+                                           packet_container_t::ptr packet_container )
+    {
+        if ( ec )
+            BOOST_LOG_SEV( logger_, lvl::error ) << "--- DISPATCH FAILED: " << *packet_container->packet( )
+                                                 << " [ec:" << ec << "|emsg:" << ec.message( ) << "]";
+        else
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *packet_container->packet( );
     }
 
     void mqtt_connection::write_packet( const mqtt_packet& packet )

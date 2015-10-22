@@ -4,6 +4,8 @@
 #include <memory>
 #include <chrono>
 
+#include <boost/system/error_code.hpp>
+
 #include <boost/asio.hpp>
 #include <boost/asio/steady_timer.hpp>
 
@@ -11,6 +13,8 @@
 
 #include <boost/log/common.hpp>
 #include <boost/log/trivial.hpp>
+
+#include <boost/asio_queue.hpp>
 
 #include "io_wally/context.hpp"
 #include "io_wally/logging_support.hpp"
@@ -22,6 +26,8 @@
 #include "io_wally/codec/mqtt_packet_encoder.hpp"
 
 #include "io_wally/spi/authentication_service_factory.hpp"
+
+#include "io_wally/dispatch/common.hpp"
 
 namespace io_wally
 {
@@ -36,15 +42,23 @@ namespace io_wally
     {
         friend class mqtt_connection_manager;
 
-       public:
+       public:  // static
+        /// A container for protocol packets
+        using packet_container_t = dispatch::packet_container<mqtt_connection>;
+
+        /// Queue of protocol packet containers
+        using packetq_t = boost::asio::simple_queue<packet_container_t::ptr>;
+
         /// A \c shared_ptr to an \c mqtt_connection.
         using ptr = std::shared_ptr<mqtt_connection>;
 
         /// Factory method for \c mqtt_connections.
         static mqtt_connection::ptr create( boost::asio::ip::tcp::socket socket,
                                             mqtt_connection_manager& session_manager,
-                                            const context& context );
+                                            const context& context,
+                                            packetq_t& dispatchq );
 
+       public:
         /// Naturally, mqtt_connections cannot be copied.
         mqtt_connection( const mqtt_connection& ) = delete;
         /// Naturally, mqtt_connections cannot be copied.
@@ -78,7 +92,8 @@ namespace io_wally
         /// Hide constructor since we MUST be created by static factory method 'create' above
         mqtt_connection( boost::asio::ip::tcp::socket socket,
                          mqtt_connection_manager& session_manager,
-                         const context& context );
+                         const context& context,
+                         packetq_t& dispatchq );
 
         void do_stop( );
 
@@ -95,6 +110,12 @@ namespace io_wally
 
         void process_decoded_packet( std::unique_ptr<const protocol::mqtt_packet> packet );
 
+        void process_connect_packet( std::unique_ptr<const protocol::mqtt_packet> packet );
+
+        void dispatch_decoded_packet( std::unique_ptr<const protocol::mqtt_packet> packet );
+
+        void handle_dispatch( const boost::system::error_code& ec, packet_container_t::ptr packet_container );
+
         void write_packet( const protocol::mqtt_packet& packet );
 
         void write_packet_and_close_session( const protocol::mqtt_packet& packet, const std::string& message );
@@ -110,10 +131,6 @@ namespace io_wally
         const decoder::mqtt_packet_decoder<buf_iter> packet_decoder_{};
         /// Encode outgoing packets
         const encoder::mqtt_packet_encoder<buf_iter> packet_encoder_{};
-        /// Our severity-enabled channel logger
-        boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
-            boost::log::keywords::channel = "session",
-            boost::log::keywords::severity = boost::log::trivial::trace};
         /// The client socket this session is connected to
         boost::asio::ip::tcp::socket socket_;
         /// Strand used to serialize access to socket and timer
@@ -122,6 +139,12 @@ namespace io_wally
         mqtt_connection_manager& session_manager_;
         /// Our context reference, used for configuring ourselves etc
         const context& context_;
+        /// Our dispatcher queue, used for forwarding received protocol packets to dispatcher subsystem
+        /// TODO: Consider removing this reference since all we need is dispatcher_ below.
+        packetq_t& dispatchq_;
+        /// Queue sender for dispatching received protocol packets asynchronously (from point of view of connection) to
+        /// dispatcher queue.
+        boost::asio::queue_sender<packetq_t> dispatcher_{socket_.get_io_service( ), &dispatchq_};
         /// Buffer incoming data
         std::vector<uint8_t> read_buffer_;
         /// Buffer outgoing data
@@ -132,5 +155,9 @@ namespace io_wally
         boost::optional<std::chrono::duration<uint16_t>> keep_alive_ = boost::none;
         /// Timer, will fire if keep alive timeout expires without receiving a message
         boost::asio::steady_timer close_on_keep_alive_timeout_;
+        /// Our severity-enabled channel logger
+        boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
+            boost::log::keywords::channel = "session",
+            boost::log::keywords::severity = boost::log::trivial::trace};
     };  // class mqtt_connection
 }

@@ -346,7 +346,7 @@ prepare-commit      : scan-main
 # Run server with some convenient default settings
 .PHONY              : run-server
 run-server          : $(MEXEC)
-	$(MEXEC) --log-file .testlog --log-file-level trace --log-console --log-console-level trace --conn-timeout 1000000
+	@$(MEXEC) --log-file .testlog --log-file-level trace --log-console --log-console-level trace --conn-timeout 1000000
 
 ###############################################################################
 # Dependency rules: http://stackoverflow.com/questions/8025766/makefile-auto-dependency-generation

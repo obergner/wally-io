@@ -32,7 +32,7 @@ namespace io_wally
             io_service_pool( const std::string& name, std::size_t pool_size = 1 )
                 : name_{name},
                   pool_size_{pool_size},
-                  logger_{boost::log::keywords::channel = "io-srvc-pool-" + name,
+                  logger_{boost::log::keywords::channel = "io-srvc-pool:" + name,
                           boost::log::keywords::severity = boost::log::trivial::trace}
             {
                 assert( pool_size > 0 );

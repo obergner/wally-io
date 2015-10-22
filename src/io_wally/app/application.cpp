@@ -61,7 +61,7 @@ DISCLAIMER:
                 auto auth_service = auth_service_factory( config );
 
                 auto ctx = context( move( config ), move( auth_service ) );
-                server_ = mqtt_server::create( move( ctx ) );
+                server_ = mqtt_server::create( move( ctx ), dispatchq_ );
                 {
                     // Nested scope to reliable release lock before we call server_.run(), which will block "forever".
                     auto ul = unique_lock<mutex>{startup_mutex_};

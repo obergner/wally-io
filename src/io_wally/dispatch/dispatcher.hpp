@@ -38,16 +38,13 @@ namespace io_wally
                            std::shared_ptr<mqtt_connection> rx_connection,
                            std::shared_ptr<protocol::subscribe> subscribe );
 
-           private:  // static
-            using packetq_t = boost::asio::simple_queue<packet_container>;
-
            private:
             const context& context_;
-            packetq_t packetq_{1000000};  // Let's start small ...
+            mqtt_connection::packetq_t packetq_{1000000};  // Let's start small ...
             concurrency::io_service_pool dispatcher_pool_{"dispatcher", 1};
             boost::asio::io_service& io_service_{dispatcher_pool_.io_service( )};
-            boost::asio::queue_sender<packetq_t> packet_sender_{io_service_, &packetq_};
-            boost::asio::queue_listener<packetq_t> packet_receiver_{io_service_, &packetq_};
+            boost::asio::queue_sender<mqtt_connection::packetq_t> packet_sender_{io_service_, &packetq_};
+            boost::asio::queue_listener<mqtt_connection::packetq_t> packet_receiver_{io_service_, &packetq_};
         };  // class dispatcher
     }       // namespace dispatch
 }  // namespace io_wally

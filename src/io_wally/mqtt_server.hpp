@@ -11,12 +11,15 @@
 #include <boost/log/common.hpp>
 #include <boost/log/trivial.hpp>
 
+#include "boost/asio_queue.hpp"
+
 #include "io_wally/logging_support.hpp"
 #include "io_wally/context.hpp"
 #include "io_wally/mqtt_connection.hpp"
 #include "io_wally/mqtt_connection_manager.hpp"
 #include "io_wally/spi/authentication_service_factory.hpp"
 #include "io_wally/concurrency/io_service_pool.hpp"
+#include "io_wally/dispatch/common.hpp"
 
 namespace io_wally
 {
@@ -33,12 +36,12 @@ namespace io_wally
     /// \see http://www.boost.org/doc/libs/1_58_0/doc/html/boost_asio/example/cpp11/http/server/server.hpp
     class mqtt_server : public std::enable_shared_from_this<mqtt_server>
     {
-       public:
+       public:  // static
         /// A \c shared_ptr to an \c mqtt_server.
         using ptr = std::shared_ptr<mqtt_server>;
 
         /// Factory method for \c mqtt_servers.
-        static mqtt_server::ptr create( context );
+        static mqtt_server::ptr create( context, mqtt_connection::packetq_t& dispatchq );
 
        public:
         /// \brief \c mqtt_server instances cannot be copied
@@ -67,7 +70,7 @@ namespace io_wally
 
        private:
         /// Construct the mqtt_server to listen on the specified TCP address and port.
-        explicit mqtt_server( context context );
+        explicit mqtt_server( context context, mqtt_connection::packetq_t& dispatchq );
 
         /// Perform an asynchronous accept operation.
         void do_accept( );
@@ -87,6 +90,8 @@ namespace io_wally
         std::condition_variable conn_closed_{};
         /// Context object
         const context context_;
+        /// Dispatcher queue: dispatch received packets to dispatcher subsystem
+        mqtt_connection::packetq_t& dispatchq_;
         /// Our session manager that manages all connections
         mqtt_connection_manager connection_manager_{};
         /// Pool of io_service objects used for all things networking (just one io_service object for now)
