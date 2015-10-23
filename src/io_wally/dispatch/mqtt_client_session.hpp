@@ -1,41 +1,44 @@
 #pragma once
 
-#include <cstdint>
 #include <string>
 #include <memory>
 
 #include <boost/log/trivial.hpp>
 
 #include "io_wally/protocol/common.hpp"
+#include "io_wally/mqtt_connection.hpp"
 
 namespace io_wally
 {
     namespace dispatch
     {
+        // Forward decl to resolve circular dependency
+        class mqtt_client_session_manager;
+
         class mqtt_client_session
         {
            public:  // static
             using ptr = std::shared_ptr<mqtt_client_session>;
 
-            mqtt_client_session::ptr create( const uint16_t client_id )
-            {
-                return std::make_shared<mqtt_client_session>( client_id );
-            }
+            static mqtt_client_session::ptr create( mqtt_client_session_manager& session_manager,
+                                                    const std::string& client_id,
+                                                    std::weak_ptr<mqtt_connection> connection );
 
            public:
-            uint16_t client_id( ) const
-            {
-                return client_id_;
-            }
+            mqtt_client_session( mqtt_client_session_manager& session_manager,
+                                 const std::string& client_id,
+                                 std::weak_ptr<mqtt_connection> connection );
+
+            ~mqtt_client_session( );
+
+            const std::string& client_id( ) const;
+
+            void destroy( );
 
            private:
-            mqtt_client_session( const uint16_t client_id ) : client_id_{client_id}
-            {
-                return;
-            }
-
-           private:
-            const uint16_t client_id_;
+            mqtt_client_session_manager& session_manager_;
+            const std::string client_id_;
+            std::weak_ptr<mqtt_connection> connection_;
         };  // class mqtt_client_session
     }       // namespace dispatch
 }  // namespace io_wally

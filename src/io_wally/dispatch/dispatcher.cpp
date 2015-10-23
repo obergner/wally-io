@@ -12,6 +12,7 @@
 #include <boost/log/trivial.hpp>
 
 #include "io_wally/mqtt_connection.hpp"
+#include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/connect_packet.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
 #include "io_wally/dispatch/common.hpp"
@@ -78,6 +79,11 @@ namespace io_wally
             else
             {
                 BOOST_LOG_SEV( logger_, lvl::debug ) << "RX: " << *packet_container->packet( );
+                if ( packet_container->packet_type( ) == protocol::packet::Type::CONNECT )
+                {
+                    session_manager_.client_connected( packet_container->client_id( ),
+                                                       packet_container->rx_connection( ) );
+                }
                 do_receive_packet( );
             }
         }
