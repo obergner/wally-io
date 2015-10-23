@@ -56,6 +56,7 @@ MSRCS           += $(wildcard src/io_wally/protocol/*.cpp)
 MSRCS           += $(wildcard src/io_wally/codec/*.cpp)
 MSRCS           += $(wildcard src/io_wally/spi/*.cpp)
 MSRCS           += $(wildcard src/io_wally/impl/*.cpp)
+MSRCS           += $(wildcard src/io_wally/dispatch/*.cpp)
 MSRCS           += $(wildcard src/io_wally/app/*.cpp)
 
 MEXECSOURCE     := $(wildcard src/*.cpp)
@@ -289,14 +290,17 @@ macroexpand         : $(MSRCS) $(MEXECSOURCE)
 
 # Running clang-check
 .PHONY              : check-main
+check-main          : compilation-db
 check-main          : $(MSRCS) $(MEXECSOURCE)
 	@clang-check $(MSRCS) $(MEXECSOURCE)
 
 .PHONY              : check-test
+check-test          : compilation-db
 check-test          : $(TSRCS) $(TEXECSOURCE)
 	@clang-check $(TSRCS) $(TEXECSOURCE)
 
 .PHONY              : check-itest
+check-itest         : compilation-db
 check-itest         : $(ITSRCS) $(ITEXECSOURCE)
 	@clang-check $(ITSRCS) $(ITEXECSOURCE)
 

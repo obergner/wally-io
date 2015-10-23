@@ -61,6 +61,10 @@ DISCLAIMER:
                 auto auth_service = auth_service_factory( config );
 
                 auto ctx = context( move( config ), move( auth_service ) );
+
+                dispatcher_ = dispatch::dispatcher::create( dispatchq_ );
+                dispatcher_->run( );
+
                 server_ = mqtt_server::create( move( ctx ), dispatchq_ );
                 {
                     // Nested scope to reliable release lock before we call server_.run(), which will block "forever".
@@ -68,10 +72,10 @@ DISCLAIMER:
 
                     startup_completed_.notify_all( );
                 }
-
                 server_->run( );
 
                 server_->wait_until_connections_closed( );
+                dispatcher_->stop( "Server received shutdown signal" );
 
                 server_->stop( "Server has completed shutdown sequence" );
 
@@ -110,6 +114,7 @@ DISCLAIMER:
         {
             server_->close_connections( message );
             server_->wait_until_connections_closed( );
+            dispatcher_->stop( message );
             server_->stop( message );
             server_->wait_until_stopped( );
         }
