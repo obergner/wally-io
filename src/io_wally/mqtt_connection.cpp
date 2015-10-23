@@ -344,15 +344,15 @@ namespace io_wally
     {
         if ( ec )
         {
-            write_packet_and_close_session( connack{false, connect_return_code::SERVER_UNAVAILABLE},
-                                            "--- Dispatching CONNECT failed" );
             BOOST_LOG_SEV( logger_, lvl::error ) << "--- DISPATCH FAILED: " << *connect << " [ec:" << ec
                                                  << "|emsg:" << ec.message( ) << "]";
+            write_packet_and_close_session( connack{false, connect_return_code::SERVER_UNAVAILABLE},
+                                            "--- Dispatching CONNECT failed" );
         }
         else
         {
-            write_packet( connack{false, connect_return_code::CONNECTION_ACCEPTED} );
             BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *connect;
+            write_packet( connack{false, connect_return_code::CONNECTION_ACCEPTED} );
         }
     }
 
