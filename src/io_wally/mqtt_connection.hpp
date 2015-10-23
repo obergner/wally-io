@@ -112,9 +112,10 @@ namespace io_wally
 
         void process_connect_packet( std::unique_ptr<const protocol::mqtt_packet> packet );
 
-        void dispatch_decoded_packet( std::unique_ptr<const protocol::mqtt_packet> packet );
+        void dispatch_connect_packet( std::shared_ptr<const protocol::connect> connect );
 
-        void handle_dispatch( const boost::system::error_code& ec, packet_container_t::ptr packet_container );
+        void handle_dispatch_connect_packet( const boost::system::error_code& ec,
+                                             std::shared_ptr<const protocol::connect> connect );
 
         void write_packet( const protocol::mqtt_packet& packet );
 

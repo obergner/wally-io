@@ -319,63 +319,41 @@ namespace io_wally
                 keep_alive_ = chrono::seconds{connect.keep_alive_secs( )};
                 close_on_keep_alive_timeout( );
             }
-            // FIXME: We should conditionally send connack in queue_sender handler if pushing to dispatcher
-            // queue was successful, otherwise send nack
-            write_packet( connack{false, connect_return_code::CONNECTION_ACCEPTED} );
             BOOST_LOG_SEV( logger_, lvl::info ) << "--- PROCESSED: " << *packet;
 
-            dispatch_decoded_packet( move( packet ) );
+            dispatch_connect_packet( dynamic_pointer_cast<const protocol::connect>(
+                shared_ptr<const protocol::mqtt_packet>( move( packet ) ) ) );
         }
     }
 
-    void mqtt_connection::dispatch_decoded_packet( unique_ptr<const mqtt_packet> packet )
+    void mqtt_connection::dispatch_connect_packet( shared_ptr<const protocol::connect> connect )
     {
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *packet << " ...";
-        switch ( packet->header( ).type( ) )
-        {
-            case packet::Type::CONNECT:
-            {
-                auto connect_ptr =
-                    dynamic_pointer_cast<const protocol::connect>( shared_ptr<const mqtt_packet>{move( packet )} );
-                auto connect_container = packet_container_t::connect_packet( shared_from_this( ), connect_ptr );
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *connect << " ...";
+        auto connect_container = packet_container_t::connect_packet( shared_from_this( ), connect );
 
-                auto self = shared_from_this( );
-                dispatcher_.async_enq( connect_container,
-                                       [self, connect_container]( const boost::system::error_code& ec )
-                                       {
-                    self->handle_dispatch( ec, connect_container );
-                } );
-            }
-            break;
-            case packet::Type::SUBSCRIBE:
-            case packet::Type::PINGREQ:
-            case packet::Type::DISCONNECT:
-            case packet::Type::CONNACK:
-            case packet::Type::PINGRESP:
-            case packet::Type::PUBLISH:
-            case packet::Type::PUBACK:
-            case packet::Type::PUBREL:
-            case packet::Type::PUBREC:
-            case packet::Type::PUBCOMP:
-            case packet::Type::SUBACK:
-            case packet::Type::UNSUBSCRIBE:
-            case packet::Type::UNSUBACK:
-            case packet::Type::RESERVED1:
-            case packet::Type::RESERVED2:
-            default:
-                assert( false );
-                break;
-        }
+        auto self = shared_from_this( );
+        dispatcher_.async_enq( connect_container,
+                               strand_.wrap( [self, connect]( const boost::system::error_code& ec )
+                                             {
+                                                 self->handle_dispatch_connect_packet( ec, connect );
+                                             } ) );
     }
 
-    void mqtt_connection::handle_dispatch( const boost::system::error_code& ec,
-                                           packet_container_t::ptr packet_container )
+    void mqtt_connection::handle_dispatch_connect_packet( const boost::system::error_code& ec,
+                                                          shared_ptr<const protocol::connect> connect )
     {
         if ( ec )
-            BOOST_LOG_SEV( logger_, lvl::error ) << "--- DISPATCH FAILED: " << *packet_container->packet( )
-                                                 << " [ec:" << ec << "|emsg:" << ec.message( ) << "]";
+        {
+            write_packet_and_close_session( connack{false, connect_return_code::SERVER_UNAVAILABLE},
+                                            "--- Dispatching CONNECT failed" );
+            BOOST_LOG_SEV( logger_, lvl::error ) << "--- DISPATCH FAILED: " << *connect << " [ec:" << ec
+                                                 << "|emsg:" << ec.message( ) << "]";
+        }
         else
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *packet_container->packet( );
+        {
+            write_packet( connack{false, connect_return_code::CONNECTION_ACCEPTED} );
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *connect;
+        }
     }
 
     void mqtt_connection::write_packet( const mqtt_packet& packet )
