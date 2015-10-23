@@ -29,8 +29,6 @@ namespace io_wally
                                  const std::string& client_id,
                                  std::weak_ptr<mqtt_connection> connection );
 
-            ~mqtt_client_session( );
-
             const std::string& client_id( ) const;
 
             void destroy( );

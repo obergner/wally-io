@@ -23,7 +23,10 @@ namespace io_wally
         {
            public:
             /// \brief Create a session manager.
-            mqtt_client_session_manager( );
+            mqtt_client_session_manager( ) = default;
+
+            /// \brief Destroy this session manager, taking care to destroy all \c mqtt_client_session instances.
+            ~mqtt_client_session_manager( );
 
             /// An mqtt_client_session_manager cannot be copied.
             mqtt_client_session_manager( const mqtt_client_session_manager& ) = delete;
@@ -41,8 +44,16 @@ namespace io_wally
             ///                    network errors - to discard a connection at any time.
             void client_connected( const std::string& client_id, std::weak_ptr<mqtt_connection> connection );
 
-            /// \brief Destroy the specified \c mqtt_client_session.
-            void destroy( mqtt_client_session& session );
+            /// \brief Called when a client disconnects, either voluntarily by sending a DISCONNECT, or involuntarily
+            /// due to network or protocol error. Destroys associated \c mqtt_client_session.
+            ///
+            /// \param client_id   Disconnected client's ID.
+            void client_disconnected( const std::string client_id );
+
+            /// \brief Destroy the \c mqtt_client_session identified by specified \c client_id.
+            ///
+            /// \param client_id Client ID associated with \c mqtt_client_session to destroy (remove from this manager)
+            void destroy( const std::string client_id );
 
             /// \brief Destroy all \c mqtt_client_sessions.
             void destroy_all( );

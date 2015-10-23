@@ -1,6 +1,6 @@
 #include "io_wally/dispatch/dispatcher.hpp"
 
-#include <cstdint>
+#include <cassert>
 #include <string>
 #include <memory>
 
@@ -49,7 +49,7 @@ namespace io_wally
         void dispatcher::stop( const std::string& message )
         {
             BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPING: Dispatcher (" << message << ") ...";
-
+            session_manager_.destroy_all( );
             dispatcher_pool_.stop( );
             BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPED:  Dispatcher (" << message << ")";
         }
@@ -83,6 +83,14 @@ namespace io_wally
                 {
                     session_manager_.client_connected( packet_container->client_id( ),
                                                        packet_container->rx_connection( ) );
+                }
+                else if ( packet_container->packet_type( ) == protocol::packet::Type::DISCONNECT )
+                {
+                    session_manager_.client_disconnected( packet_container->client_id( ) );
+                }
+                else
+                {
+                    assert( false );
                 }
                 do_receive_packet( );
             }

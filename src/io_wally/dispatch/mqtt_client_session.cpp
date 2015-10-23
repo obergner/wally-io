@@ -24,11 +24,6 @@ namespace io_wally
             return std::make_shared<mqtt_client_session>( session_manager, client_id, connection );
         }
 
-        mqtt_client_session::~mqtt_client_session( )
-        {
-            destroy( );
-        }
-
         mqtt_client_session::mqtt_client_session( mqtt_client_session_manager& session_manager,
                                                   const std::string& client_id,
                                                   std::weak_ptr<mqtt_connection> connection )
@@ -43,7 +38,7 @@ namespace io_wally
 
         void mqtt_client_session::destroy( )
         {
-            session_manager_.destroy( *this );
+            session_manager_.destroy( client_id_ );
         }
     }  // namespace dispatch
 }  // namespace io_wally

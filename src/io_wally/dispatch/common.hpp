@@ -6,6 +6,7 @@
 
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/connect_packet.hpp"
+#include "io_wally/protocol/disconnect_packet.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
 
 namespace io_wally
@@ -17,6 +18,9 @@ namespace io_wally
     ///  - \c protocol::connect: Any \c connect packet - provided it results in successful client authentication - will
     ///                          be dispatched to \c mqtt_client_session_manager to establish a new
     ///                          \c mqtt_client_session.
+    ///  - \c protocol::disconnect: Any \c disconnect packet will be dispatched to \c mqtt_client_session_manager to
+    ///                             destroy the \c mqtt_client_session associated with the client just disconnected (if
+    ///                             any)
     ///  - \c protocol::subscribe Any received \c subscribe packet will be forwarded to XXX to register its
     ///                           \c subscriptions.
     ///  - \c protocol::publish Any received \c publish packet will be forwarded to XXX for publishing to interested
@@ -35,6 +39,14 @@ namespace io_wally
                                                                  std::shared_ptr<const protocol::connect> connect )
             {
                 return std::make_shared<packet_container<SENDER>>( connect->client_id( ), rx_connection, connect );
+            }
+
+            static packet_container<SENDER>::ptr disconnect_packet(
+                const std::string& client_id,
+                sender_ptr rx_connection,
+                std::shared_ptr<const protocol::disconnect> disconnect )
+            {
+                return std::make_shared<packet_container<SENDER>>( client_id, rx_connection, disconnect );
             }
 
             static packet_container<SENDER>::ptr subscribe_packet(

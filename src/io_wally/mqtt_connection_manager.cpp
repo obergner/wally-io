@@ -14,25 +14,25 @@ namespace io_wally
         return;
     }
 
-    void mqtt_connection_manager::start( mqtt_connection::ptr session )
+    void mqtt_connection_manager::start( mqtt_connection::ptr connection )
     {
-        sessions_.insert( session );
-        session->start( );
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "Started: " << session;
+        connections_.insert( connection );
+        connection->start( );
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "Started: " << *connection;
     }
 
-    void mqtt_connection_manager::stop( mqtt_connection::ptr session )
+    void mqtt_connection_manager::stop( mqtt_connection::ptr connection )
     {
-        sessions_.erase( session );
-        session->do_stop( );
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "Stopped: " << session;
+        connections_.erase( connection );
+        connection->do_stop( );
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "Stopped: " << *connection;
     }
 
     void mqtt_connection_manager::stop_all( )
     {
-        for ( auto c : sessions_ )
+        for ( auto& c : connections_ )
             c->do_stop( );
-        sessions_.clear( );
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "All sessions stopped";
+        connections_.clear( );
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "All connections stopped";
     }
 }  // namespace io_wally

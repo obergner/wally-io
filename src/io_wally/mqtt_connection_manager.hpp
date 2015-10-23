@@ -23,25 +23,25 @@ namespace io_wally
         /// An mqtt_connection_manager cannot be copied.
         mqtt_connection_manager& operator=( const mqtt_connection_manager& ) = delete;
 
-        /// Construct a session manager.
+        /// Construct a connection manager.
         mqtt_connection_manager( );
 
         /// Add the specified \c mqtt_connection to the manager and start it.
-        void start( mqtt_connection::ptr session );
+        void start( mqtt_connection::ptr connection );
 
         /// Stop the specified \c mqtt_connection.
-        void stop( mqtt_connection::ptr session );
+        void stop( mqtt_connection::ptr connection );
 
         /// Stop all \c mqtt_connections.
         void stop_all( );
 
        private:
-        /// The managed sessions.
-        std::set<mqtt_connection::ptr> sessions_{};
+        /// The managed connections.
+        std::set<mqtt_connection::ptr> connections_{};
 
         /// Our severity-enabled channel logger
         boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
-            boost::log::keywords::channel = "session-manager",
+            boost::log::keywords::channel = "connection-manager",
             boost::log::keywords::severity = boost::log::trivial::trace};
     };
 }  // namespace io_wally

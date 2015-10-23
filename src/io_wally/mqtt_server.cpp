@@ -138,7 +138,7 @@ namespace io_wally
                 assert( !ec );
 
                 self->do_close_connections( "Received termination signal [" + to_string( signo ) +
-                                            "] - MQTT server close all client connections ..." );
+                                            "] - MQTT server will close all client connections ..." );
             } );
     }
 

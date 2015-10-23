@@ -97,6 +97,8 @@ namespace io_wally
 
         void do_stop( );
 
+        // Receiving MQTT packets
+
         void read_header( );
 
         void on_header_data_read( const boost::system::error_code& ec, const size_t bytes_transferred );
@@ -110,22 +112,37 @@ namespace io_wally
 
         void process_decoded_packet( std::unique_ptr<const protocol::mqtt_packet> packet );
 
-        void process_connect_packet( std::unique_ptr<const protocol::mqtt_packet> packet );
+        // Dealing with CONNECT packets
+
+        void process_connect_packet( std::shared_ptr<const protocol::connect> connect );
 
         void dispatch_connect_packet( std::shared_ptr<const protocol::connect> connect );
 
         void handle_dispatch_connect_packet( const boost::system::error_code& ec,
                                              std::shared_ptr<const protocol::connect> connect );
 
+        // Dealing with DISCONNECT packets
+
+        void process_disconnect_packet( std::shared_ptr<const protocol::disconnect> disconnect );
+
+        void dispatch_disconnect_packet( std::shared_ptr<const protocol::disconnect> disconnect );
+
+        void handle_dispatch_disconnect_packet( const boost::system::error_code& ec,
+                                                std::shared_ptr<const protocol::disconnect> disconnect );
+
+        // Sending MQTT packets
+
         void write_packet( const protocol::mqtt_packet& packet );
 
         void write_packet_and_close_session( const protocol::mqtt_packet& packet, const std::string& message );
 
+        // Dealing with keep alive
+
         void close_on_keep_alive_timeout( );
 
        private:
-        /// Has this session been authenticated, i.e. received a successful CONNECT request?
-        bool authenticated = false;
+        /// Connected client's client_id. Only assigned once successful authenticated.
+        boost::optional<const std::string> client_id_ = boost::none;
         /// Somehow we need to parse those headers
         decoder::header_decoder header_decoder_{};
         /// And while we are at it, why not parse the rest of those packets, too?
@@ -158,7 +175,7 @@ namespace io_wally
         boost::asio::steady_timer close_on_keep_alive_timeout_;
         /// Our severity-enabled channel logger
         boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
-            boost::log::keywords::channel = "session",
+            boost::log::keywords::channel = "connection",
             boost::log::keywords::severity = boost::log::trivial::trace};
     };  // class mqtt_connection
 }

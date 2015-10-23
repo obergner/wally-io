@@ -100,7 +100,10 @@ namespace io_wally
     const string mqtt_connection::to_string( ) const
     {
         auto output = ostringstream{};
-        output << "session[" << socket_ << "]";
+        if ( socket_.is_open( ) )
+            output << "connection[" << socket_ << "]";
+        else
+            output << "connection[DISCONNECTED/" << *client_id_ << "]";
 
         return output.str( );
     }
@@ -257,7 +260,8 @@ namespace io_wally
         {
             case packet::Type::CONNECT:
             {
-                process_connect_packet( move( packet ) );
+                process_connect_packet( dynamic_pointer_cast<const protocol::connect>(
+                    shared_ptr<const protocol::mqtt_packet>( move( packet ) ) ) );
             }
             break;
             case packet::Type::PINGREQ:
@@ -268,8 +272,8 @@ namespace io_wally
             break;
             case packet::Type::DISCONNECT:
             {
-                stop( "--- Session disconnected by client", lvl::info );
-                BOOST_LOG_SEV( logger_, lvl::info ) << "--- PROCESSED: " << *packet;
+                process_disconnect_packet( dynamic_pointer_cast<const protocol::disconnect>(
+                    shared_ptr<const protocol::mqtt_packet>( move( packet ) ) ) );
             }
             break;
             case packet::Type::CONNACK:
@@ -291,10 +295,9 @@ namespace io_wally
         }
     }
 
-    void mqtt_connection::process_connect_packet( std::unique_ptr<const protocol::mqtt_packet> packet )
+    void mqtt_connection::process_connect_packet( shared_ptr<const protocol::connect> connect )
     {
-        auto connect = dynamic_cast<const protocol::connect&>( *packet );
-        if ( authenticated )
+        if ( client_id_ )
         {
             // [MQTT-3.1.0-2]: If receiving a second CONNECT on an already authenticated connection, that
             // connection MUST be closed
@@ -304,7 +307,7 @@ namespace io_wally
                 lvl::error );
         }
         else if ( !context_.authentication_service( ).authenticate(
-                      socket_.remote_endpoint( ).address( ).to_string( ), connect.username( ), connect.password( ) ) )
+                      socket_.remote_endpoint( ).address( ).to_string( ), connect->username( ), connect->password( ) ) )
         {
             write_packet_and_close_session( connack{false, connect_return_code::BAD_USERNAME_OR_PASSWORD},
                                             "--- Authentication failed" );
@@ -312,17 +315,16 @@ namespace io_wally
         else
         {
             close_on_connection_timeout_.cancel( );
-            authenticated = true;
+            client_id_.emplace( connect->client_id( ) );  // use emplace() to preserve string constness
 
-            if ( connect.keep_alive_secs( ) > 0 )
+            if ( connect->keep_alive_secs( ) > 0 )
             {
-                keep_alive_ = chrono::seconds{connect.keep_alive_secs( )};
+                keep_alive_ = chrono::seconds{connect->keep_alive_secs( )};
                 close_on_keep_alive_timeout( );
             }
-            BOOST_LOG_SEV( logger_, lvl::info ) << "--- PROCESSED: " << *packet;
+            BOOST_LOG_SEV( logger_, lvl::info ) << "--- PROCESSED: " << *connect;
 
-            dispatch_connect_packet( dynamic_pointer_cast<const protocol::connect>(
-                shared_ptr<const protocol::mqtt_packet>( move( packet ) ) ) );
+            dispatch_connect_packet( connect );
         }
     }
 
@@ -354,6 +356,39 @@ namespace io_wally
             BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *connect;
             write_packet( connack{false, connect_return_code::CONNECTION_ACCEPTED} );
         }
+    }
+
+    void mqtt_connection::process_disconnect_packet( shared_ptr<const protocol::disconnect> disconnect )
+    {
+        dispatch_disconnect_packet( disconnect );
+    }
+
+    void mqtt_connection::dispatch_disconnect_packet( shared_ptr<const protocol::disconnect> disconnect )
+    {
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *disconnect << " ...";
+        auto connect_container = packet_container_t::disconnect_packet( *client_id_, shared_from_this( ), disconnect );
+
+        auto self = shared_from_this( );
+        dispatcher_.async_enq( connect_container,
+                               strand_.wrap( [self, disconnect]( const boost::system::error_code& ec )
+                                             {
+                                                 self->handle_dispatch_disconnect_packet( ec, disconnect );
+                                             } ) );
+    }
+
+    void mqtt_connection::handle_dispatch_disconnect_packet( const boost::system::error_code& ec,
+                                                             shared_ptr<const protocol::disconnect> disconnect )
+    {
+        if ( ec )
+        {
+            BOOST_LOG_SEV( logger_, lvl::error ) << "--- DISPATCH FAILED: " << *disconnect << " [ec:" << ec
+                                                 << "|emsg:" << ec.message( ) << "]";
+        }
+        else
+        {
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *disconnect;
+        }
+        stop( "--- Session disconnected by client", lvl::info );
     }
 
     void mqtt_connection::write_packet( const mqtt_packet& packet )
