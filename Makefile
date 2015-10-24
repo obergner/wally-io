@@ -1,54 +1,18 @@
-###############################################################################
+#######################################################################################################################
 # Macros
-###############################################################################
+#######################################################################################################################
 
-# GCC
-CXX             := g++
-#CXX             := clang++
-CC              := gcc
-
-# Standard compiler flags
-CXXFLAGS        := -std=c++14
-CXXFLAGS        += -fdiagnostics-color=auto
-CXXFLAGS        += -MMD # automatically generate dependency rules on each run
-CXXFLAGS        += -I ./src
-CXXFLAGS        += -I ./libs/boost-asio-queue-extension
-CXXFLAGS        += -Werror
-CXXFLAGS        += -Wall
-CXXFLAGS        += -Wextra
-CXXFLAGS        += -Wcast-align
-CXXFLAGS        += -Wformat-nonliteral
-CXXFLAGS        += -Wformat=2
-CXXFLAGS        += -Winvalid-pch
-CXXFLAGS        += -Wmissing-declarations
-CXXFLAGS        += -Wmissing-format-attribute
-CXXFLAGS        += -Wmissing-include-dirs
-CXXFLAGS        += -Wredundant-decls
-CXXFLAGS        += -Wswitch-default
-CXXFLAGS        += -Wswitch-enum
-
-# Standard preprocessor flags
-CPPFLAGS        := -DBOOST_ALL_DYN_LINK
-# Needed for clang:
-# http://stackoverflow.com/questions/27552028/who-is-failing-boost-clang-or-gcc-issue-with-stdchrono-used-with-boostas
-CPPFLAGS        += -DBOOST_ASIO_HAS_STD_CHRONO 
-
-CXXRELEASE_FLAGS += -O3 # -dNDEBUG
-CXXDEBUG_FLAGS  += -O0 -g
-CXXDEBUG_FLAGS  += -D_GLIBCXX_DEBUG
-CXXDEBUG_FLAGS  += -DBOOST_ASIO_ENABLE_HANDLER_TRACKING
-
-# Extra linker flags
-LDLIBS          := -lboost_system
-LDLIBS          += -lboost_thread
-LDLIBS          += -lboost_log
-LDLIBS          += -lboost_log_setup
-LDLIBS          += -lboost_program_options
-LDLIBS          += -lpthread
+# --------------------------------------------------------------------------------------------------------------------- 
+# Common definitions
+# --------------------------------------------------------------------------------------------------------------------- 
 
 # Top level build directory
 # see: http://blog.kompiler.org/post/6/2011-09-18/Separate_build_and_source_directories_in_Makefiles/
 BUILD           := build
+
+# --------------------------------------------------------------------------------------------------------------------- 
+# Target executable source
+# --------------------------------------------------------------------------------------------------------------------- 
 
 # SRCS
 MSRCS           := $(wildcard src/io_wally/*.cpp)
@@ -75,15 +39,9 @@ MBUILDDIRS      := $(sort $(dir $(MOBJS)))
 # Main executable
 MEXEC           := $(MBUILD)/mqtt-serverd
 
-# Test compiler flags
-TCXXFLAGS       := $(CXXFLAGS)
-TCXXFLAGS       += -O0 -g
-TCXXFLAGS       += -I ./test
-TCXXFLAGS       := $(filter-out -Wswitch-default, $(TCXXFLAGS))
-TCXXFLAGS       := $(filter-out -Wswitch-enum, $(TCXXFLAGS))
-
-# Test linker flags
-TLDLIBS         := $(LDLIBS)
+# --------------------------------------------------------------------------------------------------------------------- 
+# Unit tests
+# --------------------------------------------------------------------------------------------------------------------- 
 
 # Test SRCS
 TSRCS           += $(wildcard test/io_wally/*.cpp)
@@ -108,6 +66,10 @@ TBUILDDIRS      := $(sort $(dir $(TOBJS)))
 # Main test executable
 TEXEC           := $(TBUILD)/all-tests
 
+# --------------------------------------------------------------------------------------------------------------------- 
+# Integration tests
+# --------------------------------------------------------------------------------------------------------------------- 
+
 # Support libraries
 SUPPORTBUILD    := $(BUILD)/support
 
@@ -123,18 +85,6 @@ PAHOCBUILD      := $(SUPPORTBUILD)/paho/client
 
 PAHOOBJS        := $(patsubst support/paho/packet/%.c, $(PAHOPBUILD)/%.o, $(PAHOPSRCS))
 PAHOOBJS        += $(patsubst support/paho/client/%.cpp, $(PAHOCBUILD)/%.o, $(PAHOCSRCS))
-
-# Integrationtest compiler flags
-ITCXXFLAGS      := $(CXXFLAGS)
-ITCXXFLAGS      += -O0 -g
-ITCXXFLAGS      += -I ./itest
-ITCXXFLAGS      += -I $(PAHOPINC)
-ITCXXFLAGS      += -I $(PAHOCINC)
-ITCXXFLAGS      := $(filter-out -Wswitch-default, $(ITCXXFLAGS))
-ITCXXFLAGS      := $(filter-out -Wswitch-enum, $(ITCXXFLAGS))
-
-# Integrationtest linker flags
-ITLDLIBS        := $(LDLIBS)
 
 # Integrationtest SRCS
 ITSRCS          := $(wildcard itest/framework/*.cpp)
@@ -156,17 +106,9 @@ ITBUILDDIRS     := $(sort $(dir $(ITOBJS)))
 # Main integrationtest executable
 ITEXEC          := $(ITBUILD)/all-integrationtests
 
-# Where to store scan-build's analysis results
-SBUILD          := $(BUILD)/scan
-
-# What may be rebuilt
-REBUILDABLES    := $(MEXEC) $(MOBJS) $(TEXEC) $(TOBJS) $(ITEXEC) $(ITOBJS)
-
-# All things doxygen
-DOCDIR          := $(BUILD)/doc
-
-# Clang's compilation database needed for some of its tooling
-COMPILATIONDB   := compile_commands.json
+# --------------------------------------------------------------------------------------------------------------------- 
+# Snippets: try stuff, analyse bugs etc.
+# --------------------------------------------------------------------------------------------------------------------- 
 
 # Snippets SRCS
 SNEXECSOURCE    := itest/snippets_main.cpp
@@ -176,11 +118,180 @@ SNEXECOBJ       := $(patsubst itest/%.cpp, $(ITBUILD)/%.o, $(SNEXECSOURCE))
 # Main integrationtest executable
 SNEXEC          := $(ITBUILD)/snippets
 
-###############################################################################
-# Rules
-###############################################################################
+# --------------------------------------------------------------------------------------------------------------------- 
+# Third party libraries (included in this source tree): common
+# --------------------------------------------------------------------------------------------------------------------- 
 
-# Main
+# Third-party libraries included in this source tree
+THIRD_PARTY_LIBS := ./libs
+
+# Build dir for third-party libraries
+LIBS_BUILD      := $(BUILD)/libs
+
+# --------------------------------------------------------------------------------------------------------------------- 
+# Third party libraries (included in this source tree): Boost Asio Queue Extension by Hans Ewetz
+# --------------------------------------------------------------------------------------------------------------------- 
+
+# Boost ASIO Queue Extension by Hans Ewetz
+BOOST_ASIO_QE   := $(THIRD_PARTY_LIBS)/boost-asio-queue-extension
+
+# --------------------------------------------------------------------------------------------------------------------- 
+# Third party libraries (included in this source tree): C++11-friendly header only dbus lib by Ubuntu
+# --------------------------------------------------------------------------------------------------------------------- 
+
+# C++11 DBus library by Ubuntu
+DBUS_CPP        := $(THIRD_PARTY_LIBS)/dbus-cpp
+DBUS_CPP_INC    := $(DBUS_CPP)/include
+DBUS_CPP_SRC    := $(DBUS_CPP)/src
+
+# --------------------------------------------------------------------------------------------------------------------- 
+# Tooling
+# --------------------------------------------------------------------------------------------------------------------- 
+
+# Where to store scan-build's analysis results
+SBUILD          := $(BUILD)/scan
+
+# All things doxygen
+DOCDIR          := $(BUILD)/doc
+
+# Clang's compilation database needed for some of its tooling
+COMPILATIONDB   := compile_commands.json
+
+# --------------------------------------------------------------------------------------------------------------------- 
+# Miscellaneous
+# --------------------------------------------------------------------------------------------------------------------- 
+
+# What may be rebuilt
+REBUILDABLES    := $(MEXEC) $(MOBJS) $(TEXEC) $(TOBJS) $(ITEXEC) $(ITOBJS)
+
+# --------------------------------------------------------------------------------------------------------------------- 
+# Compiler configuration: common
+# --------------------------------------------------------------------------------------------------------------------- 
+
+# GCC
+CXX             := g++
+#CXX             := clang++
+CC              := gcc
+
+# --------------------------------------------------------------------------------------------------------------------- 
+# Compiler configuration: main executable
+# --------------------------------------------------------------------------------------------------------------------- 
+
+# Standard compiler flags
+CXXFLAGS        := -std=c++14
+CXXFLAGS        += -fdiagnostics-color=auto
+CXXFLAGS        += -MMD # automatically generate dependency rules on each run
+CXXFLAGS        += -I ./src
+CXXFLAGS        += -I $(BOOST_ASIO_QE)
+CXXFLAGS        += -I $(DBUS_CPP_INC)
+CXXFLAGS        += -Werror
+CXXFLAGS        += -Wall
+CXXFLAGS        += -Wextra
+CXXFLAGS        += -Wcast-align
+CXXFLAGS        += -Wformat-nonliteral
+CXXFLAGS        += -Wformat=2
+CXXFLAGS        += -Winvalid-pch
+CXXFLAGS        += -Wmissing-declarations
+CXXFLAGS        += -Wmissing-format-attribute
+CXXFLAGS        += -Wmissing-include-dirs
+CXXFLAGS        += -Wredundant-decls
+CXXFLAGS        += -Wswitch-default
+CXXFLAGS        += -Wswitch-enum
+
+# Standard preprocessor flags
+CPPFLAGS        := -DBOOST_ALL_DYN_LINK
+# Needed for clang:
+# http://stackoverflow.com/questions/27552028/who-is-failing-boost-clang-or-gcc-issue-with-stdchrono-used-with-boostas
+CPPFLAGS        += -DBOOST_ASIO_HAS_STD_CHRONO 
+
+CXXRELEASE_FLAGS := -O3 # -dNDEBUG
+CXXDEBUG_FLAGS  := -O0 -g
+CXXDEBUG_FLAGS  += -D_GLIBCXX_DEBUG
+CXXDEBUG_FLAGS  += -DBOOST_ASIO_ENABLE_HANDLER_TRACKING
+
+# Extra linker flags
+LDLIBS          := -lboost_system
+LDLIBS          += -lboost_thread
+LDLIBS          += -lboost_log
+LDLIBS          += -lboost_log_setup
+LDLIBS          += -lboost_program_options
+LDLIBS          += -lpthread
+
+# --------------------------------------------------------------------------------------------------------------------- 
+# Compiler configuration: unit tests
+# --------------------------------------------------------------------------------------------------------------------- 
+
+# Test compiler flags
+TCXXFLAGS       := $(CXXFLAGS)
+TCXXFLAGS       += -O0 -g
+TCXXFLAGS       += -I ./test
+TCXXFLAGS       := $(filter-out -Wswitch-default, $(TCXXFLAGS))
+TCXXFLAGS       := $(filter-out -Wswitch-enum, $(TCXXFLAGS))
+
+# Test linker flags
+TLDLIBS         := $(LDLIBS)
+
+# --------------------------------------------------------------------------------------------------------------------- 
+# Compiler configuration: integration tests
+# --------------------------------------------------------------------------------------------------------------------- 
+
+# Integrationtest compiler flags
+ITCXXFLAGS      := $(CXXFLAGS)
+ITCXXFLAGS      += -O0 -g
+ITCXXFLAGS      += -I ./itest
+ITCXXFLAGS      += -I $(PAHOPINC)
+ITCXXFLAGS      += -I $(PAHOCINC)
+ITCXXFLAGS      := $(filter-out -Wswitch-default, $(ITCXXFLAGS))
+ITCXXFLAGS      := $(filter-out -Wswitch-enum, $(ITCXXFLAGS))
+
+# Integrationtest linker flags
+ITLDLIBS        := $(LDLIBS)
+
+# --------------------------------------------------------------------------------------------------------------------- 
+# Compiler configuration: dbus-cpp
+# --------------------------------------------------------------------------------------------------------------------- 
+
+# Standard compiler flags
+DBCXXFLAGS      := -std=c++11
+DBCXXFLAGS      += -fdiagnostics-color=auto
+DBCXXFLAGS      += -MMD # automatically generate dependency rules on each run
+DBCXXFLAGS      += -I ./src
+DBCXXFLAGS      += -I $(BOOST_ASIO_QE)
+DBCXXFLAGS      += -I $(DBUS_CPP_INC)
+DBCXXFLAGS      += -Werror
+DBCXXFLAGS      += -Wall
+DBCXXFLAGS      += -Wextra
+DBCXXFLAGS      += -Wcast-align
+DBCXXFLAGS      += -Wformat-nonliteral
+DBCXXFLAGS      += -Wformat=2
+DBCXXFLAGS      += -Winvalid-pch
+DBCXXFLAGS      += -Wmissing-declarations
+DBCXXFLAGS      += -Wmissing-format-attribute
+DBCXXFLAGS      += -Wmissing-include-dirs
+DBCXXFLAGS      += -Wredundant-decls
+DBCXXFLAGS      += -Wswitch-default
+DBCXXFLAGS      += -Wswitch-enum
+
+# Standard preprocessor flags
+DBCPPFLAGS      := -DBOOST_ALL_DYN_LINK
+# Needed for clang:
+DBCPPFLAGS      += -DBOOST_ASIO_HAS_STD_CHRONO 
+
+# Extra linker flags
+DBLDLIBS        := -lboost_system
+DBLDLIBS        += -lboost_thread
+DBLDLIBS        += -lboost_program_options
+DBLDLIBS        += -lpthread
+
+
+#######################################################################################################################
+# Rules
+#######################################################################################################################
+
+# --------------------------------------------------------------------------------------------------------------------- 
+# Build main executable
+# --------------------------------------------------------------------------------------------------------------------- 
+
 .PHONY              : release
 release             : CXXFLAGS += $(CXXRELEASE_FLAGS)
 release             : main
@@ -200,7 +311,10 @@ $(MEXEC)            : $(MOBJS) $(MEXECOBJ)             | $(MBUILDDIRS)
 $(MBUILD)/%.o       : src/%.cpp                        | $(MBUILDDIRS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ -c $<
 
-# Test
+# --------------------------------------------------------------------------------------------------------------------- 
+# Build/run unit tests
+# --------------------------------------------------------------------------------------------------------------------- 
+
 .PHONY              : test
 test                : test-compile
 	@./$(TEXEC)
@@ -220,7 +334,10 @@ $(TEXEC)            : $(MOBJS) $(TOBJS) $(TEXECOBJ)    | $(TBUILDDIRS)
 $(TBUILD)/%.o       : test/%.cpp                       | $(TBUILDDIRS)
 	$(CXX) $(TCXXFLAGS) -o $@ -c $<
 
-# Support: Paho MQTT client
+# --------------------------------------------------------------------------------------------------------------------- 
+# Build Paho MQTT client to support integration tests
+# --------------------------------------------------------------------------------------------------------------------- 
+
 $(PAHOPBUILD)       :
 	@mkdir -p $@
 
@@ -233,7 +350,10 @@ $(PAHOCBUILD)       :
 $(PAHOCBUILD)/%.o   : support/paho/client/%.cpp        | $(PAHOCBUILD)
 	$(CXX) -o $@ -c $<
 
-# Integrationtests
+# --------------------------------------------------------------------------------------------------------------------- 
+# Build/run integration tests
+# --------------------------------------------------------------------------------------------------------------------- 
+
 .PHONY              : itest
 itest               : itest-compile
 	@./$(ITEXEC) --success --durations yes
@@ -249,7 +369,10 @@ $(ITEXEC)           : $(MOBJS) $(ITOBJS) $(ITEXECOBJ) $(PAHOOBJS)    | $(ITBUILD
 $(ITBUILD)/%.o      : itest/%.cpp                      | $(ITBUILDDIRS)
 	$(CXX) $(CPPFLAGS) $(ITCXXFLAGS) -o $@ -c $<
 
-# Snippets
+# --------------------------------------------------------------------------------------------------------------------- 
+# Build snippets: try stuff, analyse bugs etc
+# --------------------------------------------------------------------------------------------------------------------- 
+
 .PHONY              : snippets 
 snippets            : snippets-compile
 	@./$(SNEXEC)
@@ -260,12 +383,18 @@ snippets-compile    : $(SNEXEC)                        | $(ITBUILDDIRS)
 $(SNEXEC)           : $(MOBJS) $(ITOBJS) $(SNEXECOBJ)  | $(ITBUILDDIRS)
 	$(CXX) $(ITLDLIBS) -o $@ $^
 
-# Clean
+# --------------------------------------------------------------------------------------------------------------------- 
+# Clean up the mess
+# --------------------------------------------------------------------------------------------------------------------- 
+
 .PHONY              : clean
 clean               :
 	@rm -rf $(BUILD)
 
-# Documentation
+# --------------------------------------------------------------------------------------------------------------------- 
+# Generate/publis documentation
+# --------------------------------------------------------------------------------------------------------------------- 
+
 .PHONY              : doc
 doc                 : $(MSRCS) $(MEXECSOURCE)
 	@rm -rf $(DOCDIR)
@@ -275,7 +404,10 @@ doc                 : $(MSRCS) $(MEXECSOURCE)
 doc-publish         : doc
 	@pushd $(DOCDIR); python -mSimpleHTTPServer 8000; popd
 
-# Tools
+# --------------------------------------------------------------------------------------------------------------------- 
+# Tooling
+# --------------------------------------------------------------------------------------------------------------------- 
+
 compilation-db      : $(COMPILATIONDB)
 
 $(COMPILATIONDB)    : $(MSRCS) $(MEXECSOURCE) $(TSRCS) $(TEXECSOURCE) $(ITSRCS) $(ITEXECSOURCE)
@@ -335,6 +467,10 @@ format              : format-main format-test format-itest
 tags                : $(MSRCS) $(MEXECSOURCE) $(TSRCS) $(TEXECSOURCE) $(ITSRCS) $(ITEXECSOURCE)
 	@ctags -R -f ./.tags ./src ./test ./itest
 
+# --------------------------------------------------------------------------------------------------------------------- 
+# Prepare a commit: run (almost) everything
+# --------------------------------------------------------------------------------------------------------------------- 
+
 .PHONY              : prepare-commit
 prepare-commit      : clean
 prepare-commit      : format
@@ -344,14 +480,18 @@ prepare-commit      : test
 prepare-commit      : check
 prepare-commit      : scan-main
 
+# --------------------------------------------------------------------------------------------------------------------- 
+# Helpers
+# --------------------------------------------------------------------------------------------------------------------- 
+
 # Run server with some convenient default settings
 .PHONY              : run-server
 run-server          : $(MEXEC)
 	@$(MEXEC) --log-file .testlog --log-file-level trace --log-console --log-console-level trace --conn-timeout 1000000
 
-###############################################################################
+#######################################################################################################################
 # Dependency rules: http://stackoverflow.com/questions/8025766/makefile-auto-dependency-generation
-###############################################################################
+#######################################################################################################################
 
 -include            $(MOBJS:.o=.d)
 -include            $(MEXECOBJ:.o=.d)
