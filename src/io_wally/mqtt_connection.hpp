@@ -125,10 +125,13 @@ namespace io_wally
 
         void process_disconnect_packet( std::shared_ptr<const protocol::disconnect> disconnect );
 
-        void dispatch_disconnect_packet( std::shared_ptr<const protocol::disconnect> disconnect );
+        void dispatch_disconnect_packet(
+            std::shared_ptr<const protocol::disconnect> disconnect,
+            const dispatch::disconnect_reason disconnect_reason = dispatch::disconnect_reason::client_disconnect );
 
         void handle_dispatch_disconnect_packet( const boost::system::error_code& ec,
-                                                std::shared_ptr<const protocol::disconnect> disconnect );
+                                                std::shared_ptr<const protocol::disconnect> disconnect,
+                                                const dispatch::disconnect_reason disconnect_reason );
 
         // Sending MQTT packets
 
@@ -139,6 +142,15 @@ namespace io_wally
         // Dealing with keep alive
 
         void close_on_keep_alive_timeout( );
+
+        // Dealing with protocol violations and network/server failures
+
+        void protocol_violated( const std::string& message );
+
+        void network_or_server_failed(
+            const std::string& message,
+            const boost::system::error_code& ec = boost::system::errc::make_error_code( boost::system::errc::success ),
+            const boost::log::trivial::severity_level log_level = boost::log::trivial::error );
 
        private:
         /// Connected client's client_id. Only assigned once successful authenticated.

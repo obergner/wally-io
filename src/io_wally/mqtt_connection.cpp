@@ -71,11 +71,11 @@ namespace io_wally
                           {
                               if ( !ec )
                               {
-                                  BOOST_LOG_SEV( self->logger_, lvl::warning )
-                                      << "CONNECTION TIMEOUT EXPIRED after ["
+                                  auto msg = ostringstream{};
+                                  msg << "CONNECTION TIMEOUT EXPIRED after ["
                                       << self->context_[context::CONNECT_TIMEOUT].as<const uint32_t>( )
                                       << "] ms - connection [" << self->socket_ << "] will be closed";
-                                  self->stop( );
+                                  self->network_or_server_failed( msg.str( ), ec, lvl::warning );
                               }
                           } ) );
 
@@ -143,8 +143,7 @@ namespace io_wally
     {
         if ( ec )
         {
-            stop( "<<< Failed to read header: [ec:" + std::to_string( ec.value( ) ) + "|emsg:" + ec.message( ) + "]",
-                  lvl::error );
+            network_or_server_failed( "<<< Failed to read header", ec, lvl::error );
             return;
         }
 
@@ -171,7 +170,8 @@ namespace io_wally
         }
         catch ( const error::malformed_mqtt_packet& e )
         {
-            stop( "Malformed control packet header - will stop this session: " + string{e.what( )}, lvl::error );
+            network_or_server_failed( "<<< Malformed control packet header - will close this connection: " +
+                                      string{e.what( )} );
         }
     }
 
@@ -222,8 +222,7 @@ namespace io_wally
     {
         if ( ec )
         {
-            stop( "<<< Failed to read body: [ec:" + std::to_string( ec.value( ) ) + "|emsg:" + ec.message( ) + "]",
-                  lvl::error );
+            network_or_server_failed( "<<< Failed to read body", ec, lvl::error );
             return;
         }
 
@@ -247,7 +246,8 @@ namespace io_wally
         }
         catch ( const error::malformed_mqtt_packet& e )
         {
-            stop( "<<< Malformed control packet body - will stop this session: " + string{e.what( )}, lvl::error );
+            network_or_server_failed( "<<< Malformed control packet body - will stop this session: " +
+                                      string{e.what( )} );
         }
 
         return;
@@ -301,10 +301,9 @@ namespace io_wally
         {
             // [MQTT-3.1.0-2]: If receiving a second CONNECT on an already authenticated connection, that
             // connection MUST be closed
-            stop(
+            protocol_violated(
                 "--- [MQTT-3.1.0-2] Received CONNECT on already authenticated "
-                "connection - connection will be closed",
-                lvl::error );
+                "connection - connection will be closed" );
         }
         else if ( !context_.authentication_service( ).authenticate(
                       socket_.remote_endpoint( ).address( ).to_string( ), connect->username( ), connect->password( ) ) )
@@ -363,21 +362,26 @@ namespace io_wally
         dispatch_disconnect_packet( disconnect );
     }
 
-    void mqtt_connection::dispatch_disconnect_packet( shared_ptr<const protocol::disconnect> disconnect )
+    void mqtt_connection::dispatch_disconnect_packet( shared_ptr<const protocol::disconnect> disconnect,
+                                                      const dispatch::disconnect_reason disconnect_reason )
     {
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *disconnect << " ...";
-        auto connect_container = packet_container_t::disconnect_packet( *client_id_, shared_from_this( ), disconnect );
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *disconnect << "[rsn:" << disconnect_reason
+                                             << "] ...";
+        auto connect_container =
+            packet_container_t::disconnect_packet( *client_id_, shared_from_this( ), disconnect, disconnect_reason );
 
         auto self = shared_from_this( );
-        dispatcher_.async_enq( connect_container,
-                               strand_.wrap( [self, disconnect]( const boost::system::error_code& ec )
-                                             {
-                                                 self->handle_dispatch_disconnect_packet( ec, disconnect );
-                                             } ) );
+        dispatcher_.async_enq(
+            connect_container,
+            strand_.wrap( [self, disconnect, disconnect_reason]( const boost::system::error_code& ec )
+                          {
+                              self->handle_dispatch_disconnect_packet( ec, disconnect, disconnect_reason );
+                          } ) );
     }
 
     void mqtt_connection::handle_dispatch_disconnect_packet( const boost::system::error_code& ec,
-                                                             shared_ptr<const protocol::disconnect> disconnect )
+                                                             shared_ptr<const protocol::disconnect> disconnect,
+                                                             const dispatch::disconnect_reason disconnect_reason )
     {
         if ( ec )
         {
@@ -386,9 +390,12 @@ namespace io_wally
         }
         else
         {
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *disconnect;
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *disconnect << " [rsn:" << disconnect_reason
+                                                 << "]";
         }
-        stop( "--- Session disconnected by client", lvl::info );
+        auto msg = ostringstream{};
+        msg << "--- Connection disconnected: " << disconnect_reason;
+        stop( msg.str( ), lvl::info );
     }
 
     void mqtt_connection::write_packet( const mqtt_packet& packet )
@@ -411,9 +418,7 @@ namespace io_wally
                           {
                               if ( ec )
                               {
-                                  self->stop( ">>> Failed to send packet - session will be closed: [ec:" +
-                                                  std::to_string( ec.value( ) ) + "|emsg:" + ec.message( ) + "]",
-                                              lvl::error );
+                                  self->network_or_server_failed( "Failed to send packet", ec, lvl::error );
                               }
                               else
                               {
@@ -460,18 +465,35 @@ namespace io_wally
         {
             auto self = shared_from_this( );
             close_on_keep_alive_timeout_.expires_from_now( *keep_alive_ );
-            close_on_connection_timeout_.async_wait( strand_.wrap( [self]( const boost::system::error_code& ec )
-                                                                   {
-                                                                       if ( !ec )
-                                                                       {
-                                                                           auto msg = ostringstream{};
-                                                                           msg << "KEEP ALIVE TIMEOUT EXPIRED after ["
-                                                                               << ( self->keep_alive_ )->count( )
-                                                                               << "] s - connection [" << self->socket_
-                                                                               << "] will be closed";
-                                                                           self->stop( msg.str( ), lvl::warning );
-                                                                       }
-                                                                   } ) );
+            close_on_connection_timeout_.async_wait(
+                strand_.wrap( [self]( const boost::system::error_code& ec )
+                              {
+                                  if ( !ec )
+                                  {
+                                      auto msg = ostringstream{};
+                                      msg << "KEEP ALIVE TIMEOUT EXPIRED after [" << ( self->keep_alive_ )->count( )
+                                          << "] s - connection [" << self->socket_ << "] will be closed";
+                                      self->network_or_server_failed( msg.str( ), ec, lvl::warning );
+                                  }
+                              } ) );
         }
+    }
+
+    void mqtt_connection::protocol_violated( const std::string& message )
+    {
+        BOOST_LOG_SEV( logger_, lvl::error ) << "PROTOCOL VIOLATION: " << message << " - connection will be closed";
+        auto disconnect = make_shared<const protocol::disconnect>( );
+        dispatch_disconnect_packet( disconnect, dispatch::disconnect_reason::protocol_violation );
+    }
+
+    void mqtt_connection::network_or_server_failed( const std::string& message,
+                                                    const boost::system::error_code& ec,
+                                                    const boost::log::trivial::severity_level log_level )
+    {
+        auto err_info = ( ec ? " [ec:" + std::to_string( ec.value( ) ) + "|emsg:" + ec.message( ) + "]" : "" );
+        BOOST_LOG_SEV( logger_, log_level ) << "NETWORK/SERVER FAILURE: " << message << err_info
+                                            << " - connection will be closed";
+        auto disconnect = make_shared<const protocol::disconnect>( );
+        dispatch_disconnect_packet( disconnect, dispatch::disconnect_reason::connection_lost );
     }
 }

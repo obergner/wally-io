@@ -55,9 +55,9 @@ namespace io_wally
                 RESERVED
             };
 
-            /// \brief Overload stream output operator for \c header_flags.
+            /// \brief Overload stream output operator for \c packet::QoS.
             ///
-            /// Overload stream output operator for \c header_flag, primarily meant to facilitate logging.
+            /// Overload stream output operator for \c packet::QoS, primarily meant to facilitate logging.
             inline std::ostream& operator<<( std::ostream& output, packet::QoS const& qos )
             {
                 std::string qos_string;

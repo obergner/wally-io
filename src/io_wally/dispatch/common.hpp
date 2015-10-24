@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <chrono>
 #include <memory>
@@ -27,9 +28,57 @@ namespace io_wally
     ///                         clients.
     namespace dispatch
     {
+        /// \brief Flags reason for why a client disconnected.
+        ///
+        /// We do not only forward DISCONNECT requests received from clients, but also generate "fake" DISCONNECT
+        /// packets if a client connection was closed for other reasons, i.e. because of protocol violation or
+        /// network errors. This enum allows dispatcher subsystem to differentiate between those different types
+        /// of disconnect packets.
+        enum class disconnect_reason : uint8_t
+        {
+            /// Packet is not a DISCONNECT packet.
+            not_a_disconnect = 0,
+            /// Regular disconnect: DISCONNECT request received from client.
+            client_disconnect,
+            /// Connection was disconnected due to a protocol violation, e.g. a client sent more than one CONNECT
+            /// packet.
+            protocol_violation,
+            /// Connection was lost/disconnected due to a network error or server failure.
+            connection_lost
+        };
+
+        /// \brief Overload stream output operator for \c packet::QoS.
+        ///
+        /// Overload stream output operator for \c packet::QoS, primarily meant to facilitate logging.
+        inline std::ostream& operator<<( std::ostream& output, disconnect_reason const& rsn )
+        {
+            std::string repr;
+            switch ( rsn )
+            {
+                case disconnect_reason::not_a_disconnect:
+                    repr = "Not a DISCONNECT";
+                    break;
+                case disconnect_reason::client_disconnect:
+                    repr = "Client disconnect";
+                    break;
+                case disconnect_reason::protocol_violation:
+                    repr = "Protocol violation";
+                    break;
+                case disconnect_reason::connection_lost:
+                    repr = "Connection lost";
+                    break;
+                default:
+                    assert( false );
+                    break;
+            }
+            output << repr;
+
+            return output;
+        }
         template <typename SENDER>
         struct packet_container
         {
+           public:  // nested types
            public:  // static
             using ptr = std::shared_ptr<packet_container<SENDER>>;
 
@@ -38,15 +87,18 @@ namespace io_wally
             static packet_container<SENDER>::ptr connect_packet( sender_ptr rx_connection,
                                                                  std::shared_ptr<const protocol::connect> connect )
             {
-                return std::make_shared<packet_container<SENDER>>( connect->client_id( ), rx_connection, connect );
+                return std::make_shared<packet_container<SENDER>>(
+                    connect->client_id( ), rx_connection, connect, disconnect_reason::not_a_disconnect );
             }
 
             static packet_container<SENDER>::ptr disconnect_packet(
                 const std::string& client_id,
                 sender_ptr rx_connection,
-                std::shared_ptr<const protocol::disconnect> disconnect )
+                std::shared_ptr<const protocol::disconnect> disconnect,
+                const disconnect_reason disconnect_reason = disconnect_reason::client_disconnect )
             {
-                return std::make_shared<packet_container<SENDER>>( client_id, rx_connection, disconnect );
+                return std::make_shared<packet_container<SENDER>>(
+                    client_id, rx_connection, disconnect, disconnect_reason );
             }
 
             static packet_container<SENDER>::ptr subscribe_packet(
@@ -54,14 +106,19 @@ namespace io_wally
                 sender_ptr rx_connection,
                 std::shared_ptr<const protocol::subscribe> subscribe )
             {
-                return std::make_shared<packet_container<SENDER>>( client_id, rx_connection, subscribe );
+                return std::make_shared<packet_container<SENDER>>(
+                    client_id, rx_connection, subscribe, disconnect_reason::not_a_disconnect );
             }
 
            public:
             packet_container( const std::string& client_id,
                               sender_ptr rx_connection,
-                              std::shared_ptr<const protocol::mqtt_packet> packet )
-                : client_id_{client_id}, rx_connection_{rx_connection}, packet_{packet}
+                              std::shared_ptr<const protocol::mqtt_packet> packet,
+                              const disconnect_reason disconnect_reason )
+                : client_id_{client_id},
+                  rx_connection_{rx_connection},
+                  packet_{packet},
+                  disconnect_reason_{disconnect_reason}
             {
                 return;
             }
@@ -105,6 +162,7 @@ namespace io_wally
             const std::string client_id_;
             std::weak_ptr<SENDER> rx_connection_;
             std::shared_ptr<const protocol::mqtt_packet> packet_;
+            const disconnect_reason disconnect_reason_;
         };  // struct packet_container
 
     }  // namespace dispatch
