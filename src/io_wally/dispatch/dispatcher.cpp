@@ -86,7 +86,8 @@ namespace io_wally
                 }
                 else if ( packet_container->packet_type( ) == protocol::packet::Type::DISCONNECT )
                 {
-                    session_manager_.client_disconnected( packet_container->client_id( ) );
+                    session_manager_.client_disconnected( packet_container->client_id( ),
+                                                          packet_container->disconnect_reason( ) );
                 }
                 else
                 {

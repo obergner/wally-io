@@ -9,6 +9,7 @@
 
 #include "io_wally/logging_support.hpp"
 #include "io_wally/mqtt_connection.hpp"
+#include "io_wally/dispatch/common.hpp"
 #include "io_wally/dispatch/mqtt_client_session.hpp"
 
 namespace io_wally
@@ -48,7 +49,8 @@ namespace io_wally
             /// due to network or protocol error. Destroys associated \c mqtt_client_session.
             ///
             /// \param client_id   Disconnected client's ID.
-            void client_disconnected( const std::string client_id );
+            /// \param reason      Why client was disconnected
+            void client_disconnected( const std::string client_id, const dispatch::disconnect_reason reason );
 
             /// \brief Destroy the \c mqtt_client_session identified by specified \c client_id.
             ///

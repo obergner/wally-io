@@ -7,6 +7,7 @@
 #include <boost/log/trivial.hpp>
 
 #include "io_wally/mqtt_connection.hpp"
+#include "io_wally/dispatch/common.hpp"
 #include "io_wally/dispatch/mqtt_client_session.hpp"
 
 namespace io_wally
@@ -49,10 +50,12 @@ namespace io_wally
             }
         }
 
-        void mqtt_client_session_manager::client_disconnected( const std::string client_id )
+        void mqtt_client_session_manager::client_disconnected( const std::string client_id,
+                                                               const dispatch::disconnect_reason reason )
         {
             sessions_.erase( client_id );
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "Client disconnected: [id:" << client_id << "] - session destroyed";
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "Client disconnected: [id:" << client_id << "|rsn:" << reason
+                                                 << "] - session destroyed";
         }
 
         void mqtt_client_session_manager::destroy( const std::string client_id )

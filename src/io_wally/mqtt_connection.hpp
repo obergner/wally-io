@@ -137,7 +137,9 @@ namespace io_wally
 
         void write_packet( const protocol::mqtt_packet& packet );
 
-        void write_packet_and_close_connection( const protocol::mqtt_packet& packet, const std::string& message );
+        void write_packet_and_close_connection( const protocol::mqtt_packet& packet,
+                                                const std::string& message,
+                                                const dispatch::disconnect_reason reason );
 
         // Dealing with keep alive
 
@@ -145,10 +147,9 @@ namespace io_wally
 
         // Dealing with protocol violations and network/server failures
 
-        void protocol_violated( const std::string& message );
-
-        void network_or_server_failed(
+        void connection_close_requested(
             const std::string& message,
+            const dispatch::disconnect_reason reason,
             const boost::system::error_code& ec = boost::system::errc::make_error_code( boost::system::errc::success ),
             const boost::log::trivial::severity_level log_level = boost::log::trivial::error );
 
