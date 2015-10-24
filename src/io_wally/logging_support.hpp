@@ -34,7 +34,11 @@ namespace boost
         /// Overload stream output operator for boost::asio::ip::tcp::socket, primarily to facilitate logging.
         inline std::ostream& operator<<( std::ostream& output, boost::asio::ip::tcp::socket const& socket )
         {
-            output << "local:" << socket.local_endpoint( ) << "/remote:" << socket.remote_endpoint( );
+            // WARNING: Calling to_string() on a closed socket will crash process!
+            if ( socket.is_open( ) )
+                output << "local:" << socket.local_endpoint( ) << "/remote:" << socket.remote_endpoint( );
+            else
+                output << "[CLOSED SOCKET]";
 
             return output;
         }
@@ -44,7 +48,11 @@ namespace boost
         /// Overload stream output operator for boost::asio::ip::tcp::acceptor, primarily to facilitate logging.
         inline std::ostream& operator<<( std::ostream& output, boost::asio::ip::tcp::acceptor const& acceptor )
         {
-            output << "accept:" << acceptor.local_endpoint( );
+            // WARNING: Calling to_string() on a closed acceptor will crash process!
+            if ( acceptor.is_open( ) )
+                output << "accept:" << acceptor.local_endpoint( );
+            else
+                output << "[CLOSED ACCEPTOR]";
 
             return output;
         }

@@ -100,6 +100,7 @@ namespace io_wally
     const string mqtt_connection::to_string( ) const
     {
         auto output = ostringstream{};
+        // WARNING: Calling to_string() on a closed socket will crash process!
         if ( socket_.is_open( ) )
             output << "connection[" << socket_ << "]";
         else
@@ -114,7 +115,6 @@ namespace io_wally
 
     void mqtt_connection::do_stop( )
     {
-        // WARNING: Calling to_string() on a closed socket will crash process!
         auto session_desc = to_string( );
         auto ignored_ec = boost::system::error_code{};
         socket_.shutdown( socket_.shutdown_both, ignored_ec );

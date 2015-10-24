@@ -189,7 +189,6 @@ release             : main
 debug               : CXXFLAGS += $(CXXDEBUG_FLAGS)
 debug               : main
 
-.PHONY              : main
 main                : $(MEXEC)                         | $(MBUILDDIRS)
 
 $(MBUILDDIRS)       :
@@ -210,7 +209,6 @@ test                : test-compile
 test-success        : test-compile
 	@./$(TEXEC) --success --durations yes
 
-.PHONY              : test-compile
 test-compile        : $(TEXEC)                         | $(TBUILDDIRS)
 
 $(TBUILDDIRS)       :
@@ -240,7 +238,6 @@ $(PAHOCBUILD)/%.o   : support/paho/client/%.cpp        | $(PAHOCBUILD)
 itest               : itest-compile
 	@./$(ITEXEC) --success --durations yes
 
-.PHONY              : itest-compile
 itest-compile       : $(ITEXEC)                        | $(ITBUILDDIRS)
 
 $(ITBUILDDIRS)      :
@@ -260,7 +257,7 @@ snippets            : snippets-compile
 .PHONY              : snippets-compile
 snippets-compile    : $(SNEXEC)                        | $(ITBUILDDIRS)
 
-$(SNEXEC)           : $(MOBJS) $(SNEXECOBJ)            | $(ITBUILDDIRS)
+$(SNEXEC)           : $(MOBJS) $(ITOBJS) $(SNEXECOBJ)  | $(ITBUILDDIRS)
 	$(CXX) $(ITLDLIBS) -o $@ $^
 
 # Clean
