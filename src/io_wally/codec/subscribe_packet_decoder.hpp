@@ -21,7 +21,7 @@ namespace io_wally
         ///
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718nullptr28
         template <typename InputIterator>
-        class subscribe_packet_decoder : public packet_body_decoder<InputIterator>
+        class subscribe_packet_decoder final : public packet_body_decoder<InputIterator>
         {
            public:
             /// \brief Decode the supplied buffer into a \c subscribe_packet.

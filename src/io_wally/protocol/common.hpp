@@ -262,7 +262,7 @@ namespace io_wally
             ///  - retain:      whether the broker should retain this message for delivery to future subscribers to
             ///                 its topic
             ///  - qos:         quality of service for this message
-            struct header_flags
+            struct header_flags final
             {
                public:
                 /// \brief Construct a new \c header_flags instance from bits 0 - 3 in \c flags.
@@ -357,7 +357,7 @@ namespace io_wally
             ///  - remaining length of control packet, excluding fixed header; takes between 1 and 4 bytes on the wire
             ///
             /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718020
-            struct header
+            struct header final
             {
                public:
                 /// \brief Create a new \c header instance from the supplied \c type_and_flags and \c

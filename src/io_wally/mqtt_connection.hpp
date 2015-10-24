@@ -38,7 +38,7 @@ namespace io_wally
     ///  \brief An MQTT client connection.
     ///
     /// Represents a persistent connection between a client and an \c mqtt_server.
-    class mqtt_connection : public std::enable_shared_from_this<mqtt_connection>
+    class mqtt_connection final : public std::enable_shared_from_this<mqtt_connection>
     {
         friend class mqtt_connection_manager;
 

@@ -14,7 +14,7 @@ namespace io_wally
         /// \brief Encoder for CONNACK packet bodies.
         ///
         template <typename OutputIterator>
-        class connack_packet_encoder : public packet_body_encoder<OutputIterator>
+        class connack_packet_encoder final : public packet_body_encoder<OutputIterator>
         {
            public:
             /// Methods

@@ -12,7 +12,7 @@ namespace io_wally
         /// \brief PINGRESP packet, sent by server in response to \c pingreq packet.
         ///
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718086
-        struct pingresp : public mqtt_packet
+        struct pingresp final : public mqtt_packet
         {
            public:
             /// \brief Create a new \c pingresp instance.

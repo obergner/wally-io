@@ -26,7 +26,7 @@ namespace io_wally
         /// characters.
         ///
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Topic_wildcards
-        struct subscription
+        struct subscription final
         {
            public:
             /// \brief Create a \c subscription instance from the supplied argument.

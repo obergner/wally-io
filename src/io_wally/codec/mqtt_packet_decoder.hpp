@@ -20,7 +20,7 @@ namespace io_wally
         /// from the supplied \c header the type of \c mqtt_packet to decode and delegates to an appropriate
         /// \c packet_body_decoder implementation.
         template <typename InputIterator>
-        class mqtt_packet_decoder
+        class mqtt_packet_decoder final
         {
            public:
             /// Methods

@@ -34,7 +34,7 @@ namespace io_wally
     /// \todo Provide an explicit stop method.
     ///
     /// \see http://www.boost.org/doc/libs/1_58_0/doc/html/boost_asio/example/cpp11/http/server/server.hpp
-    class mqtt_server : public std::enable_shared_from_this<mqtt_server>
+    class mqtt_server final : public std::enable_shared_from_this<mqtt_server>
     {
        public:  // static
         /// A \c shared_ptr to an \c mqtt_server.

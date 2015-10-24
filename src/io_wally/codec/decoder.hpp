@@ -38,7 +38,7 @@ namespace io_wally
 
         /// \brief Stateful functor for decoding the \c remaining lenght field in an MQTT fixed header.
         ///
-        class remaining_length
+        class remaining_length final
         {
            public:
             /// \brief Calculate an MQTT packet's \c remaining length, i.e. its length in bytes minus fixed header
@@ -93,7 +93,7 @@ namespace io_wally
 
         /// \brief Stateful decoder for MQTT \c headers.
         ///
-        class header_decoder
+        class header_decoder final
         {
            public:
             /// \brief Result of decoding an MQTT \c header.
@@ -102,14 +102,13 @@ namespace io_wally
             /// \c header and the updated \c InputIterator. Parsed \c header and the updated \c InputIterator are
             /// defined if and only if \c ParseState is COMPLETE.
             template <typename InputIterator>
-            struct result
+            struct result final
             {
                public:
                 /// \brief Create a result instance in \c ParseState \c ParseState::INCOMPLETE.
                 result( )
                     : parse_state_{ParseState::INCOMPLETE}, parsed_header_{boost::none}, consumed_until_{boost::none}
                 {
-                    return;
                 }
 
                 /// \brief Create a result instance in \c ParseState \c ParseState::COMPLETE.
@@ -124,7 +123,6 @@ namespace io_wally
                       parsed_header_{protocol::packet::header( type_and_flags, remaining_length )},
                       consumed_until_{consumed_until}
                 {
-                    return;
                 }
 
                 /// \brief Return \c ParseState, either \c ParseState::COMPLETE or \c ParseState::INCOMPLETE.
@@ -162,7 +160,6 @@ namespace io_wally
             /// \brief Create a default \c header_decoder.
             header_decoder( ) : type_and_flags_{-1}, remaining_length_{}
             {
-                return;
             }
 
             /// \brief Parse the supplied buffer into an MQTT \c header, potentially in multiple consecutive calls.

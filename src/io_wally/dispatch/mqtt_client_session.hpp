@@ -15,7 +15,7 @@ namespace io_wally
         // Forward decl to resolve circular dependency
         class mqtt_client_session_manager;
 
-        class mqtt_client_session
+        class mqtt_client_session final
         {
            public:  // static
             using ptr = std::shared_ptr<mqtt_client_session>;

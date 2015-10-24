@@ -16,7 +16,7 @@ namespace io_wally
         ///
         /// Use only for testing purposes, or if you really don't care, e.g because you operate in an otherwise strictly
         /// secured environment.
-        class accept_all_authentication_service : public spi::authentication_service
+        class accept_all_authentication_service final : public spi::authentication_service
         {
            public:
             /// \brief Always return \c true.

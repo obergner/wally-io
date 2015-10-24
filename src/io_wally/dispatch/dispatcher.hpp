@@ -32,7 +32,7 @@ namespace io_wally
         /// Note that \c dispatcher is an *active* component: it manages its own internal \c
         /// concurrency::io_service_pool, used for pulling MQTT packets received on the network subsystem from a shared
         /// dispatcher queue.
-        class dispatcher : public std::enable_shared_from_this<dispatcher>
+        class dispatcher final : public std::enable_shared_from_this<dispatcher>
         {
            public:  // static
             using ptr = std::shared_ptr<dispatcher>;

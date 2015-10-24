@@ -12,7 +12,7 @@ namespace io_wally
         ///
         /// Implements a singleton map-like class that allows for retrieving references to know \c
         /// authentication_service_factory instances by name.
-        class authentication_service_factories
+        class authentication_service_factories final
         {
            public:
             /// \brief Singleton accessor.
@@ -34,10 +34,7 @@ namespace io_wally
             const spi::authentication_service_factory& operator[]( const std::string& name ) const;
 
            private:
-            authentication_service_factories( )
-            {
-                return;
-            }
+            authentication_service_factories( ) = default;
 
             authentication_service_factories( authentication_service_factories const& ) = delete;
 

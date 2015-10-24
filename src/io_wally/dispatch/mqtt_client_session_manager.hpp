@@ -20,7 +20,7 @@ namespace io_wally
         /// needs to shut down.
         ///
         /// WARNING: This class is NOT thread safe.
-        class mqtt_client_session_manager
+        class mqtt_client_session_manager final
         {
            public:
             /// \brief Create a session manager.

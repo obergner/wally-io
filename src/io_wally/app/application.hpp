@@ -32,7 +32,7 @@ namespace io_wally
         ///  * Hold on to \c mqtt_server instance, keeping it alive
         ///  * Forward shutdown requests to \c mqtt_server instance
         ///
-        class application
+        class application final
         {
            public:  // static
             /// Exit code to be returned if everything went fine.

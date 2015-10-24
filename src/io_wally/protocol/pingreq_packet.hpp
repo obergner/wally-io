@@ -12,7 +12,7 @@ namespace io_wally
         /// \brief PINGREQ packet, sent by clients to ascertain connectivity.
         ///
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718081
-        struct pingreq : public mqtt_packet
+        struct pingreq final : public mqtt_packet
         {
            public:
             /// \brief Create a new \c pingreq instance.

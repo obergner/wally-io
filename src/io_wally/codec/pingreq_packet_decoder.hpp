@@ -18,7 +18,7 @@ namespace io_wally
         ///
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718081
         template <typename InputIterator>
-        class pingreq_packet_decoder : public packet_body_decoder<InputIterator>
+        class pingreq_packet_decoder final : public packet_body_decoder<InputIterator>
         {
            public:
             /// \brief Decode the supplied buffer into a \c pingreq_packet.
@@ -50,7 +50,7 @@ namespace io_wally
                     throw error::malformed_mqtt_packet( message.str( ) );
                 }
 
-                return std::unique_ptr<const protocol::mqtt_packet>( new protocol::pingreq( ) );
+                return std::make_unique<const protocol::pingreq>( );
             }
         };
     }  // namespace decoder

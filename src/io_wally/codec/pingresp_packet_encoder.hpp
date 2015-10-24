@@ -12,7 +12,7 @@ namespace io_wally
         /// \brief Encoder for PINGRESP packet bodies.
         ///
         template <typename OutputIterator>
-        class pingresp_packet_encoder : public packet_body_encoder<OutputIterator>
+        class pingresp_packet_encoder final : public packet_body_encoder<OutputIterator>
         {
            public:
             /// Methods

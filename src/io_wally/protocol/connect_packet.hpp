@@ -13,7 +13,7 @@ namespace io_wally
     namespace protocol
     {
         /// \brief Helper struct that knows how to interpret a CONNECT packet's \c connect_flags bit field.
-        struct connect_flags
+        struct connect_flags final
         {
            public:
             connect_flags( const uint8_t con_flags ) : con_flags_{con_flags}
@@ -119,7 +119,7 @@ namespace io_wally
         ///  - \c password (OPTIONAL)
         ///
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718028
-        struct connect : public mqtt_packet
+        struct connect final : public mqtt_packet
         {
            public:
             /// \brief Create a new \c connect instance.

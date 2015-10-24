@@ -12,7 +12,7 @@ namespace io_wally
         /// \brief DISCONNECT packet, sent by clients when about to terminate a session.
         ///
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718090
-        struct disconnect : public mqtt_packet
+        struct disconnect final : public mqtt_packet
         {
            public:
             /// \brief Create a new \c disconnect instance.

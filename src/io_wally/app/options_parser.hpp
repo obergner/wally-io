@@ -9,7 +9,7 @@ namespace io_wally
     namespace app
     {
         /// \brief Utility class for reading program options from command line and configuration file.
-        class options_parser
+        class options_parser final
         {
            public:
             static constexpr const char* HELP = "help";

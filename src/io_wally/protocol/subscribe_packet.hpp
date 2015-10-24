@@ -30,7 +30,7 @@ namespace io_wally
         ///
         /// \see \c subscription
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718063
-        struct subscribe : public mqtt_packet
+        struct subscribe final : public mqtt_packet
         {
            public:
             /// \brief Create a new \c subscribe instance.

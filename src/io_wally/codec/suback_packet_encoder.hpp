@@ -13,7 +13,7 @@ namespace io_wally
         /// \brief Encoder for SUBACK packet bodies.
         ///
         template <typename OutputIterator>
-        class suback_packet_encoder : public packet_body_encoder<OutputIterator>
+        class suback_packet_encoder final : public packet_body_encoder<OutputIterator>
         {
            public:
             /// Methods

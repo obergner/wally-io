@@ -85,10 +85,10 @@ namespace io_wally
 
             return output;
         }
+
         template <typename SENDER>
-        struct packet_container
+        struct packet_container final
         {
-           public:  // nested types
            public:  // static
             using ptr = std::shared_ptr<packet_container<SENDER>>;
 

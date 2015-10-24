@@ -15,7 +15,7 @@ namespace io_wally
     ///
     /// Rather unabashed copy:
     /// \see http://www.boost.org/doc/libs/1_58_0/doc/html/boost_asio/example/cpp11/http/server/connection_manager.hpp
-    class mqtt_connection_manager
+    class mqtt_connection_manager final
     {
        public:
         /// An mqtt_connection_manager cannot be copied.

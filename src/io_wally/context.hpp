@@ -10,7 +10,7 @@
 
 namespace io_wally
 {
-    struct context
+    struct context final
     {
        public:
         static constexpr const char* HELP = app::options_parser::HELP;

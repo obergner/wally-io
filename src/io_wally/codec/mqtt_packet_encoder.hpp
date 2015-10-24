@@ -14,7 +14,7 @@ namespace io_wally
         /// \brief Encoder for MQTT packets.
         ///
         template <typename OutputIterator>
-        class mqtt_packet_encoder
+        class mqtt_packet_encoder final
         {
            public:
             /// Methods

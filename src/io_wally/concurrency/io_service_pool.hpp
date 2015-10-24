@@ -26,7 +26,7 @@ namespace io_wally
         /// \brief Pool of \c boost::asio::io_service objects, each executing in a dedicated thread.
         ///
         /// \see http://www.boost.org/doc/libs/1_53_0/doc/html/boost_asio/example/http/server2/io_service_pool.cpp
-        class io_service_pool
+        class io_service_pool final
         {
            public:
             io_service_pool( const std::string& name, std::size_t pool_size = 1 )

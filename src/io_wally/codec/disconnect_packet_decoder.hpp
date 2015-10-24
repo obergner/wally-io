@@ -18,7 +18,7 @@ namespace io_wally
         ///
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718081
         template <typename InputIterator>
-        class disconnect_packet_decoder : public packet_body_decoder<InputIterator>
+        class disconnect_packet_decoder final : public packet_body_decoder<InputIterator>
         {
            public:
             /// \brief Decode the supplied buffer into a \c disconnect_packet.
@@ -60,7 +60,7 @@ namespace io_wally
                     throw error::malformed_mqtt_packet( message.str( ) );
                 }
 
-                return std::unique_ptr<const mqtt_packet>( new protocol::disconnect( ) );
+                return std::make_unique<const protocol::disconnect>( );
             }
         };
     }  // namespace decoder

@@ -79,7 +79,7 @@ namespace io_wally
         /// \brief CONNACK packet, sent in response to a \c connect packet.
         ///
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718035
-        struct connack : public mqtt_ack
+        struct connack final : public mqtt_ack
         {
            public:
             connack( const bool session_present, const connect_return_code return_code )

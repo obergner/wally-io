@@ -70,7 +70,7 @@ namespace io_wally
         /// subscriptions in the acknowledged SUBSCRIBE packet, in that order.
         ///
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718068
-        struct suback : public mqtt_ack
+        struct suback final : public mqtt_ack
         {
            public:
             suback( const uint16_t packet_identifier, std::vector<suback_return_code> return_codes )
