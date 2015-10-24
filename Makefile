@@ -144,6 +144,16 @@ DBUS_CPP        := $(THIRD_PARTY_LIBS)/dbus-cpp
 DBUS_CPP_INC    := $(DBUS_CPP)/include
 DBUS_CPP_SRC    := $(DBUS_CPP)/src
 
+DBSRCS          += $(wildcard $(DBUS_CPP_SRC)/core/dbus/*.cpp)
+DBSRCS          += $(wildcard $(DBUS_CPP_SRC)/core/dbus/types/*.cpp)
+DBSRCS          += $(wildcard $(DBUS_CPP_SRC)/core/dbus/asio/*.cpp)
+
+DBBUILD         := $(LIBS_BUILD)/dbus-cpp
+
+DBOBJS          := $(patsubst $(DBUS_CPP_SRC)/%.cpp, $(DBBUILD)/%.o, $(DBSRCS))
+
+DBBUILDDIRS     := $(sort $(dir $(DBOBJS)))
+
 # --------------------------------------------------------------------------------------------------------------------- 
 # Tooling
 # --------------------------------------------------------------------------------------------------------------------- 
@@ -251,28 +261,23 @@ ITLDLIBS        := $(LDLIBS)
 # Compiler configuration: dbus-cpp
 # --------------------------------------------------------------------------------------------------------------------- 
 
-# Standard compiler flags
+# compiler flags
 DBCXXFLAGS      := -std=c++11
 DBCXXFLAGS      += -fdiagnostics-color=auto
 DBCXXFLAGS      += -MMD # automatically generate dependency rules on each run
-DBCXXFLAGS      += -I ./src
-DBCXXFLAGS      += -I $(BOOST_ASIO_QE)
 DBCXXFLAGS      += -I $(DBUS_CPP_INC)
+DBCXXFLAGS      += $(shell pkg-config --cflags-only-I dbus-1)
 DBCXXFLAGS      += -Werror
 DBCXXFLAGS      += -Wall
 DBCXXFLAGS      += -Wextra
-DBCXXFLAGS      += -Wcast-align
-DBCXXFLAGS      += -Wformat-nonliteral
-DBCXXFLAGS      += -Wformat=2
-DBCXXFLAGS      += -Winvalid-pch
-DBCXXFLAGS      += -Wmissing-declarations
-DBCXXFLAGS      += -Wmissing-format-attribute
-DBCXXFLAGS      += -Wmissing-include-dirs
-DBCXXFLAGS      += -Wredundant-decls
-DBCXXFLAGS      += -Wswitch-default
-DBCXXFLAGS      += -Wswitch-enum
+DBCXXFLAGS      += -fno-strict-aliasing
+DBCXXFLAGS      += -fvisibility=hidden
+DBCXXFLAGS      += -fvisibility-inlines-hidden
+DBCXXFLAGS      += -pedantic
+DBCXXFLAGS      += -fPIC
+DBCXXFLAGS      += -pthread
 
-# Standard preprocessor flags
+# preprocessor flags
 DBCPPFLAGS      := -DBOOST_ALL_DYN_LINK
 # Needed for clang:
 DBCPPFLAGS      += -DBOOST_ASIO_HAS_STD_CHRONO 
@@ -280,7 +285,6 @@ DBCPPFLAGS      += -DBOOST_ASIO_HAS_STD_CHRONO
 # Extra linker flags
 DBLDLIBS        := -lboost_system
 DBLDLIBS        += -lboost_thread
-DBLDLIBS        += -lboost_program_options
 DBLDLIBS        += -lpthread
 
 
@@ -368,6 +372,18 @@ $(ITEXEC)           : $(MOBJS) $(ITOBJS) $(ITEXECOBJ) $(PAHOOBJS)    | $(ITBUILD
 
 $(ITBUILD)/%.o      : itest/%.cpp                      | $(ITBUILDDIRS)
 	$(CXX) $(CPPFLAGS) $(ITCXXFLAGS) -o $@ -c $<
+
+# --------------------------------------------------------------------------------------------------------------------- 
+# Build dbus-cpp library by Ubuntu
+# --------------------------------------------------------------------------------------------------------------------- 
+
+dbus-cpp            : $(DBOBJS)                        | $(DBBUILDDIRS)
+
+$(DBBUILDDIRS)      :
+	@mkdir -p $@
+
+$(DBBUILD)/%.o      : $(DBUS_CPP_SRC)/%.cpp            | $(DBBUILDDIRS)
+	$(CXX) $(DBCPPFLAGS) $(DBCXXFLAGS) -o $@ -c $<
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build snippets: try stuff, analyse bugs etc
