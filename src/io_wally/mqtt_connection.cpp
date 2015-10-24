@@ -32,21 +32,21 @@ namespace io_wally
     // ---------------------------------------------------------------------------------------------------------------
 
     mqtt_connection::ptr mqtt_connection::create( tcp::socket socket,
-                                                  mqtt_connection_manager& session_manager,
+                                                  mqtt_connection_manager& connection_manager,
                                                   const context& context,
                                                   packetq_t& dispatchq )
     {
         return std::shared_ptr<mqtt_connection>{
-            new mqtt_connection{move( socket ), session_manager, context, dispatchq}};
+            new mqtt_connection{move( socket ), connection_manager, context, dispatchq}};
     }
 
     mqtt_connection::mqtt_connection( tcp::socket socket,
-                                      mqtt_connection_manager& session_manager,
+                                      mqtt_connection_manager& connection_manager,
                                       const context& context,
                                       packetq_t& dispatchq )
         : socket_{move( socket )},
           strand_{socket.get_io_service( )},
-          session_manager_{session_manager},
+          connection_manager_{connection_manager},
           context_{context},
           dispatchq_{dispatchq},
           read_buffer_( context[context::READ_BUFFER_SIZE].as<const size_t>( ) ),
@@ -93,7 +93,7 @@ namespace io_wally
         auto self = shared_from_this( );
         strand_.get_io_service( ).dispatch( strand_.wrap( [self]( )
                                                           {
-                                                              self->session_manager_.stop( self );
+                                                              self->connection_manager_.stop( self );
                                                           } ) );
     }
 
@@ -115,12 +115,12 @@ namespace io_wally
 
     void mqtt_connection::do_stop( )
     {
-        auto session_desc = to_string( );
+        auto connection_desc = to_string( );
         auto ignored_ec = boost::system::error_code{};
         socket_.shutdown( socket_.shutdown_both, ignored_ec );
         socket_.close( ignored_ec );
 
-        BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPED: " << session_desc;
+        BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPED: " << connection_desc;
     }
 
     void mqtt_connection::read_header( )
@@ -246,7 +246,7 @@ namespace io_wally
         }
         catch ( const error::malformed_mqtt_packet& e )
         {
-            network_or_server_failed( "<<< Malformed control packet body - will stop this session: " +
+            network_or_server_failed( "<<< Malformed control packet body - will stop this connection: " +
                                       string{e.what( )} );
         }
 
@@ -308,8 +308,8 @@ namespace io_wally
         else if ( !context_.authentication_service( ).authenticate(
                       socket_.remote_endpoint( ).address( ).to_string( ), connect->username( ), connect->password( ) ) )
         {
-            write_packet_and_close_session( connack{false, connect_return_code::BAD_USERNAME_OR_PASSWORD},
-                                            "--- Authentication failed" );
+            write_packet_and_close_connection( connack{false, connect_return_code::BAD_USERNAME_OR_PASSWORD},
+                                               "--- Authentication failed" );
         }
         else
         {
@@ -347,8 +347,8 @@ namespace io_wally
         {
             BOOST_LOG_SEV( logger_, lvl::error ) << "--- DISPATCH FAILED: " << *connect << " [ec:" << ec
                                                  << "|emsg:" << ec.message( ) << "]";
-            write_packet_and_close_session( connack{false, connect_return_code::SERVER_UNAVAILABLE},
-                                            "--- Dispatching CONNECT failed" );
+            write_packet_and_close_connection( connack{false, connect_return_code::SERVER_UNAVAILABLE},
+                                               "--- Dispatching CONNECT failed" );
         }
         else
         {
@@ -428,12 +428,12 @@ namespace io_wally
                           } ) );
     }
 
-    void mqtt_connection::write_packet_and_close_session( const mqtt_packet& packet, const string& message )
+    void mqtt_connection::write_packet_and_close_connection( const mqtt_packet& packet, const string& message )
     {
         if ( !socket_.is_open( ) )  // Socket was asynchronously closed
             return;
 
-        BOOST_LOG_SEV( logger_, lvl::debug ) << ">>> SEND: " << packet << " - SESSION WILL BE CLOSED: " << message
+        BOOST_LOG_SEV( logger_, lvl::debug ) << ">>> SEND: " << packet << " - connection will be closed: " << message
                                              << " ...";
         write_buffer_.clear( );
         write_buffer_.resize( packet.header( ).total_length( ) );

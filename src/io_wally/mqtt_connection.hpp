@@ -54,7 +54,7 @@ namespace io_wally
 
         /// Factory method for \c mqtt_connections.
         static mqtt_connection::ptr create( boost::asio::ip::tcp::socket socket,
-                                            mqtt_connection_manager& session_manager,
+                                            mqtt_connection_manager& connection_manager,
                                             const context& context,
                                             packetq_t& dispatchq );
 
@@ -66,13 +66,13 @@ namespace io_wally
 
         ~mqtt_connection( ){};
 
-        /// \brief Start this session, initiating reading incoming data.
+        /// \brief Start this connection, initiating reading incoming data.
         void start( );
 
         /// \brief Send an \c mqtt_packet to connected client.
         void send( protocol::mqtt_packet::ptr packet );
 
-        /// \brief Stop this session, closing its \c tcp::socket.
+        /// \brief Stop this connection, closing its \c tcp::socket.
         void stop( const std::string& message = "",
                    const boost::log::trivial::severity_level log_level = boost::log::trivial::info );
 
@@ -91,7 +91,7 @@ namespace io_wally
        private:
         /// Hide constructor since we MUST be created by static factory method 'create' above
         mqtt_connection( boost::asio::ip::tcp::socket socket,
-                         mqtt_connection_manager& session_manager,
+                         mqtt_connection_manager& connection_manager,
                          const context& context,
                          packetq_t& dispatchq );
 
@@ -137,7 +137,7 @@ namespace io_wally
 
         void write_packet( const protocol::mqtt_packet& packet );
 
-        void write_packet_and_close_session( const protocol::mqtt_packet& packet, const std::string& message );
+        void write_packet_and_close_connection( const protocol::mqtt_packet& packet, const std::string& message );
 
         // Dealing with keep alive
 
@@ -161,12 +161,12 @@ namespace io_wally
         const decoder::mqtt_packet_decoder<buf_iter> packet_decoder_{};
         /// Encode outgoing packets
         const encoder::mqtt_packet_encoder<buf_iter> packet_encoder_{};
-        /// The client socket this session is connected to
+        /// The client socket this connection is connected to
         boost::asio::ip::tcp::socket socket_;
         /// Strand used to serialize access to socket and timer
         boost::asio::io_service::strand strand_;
-        /// Our session manager, responsible for managing our lifecycle
-        mqtt_connection_manager& session_manager_;
+        /// Our connection manager, responsible for managing our lifecycle
+        mqtt_connection_manager& connection_manager_;
         /// Our context reference, used for configuring ourselves etc
         const context& context_;
         /// Our dispatcher queue, used for forwarding received protocol packets to dispatcher subsystem
