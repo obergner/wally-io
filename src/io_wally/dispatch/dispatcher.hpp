@@ -15,7 +15,7 @@
 #include "io_wally/concurrency/io_service_pool.hpp"
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/dispatch/mqtt_client_session_manager.hpp"
-#include "io_wally/dispatch/subscription_manager.hpp"
+#include "io_wally/dispatch/topic_subscriptions.hpp"
 
 namespace io_wally
 {
@@ -75,7 +75,7 @@ namespace io_wally
             boost::asio::io_service::strand strand_{io_service_};
             boost::asio::queue_listener<mqtt_connection::packetq_t> packet_receiver_{io_service_, &dispatchq_};
             mqtt_client_session_manager session_manager_{};
-            subscription_manager subscription_manager_{};
+            topic_subscriptions topic_subscriptions_{};
             /// Our severity-enabled channel logger
             boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
                 boost::log::keywords::channel = "dispatcher",

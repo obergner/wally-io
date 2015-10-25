@@ -169,5 +169,11 @@ namespace io_wally
             const std::string topic_filter_;
             const packet::QoS maximum_qos_;
         };  // struct subscription
-    }       // namespace protocol
+
+        /// \brief Overloaded equality operator for \subscription instances to facilitate use in standard containers.
+        inline bool operator==( const subscription& lhs, const subscription& rhs )
+        {
+            return ( lhs.topic_filter( ) == rhs.topic_filter( ) ) && ( lhs.maximum_qos( ) == rhs.maximum_qos( ) );
+        }
+    }  // namespace protocol
 }  // namespace io_wally

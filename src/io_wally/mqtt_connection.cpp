@@ -436,42 +436,11 @@ namespace io_wally
         {
             BOOST_LOG_SEV( logger_, lvl::error ) << "--- DISPATCH FAILED: " << *subscribe << " [ec:" << ec
                                                  << "|emsg:" << ec.message( ) << "]";
-            // TODO: We should not close this connection, but rather send an appropriate SUBACK
-            connection_close_requested( "Failed to dispatch SUBSCRIBE packet",
-                                        dispatch::disconnect_reason::network_or_server_failure,
-                                        ec,
-                                        lvl::error );
+            write_packet( *subscribe->fail( ) );
         }
         else
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *subscribe;
-
-            // TODO: For now, we send a "fake" SUBACK ourselves. In the near future this should by rights be handled by
-            // our dispatcher subsystem.
-            auto rcs = vector<protocol::suback_return_code>{};
-            for ( auto& subscr : subscribe->subscriptions( ) )
-            {
-                switch ( subscr.maximum_qos( ) )
-                {
-                    case protocol::packet::QoS::AT_MOST_ONCE:
-                        rcs.push_back( protocol::suback_return_code::MAXIMUM_QOS0 );
-                        break;
-                    case protocol::packet::QoS::AT_LEAST_ONCE:
-                        rcs.push_back( protocol::suback_return_code::MAXIMUM_QOS1 );
-                        break;
-                    case protocol::packet::QoS::EXACTLY_ONCE:
-                        rcs.push_back( protocol::suback_return_code::MAXIMUM_QOS2 );
-                        break;
-                    case protocol::packet::QoS::RESERVED:
-                        rcs.push_back( protocol::suback_return_code::FAILURE );
-                        break;
-                    default:
-                        rcs.push_back( protocol::suback_return_code::FAILURE );
-                        break;
-                }
-            }
-            auto suback = protocol::suback{subscribe->packet_identifier( ), rcs};
-            write_packet( suback );
         }
     }
 

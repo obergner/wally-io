@@ -58,6 +58,15 @@ namespace io_wally
                                                  << "] - session destroyed";
         }
 
+        void mqtt_client_session_manager::send( const std::string& client_id, protocol::mqtt_packet::ptr packet )
+        {
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "SEND: [cltid:" << client_id << "|pkt:" << *packet << "] ...";
+            auto session = sessions_[client_id];  // This will default construct a new session if client_id is not yet
+                                                  // mapped to a session.
+            session->send( packet );
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "SENT: [cltid:" << client_id << "|pkt:" << *packet << "]";
+        }
+
         void mqtt_client_session_manager::destroy( const std::string client_id )
         {
             auto rem_cnt = sessions_.erase( client_id );

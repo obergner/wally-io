@@ -197,7 +197,11 @@ namespace io_wally
         boost::asio::steady_timer close_on_keep_alive_timeout_;
         /// Our severity-enabled channel logger
         boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
-            boost::log::keywords::channel = "connection",
+            boost::log::keywords::channel =
+                "connection:" + ( socket_.is_open( )
+                                      ? socket_.remote_endpoint( ).address( ).to_string( ) + "/" +
+                                            std::to_string( socket_.remote_endpoint( ).port( ) )
+                                      : "CLOSED" ),
             boost::log::keywords::severity = boost::log::trivial::trace};
     };  // class mqtt_connection
 }

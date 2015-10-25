@@ -9,6 +9,7 @@
 
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/subscription.hpp"
+#include "io_wally/protocol/suback_packet.hpp"
 
 namespace io_wally
 {
@@ -60,6 +61,54 @@ namespace io_wally
             const std::vector<subscription>& subscriptions( ) const
             {
                 return subscriptions_;
+            }
+
+            /// \brief Return a \c suback packet representing complete failure to process this \c subscribe packet.
+            ///
+            /// This is a convenience method for creating responses to a \c subscribe packet when processing that \c
+            /// subscribe packet failed entirely, i.e. due to network or server failure.
+            ///
+            /// \return A \c suback packet with all its \c suback_return_codes set to \c suback_return_code::FAILURE
+            std::shared_ptr<const suback> fail( ) const
+            {
+                std::vector<suback_return_code> rcs{};
+                rcs.assign( subscriptions_.size( ), suback_return_code::FAILURE );
+
+                return std::make_shared<const suback>( packet_identifier_, rcs );
+            }
+
+            /// \brief Return a \c suback packet representing complete success to process this \c subscribe packet.
+            ///
+            /// This is a convenience method for creating responses to a \c subscribe packet when we simply want to
+            /// confirm all subscription requests including desired maximum QoS to client.
+            ///
+            /// \return A \c suback packet with all its \c suback_return_codes set to values desired by client
+            std::shared_ptr<const suback> succeed( ) const
+            {
+                std::vector<suback_return_code> rcs{};
+                for ( auto& subscr : subscriptions_ )
+                {
+                    switch ( subscr.maximum_qos( ) )
+                    {
+                        case protocol::packet::QoS::AT_MOST_ONCE:
+                            rcs.push_back( protocol::suback_return_code::MAXIMUM_QOS0 );
+                            break;
+                        case protocol::packet::QoS::AT_LEAST_ONCE:
+                            rcs.push_back( protocol::suback_return_code::MAXIMUM_QOS1 );
+                            break;
+                        case protocol::packet::QoS::EXACTLY_ONCE:
+                            rcs.push_back( protocol::suback_return_code::MAXIMUM_QOS2 );
+                            break;
+                        case protocol::packet::QoS::RESERVED:
+                            rcs.push_back( protocol::suback_return_code::FAILURE );
+                            break;
+                        default:
+                            rcs.push_back( protocol::suback_return_code::FAILURE );
+                            break;
+                    }
+                }
+
+                return std::make_shared<const suback>( packet_identifier_, rcs );
             }
 
             /// \brief Return a string representation to be used in log output.

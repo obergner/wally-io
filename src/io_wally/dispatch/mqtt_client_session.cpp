@@ -13,6 +13,9 @@ namespace io_wally
 {
     namespace dispatch
     {
+        using namespace std;
+        using lvl = boost::log::trivial::severity_level;
+
         // ------------------------------------------------------------------------------------------------------------
         // Public
         // ------------------------------------------------------------------------------------------------------------
@@ -34,6 +37,24 @@ namespace io_wally
         const std::string& mqtt_client_session::client_id( ) const
         {
             return client_id_;
+        }
+
+        void mqtt_client_session::send( protocol::mqtt_packet::ptr packet )
+        {
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "SEND: " << *packet << " ...";
+            if ( auto conn_local = connection_.lock( ) )
+            {
+                // Connection has not gone away, safe to send
+                conn_local->send( packet );
+                BOOST_LOG_SEV( logger_, lvl::info ) << "SENT: " << *packet;
+            }
+            else
+            {
+                // Connection was closed, destroy this session (IF NOT PERSISTENT)
+                BOOST_LOG_SEV( logger_, lvl::info )
+                    << "Client connection was asynchronously closed - this session will be destroyed";
+                destroy( );
+            }
         }
 
         void mqtt_client_session::destroy( )

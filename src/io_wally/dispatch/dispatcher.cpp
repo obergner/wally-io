@@ -91,8 +91,8 @@ namespace io_wally
                 }
                 else if ( packet_container->packet_type( ) == protocol::packet::Type::SUBSCRIBE )
                 {
-                    auto suback = subscription_manager_.subscribe( packet_container );
-                    BOOST_LOG_SEV( logger_, lvl::info ) << "SUBACK: " << *suback;
+                    auto suback = topic_subscriptions_.subscribe( packet_container );
+                    session_manager_.send( packet_container->client_id( ), suback );
                 }
                 else
                 {

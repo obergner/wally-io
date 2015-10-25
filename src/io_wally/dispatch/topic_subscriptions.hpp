@@ -29,14 +29,14 @@ namespace io_wally
         /// - Will be forwarded all \c protocol::publish packets received from clients and will respond with the set of
         /// \c mqtt_client_session instances that subscribe to the topic the packet has been published to.
         ///
-        class subscription_manager final
+        class topic_subscriptions final
         {
            public:
-            subscription_manager( ) = default;
+            topic_subscriptions( ) = default;
 
-            subscription_manager( const subscription_manager& ) = delete;
+            topic_subscriptions( const topic_subscriptions& ) = delete;
 
-            subscription_manager& operator=( subscription_manager ) = delete;
+            topic_subscriptions& operator=( topic_subscriptions ) = delete;
 
             std::shared_ptr<const protocol::suback> subscribe( mqtt_connection::packet_container_t::ptr subscribe );
 
@@ -72,7 +72,7 @@ namespace io_wally
                            static_cast<std::size_t>( subscr.maximum_qos ) ^
                            std::hash<std::string>( )( subscr.client_id );
                 }
-            };  // struct subscription_containter_hash
+            };  // struct subscription_container_hash
 
            private:
             // Set of subscriptions we manage (cannot be <const subscription_container> since members of std containers
@@ -82,6 +82,6 @@ namespace io_wally
             boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
                 boost::log::keywords::channel = "subscription-registry",
                 boost::log::keywords::severity = boost::log::trivial::trace};
-        };  // class subscription_manager
+        };  // class topic_subscriptions
     }       // namespace dispatch
 }  // namespace io_wally

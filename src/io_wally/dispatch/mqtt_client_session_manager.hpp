@@ -52,6 +52,12 @@ namespace io_wally
             /// \param reason      Why client was disconnected
             void client_disconnected( const std::string client_id, const dispatch::disconnect_reason reason );
 
+            /// \brief Send an \c mqtt_packet to connected client identified by \c client_id.
+            ///
+            /// \param client_id ID of client to send \c packet to
+            /// \param packet MQTT packet to send
+            void send( const std::string& client_id, protocol::mqtt_packet::ptr packet );
+
             /// \brief Destroy the \c mqtt_client_session identified by specified \c client_id.
             ///
             /// \param client_id Client ID associated with \c mqtt_client_session to destroy (remove from this manager)
