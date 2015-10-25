@@ -294,11 +294,11 @@ namespace io_wally
             virtual const std::string to_string( ) const override
             {
                 std::ostringstream output;
-                output << "connect[cltid:" << client_id_ << "|ret_lwt:" << retain_last_will( )
-                       << "|lwt_qos:" << last_will_qos( ) << "|clean_session:" << clean_session( )
-                       << "|keep_alive_secs:" << keep_alive_secs( )
-                       << "|lwttop:" << ( will_topic_ ? *will_topic_ : "[NULL]" )
-                       << "|lwtmsg:" << ( will_message_ ? "[MESSAGE]" : "[NULL]" )
+                output << "connect[cltid:" << client_id_ << "|lwt_ret:" << retain_last_will( )
+                       << "|lwt_qos:" << last_will_qos( ) << "|clean_sess:" << clean_session( )
+                       << "|keep_alive:" << keep_alive_secs( )
+                       << "|lwt_top:" << ( will_topic_ ? *will_topic_ : "[NULL]" )
+                       << "|lwt_msg:" << ( will_message_ ? "[MESSAGE]" : "[NULL]" )
                        << "|usr:" << ( username_ ? *username_ : "[NULL]" )
                        << "|pwd:" << ( password_ ? "[PROTECTED]" : "[NULL]" ) << "]";
 

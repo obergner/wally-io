@@ -478,7 +478,10 @@ namespace io_wally
                             break;
                     }
 
-                    output << "header[type:" << type_string << "|" << header.flags( ) << "]";
+                    output << "header[type:" << type_string;
+                    if ( header.type( ) == packet::Type::PUBLISH )  // In MQTT 3.1.1, flags only relevant for PUBLISH
+                        output << "|" << header.flags( );
+                    output << "]";
 
                     return output;
                 }

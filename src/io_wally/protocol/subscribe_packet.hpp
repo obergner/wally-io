@@ -117,7 +117,7 @@ namespace io_wally
             virtual const std::string to_string( ) const override
             {
                 std::ostringstream output;
-                output << "subscribe[" << header( ) << "|pktid:" << packet_identifier_ << "|";
+                output << "subscribe[pktid:" << packet_identifier_ << "|";
                 for ( auto& subscr : subscriptions_ )
                     output << subscr << " ";
                 const long pos = output.tellp( );
