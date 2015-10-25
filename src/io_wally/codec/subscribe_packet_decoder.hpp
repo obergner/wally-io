@@ -5,6 +5,7 @@
 #include <sstream>
 #include <memory>
 #include <vector>
+#include <tuple>
 
 #include "io_wally/protocol/subscription.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
@@ -24,11 +25,11 @@ namespace io_wally
         class subscribe_packet_decoder final : public packet_body_decoder<InputIterator>
         {
            public:
-            /// \brief Decode the supplied buffer into a \c subscribe_packet.
+            /// \brief Decode the supplied buffer into a \c subscribe packet.
             ///
             /// \see io_wally::protocol::decoder::packet_body_decoder::parse
             ///
-            virtual std::unique_ptr<const protocol::mqtt_packet> decode( const protocol::packet::header& header,
+            virtual std::shared_ptr<const protocol::mqtt_packet> decode( const protocol::packet::header& header,
                                                                          InputIterator buf_start,
                                                                          const InputIterator buf_end ) const
             {
@@ -61,8 +62,9 @@ namespace io_wally
                 std::vector<subscription> subscriptions{};
                 while ( new_buf_start != buf_end )
                 {
-                    char* topic_filter = nullptr;
-                    new_buf_start = decode_utf8_string( new_buf_start, buf_end, &topic_filter );
+                    // char* topic_filter = nullptr;
+                    std::string topic_filter;
+                    std::tie( new_buf_start, topic_filter ) = decode_utf8_string( new_buf_start, buf_end );
 
                     packet::QoS maximum_qos{};
                     new_buf_start = decode_qos( new_buf_start, buf_end, &maximum_qos );
@@ -74,7 +76,7 @@ namespace io_wally
                         "[MQTT-3.8.3-3] A SUBSCRIBE packet MUST contain at least one subscription (topic filter/QoS "
                         "pair)" );
 
-                return std::make_unique<const protocol::subscribe>( header, packet_identifier, subscriptions );
+                return std::make_shared<const protocol::subscribe>( header, packet_identifier, subscriptions );
             }
         };  // class subscribe_packet_decoder
 

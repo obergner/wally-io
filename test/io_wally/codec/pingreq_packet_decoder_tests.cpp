@@ -24,7 +24,7 @@ SCENARIO( "pingreq_packet_decoder", "[decoder]" )
 
         WHEN( "a client passes that array into pingreq_packet_decoder::decode" )
         {
-            std::unique_ptr<const protocol::mqtt_packet> result =
+            std::shared_ptr<const protocol::mqtt_packet> result =
                 under_test.decode( fixed_header, buffer.begin( ), buffer.end( ) );
 
             THEN( "that client should receive a non-null mqtt_packet pointer" )

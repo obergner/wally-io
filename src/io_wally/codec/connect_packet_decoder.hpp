@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <sstream>
 #include <memory>
+#include <tuple>
 
 #include "io_wally/protocol/connect_packet.hpp"
 #include "io_wally/codec/decoder.hpp"
@@ -26,7 +27,7 @@ namespace io_wally
             ///
             /// \see io_wally::protocol::decoder::packet_body_decoder::parse
             ///
-            virtual std::unique_ptr<const protocol::mqtt_packet> decode( const protocol::packet::header& header,
+            virtual std::shared_ptr<const protocol::mqtt_packet> decode( const protocol::packet::header& header,
                                                                          InputIterator buf_start,
                                                                          const InputIterator buf_end ) const
             {
@@ -48,9 +49,9 @@ namespace io_wally
                 InputIterator new_buf_start = buf_start;
 
                 // Parse variable header connect_header
-                char* protocol_name = nullptr;
-                new_buf_start = decode_utf8_string( new_buf_start, buf_end, &protocol_name );
-                if ( !protocol_name )
+                std::string protocol_name;
+                std::tie( new_buf_start, protocol_name ) = decode_utf8_string( new_buf_start, buf_end );
+                if ( protocol_name.empty( ) )
                     throw error::malformed_mqtt_packet( "CONNECT packet does not contain protocol name" );
 
                 const uint8_t protocol_level = (const uint8_t)*new_buf_start++;
@@ -62,44 +63,44 @@ namespace io_wally
                 new_buf_start = decode_uint16( new_buf_start, buf_end, &keep_alive_secs );
 
                 // Parse payload connect_payload
-                char* client_id = nullptr;
-                new_buf_start = decode_utf8_string( new_buf_start, buf_end, &client_id );
+                std::string client_id;
+                std::tie( new_buf_start, client_id ) = decode_utf8_string( new_buf_start, buf_end );
 
-                char* last_will_topic = nullptr;
-                char* last_will_msg = nullptr;
+                std::string last_will_topic;
+                std::string last_will_msg;
                 if ( cf.contains_last_will( ) )
                 {
-                    new_buf_start = decode_utf8_string( new_buf_start, buf_end, &last_will_topic );
+                    std::tie( new_buf_start, last_will_topic ) = decode_utf8_string( new_buf_start, buf_end );
 
-                    new_buf_start = decode_utf8_string( new_buf_start, buf_end, &last_will_msg );
+                    std::tie( new_buf_start, last_will_msg ) = decode_utf8_string( new_buf_start, buf_end );
                 }
 
-                char* username = nullptr;
+                std::string username;
                 if ( cf.has_username( ) )
                 {
-                    new_buf_start = decode_utf8_string( new_buf_start, buf_end, &username );
+                    std::tie( new_buf_start, username ) = decode_utf8_string( new_buf_start, buf_end );
                 }
 
-                char* password = nullptr;
+                std::string password;
                 if ( cf.has_password( ) )
                 {
-                    new_buf_start = decode_utf8_string( new_buf_start, buf_end, &password );
+                    std::tie( new_buf_start, password ) = decode_utf8_string( new_buf_start, buf_end );
                 }
 
                 if ( new_buf_start != buf_end )
                     throw error::malformed_mqtt_packet(
                         "Combined size of fields in buffers does not add up to advertised remaining length" );
 
-                return std::make_unique<const protocol::connect>( header,
-                                                                  protocol_name,
+                return std::make_shared<const protocol::connect>( header,
+                                                                  protocol_name.c_str( ),
                                                                   protocol_level,
                                                                   connect_flags,
                                                                   keep_alive_secs,
-                                                                  client_id,
-                                                                  last_will_topic,
-                                                                  last_will_msg,
-                                                                  username,
-                                                                  password );
+                                                                  client_id.c_str( ),
+                                                                  last_will_topic.c_str( ),
+                                                                  last_will_msg.c_str( ),
+                                                                  username.c_str( ),
+                                                                  password.c_str( ) );
             }
         };  // class connect_packet_decoder
 

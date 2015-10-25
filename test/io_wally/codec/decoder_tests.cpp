@@ -2,6 +2,8 @@
 
 #include <cstdint>
 #include <array>
+#include <string>
+#include <tuple>
 
 #include "io_wally/error/protocol.hpp"
 #include "io_wally/codec/decoder.hpp"
@@ -366,13 +368,12 @@ SCENARIO( "parsing a UTF-8 string", "[packets]" )
     GIVEN( "a buffer of length 1" )
     {
         const std::array<const char, 1> buffer = {{0x00}};
-        char* parsed_string = 0;
 
         WHEN( "a client passes that buffer into decode_utf8_string" )
         {
             THEN( "the client should see a error::malformed_mqtt_packet being thrown" )
             {
-                REQUIRE_THROWS_AS( decoder::decode_utf8_string( buffer.begin( ), buffer.cend( ), &parsed_string ),
+                REQUIRE_THROWS_AS( decoder::decode_utf8_string( buffer.begin( ), buffer.cend( ) ),
                                    error::malformed_mqtt_packet );
             }
         }
@@ -381,13 +382,12 @@ SCENARIO( "parsing a UTF-8 string", "[packets]" )
     GIVEN( "a buffer of insufficient length for the contained string" )
     {
         const std::array<const char, 5> buffer = {{0x00, 0x04, 0x61, 0x62, 0x63}};
-        char* parsed_string = 0;
 
         WHEN( "a client passes that buffer into decode_utf8_string" )
         {
             THEN( "the client should see a error::malformed_mqtt_packet being thrown" )
             {
-                REQUIRE_THROWS_AS( decoder::decode_utf8_string( buffer.begin( ), buffer.cend( ), &parsed_string ),
+                REQUIRE_THROWS_AS( decoder::decode_utf8_string( buffer.begin( ), buffer.cend( ) ),
                                    error::malformed_mqtt_packet );
             }
         }
@@ -396,17 +396,17 @@ SCENARIO( "parsing a UTF-8 string", "[packets]" )
     GIVEN( "a buffer of length 2 containing a correctly encoded empty string" )
     {
         const std::array<const char, 2> buffer = {{0x00, 0x00}};
-        char* parsed_string = 0;
+        std::string parsed_string;
 
         WHEN( "a client passes that buffer into decode_utf8_string" )
         {
-            std::array<const char, 2>::iterator new_buffer_start =
-                decoder::decode_utf8_string( buffer.begin( ), buffer.cend( ), &parsed_string );
+            std::array<const char, 2>::iterator new_buffer_start;
+            std::tie( new_buffer_start, parsed_string ) =
+                decoder::decode_utf8_string( buffer.begin( ), buffer.cend( ) );
 
             THEN( "the client should receive an empty string" )
             {
-                REQUIRE( parsed_string );  // must not be nullptr
-                REQUIRE( std::string( parsed_string ) == "" );
+                REQUIRE( parsed_string == "" );
             }
 
             AND_THEN( "the client should receive a correctly updated buffer iterator" )
@@ -419,17 +419,17 @@ SCENARIO( "parsing a UTF-8 string", "[packets]" )
     GIVEN( "a buffer of sufficient length containing a correctly encoded non-empty string" )
     {
         const std::array<char, 5> buffer = {{0x00, 0x03, 0x61, 0x62, 0x63}};
-        char* parsed_string = 0;
+        std::string parsed_string;
 
         WHEN( "a client passes that buffer into decode_utf8_string" )
         {
-            std::array<const char, 2>::iterator new_buffer_start =
-                decoder::decode_utf8_string( buffer.begin( ), buffer.cend( ), &parsed_string );
+            std::array<const char, 2>::iterator new_buffer_start;
+            std::tie( new_buffer_start, parsed_string ) =
+                decoder::decode_utf8_string( buffer.begin( ), buffer.cend( ) );
 
             THEN( "the client should receive an correctly parsed non-empty string" )
             {
-                REQUIRE( parsed_string );  // must not be nullptr
-                REQUIRE( std::string( parsed_string ) == "abc" );
+                REQUIRE( parsed_string == "abc" );
             }
 
             THEN( "the client should receive a correctly updated buffer iterator" )

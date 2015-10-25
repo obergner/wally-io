@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstring>
 #include <string>
+#include <tuple>
 #include <stdexcept>
 #include <memory>
 
@@ -353,9 +354,8 @@ namespace io_wally
         ///
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718016
         template <typename InputIterator>
-        inline InputIterator decode_utf8_string( InputIterator string_start,
-                                                 const InputIterator buf_end,
-                                                 char** parsed_string )
+        inline std::pair<InputIterator, const std::string> decode_utf8_string( InputIterator string_start,
+                                                                               const InputIterator buf_end )
         {
             // We need at least two bytes for encoding string length
             if ( string_start + 2 > buf_end )
@@ -371,14 +371,13 @@ namespace io_wally
                 throw error::malformed_mqtt_packet( "Buffer truncated: cannot decode UTF-8 string" );
             }
 
-            *parsed_string = new char[string_length + 1];
-            memcpy( *parsed_string, &( *string_start ), string_length + 1 );
-            ( *parsed_string )[string_length] = '\0';
+            const char* parsed_string_ptr = reinterpret_cast<const char*>( &( *string_start ) );
+            const std::string parsed_string{parsed_string_ptr, string_length};
 
             // Update buffer start iterator
             string_start += string_length;
 
-            return string_start;
+            return {string_start, parsed_string};
         }
 
         /// \brief Interface for decoders capable of decoding a single type of MQTT packets.
@@ -420,7 +419,7 @@ namespace io_wally
             ///             \c mqtt_packet's on the wire format.
             /// \pre        \c header is of the same MQTT Control Packet type as this \c packet_body_decoder
             ///             expects to decode.
-            virtual std::unique_ptr<const protocol::mqtt_packet> decode( const protocol::packet::header& header,
+            virtual std::shared_ptr<const protocol::mqtt_packet> decode( const protocol::packet::header& header,
                                                                          InputIterator buf_start,
                                                                          const InputIterator buf_end ) const = 0;
         };  // packet_body_decoder

@@ -25,7 +25,7 @@ namespace io_wally
             ///
             /// \see io_wally::protocol::decoder::packet_body_decoder::decode
             ///
-            virtual std::unique_ptr<const protocol::mqtt_packet> decode( const protocol::packet::header& header,
+            virtual std::shared_ptr<const protocol::mqtt_packet> decode( const protocol::packet::header& header,
                                                                          InputIterator buf_start,
                                                                          const InputIterator buf_end ) const
             {
@@ -60,7 +60,7 @@ namespace io_wally
                     throw error::malformed_mqtt_packet( message.str( ) );
                 }
 
-                return std::make_unique<const protocol::disconnect>( );
+                return std::make_shared<const protocol::disconnect>( );
             }
         };
     }  // namespace decoder

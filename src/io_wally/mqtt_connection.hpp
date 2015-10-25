@@ -110,7 +110,7 @@ namespace io_wally
                                 const boost::system::error_code& ec,
                                 const size_t bytes_transferred );
 
-        void process_decoded_packet( std::unique_ptr<const protocol::mqtt_packet> packet );
+        void process_decoded_packet( std::shared_ptr<const protocol::mqtt_packet> packet );
 
         // Dealing with CONNECT packets
 

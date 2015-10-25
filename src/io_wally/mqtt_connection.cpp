@@ -258,15 +258,14 @@ namespace io_wally
         return;
     }
 
-    void mqtt_connection::process_decoded_packet( unique_ptr<const mqtt_packet> packet )
+    void mqtt_connection::process_decoded_packet( shared_ptr<const mqtt_packet> packet )
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << "--- PROCESSING: " << *packet << " ...";
         switch ( packet->header( ).type( ) )
         {
             case packet::Type::CONNECT:
             {
-                process_connect_packet( dynamic_pointer_cast<const protocol::connect>(
-                    shared_ptr<const protocol::mqtt_packet>( move( packet ) ) ) );
+                process_connect_packet( dynamic_pointer_cast<const protocol::connect>( packet ) );
             }
             break;
             case packet::Type::PINGREQ:
@@ -277,14 +276,12 @@ namespace io_wally
             break;
             case packet::Type::DISCONNECT:
             {
-                process_disconnect_packet( dynamic_pointer_cast<const protocol::disconnect>(
-                    shared_ptr<const protocol::mqtt_packet>( move( packet ) ) ) );
+                process_disconnect_packet( dynamic_pointer_cast<const protocol::disconnect>( packet ) );
             }
             break;
             case packet::Type::SUBSCRIBE:
             {
-                process_subscribe_packet( dynamic_pointer_cast<const protocol::subscribe>(
-                    shared_ptr<const protocol::mqtt_packet>( move( packet ) ) ) );
+                process_subscribe_packet( dynamic_pointer_cast<const protocol::subscribe>( packet ) );
             }
             break;
             case packet::Type::CONNACK:

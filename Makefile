@@ -226,6 +226,10 @@ LDLIBS          += -lboost_log
 LDLIBS          += -lboost_log_setup
 LDLIBS          += -lboost_program_options
 LDLIBS          += -lpthread
+# Linker flags for checking programmer's sanity: copied from seastar's build
+LDLIBS          += -fsanitize=address
+LDLIBS          += -fsanitize=leak
+LDLIBS          += -fsanitize=undefined
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Compiler configuration: unit tests
