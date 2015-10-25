@@ -133,6 +133,15 @@ namespace io_wally
                                                 std::shared_ptr<const protocol::disconnect> disconnect,
                                                 const dispatch::disconnect_reason disconnect_reason );
 
+        // Dealing with SUBSCRIBE packets
+
+        void process_subscribe_packet( std::shared_ptr<const protocol::subscribe> subscribe );
+
+        void dispatch_subscribe_packet( std::shared_ptr<const protocol::subscribe> subscribe );
+
+        void handle_dispatch_subscribe_packet( const boost::system::error_code& ec,
+                                               std::shared_ptr<const protocol::subscribe> subscribe );
+
         // Sending MQTT packets
 
         void write_packet( const protocol::mqtt_packet& packet );

@@ -281,6 +281,12 @@ namespace io_wally
                     shared_ptr<const protocol::mqtt_packet>( move( packet ) ) ) );
             }
             break;
+            case packet::Type::SUBSCRIBE:
+            {
+                process_subscribe_packet( dynamic_pointer_cast<const protocol::subscribe>(
+                    shared_ptr<const protocol::mqtt_packet>( move( packet ) ) ) );
+            }
+            break;
             case packet::Type::CONNACK:
             case packet::Type::PINGRESP:
             case packet::Type::PUBLISH:
@@ -288,7 +294,6 @@ namespace io_wally
             case packet::Type::PUBREL:
             case packet::Type::PUBREC:
             case packet::Type::PUBCOMP:
-            case packet::Type::SUBSCRIBE:
             case packet::Type::SUBACK:
             case packet::Type::UNSUBSCRIBE:
             case packet::Type::UNSUBACK:
@@ -404,6 +409,70 @@ namespace io_wally
         auto msg = ostringstream{};
         msg << "--- Connection disconnected: " << disconnect_reason;
         stop( msg.str( ), lvl::info );
+    }
+
+    void mqtt_connection::process_subscribe_packet( shared_ptr<const protocol::subscribe> subscribe )
+    {
+        dispatch_subscribe_packet( subscribe );
+    }
+
+    void mqtt_connection::dispatch_subscribe_packet( shared_ptr<const protocol::subscribe> subscribe )
+    {
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *subscribe << " ...";
+        auto subscribe_container = packet_container_t::subscribe_packet( *client_id_, shared_from_this( ), subscribe );
+
+        auto self = shared_from_this( );
+        dispatcher_.async_enq( subscribe_container,
+                               strand_.wrap( [self, subscribe]( const boost::system::error_code& ec )
+                                             {
+                                                 self->handle_dispatch_subscribe_packet( ec, subscribe );
+                                             } ) );
+    }
+
+    void mqtt_connection::handle_dispatch_subscribe_packet( const boost::system::error_code& ec,
+                                                            shared_ptr<const protocol::subscribe> subscribe )
+    {
+        if ( ec )
+        {
+            BOOST_LOG_SEV( logger_, lvl::error ) << "--- DISPATCH FAILED: " << *subscribe << " [ec:" << ec
+                                                 << "|emsg:" << ec.message( ) << "]";
+            // TODO: We should not close this connection, but rather send an appropriate SUBACK
+            connection_close_requested( "Failed to dispatch SUBSCRIBE packet",
+                                        dispatch::disconnect_reason::network_or_server_failure,
+                                        ec,
+                                        lvl::error );
+        }
+        else
+        {
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *subscribe;
+
+            // TODO: For now, we send a "fake" SUBACK ourselves. In the near future this should by rights be handled by
+            // our dispatcher subsystem.
+            auto rcs = vector<protocol::suback_return_code>{};
+            for ( auto& subscr : subscribe->subscriptions( ) )
+            {
+                switch ( subscr.maximum_qos( ) )
+                {
+                    case protocol::packet::QoS::AT_MOST_ONCE:
+                        rcs.push_back( protocol::suback_return_code::MAXIMUM_QOS0 );
+                        break;
+                    case protocol::packet::QoS::AT_LEAST_ONCE:
+                        rcs.push_back( protocol::suback_return_code::MAXIMUM_QOS1 );
+                        break;
+                    case protocol::packet::QoS::EXACTLY_ONCE:
+                        rcs.push_back( protocol::suback_return_code::MAXIMUM_QOS2 );
+                        break;
+                    case protocol::packet::QoS::RESERVED:
+                        rcs.push_back( protocol::suback_return_code::FAILURE );
+                        break;
+                    default:
+                        rcs.push_back( protocol::suback_return_code::FAILURE );
+                        break;
+                }
+            }
+            auto suback = protocol::suback{subscribe->packet_identifier( ), rcs};
+            write_packet( suback );
+        }
     }
 
     void mqtt_connection::write_packet( const mqtt_packet& packet )

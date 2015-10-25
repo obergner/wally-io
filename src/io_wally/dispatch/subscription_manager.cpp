@@ -26,7 +26,7 @@ namespace io_wally
             assert( subscribe->packet_type( ) == protocol::packet::Type::SUBSCRIBE );
 
             auto subscribe_packet = subscribe->packetAs<const protocol::subscribe>( );
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "SUBSRCIBE:  [client_id:" << subscribe->client_id( )
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "SUBSRCIBE:  [cltid:" << subscribe->client_id( )
                                                  << "|subscr:" << *subscribe_packet << "]";
 
             auto return_codes = vector<protocol::suback_return_code>{};
@@ -57,7 +57,7 @@ namespace io_wally
             }
             auto suback = make_shared<const protocol::suback>( subscribe_packet->packet_identifier( ), return_codes );
 
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "SUBSRCIBED: [client_id:" << subscribe->client_id( )
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "SUBSRCIBED: [cltid:" << subscribe->client_id( )
                                                  << "|subscr:" << *subscribe_packet << "] -> " << *suback;
 
             return suback;

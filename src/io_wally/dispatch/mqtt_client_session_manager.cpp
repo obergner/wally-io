@@ -32,20 +32,20 @@ namespace io_wally
             auto connection_ptr = shared_ptr<mqtt_connection>( connection );
             if ( connection_ptr )
             {
-                BOOST_LOG_SEV( logger_, lvl::debug ) << "Client connected: [id:" << client_id
+                BOOST_LOG_SEV( logger_, lvl::debug ) << "Client connected: [cltid:" << client_id
                                                      << "|conn:" << *connection_ptr << "]";
                 // TODO: Maybe we shouldn't pass a REFERENCE to this, since we might go away (likewise in
                 // mqtt_connection)
                 auto session = mqtt_client_session::create( *this, client_id, connection );
                 sessions_.emplace( client_id, session );
-                BOOST_LOG_SEV( logger_, lvl::info ) << "Session for client [id:" << client_id
+                BOOST_LOG_SEV( logger_, lvl::info ) << "Session for client [cltid:" << client_id
                                                     << "|conn:" << *connection_ptr
                                                     << "] created [total:" << sessions_.size( ) << "]";
             }
             else
             {
                 BOOST_LOG_SEV( logger_, lvl::warning )
-                    << "Client connected [id:" << client_id
+                    << "Client connected [cltid:" << client_id
                     << "], yet connection was immediately closed (network/protocol error)";
             }
         }
@@ -54,7 +54,7 @@ namespace io_wally
                                                                const dispatch::disconnect_reason reason )
         {
             sessions_.erase( client_id );
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "Client disconnected: [id:" << client_id << "|rsn:" << reason
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "Client disconnected: [cltid:" << client_id << "|rsn:" << reason
                                                  << "] - session destroyed";
         }
 
@@ -62,7 +62,7 @@ namespace io_wally
         {
             auto rem_cnt = sessions_.erase( client_id );
             if ( rem_cnt > 0 )
-                BOOST_LOG_SEV( logger_, lvl::info ) << "Client session [id:" << client_id << "] destroyed";
+                BOOST_LOG_SEV( logger_, lvl::info ) << "Client session [cltid:" << client_id << "] destroyed";
         }
 
         void mqtt_client_session_manager::destroy_all( )

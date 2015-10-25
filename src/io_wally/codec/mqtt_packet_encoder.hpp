@@ -51,7 +51,7 @@ namespace io_wally
                         return connack_encoder_;
                     case protocol::packet::Type::PINGRESP:
                         return pingresp_encoder_;
-                    case protocol::packet::Type::UNSUBACK:
+                    case protocol::packet::Type::SUBACK:
                         return suback_encoder_;
                     case protocol::packet::Type::CONNECT:
                     case protocol::packet::Type::PINGREQ:
@@ -62,8 +62,8 @@ namespace io_wally
                     case protocol::packet::Type::PUBREC:
                     case protocol::packet::Type::PUBCOMP:
                     case protocol::packet::Type::SUBSCRIBE:
-                    case protocol::packet::Type::SUBACK:
                     case protocol::packet::Type::UNSUBSCRIBE:
+                    case protocol::packet::Type::UNSUBACK:
                     case protocol::packet::Type::RESERVED1:
                     case protocol::packet::Type::RESERVED2:
                     default:

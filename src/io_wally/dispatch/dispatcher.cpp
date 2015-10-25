@@ -89,6 +89,11 @@ namespace io_wally
                     session_manager_.client_disconnected( packet_container->client_id( ),
                                                           packet_container->disconnect_reason( ) );
                 }
+                else if ( packet_container->packet_type( ) == protocol::packet::Type::SUBSCRIBE )
+                {
+                    auto suback = subscription_manager_.subscribe( packet_container );
+                    BOOST_LOG_SEV( logger_, lvl::info ) << "SUBACK: " << *suback;
+                }
                 else
                 {
                     assert( false );
