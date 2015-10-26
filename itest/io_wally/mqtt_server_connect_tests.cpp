@@ -3,15 +3,12 @@
 #include <boost/optional.hpp>
 
 #include "framework/itest_client.hpp"
-#include "framework/server_controller.hpp"
 
 namespace
 {
     class itest_fixture
     {
        protected:
-        framework::server_controller server_{};
-
         framework::itest_client client{};
     };  // class itest_fixture
 }  // namespace
@@ -22,7 +19,7 @@ SCENARIO_METHOD( itest_fixture, "mqtt_server TCP connection tests", "[mqtt_serve
     {
         WHEN( "a client tries to open a TCP connection to that server" )
         {
-            auto connected = client.connect( );
+            auto connected = client.tcp_connect( );
 
             THEN( "it will succeed" )
             {
@@ -38,8 +35,8 @@ SCENARIO_METHOD( itest_fixture, "mqtt_server MQTT CONNECT tests", "[mqtt_server]
     {
         WHEN( "a client sends a valid CONNECT packet to that server" )
         {
-            auto connected = client.connect( );
-            auto login_rc = client.send_connect_packet( "CONNECT_itest" );
+            auto connected = client.tcp_connect( );
+            auto login_rc = client.mqtt_connect( "CONNECT_itest" );
 
             THEN( "it will succeed" )
             {
@@ -49,22 +46,22 @@ SCENARIO_METHOD( itest_fixture, "mqtt_server MQTT CONNECT tests", "[mqtt_server]
         }
 
         // WHEN( "a client sends a CONNECT packet with keep alive interval set to that server" )
-        // {
-        //     auto connected = client.connect( );
-        //     auto login_rc = client.send_connect_packet( "CONNECT_itest", boost::none, boost::none, 1L );
+        //{
+        //    auto connected = client.tcp_connect( );
+        //    auto login_rc = client.mqtt_connect( "CONNECT_itest", boost::none, boost::none, 1L );
 
-        //     THEN( "it will successfully connect" )
-        //     {
-        //         REQUIRE( connected );
-        //         REQUIRE( login_rc == 0 );
-        //     }
+        //    THEN( "it will successfully connect" )
+        //    {
+        //        CHECK( connected );
+        //        REQUIRE( login_rc == 0 );
+        //    }
 
-        //     AND_THEN( "it will be disconnected after keep alive interval expires" )
-        //     {
-        //         sleep( 2 );
-        //         REQUIRE( !client.is_connected( ) );
-        //     }
-        // }
+        //    AND_THEN( "it will be disconnected after keep alive interval expires" )
+        //    {
+        //        sleep( 2 );
+        //        REQUIRE( !client.is_tcp_connected( ) );
+        //    }
+        //}
 
         //        WHEN( "a client sends a second CONNECT packet on the same connection to that server" )
         //        {

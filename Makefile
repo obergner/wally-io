@@ -44,7 +44,7 @@ EXECOBJ_M        := $(patsubst src/%.cpp, $(BUILD_M)/%.o, $(EXECSOURCE_M))
 BUILDDIRS_M      := $(sort $(dir $(OBJS_M)))
 
 # Main executable
-EXEC_M           := $(BUILD_M)/mqtt-serverd
+EXEC_M           := $(BUILD_M)/wally-iod
 
 # ***********************************************************************
 # OBJECTS: release
@@ -62,7 +62,7 @@ EXECOBJ_M_RELEASE := $(patsubst src/%.cpp, $(BUILD_M_RELEASE)/%.o, $(EXECSOURCE_
 BUILDDIRS_M_RELEASE := $(sort $(dir $(OBJS_M_RELEASE)))
 
 # Main executable
-EXEC_M_RELEASE   := $(BUILD_M_RELEASE)/mqtt-serverd
+EXEC_M_RELEASE   := $(BUILD_M_RELEASE)/wally-iod
 
 # ***********************************************************************
 # OBJECTS: debug
@@ -80,7 +80,7 @@ EXECOBJ_M_DEBUG  := $(patsubst src/%.cpp, $(BUILD_M_DEBUG)/%.o, $(EXECSOURCE_M))
 BUILDDIRS_M_DEBUG := $(sort $(dir $(OBJS_M_DEBUG)))
 
 # Main executable
-EXEC_M_DEBUG     := $(BUILD_M_DEBUG)/mqtt-serverd
+EXEC_M_DEBUG     := $(BUILD_M_DEBUG)/wally-iod
 
 # ***********************************************************************
 # OBJECTS: sanitize
@@ -579,7 +579,7 @@ prepare-commit      : clean
 prepare-commit      : format
 prepare-commit      : sanitize
 prepare-commit      : test 
-#prepare-commit      : itest # Sadly, we have to deactivate this for now: integration tests crash when stopping app
+prepare-commit      : itest 
 prepare-commit      : check
 prepare-commit      : scan-main
 

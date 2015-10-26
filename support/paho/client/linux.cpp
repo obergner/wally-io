@@ -146,6 +146,16 @@ class IPStack
         return rc;
     }
 
+    bool is_connected( )
+    {
+        unsigned char* buffer;
+
+        ::recv( mysock, &buffer, 1, MSG_PEEK | MSG_DONTWAIT );
+        printf( "Socket error %s for socket %d\n", strerror( errno ), mysock );
+
+        return ( errno != ENOTCONN );
+    }
+
     int disconnect( )
     {
         return ::close( mysock );
