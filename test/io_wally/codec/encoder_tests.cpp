@@ -124,7 +124,7 @@ SCENARIO( "remaining_length_encoder", "[packets]" )
     GIVEN( "an illegal remaining length of 268,435,455 + 1" )
     {
         const std::uint32_t remaining_length = 268435455 + 1;
-        std::array<std::uint8_t, 4> buf = {{0x00, 0x00, 0x00, 0x00}};  // double braces avoid warnings
+        std::array<std::uint8_t, 5> buf = {{0x00, 0x00, 0x00, 0x00, 0x00}};  // double braces avoid warnings
 
         WHEN( "a caller passes in that length" )
         {
@@ -245,7 +245,7 @@ SCENARIO( "encoding a UTF-8 string", "[packets]" )
                        {
             return 'a';
         } );
-        const std::string value( value_buf );
+        const std::string value( value_buf, encoder::MAX_STRING_LENGTH );
 
         std::array<std::uint8_t, encoder::MAX_STRING_LENGTH + 2> result;
 
@@ -275,7 +275,7 @@ SCENARIO( "encoding a UTF-8 string", "[packets]" )
                        {
             return 'a';
         } );
-        const std::string value( value_buf );
+        const std::string value( value_buf, encoder::MAX_STRING_LENGTH + 1 );
         std::array<std::uint8_t, encoder::MAX_STRING_LENGTH + 3> result;
 
         WHEN( "a client passes that buffer into encode_utf8_string" )

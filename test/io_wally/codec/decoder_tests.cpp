@@ -395,12 +395,12 @@ SCENARIO( "parsing a UTF-8 string", "[packets]" )
 
     GIVEN( "a buffer of length 2 containing a correctly encoded empty string" )
     {
-        const std::array<const char, 2> buffer = {{0x00, 0x00}};
+        const std::array<const char, 3> buffer = {{0x00, 0x00, 0x00}};
         std::string parsed_string;
 
         WHEN( "a client passes that buffer into decode_utf8_string" )
         {
-            std::array<const char, 2>::iterator new_buffer_start;
+            std::array<const char, 3>::iterator new_buffer_start;
             std::tie( new_buffer_start, parsed_string ) =
                 decoder::decode_utf8_string( buffer.begin( ), buffer.cend( ) );
 
@@ -418,12 +418,12 @@ SCENARIO( "parsing a UTF-8 string", "[packets]" )
 
     GIVEN( "a buffer of sufficient length containing a correctly encoded non-empty string" )
     {
-        const std::array<char, 5> buffer = {{0x00, 0x03, 0x61, 0x62, 0x63}};
+        const std::array<char, 6> buffer = {{0x00, 0x03, 0x61, 0x62, 0x63, 0x00}};
         std::string parsed_string;
 
         WHEN( "a client passes that buffer into decode_utf8_string" )
         {
-            std::array<const char, 2>::iterator new_buffer_start;
+            std::array<const char, 6>::iterator new_buffer_start;
             std::tie( new_buffer_start, parsed_string ) =
                 decoder::decode_utf8_string( buffer.begin( ), buffer.cend( ) );
 
