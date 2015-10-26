@@ -105,7 +105,7 @@ namespace io_wally
         if ( socket_.is_open( ) )
             output << "connection[" << socket_ << "]";
         else
-            output << "connection[DISCONNECTED/" << *client_id_ << "]";
+            output << "connection[DISCONNECTED/" << ( client_id_ ? *client_id_ : "[NOT AUTHENTICATED]" ) << "]";
 
         return output.str( );
     }

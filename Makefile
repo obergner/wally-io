@@ -147,9 +147,14 @@ CBUILD_PAHO      := $(BUILD_SUPPORT)/paho/client
 OBJS_PAHO        := $(patsubst support/paho/packet/%.c, $(PBUILD_PAHO)/%.o, $(PSRCS_PAHO))
 OBJS_PAHO        += $(patsubst support/paho/client/%.cpp, $(CBUILD_PAHO)/%.o, $(CSRCS_PAHO))
 
+# Integrationtest framework SRCS
+SRCS_IT_FRM      := $(wildcard itest/framework/*.cpp)
+
+# Intgegrationtest objects
+OBJS_IT_FRM      := $(patsubst itest/%.cpp, $(BUILD_IT)/%.o, $(SRCS_IT_FRM))
+
 # Integrationtest SRCS
-SRCS_IT          := $(wildcard itest/framework/*.cpp)
-SRCS_IT          += $(wildcard itest/io_wally/*.cpp)
+SRCS_IT          := $(wildcard itest/io_wally/*.cpp)
 
 EXECSOURCE_IT    := itest/itests_main.cpp
 
@@ -224,6 +229,7 @@ REBUILDABLES    := $(EXEC_M) $(OBJS_M) $(EXEC_UT) $(OBJS_UT) $(EXEC_IT) $(OBJS_I
 CXX             := g++
 #CXX             := clang++
 CC              := gcc
+#CC              := clang
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Compiler configuration: main executable NORMAL
@@ -231,6 +237,7 @@ CC              := gcc
 
 # Standard compiler flags
 CXXFLAGS_M      := -std=c++14
+#CXXFLAGS_M      += -stdlib=libc++ # Requires complicated compiler/linker setup on Linux
 CXXFLAGS_M      += -fdiagnostics-color=auto
 CXXFLAGS_M      += -MMD # automatically generate dependency rules on each run
 CXXFLAGS_M      += -I ./src
@@ -305,7 +312,7 @@ LDLIBS_SAN       += -fsanitize=undefined
 
 # Test compiler flags
 CXXFLAGS_UT     := $(CXXFLAGS_M)
-CXXFLAGS_UT     += -O0 -g
+CXXFLAGS_UT     += -O0
 CXXFLAGS_UT     += -I ./test
 CXXFLAGS_UT     := $(filter-out -Wswitch-default, $(CXXFLAGS_UT))
 CXXFLAGS_UT     := $(filter-out -Wswitch-enum, $(CXXFLAGS_UT))
@@ -326,22 +333,22 @@ LDLIBS_UT       += -fsanitize=undefined
 
 # Integrationtest compiler flags
 CXXFLAGS_IT     := $(CXXFLAGS_M)
-CXXFLAGS_IT     += -O0 -g
+CXXFLAGS_IT     += -O0
 CXXFLAGS_IT     += -I ./itest
 CXXFLAGS_IT     += -I $(PINC_PAHO)
 CXXFLAGS_IT     += -I $(CINC_PAHO)
 CXXFLAGS_IT     := $(filter-out -Wswitch-default, $(CXXFLAGS_IT))
 CXXFLAGS_IT     := $(filter-out -Wswitch-enum, $(CXXFLAGS_IT))
-CXXFLAGS_IT     += -fsanitize=address
-CXXFLAGS_IT     += -fsanitize=leak
-CXXFLAGS_IT     += -fsanitize=undefined
-CXXFLAGS_IT     += -fno-omit-frame-pointer
+#CXXFLAGS_IT     += -fsanitize=address
+#CXXFLAGS_IT     += -fsanitize=leak
+#CXXFLAGS_IT     += -fsanitize=undefined
+#CXXFLAGS_IT     += -fno-omit-frame-pointer
 
 # Integrationtest linker flags
 LDLIBS_IT       := $(LDLIBS_M)
-LDLIBS_IT       += -fsanitize=address
-LDLIBS_IT       += -fsanitize=leak
-LDLIBS_IT       += -fsanitize=undefined
+#LDLIBS_IT       += -fsanitize=address
+#LDLIBS_IT       += -fsanitize=leak
+#LDLIBS_IT       += -fsanitize=undefined
 
 #######################################################################################################################
 # Rules
@@ -459,7 +466,7 @@ itest-compile      : $(EXEC_IT)                              | $(BUILDDIRS_IT)
 $(BUILDDIRS_IT)    :
 	@mkdir -p $@
 
-$(EXEC_IT)         : $(OBJS_M_SAN) $(OBJS_IT) $(EXECOBJ_IT) $(OBJS_PAHO)    | $(BUILDDIRS_IT)
+$(EXEC_IT)         : $(OBJS_M) $(OBJS_IT) $(OBJS_IT_FRM) $(EXECOBJ_IT) $(OBJS_PAHO)    | $(BUILDDIRS_IT)
 	$(CXX) $(LDLIBS_IT) -o $@ $^
 
 $(BUILD_IT)/%.o    : itest/%.cpp                             | $(BUILDDIRS_IT)
@@ -476,7 +483,7 @@ snippets           : snippets-compile
 .PHONY             : snippets-compile
 snippets-compile   : $(EXEC_SNIP)                            | $(BUILDDIRS_IT)
 
-$(EXEC_SNIP)       : $(OBJS_M) $(OBJS_IT) $(EXECOBJ_SNIP)    | $(BUILDDIRS_IT)
+$(EXEC_SNIP)       : $(OBJS_M) $(OBJS_IT_FRM) $(EXECOBJ_SNIP)    | $(BUILDDIRS_IT)
 	$(CXX) $(LDLIBS_IT) -o $@ $^
 
 # --------------------------------------------------------------------------------------------------------------------- 

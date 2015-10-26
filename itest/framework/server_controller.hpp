@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <thread>
 #include <functional>
 
@@ -42,5 +43,4 @@ namespace framework
         io_wally::app::application app_{};
         std::thread app_thread_;
     };  // class server_controller
-
 }  // namespace framework
