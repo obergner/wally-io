@@ -513,7 +513,7 @@ doc-publish         : doc
 
 compilation-db      : $(COMPILATIONDB)
 
-$(COMPILAIONDB)     : $(SRCS_M) $(EXECSOURCE_M) $(SRCS_UT) $(EXECSOURCE_UT) $(SRCS_IT) $(EXECSOURCE_IT)
+$(COMPILATIONDB)    : $(SRCS_M) $(EXECSOURCE_M) $(SRCS_UT) $(EXECSOURCE_UT) $(SRCS_IT) $(EXECSOURCE_IT)
 	@bear --cdb $(COMPILATIONDB) $(MAKE) clean main test-compile itest-compile
 
 .PHONY              : macroexpand

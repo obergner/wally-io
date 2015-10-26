@@ -232,4 +232,68 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
             }
         }
     }
+
+    GIVEN( "a SUSBCRIBE packet body with packet identifier and a header with QoS 1" )
+    {
+        auto const type_and_flags = std::uint8_t{( 3 << 4 ) | 2};  // PUBLISH + DUP 0, QoS 1, RETAIN 0
+        auto const remaining_length = std::uint32_t{23};
+        auto const message = std::vector<uint8_t>{'s', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e'};
+
+        auto const fixed_header = protocol::packet::header{type_and_flags, remaining_length};
+
+        // Shameless act of robbery: https://github.com/surgemq/message/blob/master/publish_test.go
+        const std::array<std::uint8_t, remaining_length> buffer = {{
+            0,  // topic name MSB (0)
+            7,  // topic name LSB (7)
+            's',
+            'u',
+            'r',
+            'g',
+            'e',
+            'm',
+            'q',
+            0,  // packet ID MSB (0)
+            7,  // packet ID LSB (7)
+            's',
+            'e',
+            'n',
+            'd',
+            ' ',
+            'm',
+            'e',
+            ' ',
+            'h',
+            'o',
+            'm',
+            'e',
+        }};  /// avoids warning
+
+        WHEN( "a client passes that array into publish_packet_decoder::decode" )
+        {
+            auto result = under_test.decode( fixed_header, buffer.begin( ), buffer.end( ) );
+
+            THEN( "that client should receive a non-null mqtt_packet pointer" )
+            {
+                REQUIRE( result );
+            }
+
+            AND_THEN( "it should be able to cast that result to a 'publish' instance with all fields correctly set" )
+            {
+                auto const& raw_result = *result;
+                auto const& publish_packet = static_cast<const protocol::publish&>( raw_result );
+
+                CHECK( publish_packet.header( ).type( ) == protocol::packet::Type::PUBLISH );
+
+                CHECK( publish_packet.header( ).flags( ).dup( ) == false );
+                CHECK( publish_packet.header( ).flags( ).qos( ) == protocol::packet::QoS::AT_LEAST_ONCE );
+                CHECK( publish_packet.header( ).flags( ).retain( ) == false );
+
+                CHECK( publish_packet.packet_identifier( ) == 7 );
+
+                CHECK( publish_packet.topic( ) == "surgemq" );
+
+                CHECK( publish_packet.application_message( ) == message );
+            }
+        }
+    }
 }

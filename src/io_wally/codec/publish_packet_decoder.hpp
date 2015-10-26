@@ -46,6 +46,7 @@ namespace io_wally
                             << "|actual:" << ( buf_end - buf_start ) << "]";
                     throw error::malformed_mqtt_packet( message.str( ) );
                 }
+                InputIterator application_message_end = buf_start + header.remaining_length( );
 
                 InputIterator new_buf_start = buf_start;
 
@@ -63,8 +64,8 @@ namespace io_wally
                 }
 
                 // Parse application message
-                std::vector<uint8_t> application_message{new_buf_start, buf_end};
-                new_buf_start = buf_end;
+                std::vector<uint8_t> application_message{new_buf_start, application_message_end};
+                new_buf_start = application_message_end;
 
                 return std::make_shared<const protocol::publish>(
                     header, topic_name, packet_identifier, application_message );
