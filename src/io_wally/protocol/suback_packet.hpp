@@ -78,7 +78,6 @@ namespace io_wally
                   packet_identifier_{packet_identifier},
                   return_codes_{std::move( return_codes )}
             {
-                return;
             }
 
             /// \brief Return \c packet_identifier sent in corresponding SUBSCRIBE packet.

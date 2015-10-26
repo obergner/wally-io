@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <cstdint>
 #include <string>
 #include <sstream>
@@ -44,7 +45,7 @@ namespace io_wally
                   packet_identifier_{packet_identifier},
                   subscriptions_{std::move( subscriptions )}
             {
-                return;
+                assert( header.type( ) == packet::Type::SUBSCRIBE );
             }
 
             /// \brief Return packet's \c packet_identifier.

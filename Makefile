@@ -501,7 +501,7 @@ clean               :
 .PHONY              : doc
 doc                 : $(SRCS_M) $(EXECSOURCE_M)
 	@rm -rf $(BUILD_DOC)
-	@doxygen ./.doxygen.cfg
+	@doxygen ./build/doxygen.cfg
 
 .PHONY              : doc-publish
 doc-publish         : doc
@@ -514,7 +514,7 @@ doc-publish         : doc
 compilation-db      : $(COMPILATIONDB)
 
 $(COMPILAIONDB)     : $(SRCS_M) $(EXECSOURCE_M) $(SRCS_UT) $(EXECSOURCE_UT) $(SRCS_IT) $(EXECSOURCE_IT)
-	@bear $(AKE_M) clean main test-compile itest-compile
+	@bear --cdb $(COMPILATIONDB) $(MAKE) clean main test-compile itest-compile
 
 .PHONY              : macroexpand
 macroexpand         : $(SRCS_M) $(EXECSOURCE_M)
@@ -524,17 +524,17 @@ macroexpand         : $(SRCS_M) $(EXECSOURCE_M)
 .PHONY              : check-main
 check-main          : compilation-db
 check-main          : $(SRCS_M) $(EXECSOURCE_M)
-	@clang-check $(SRCS_M) $(EXECSOURCE_M)
+	@clang-check -p=$(COMPILATIONDB) $(SRCS_M) $(EXECSOURCE_M)
 
 .PHONY              : check-test
 check-test          : compilation-db
 check-test          : $(SRCS_UT) $(EXECSOURCE_UT)
-	@clang-check $(SRCS_UT) $(EXECSOURCE_UT)
+	@clang-check -p=$(COMPILATIONDB) $(SRCS_UT) $(EXECSOURCE_UT)
 
 .PHONY              : check-itest
 check-itest         : compilation-db
 check-itest         : $(SRCS_IT) $(EXECSOURCE_IT)
-	@clang-check $(SRCS_IT) $(EXECSOURCE_IT)
+	@clang-check -p=$(COMPILATIONDB) $(SRCS_IT) $(EXECSOURCE_IT)
 
 .PHONY              : check
 check               : check-main check-test 
@@ -568,7 +568,7 @@ format              : format-main format-test format-itest
 
 .PHONY              : tags
 tags                : $(SRCS_M) $(EXECSOURCE_M) $(SRCS_UT) $(EXECSOURCE_UT) $(SRCS_IT) $(EXECSOURCE_IT)
-	@ctags -R -f ./.tags ./src ./test ./itest
+	@ctags -R -f ./build/.tags ./src ./test ./itest
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Prepare a commit: run (almost) everything

@@ -18,7 +18,6 @@ namespace io_wally
             /// \brief Create a new \c pingresp instance.
             pingresp( ) : mqtt_packet{packet::header{0x0D << 4, 0x00}}
             {
-                return;
             }
 
             /// \return A string representation to be used in log output

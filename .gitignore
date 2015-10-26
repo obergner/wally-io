@@ -24,3 +24,4 @@ target/
 work/
 compile_commands.json
 libs/dbus-cpp/
+build/.tags

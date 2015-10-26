@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <cstdint>
 #include <string>
 #include <sstream>
@@ -18,7 +19,6 @@ namespace io_wally
            public:
             connect_flags( const uint8_t con_flags ) : con_flags_{con_flags}
             {
-                return;
             }
 
             /// \brief Whether the \c connect_payload contains a username.
@@ -161,7 +161,7 @@ namespace io_wally
                   password_{password ? boost::optional<const std::string>( std::string( password ) )
                                      : boost::optional<const std::string>( )}
             {
-                return;
+                assert( header.type( ) == packet::Type::CONNECT );
             }
 
             /// \brief Return \c protocol name, almost always "MQTT"

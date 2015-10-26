@@ -18,7 +18,6 @@ namespace io_wally
             /// \brief Create a new \c disconnect instance.
             disconnect( ) : mqtt_packet{packet::header{0x0E << 4, 0x00}}
             {
-                return;
             }
 
             /// \return A string representation to be used in log output

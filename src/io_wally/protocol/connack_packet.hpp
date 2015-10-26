@@ -85,7 +85,6 @@ namespace io_wally
             connack( const bool session_present, const connect_return_code return_code )
                 : mqtt_ack{packet::Type::CONNACK, 2}, session_present_{session_present}, return_code_{return_code}
             {
-                return;
             }
 
             /// \brief Whether there was already a persistent session present for this client when it sent CONNECT.
