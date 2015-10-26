@@ -121,7 +121,7 @@ namespace io_wally
                         const uint32_t remaining_length,
                         const InputIterator consumed_until )
                     : parse_state_{ParseState::COMPLETE},
-                      parsed_header_{protocol::packet::header( type_and_flags, remaining_length )},
+                      parsed_header_{protocol::packet::header{type_and_flags, remaining_length}},
                       consumed_until_{consumed_until}
                 {
                 }
@@ -154,8 +154,8 @@ namespace io_wally
 
                private:
                 const ParseState parse_state_;
-                const boost::optional<protocol::packet::header> parsed_header_;
-                const boost::optional<InputIterator> consumed_until_;
+                boost::optional<const protocol::packet::header> parsed_header_;
+                boost::optional<const InputIterator> consumed_until_;
             };
 
             /// \brief Create a default \c header_decoder.
@@ -255,9 +255,8 @@ namespace io_wally
         ///
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718016
         template <typename InputIterator>
-        inline InputIterator decode_uint16( InputIterator uint16_start,
-                                            const InputIterator buf_end,
-                                            uint16_t* const parsed_uint16 )
+        inline std::pair<InputIterator, uint16_t> decode_uint16( InputIterator uint16_start,
+                                                                 const InputIterator buf_end )
         {
             // We need at least two bytes for encoding a uint16_t
             if ( uint16_start + 2 > buf_end )
@@ -267,9 +266,9 @@ namespace io_wally
 
             const uint8_t msb = *uint16_start++;
             const uint8_t lsb = *uint16_start++;
-            *parsed_uint16 = ( msb << 8 ) + lsb;
+            const uint16_t parsed_uint16 = ( msb << 8 ) + lsb;
 
-            return uint16_start;
+            return std::make_pair( uint16_start, parsed_uint16 );
         }
 
         /// \brief Parse a 16 bit wide unsigned int in the supplied buffer.
@@ -364,7 +363,7 @@ namespace io_wally
             }
 
             uint16_t string_length = -1;
-            string_start = decode_uint16( string_start, buf_end, &string_length );
+            std::tie( string_start, string_length ) = decode_uint16( string_start, buf_end );
             // Do we have enough room for our string?
             if ( string_start + string_length > buf_end )
             {

@@ -56,7 +56,7 @@ namespace io_wally
 
                 // Parse variable header subscribe_header
                 uint16_t packet_identifier = -1;
-                new_buf_start = decode_uint16( new_buf_start, buf_end, &packet_identifier );
+                std::tie( new_buf_start, packet_identifier ) = decode_uint16( new_buf_start, buf_end );
 
                 // Parse payload subscribe_payload
                 std::vector<subscription> subscriptions{};

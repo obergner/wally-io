@@ -308,13 +308,12 @@ SCENARIO( "parsing a 16 bit unsigned integer", "[packets]" )
     GIVEN( "a buffer of length 0" )
     {
         const std::array<const std::uint8_t, 0> buffer = {{}};
-        std::uint16_t parsed_int = 0;
 
         WHEN( "a client passes that buffer into parse_std::uint16" )
         {
             THEN( "the client should see a error::malformed_mqtt_packet being thrown" )
             {
-                REQUIRE_THROWS_AS( decoder::decode_uint16( buffer.begin( ), buffer.cend( ), &parsed_int ),
+                REQUIRE_THROWS_AS( decoder::decode_uint16( buffer.begin( ), buffer.cend( ) ),
                                    error::malformed_mqtt_packet );
             }
         }
@@ -323,13 +322,12 @@ SCENARIO( "parsing a 16 bit unsigned integer", "[packets]" )
     GIVEN( "a buffer of length 1" )
     {
         const std::array<const std::uint8_t, 1> buffer = {{0x00}};
-        std::uint16_t parsed_int = 0;
 
         WHEN( "a client passes that buffer into parse_std::uint16" )
         {
             THEN( "the client should see a error::malformed_mqtt_packet being thrown" )
             {
-                REQUIRE_THROWS_AS( decoder::decode_uint16( buffer.begin( ), buffer.cend( ), &parsed_int ),
+                REQUIRE_THROWS_AS( decoder::decode_uint16( buffer.begin( ), buffer.cend( ) ),
                                    error::malformed_mqtt_packet );
             }
         }
@@ -346,8 +344,8 @@ SCENARIO( "parsing a 16 bit unsigned integer", "[packets]" )
 
         WHEN( "a client passes that buffer into parse_std::uint16" )
         {
-            const std::uint8_t* updated_iterator =
-                decoder::decode_uint16( buffer.begin( ), buffer.cend( ), &parsed_int );
+            const std::uint8_t* updated_iterator;
+            std::tie( updated_iterator, parsed_int ) = decoder::decode_uint16( buffer.begin( ), buffer.cend( ) );
 
             THEN( "the client should receive a correctly decoded result" )
             {

@@ -60,7 +60,7 @@ namespace io_wally
                 const protocol::connect_flags cf{connect_flags};
 
                 uint16_t keep_alive_secs = -1;
-                new_buf_start = decode_uint16( new_buf_start, buf_end, &keep_alive_secs );
+                std::tie( new_buf_start, keep_alive_secs ) = decode_uint16( new_buf_start, buf_end );
 
                 // Parse payload connect_payload
                 std::string client_id;
