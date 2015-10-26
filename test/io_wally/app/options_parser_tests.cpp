@@ -124,7 +124,7 @@ SCENARIO( "options_parser", "[options]" )
 
     GIVEN( "a configuration file containing all supported options" )
     {
-        const char* const conf_file = "./build/test/test.conf";
+        const char* const conf_file = "./target/test/test.conf";
 
         const char* const log_file = "/var/tmp/config-file-log.log";
         const char* const log_file_level = "fatal";

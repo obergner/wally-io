@@ -20,7 +20,7 @@
 /*.tar.gz
 /*.tar.xz
 /.tags
-build/
+target/
 work/
 compile_commands.json
 libs/dbus-cpp/

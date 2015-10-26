@@ -15,8 +15,6 @@
 
 namespace framework
 {
-    using namespace std;
-
     class itest_client
     {
        public:
@@ -29,16 +27,16 @@ namespace framework
             ipstack_.disconnect( );
         }
 
-        bool connect( const string& host = "localhost", const uint16_t port = 1883 )
+        bool connect( const std::string& host = "localhost", const std::uint16_t port = 1883 )
         {
             const int rc = ipstack_.connect( host.c_str( ), port );
 
             return ( rc == 0 ? true : false );
         }
 
-        int send_connect_packet( const string& client_id,
-                                 const boost::optional<const string>& username = boost::none,
-                                 const boost::optional<const string>& password = boost::none,
+        int send_connect_packet( const std::string& client_id,
+                                 const boost::optional<const std::string>& username = boost::none,
+                                 const boost::optional<const std::string>& password = boost::none,
                                  const unsigned long keep_alive_secs = 0L )
         {
             MQTTPacket_connectData connect_packet = MQTTPacket_connectData_initializer;

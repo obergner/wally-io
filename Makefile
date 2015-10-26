@@ -8,7 +8,7 @@
 
 # Top level build directory
 # see: http://blog.kompiler.org/post/6/2011-09-18/Separate_build_and_source_directories_in_Makefiles/
-BUILD           := build
+BUILD            := target
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Main executable: sources
@@ -18,166 +18,166 @@ BUILD           := build
 # SOURCES
 #
 
-MSRCS           := $(wildcard src/io_wally/*.cpp)
-MSRCS           += $(wildcard src/io_wally/protocol/*.cpp)
-MSRCS           += $(wildcard src/io_wally/codec/*.cpp)
-MSRCS           += $(wildcard src/io_wally/spi/*.cpp)
-MSRCS           += $(wildcard src/io_wally/impl/*.cpp)
-MSRCS           += $(wildcard src/io_wally/dispatch/*.cpp)
-MSRCS           += $(wildcard src/io_wally/app/*.cpp)
+SRCS_M           := $(wildcard src/io_wally/*.cpp)
+SRCS_M           += $(wildcard src/io_wally/protocol/*.cpp)
+SRCS_M           += $(wildcard src/io_wally/codec/*.cpp)
+SRCS_M           += $(wildcard src/io_wally/spi/*.cpp)
+SRCS_M           += $(wildcard src/io_wally/impl/*.cpp)
+SRCS_M           += $(wildcard src/io_wally/dispatch/*.cpp)
+SRCS_M           += $(wildcard src/io_wally/app/*.cpp)
 
-MEXECSOURCE     := $(wildcard src/*.cpp)
+EXECSOURCE_M     := $(wildcard src/*.cpp)
 
 # ***********************************************************************
 # OBJECTS: main
 # *********************************************************************** 
 
 # Build dir for SRCS
-MBUILD          := $(BUILD)/main
+BUILD_M          := $(BUILD)/main
 
 # Objects
-MOBJS           := $(patsubst src/%.cpp, $(MBUILD)/%.o, $(MSRCS))
+OBJS_M           := $(patsubst src/%.cpp, $(BUILD_M)/%.o, $(SRCS_M))
 
-MEXECOBJ        := $(patsubst src/%.cpp, $(MBUILD)/%.o, $(MEXECSOURCE))
+EXECOBJ_M        := $(patsubst src/%.cpp, $(BUILD_M)/%.o, $(EXECSOURCE_M))
 
 # Subdirs in build directory need to reflect subdirs in src directory
-MBUILDDIRS      := $(sort $(dir $(MOBJS)))
+BUILDDIRS_M      := $(sort $(dir $(OBJS_M)))
 
 # Main executable
-MEXEC           := $(MBUILD)/mqtt-serverd
+EXEC_M           := $(BUILD_M)/mqtt-serverd
 
 # ***********************************************************************
 # OBJECTS: release
 # ***********************************************************************
 
 # Build dir for SRCS
-MRELEASE_BUILD  := $(BUILD)/release
+BUILD_M_RELEASE  := $(BUILD)/release
 
 # Objects
-MRELEASE_OBJS   := $(patsubst src/%.cpp, $(MRELEASE_BUILD)/%.o, $(MSRCS))
+OBJS_M_RELEASE   := $(patsubst src/%.cpp, $(BUILD_M_RELEASE)/%.o, $(SRCS_M))
 
-MRELEASE_EXECOBJ := $(patsubst src/%.cpp, $(MRELEASE_BUILD)/%.o, $(MEXECSOURCE))
+EXECOBJ_M_RELEASE := $(patsubst src/%.cpp, $(BUILD_M_RELEASE)/%.o, $(EXECSOURCE_M))
 
 # Subdirs in build directory need to reflect subdirs in src directory
-MRELEASE_BUILDDIRS := $(sort $(dir $(MRELEASE_OBJS)))
+BUILDDIRS_M_RELEASE := $(sort $(dir $(OBJS_M_RELEASE)))
 
 # Main executable
-MRELEASE_EXEC   := $(MRELEASE_BUILD)/mqtt-serverd
+EXEC_M_RELEASE   := $(BUILD_M_RELEASE)/mqtt-serverd
 
 # ***********************************************************************
 # OBJECTS: debug
 # ***********************************************************************
 
 # Build dir for SRCS
-MDEBUG_BUILD    := $(BUILD)/debug
+BUILD_M_DEBUG    := $(BUILD)/debug
 
 # Objects
-MDEBUG_OBJS     := $(patsubst src/%.cpp, $(MDEBUG_BUILD)/%.o, $(MSRCS))
+OBJS_M_DEBUG     := $(patsubst src/%.cpp, $(BUILD_M_DEBUG)/%.o, $(SRCS_M))
 
-MDEBUG_EXECOBJ  := $(patsubst src/%.cpp, $(MDEBUG_BUILD)/%.o, $(MEXECSOURCE))
+EXECOBJ_M_DEBUG  := $(patsubst src/%.cpp, $(BUILD_M_DEBUG)/%.o, $(EXECSOURCE_M))
 
 # Subdirs in build directory need to reflect subdirs in src directory
-MDEBUG_BUILDDIRS := $(sort $(dir $(MDEBUG_OBJS)))
+BUILDDIRS_M_DEBUG := $(sort $(dir $(OBJS_M_DEBUG)))
 
 # Main executable
-MDEBUG_EXEC     := $(MDEBUG_BUILD)/mqtt-serverd
+EXEC_M_DEBUG     := $(BUILD_M_DEBUG)/mqtt-serverd
 
 # ***********************************************************************
 # OBJECTS: sanitize
 # ***********************************************************************
 
 # Build dir for SRCS
-MSAN_BUILD      := $(BUILD)/sanitize
+BUILD_M_SAN      := $(BUILD)/sanitize
 
 # Objects
-MSAN_OBJS       := $(patsubst src/%.cpp, $(MSAN_BUILD)/%.o, $(MSRCS))
+OBJS_M_SAN       := $(patsubst src/%.cpp, $(BUILD_M_SAN)/%.o, $(SRCS_M))
 
-MSAN_EXECOBJ    := $(patsubst src/%.cpp, $(MSAN_BUILD)/%.o, $(MEXECSOURCE))
+EXECOBJ_M_SAN    := $(patsubst src/%.cpp, $(BUILD_M_SAN)/%.o, $(EXECSOURCE_M))
 
 # Subdirs in build directory need to reflect subdirs in src directory
-MSAN_BUILDDIRS  := $(sort $(dir $(MSAN_OBJS)))
+BUILDDIRS_M_SAN  := $(sort $(dir $(OBJS_M_SAN)))
 
 # Main executable
-MSAN_EXEC       := $(MSAN_BUILD)/mqtt-serverd
+EXEC_M_SAN       := $(BUILD_M_SAN)/wally-iod
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Unit tests
 # --------------------------------------------------------------------------------------------------------------------- 
 
 # Test SRCS
-TSRCS           += $(wildcard test/io_wally/*.cpp)
-TSRCS           += $(wildcard test/io_wally/protocol/*.cpp)
-TSRCS           += $(wildcard test/io_wally/codec/*.cpp)
-TSRCS           += $(wildcard test/io_wally/impl/*.cpp)
-TSRCS           += $(wildcard test/io_wally/app/*.cpp)
+SRCS_UT           += $(wildcard test/io_wally/*.cpp)
+SRCS_UT           += $(wildcard test/io_wally/protocol/*.cpp)
+SRCS_UT           += $(wildcard test/io_wally/codec/*.cpp)
+SRCS_UT           += $(wildcard test/io_wally/impl/*.cpp)
+SRCS_UT           += $(wildcard test/io_wally/app/*.cpp)
 
-TEXECSOURCE     := $(wildcard test/*.cpp)
+EXECSOURCE_UT     := $(wildcard test/*.cpp)
 
 # Build dir for tests
-TBUILD          := $(BUILD)/test
+BUILD_UT          := $(BUILD)/test
 
 # Test objects
-TOBJS           := $(patsubst test/%.cpp, $(TBUILD)/%.o, $(TSRCS))
+OBJS_UT           := $(patsubst test/%.cpp, $(BUILD_UT)/%.o, $(SRCS_UT))
 
-TEXECOBJ        := $(patsubst test/%.cpp, $(TBUILD)/%.o, $(TEXECSOURCE))
+EXECOBJ_UT        := $(patsubst test/%.cpp, $(BUILD_UT)/%.o, $(EXECSOURCE_UT))
 
 # Subdirs in build directory need to reflect subdirs in test directory
-TBUILDDIRS      := $(sort $(dir $(TOBJS)))
+BUILDDIRS_UT      := $(sort $(dir $(OBJS_UT)))
 
 # Main test executable
-TEXEC           := $(TBUILD)/all-tests
+EXEC_UT           := $(BUILD_UT)/unit-tests
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Integration tests
 # --------------------------------------------------------------------------------------------------------------------- 
 
 # Support libraries
-SUPPORTBUILD    := $(BUILD)/support
+BUILD_SUPPORT    := $(BUILD)/support
 
 # Support: Paho MQTT client
-PAHOPINC        := support/paho/packet
-PAHOCINC        := support/paho/client
+PINC_PAHO        := support/paho/packet
+CINC_PAHO        := support/paho/client
 
-PAHOPSRCS       := $(wildcard support/paho/packet/*.c)
-PAHOCSRCS       := $(wildcard support/paho/client/*.cpp)
+PSRCS_PAHO       := $(wildcard support/paho/packet/*.c)
+CSRCS_PAHO       := $(wildcard support/paho/client/*.cpp)
 
-PAHOPBUILD      := $(SUPPORTBUILD)/paho/packet
-PAHOCBUILD      := $(SUPPORTBUILD)/paho/client
+PBUILD_PAHO      := $(BUILD_SUPPORT)/paho/packet
+CBUILD_PAHO      := $(BUILD_SUPPORT)/paho/client
 
-PAHOOBJS        := $(patsubst support/paho/packet/%.c, $(PAHOPBUILD)/%.o, $(PAHOPSRCS))
-PAHOOBJS        += $(patsubst support/paho/client/%.cpp, $(PAHOCBUILD)/%.o, $(PAHOCSRCS))
+OBJS_PAHO        := $(patsubst support/paho/packet/%.c, $(PBUILD_PAHO)/%.o, $(PSRCS_PAHO))
+OBJS_PAHO        += $(patsubst support/paho/client/%.cpp, $(CBUILD_PAHO)/%.o, $(CSRCS_PAHO))
 
 # Integrationtest SRCS
-ITSRCS          := $(wildcard itest/framework/*.cpp)
-ITSRCS          += $(wildcard itest/io_wally/*.cpp)
+SRCS_IT          := $(wildcard itest/framework/*.cpp)
+SRCS_IT          += $(wildcard itest/io_wally/*.cpp)
 
-ITEXECSOURCE    := itest/itests_main.cpp
+EXECSOURCE_IT    := itest/itests_main.cpp
 
 # Build dir for integrationtests
-ITBUILD         := $(BUILD)/itest
+BUILD_IT         := $(BUILD)/itest
 
 # Intgegrationtest objects
-ITOBJS          := $(patsubst itest/%.cpp, $(ITBUILD)/%.o, $(ITSRCS))
+OBJS_IT          := $(patsubst itest/%.cpp, $(BUILD_IT)/%.o, $(SRCS_IT))
 
-ITEXECOBJ       := $(patsubst itest/%.cpp, $(ITBUILD)/%.o, $(ITEXECSOURCE))
+EXECOBJ_IT       := $(patsubst itest/%.cpp, $(BUILD_IT)/%.o, $(EXECSOURCE_IT))
 
 # Subdirs in build directory need to reflect subdirs in integrationtest directory
-ITBUILDDIRS     := $(sort $(dir $(ITOBJS)))
+BUILDDIRS_IT     := $(sort $(dir $(OBJS_IT)))
 
 # Main integrationtest executable
-ITEXEC          := $(ITBUILD)/all-integrationtests
+EXEC_IT          := $(BUILD_IT)/integration-tests
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Snippets: try stuff, analyse bugs etc.
 # --------------------------------------------------------------------------------------------------------------------- 
 
 # Snippets SRCS
-SNEXECSOURCE    := itest/snippets_main.cpp
+EXECSOURCE_SNIP  := itest/snippets_main.cpp
 
-SNEXECOBJ       := $(patsubst itest/%.cpp, $(ITBUILD)/%.o, $(SNEXECSOURCE))
+EXECOBJ_SNIP     := $(patsubst itest/%.cpp, $(BUILD_IT)/%.o, $(EXECSOURCE_SNIP))
 
 # Main integrationtest executable
-SNEXEC          := $(ITBUILD)/snippets
+EXEC_SNIP        := $(BUILD_IT)/snippets
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Third party libraries (included in this source tree): common
@@ -197,33 +197,14 @@ LIBS_BUILD      := $(BUILD)/libs
 BOOST_ASIO_QE   := $(THIRD_PARTY_LIBS)/boost-asio-queue-extension
 
 # --------------------------------------------------------------------------------------------------------------------- 
-# Third party libraries (included in this source tree): C++11-friendly header only dbus lib by Ubuntu
-# --------------------------------------------------------------------------------------------------------------------- 
-
-# C++11 DBus library by Ubuntu
-DBUS_CPP        := $(THIRD_PARTY_LIBS)/dbus-cpp
-DBUS_CPP_INC    := $(DBUS_CPP)/include
-DBUS_CPP_SRC    := $(DBUS_CPP)/src
-
-DBSRCS          += $(wildcard $(DBUS_CPP_SRC)/core/dbus/*.cpp)
-DBSRCS          += $(wildcard $(DBUS_CPP_SRC)/core/dbus/types/*.cpp)
-DBSRCS          += $(wildcard $(DBUS_CPP_SRC)/core/dbus/asio/*.cpp)
-
-DBBUILD         := $(LIBS_BUILD)/dbus-cpp
-
-DBOBJS          := $(patsubst $(DBUS_CPP_SRC)/%.cpp, $(DBBUILD)/%.o, $(DBSRCS))
-
-DBBUILDDIRS     := $(sort $(dir $(DBOBJS)))
-
-# --------------------------------------------------------------------------------------------------------------------- 
 # Tooling
 # --------------------------------------------------------------------------------------------------------------------- 
 
 # Where to store scan-build's analysis results
-SBUILD          := $(BUILD)/scan
+BUILD_SCAN      := $(BUILD)/scan
 
 # All things doxygen
-DOCDIR          := $(BUILD)/doc
+BUILD_DOC       := $(BUILD)/doc
 
 # Clang's compilation database needed for some of its tooling
 COMPILATIONDB   := compile_commands.json
@@ -233,7 +214,7 @@ COMPILATIONDB   := compile_commands.json
 # --------------------------------------------------------------------------------------------------------------------- 
 
 # What may be rebuilt
-REBUILDABLES    := $(MEXEC) $(MOBJS) $(TEXEC) $(TOBJS) $(ITEXEC) $(ITOBJS)
+REBUILDABLES    := $(EXEC_M) $(OBJS_M) $(EXEC_UT) $(OBJS_UT) $(EXEC_IT) $(OBJS_IT)
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Compiler configuration: common
@@ -249,55 +230,55 @@ CC              := gcc
 # --------------------------------------------------------------------------------------------------------------------- 
 
 # Standard compiler flags
-CXXFLAGS        := -std=c++14
-CXXFLAGS        += -fdiagnostics-color=auto
-CXXFLAGS        += -MMD # automatically generate dependency rules on each run
-CXXFLAGS        += -I ./src
-CXXFLAGS        += -I $(BOOST_ASIO_QE)
-CXXFLAGS        += -Werror
-CXXFLAGS        += -Wall
-CXXFLAGS        += -Wextra
-CXXFLAGS        += -Wcast-align
-CXXFLAGS        += -Wformat-nonliteral
-CXXFLAGS        += -Wformat=2
-CXXFLAGS        += -Winvalid-pch
-CXXFLAGS        += -Wmissing-declarations
-CXXFLAGS        += -Wmissing-format-attribute
-CXXFLAGS        += -Wmissing-include-dirs
-CXXFLAGS        += -Wredundant-decls
-CXXFLAGS        += -Wswitch-default
-CXXFLAGS        += -Wswitch-enum
+CXXFLAGS_M      := -std=c++14
+CXXFLAGS_M      += -fdiagnostics-color=auto
+CXXFLAGS_M      += -MMD # automatically generate dependency rules on each run
+CXXFLAGS_M      += -I ./src
+CXXFLAGS_M      += -I $(BOOST_ASIO_QE)
+CXXFLAGS_M      += -Werror
+CXXFLAGS_M      += -Wall
+CXXFLAGS_M      += -Wextra
+CXXFLAGS_M      += -Wcast-align
+CXXFLAGS_M      += -Wformat-nonliteral
+CXXFLAGS_M      += -Wformat=2
+CXXFLAGS_M      += -Winvalid-pch
+CXXFLAGS_M      += -Wmissing-declarations
+CXXFLAGS_M      += -Wmissing-format-attribute
+CXXFLAGS_M      += -Wmissing-include-dirs
+CXXFLAGS_M      += -Wredundant-decls
+CXXFLAGS_M      += -Wswitch-default
+CXXFLAGS_M      += -Wswitch-enum
 
 # Standard preprocessor flags
-CPPFLAGS        := -DBOOST_ALL_DYN_LINK
+CPPFLAGS_M      := -DBOOST_ALL_DYN_LINK
 # Needed for clang:
 # http://stackoverflow.com/questions/27552028/who-is-failing-boost-clang-or-gcc-issue-with-stdchrono-used-with-boostas
-CPPFLAGS        += -DBOOST_ASIO_HAS_STD_CHRONO 
+CPPFLAGS_M      += -DBOOST_ASIO_HAS_STD_CHRONO 
 
 # Extra linker flags
-LDLIBS          := -lboost_system
-LDLIBS          += -lboost_thread
-LDLIBS          += -lboost_log
-LDLIBS          += -lboost_log_setup
-LDLIBS          += -lboost_program_options
-LDLIBS          += -lpthread
+LDLIBS_M        := -lboost_system
+LDLIBS_M        += -lboost_thread
+LDLIBS_M        += -lboost_log
+LDLIBS_M        += -lboost_log_setup
+LDLIBS_M        += -lboost_program_options
+LDLIBS_M        += -lpthread
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Compiler configuration: main executable RELEASE
 # --------------------------------------------------------------------------------------------------------------------- 
 
-CXXRELEASE_FLAGS := $(CXXFLAGS)
-CXXRELEASE_FLAGS += -O3
+CXXFLAGS_REL    := $(CXXFLAGS_M)
+CXXFLAGS_REL    += -O3
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Compiler configuration: main executable DEBUG (currently not working since we miss debug info for boost
 # program_options)
 # --------------------------------------------------------------------------------------------------------------------- 
 
-CXXDEBUG_FLAGS  := $(CXXFLAGS)
-CXXDEBUG_FLAGS  += -O0 -g
-CXXDEBUG_FLAGS  += -D_GLIBCXX_DEBUG
-CXXDEBUG_FLAGS  += -DBOOST_ASIO_ENABLE_HANDLER_TRACKING
+CXXFLAGS_DEBUG  := $(CXXFLAGS_M)
+CXXFLAGS_DEBUG  += -O0 -g
+CXXFLAGS_DEBUG  += -D_GLIBCXX_DEBUG
+CXXFLAGS_DEBUG  += -DBOOST_ASIO_ENABLE_HANDLER_TRACKING
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Compiler configuration: main executable SANITIZE
@@ -305,61 +286,62 @@ CXXDEBUG_FLAGS  += -DBOOST_ASIO_ENABLE_HANDLER_TRACKING
 
 # Compiler/linker flags for checking programmer's sanity: copied from seastar's build
 # See: http://btorpey.github.io/blog/2014/03/27/using-clangs-address-sanitizer/
-CXXSAN_FLAGS     := $(CXXFLAGS)
-CXXSAN_FLAGS     += -fsanitize=address
-CXXSAN_FLAGS     += -fsanitize=leak
-CXXSAN_FLAGS     += -fsanitize=undefined
-CXXSAN_FLAGS     += -fno-omit-frame-pointer
+CXXFLAGS_SAN     := $(CXXFLAGS_M)
+CXXFLAGS_SAN     += -O0
+CXXFLAGS_SAN     += -fsanitize=address
+CXXFLAGS_SAN     += -fsanitize=leak
+CXXFLAGS_SAN     += -fsanitize=undefined
+CXXFLAGS_SAN     += -fno-omit-frame-pointer
 
 # Sanitizer linker flags
-LDSAN_LIBS       := $(LDLIBS)
-LDSAN_LIBS       += -fsanitize=address
-LDSAN_LIBS       += -fsanitize=leak
-LDSAN_LIBS       += -fsanitize=undefined
+LDLIBS_SAN       := $(LDLIBS_M)
+LDLIBS_SAN       += -fsanitize=address
+LDLIBS_SAN       += -fsanitize=leak
+LDLIBS_SAN       += -fsanitize=undefined
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Compiler configuration: unit tests
 # --------------------------------------------------------------------------------------------------------------------- 
 
 # Test compiler flags
-CXXT_FLAGS      := $(CXXFLAGS)
-CXXT_FLAGS      += -O0 -g
-CXXT_FLAGS      += -I ./test
-CXXT_FLAGS      := $(filter-out -Wswitch-default, $(CXXT_FLAGS))
-CXXT_FLAGS      := $(filter-out -Wswitch-enum, $(CXXT_FLAGS))
-CXXT_FLAGS      += -fsanitize=address
-CXXT_FLAGS      += -fsanitize=leak
-CXXT_FLAGS      += -fsanitize=undefined
-CXXT_FLAGS      += -fno-omit-frame-pointer
+CXXFLAGS_UT     := $(CXXFLAGS_M)
+CXXFLAGS_UT     += -O0 -g
+CXXFLAGS_UT     += -I ./test
+CXXFLAGS_UT     := $(filter-out -Wswitch-default, $(CXXFLAGS_UT))
+CXXFLAGS_UT     := $(filter-out -Wswitch-enum, $(CXXFLAGS_UT))
+CXXFLAGS_UT     += -fsanitize=address
+CXXFLAGS_UT     += -fsanitize=leak
+CXXFLAGS_UT     += -fsanitize=undefined
+CXXFLAGS_UT     += -fno-omit-frame-pointer
 
 # Test linker flags
-LDT_LIBS        := $(LDLIBS)
-LDT_LIBS        += -fsanitize=address
-LDT_LIBS        += -fsanitize=leak
-LDT_LIBS        += -fsanitize=undefined
+LDLIBS_UT       := $(LDLIBS_M)
+LDLIBS_UT       += -fsanitize=address
+LDLIBS_UT       += -fsanitize=leak
+LDLIBS_UT       += -fsanitize=undefined
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Compiler configuration: integration tests
 # --------------------------------------------------------------------------------------------------------------------- 
 
 # Integrationtest compiler flags
-CXXIT_FLAGS     := $(CXXFLAGS)
-CXXIT_FLAGS     += -O0 -g
-CXXIT_FLAGS     += -I ./itest
-CXXIT_FLAGS     += -I $(PAHOPINC)
-CXXIT_FLAGS     += -I $(PAHOCINC)
-CXXIT_FLAGS     := $(filter-out -Wswitch-default, $(CXXIT_FLAGS))
-CXXIT_FLAGS     := $(filter-out -Wswitch-enum, $(CXXIT_FLAGS))
-CXXIT_FLAGS     += -fsanitize=address
-CXXIT_FLAGS     += -fsanitize=leak
-CXXIT_FLAGS     += -fsanitize=undefined
-CXXIT_FLAGS     += -fno-omit-frame-pointer
+CXXFLAGS_IT     := $(CXXFLAGS_M)
+CXXFLAGS_IT     += -O0 -g
+CXXFLAGS_IT     += -I ./itest
+CXXFLAGS_IT     += -I $(PINC_PAHO)
+CXXFLAGS_IT     += -I $(CINC_PAHO)
+CXXFLAGS_IT     := $(filter-out -Wswitch-default, $(CXXFLAGS_IT))
+CXXFLAGS_IT     := $(filter-out -Wswitch-enum, $(CXXFLAGS_IT))
+CXXFLAGS_IT     += -fsanitize=address
+CXXFLAGS_IT     += -fsanitize=leak
+CXXFLAGS_IT     += -fsanitize=undefined
+CXXFLAGS_IT     += -fno-omit-frame-pointer
 
 # Integrationtest linker flags
-LDIT_LIBS       := $(LDLIBS)
-LDIT_LIBS       += -fsanitize=address
-LDIT_LIBS       += -fsanitize=leak
-LDIT_LIBS       += -fsanitize=undefined
+LDLIBS_IT       := $(LDLIBS_M)
+LDLIBS_IT       += -fsanitize=address
+LDLIBS_IT       += -fsanitize=leak
+LDLIBS_IT       += -fsanitize=undefined
 
 #######################################################################################################################
 # Rules
@@ -369,61 +351,61 @@ LDIT_LIBS       += -fsanitize=undefined
 # Build main executable NORMAL
 # --------------------------------------------------------------------------------------------------------------------- 
 
-main                : $(MEXEC)                         | $(MBUILDDIRS)
+main                : $(EXEC_M)                              | $(BUILDDIRS_M)
 
-$(MBUILDDIRS)       :
+$(BUILDDIRS_M)      :
 	@mkdir -p $@
 
-$(MEXEC)            : $(MOBJS) $(MEXECOBJ)             | $(MBUILDDIRS)
-	$(CXX) $(LDLIBS) -o $@ $^
+$(EXEC_M)           : $(OBJS_M) $(EXECOBJ_M)                 | $(BUILDDIRS_M)
+	$(CXX) $(LDLIBS_M) -o $@ $^
 
-$(MBUILD)/%.o       : src/%.cpp                        | $(MBUILDDIRS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ -c $<
+$(BUILD_M)/%.o      : src/%.cpp                              | $(BUILDDIRS_M)
+	$(CXX) $(CPPFLAGS_M) $(CXXFLAGS_M) -o $@ -c $<
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build main executable RELEASE
 # --------------------------------------------------------------------------------------------------------------------- 
 
-release             : $(MRELEASE_EXEC)                 | $(MRELEASE_BUILDDIRS)
+release             : $(EXEC_M_RELEASE)                      | $(BUILDDIRS_M_RELEASE)
 
-$(MRELEASE_BUILDDIRS) :
+$(BUILDDIRS_M_RELEASE) :
 	@mkdir -p $@
 
-$(MRELEASE_EXEC)    : $(MRELEASE_OBJS) $(MRELEASE_EXECOBJ) | $(MRELEASE_BUILDDIRS)
-	$(CXX) $(LDLIBS) -o $@ $^
+$(EXEC_M_RELEASE)   : $(OBJS_M_RELEASE) $(EXECOBJ_M_RELEASE) | $(BUILDDIRS_M_RELEASE)
+	$(CXX) $(LDLIBS_M) -o $@ $^
 
-$(MRELEASE_BUILD)/%.o : src/%.cpp                      | $(MRELEASE_BUILDDIRS)
-	$(CXX) $(CPPFLAGS) $(CXXRELEASE_FLAGS) -o $@ -c $<
+$(BUILD_M_RELEASE)/%.o : src/%.cpp                           | $(BUILDDIRS_M_RELEASE)
+	$(CXX) $(CPPFLAGS_M) $(CXXFLAGS_REL) -o $@ -c $<
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build main executable DEBUG
 # --------------------------------------------------------------------------------------------------------------------- 
 
-debug               : $(MDEBUG_EXEC)                 | $(MDEBUG_BUILDDIRS)
+debug               : $(EXEC_M_DEBUG)                        | $(BUILDDIRS_M_DEBUG)
 
-$(MDEBUG_BUILDDIRS) :
+$(BUILDDIRS_M_DEBUG) :
 	@mkdir -p $@
 
-$(MDEBUG_EXEC)      : $(MDEBUG_OBJS) $(MDEBUG_EXECOBJ) | $(MDEBUG_BUILDDIRS)
-	$(CXX) $(LDLIBS) -o $@ $^
+$(EXEC_M_DEBUG)     : $(OBJS_M_DEBUG) $(EXECOBJ_M_DEBUG)     | $(BUILDDIRS_M_DEBUG)
+	$(CXX) $(LDLIBS_M) -o $@ $^
 
-$(MDEBUG_BUILD)/%.o : src/%.cpp                      | $(MDEBUG_BUILDDIRS)
-	$(CXX) $(CPPFLAGS) $(CXXDEBUG_FLAGS) -o $@ -c $<
+$(BUILD_M_DEBUG)/%.o : src/%.cpp                             | $(BUILDDIRS_M_DEBUG)
+	$(CXX) $(CPPFLAGS_M) $(CXXFLAGS_DEBUG) -o $@ -c $<
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build main executable SANITIZE
 # --------------------------------------------------------------------------------------------------------------------- 
 
-sanitize            : $(MSAN_EXEC)                 | $(MSAN_BUILDDIRS)
+sanitize           : $(EXEC_M_SAN)                           | $(BUILDDIRS_M_SAN)
 
-$(MSAN_BUILDDIRS)   :
+$(BUILDDIRS_M_SAN) :
 	@mkdir -p $@
 
-$(MSAN_EXEC)        : $(MSAN_OBJS) $(MSAN_EXECOBJ) | $(MSAN_BUILDDIRS)
-	$(CXX) $(LDSAN_LIBS) -o $@ $^
+$(EXEC_M_SAN)      : $(OBJS_M_SAN) $(EXECOBJ_M_SAN)          | $(BUILDDIRS_M_SAN)
+	$(CXX) $(LDLIBS_SAN) -o $@ $^
 
-$(MSAN_BUILD)/%.o   : src/%.cpp                      | $(MSAN_BUILDDIRS)
-	$(CXX) $(CPPFLAGS) $(CXXSAN_FLAGS) -o $@ -c $<
+$(BUILD_M_SAN)/%.o : src/%.cpp                               | $(BUILDDIRS_M_SAN)
+	$(CXX) $(CPPFLAGS_M) $(CXXFLAGS_SAN) -o $@ -c $<
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build/run unit tests
@@ -431,71 +413,71 @@ $(MSAN_BUILD)/%.o   : src/%.cpp                      | $(MSAN_BUILDDIRS)
 
 .PHONY              : test
 test                : test-compile
-	@./$(TEXEC)
+	@./$(EXEC_UT)
 
 .PHONY              : test-success
 test-success        : test-compile
-	@./$(TEXEC) --success --durations yes
+	@./$(EXEC_UT) --success --durations yes
 
-test-compile        : $(TEXEC)                         | $(TBUILDDIRS)
+test-compile        : $(EXEC_UT)                             | $(BUILDDIRS_UT)
 
-$(TBUILDDIRS)       :
+$(BUILDDIRS_UT)     :
 	@mkdir -p $@
 
-$(TEXEC)            : $(MSAN_OBJS) $(TOBJS) $(TEXECOBJ) | $(TBUILDDIRS)
-	$(CXX) $(LDT_LIBS) -o $@ $^
+$(EXEC_UT)          : $(OBJS_M_SAN) $(OBJS_UT) $(EXECOBJ_UT) | $(BUILDDIRS_UT)
+	$(CXX) $(LDLIBS_UT) -o $@ $^
 
-$(TBUILD)/%.o       : test/%.cpp                       | $(TBUILDDIRS)
-	$(CXX) $(CXXT_FLAGS) -o $@ -c $<
+$(BUILD_UT)/%.o     : test/%.cpp                             | $(BUILDDIRS_UT)
+	$(CXX) $(CXXFLAGS_UT) -o $@ -c $<
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build Paho MQTT client to support integration tests
 # --------------------------------------------------------------------------------------------------------------------- 
 
-$(PAHOPBUILD)       :
+$(PBUILD_PAHO)      :
 	@mkdir -p $@
 
-$(PAHOPBUILD)/%.o   : support/paho/packet/%.c          | $(PAHOPBUILD)
+$(PBUILD_PAHO)/%.o  : support/paho/packet/%.c                | $(PBUILD_PAHO)
 	$(CC) -o $@ -c $<
 
-$(PAHOCBUILD)       :
+$(CBUILD_PAHO)      :
 	@mkdir -p $@
 
-$(PAHOCBUILD)/%.o   : support/paho/client/%.cpp        | $(PAHOCBUILD)
+$(CBUILD_PAHO)/%.o  : support/paho/client/%.cpp              | $(CBUILD_PAHO)
 	$(CXX) -o $@ -c $<
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build/run integration tests
 # --------------------------------------------------------------------------------------------------------------------- 
 
-.PHONY              : itest
-itest               : itest-compile
-	@./$(ITEXEC) --success --durations yes
+.PHONY             : itest
+itest              : itest-compile
+	@./$(EXEC_IT) --success --durations yes
 
-itest-compile       : $(ITEXEC)                        | $(ITBUILDDIRS)
+itest-compile      : $(EXEC_IT)                              | $(BUILDDIRS_IT)
 
-$(ITBUILDDIRS)      :
+$(BUILDDIRS_IT)    :
 	@mkdir -p $@
 
-$(ITEXEC)           : $(MOBJS) $(ITOBJS) $(ITEXECOBJ) $(PAHOOBJS)    | $(ITBUILDDIRS)
-	$(CXX) $(LDIT_LIBS) -o $@ $^
+$(EXEC_IT)         : $(OBJS_M_SAN) $(OBJS_IT) $(EXECOBJ_IT) $(OBJS_PAHO)    | $(BUILDDIRS_IT)
+	$(CXX) $(LDLIBS_IT) -o $@ $^
 
-$(ITBUILD)/%.o      : itest/%.cpp                      | $(ITBUILDDIRS)
-	$(CXX) $(CPPFLAGS) $(CXXIT_FLAGS) -o $@ -c $<
+$(BUILD_IT)/%.o    : itest/%.cpp                             | $(BUILDDIRS_IT)
+	$(CXX) $(CPPFLAGS_M) $(CXXFLAGS_IT) -o $@ -c $<
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build snippets: try stuff, analyse bugs etc
 # --------------------------------------------------------------------------------------------------------------------- 
 
-.PHONY              : snippets 
-snippets            : snippets-compile
-	@./$(SNEXEC)
+.PHONY             : snippets 
+snippets           : snippets-compile
+	@./$(EXEC_SNIP)
 
-.PHONY              : snippets-compile
-snippets-compile    : $(SNEXEC)                        | $(ITBUILDDIRS)
+.PHONY             : snippets-compile
+snippets-compile   : $(EXEC_SNIP)                            | $(BUILDDIRS_IT)
 
-$(SNEXEC)           : $(MOBJS) $(ITOBJS) $(SNEXECOBJ)  | $(ITBUILDDIRS)
-	$(CXX) $(LDIT_LIBS) -o $@ $^
+$(EXEC_SNIP)       : $(OBJS_M) $(OBJS_IT) $(EXECOBJ_SNIP)    | $(BUILDDIRS_IT)
+	$(CXX) $(LDLIBS_IT) -o $@ $^
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Clean up the mess
@@ -510,13 +492,13 @@ clean               :
 # --------------------------------------------------------------------------------------------------------------------- 
 
 .PHONY              : doc
-doc                 : $(MSRCS) $(MEXECSOURCE)
-	@rm -rf $(DOCDIR)
+doc                 : $(SRCS_M) $(EXECSOURCE_M)
+	@rm -rf $(BUILD_DOC)
 	@doxygen ./.doxygen.cfg
 
 .PHONY              : doc-publish
 doc-publish         : doc
-	@pushd $(DOCDIR); python -mSimpleHTTPServer 8000; popd
+	@pushd $(BUILD_DOC); python -mSimpleHTTPServer 8000; popd
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Tooling
@@ -524,61 +506,61 @@ doc-publish         : doc
 
 compilation-db      : $(COMPILATIONDB)
 
-$(COMPILATIONDB)    : $(MSRCS) $(MEXECSOURCE) $(TSRCS) $(TEXECSOURCE) $(ITSRCS) $(ITEXECSOURCE)
-	@bear $(MAKE) clean main test-compile itest-compile
+$(COMPILAIONDB)     : $(SRCS_M) $(EXECSOURCE_M) $(SRCS_UT) $(EXECSOURCE_UT) $(SRCS_IT) $(EXECSOURCE_IT)
+	@bear $(AKE_M) clean main test-compile itest-compile
 
 .PHONY              : macroexpand
-macroexpand         : $(MSRCS) $(MEXECSOURCE)
-	$(CXX) $(CXXFLAGS) -E $(MSRCS) | source-highlight --failsafe --src-lang=cc -f esc --style-file=esc.style 
+macroexpand         : $(SRCS_M) $(EXECSOURCE_M)
+	$(CXX) $(CXXFLAGS_M) -E $(SRCS_M) | source-highlight --failsafe --src-lang=cc -f esc --style-file=esc.style 
 
 # Running clang-check
 .PHONY              : check-main
 check-main          : compilation-db
-check-main          : $(MSRCS) $(MEXECSOURCE)
-	@clang-check $(MSRCS) $(MEXECSOURCE)
+check-main          : $(SRCS_M) $(EXECSOURCE_M)
+	@clang-check $(SRCS_M) $(EXECSOURCE_M)
 
 .PHONY              : check-test
 check-test          : compilation-db
-check-test          : $(TSRCS) $(TEXECSOURCE)
-	@clang-check $(TSRCS) $(TEXECSOURCE)
+check-test          : $(SRCS_UT) $(EXECSOURCE_UT)
+	@clang-check $(SRCS_UT) $(EXECSOURCE_UT)
 
 .PHONY              : check-itest
 check-itest         : compilation-db
-check-itest         : $(ITSRCS) $(ITEXECSOURCE)
-	@clang-check $(ITSRCS) $(ITEXECSOURCE)
+check-itest         : $(SRCS_IT) $(EXECSOURCE_IT)
+	@clang-check $(SRCS_IT) $(EXECSOURCE_IT)
 
 .PHONY              : check
 check               : check-main check-test 
 
 # Running scan-build
-$(SBUILD)           :
+$(BUILD_SCAN)       :
 	@mkdir -p $@
 
 .PHONY              : scan-main
-scan-main           : $(SBUILD)
-	@scan-build -o $(SBUILD) -analyze-headers --status-bugs $(MAKE) clean main
+scan-main           : $(BUILD_SCAN)
+	@scan-build -o $(BUILD_SCAN) -analyze-headers --status-bugs $(MAKE) clean main
 
 .PHONY              : modernize
-modernize           : $(MSRCS) $(MEXECSOURCE) $(COMPILATIONDB)
+modernize           : $(SRCS_M) $(EXECSOURCE_M) $(COMPILATIONDB)
 	@clang-modernize -final-syntax-check -summary -format -style=file -include=src/ -p $(COMPILATIONDB)
 
 .PHONY              : format-main
-format-main         : $(MSRCS) $(MEXECSOURCE)
-	@clang-format -i -style=file $(MSRCS) $(MEXECSOURCE)
+format-main         : $(SRCS_M) $(EXECSOURCE_M)
+	@clang-format -i -style=file $(SRCS_M) $(EXECSOURCE_M)
 
 .PHONY              : format-test
-format-test         : $(TSRCS) $(TEXECSOURCE)
-	@clang-format -i -style=file $(TSRCS) $(TEXECSOURCE)
+format-test         : $(SRCS_UT) $(EXECSOURCE_UT)
+	@clang-format -i -style=file $(SRCS_UT) $(EXECSOURCE_UT)
 
 .PHONY              : format-itest
-format-itest        : $(ITSRCS) $(ITEXECSOURCE)
-	@clang-format -i -style=file $(ITSRCS) $(ITEXECSOURCE)
+format-itest        : $(SRCS_IT) $(EXECSOURCE_IT)
+	@clang-format -i -style=file $(SRCS_IT) $(EXECSOURCE_IT)
 
 .PHONY              : format
 format              : format-main format-test format-itest
 
 .PHONY              : tags
-tags                : $(MSRCS) $(MEXECSOURCE) $(TSRCS) $(TEXECSOURCE) $(ITSRCS) $(ITEXECSOURCE)
+tags                : $(SRCS_M) $(EXECSOURCE_M) $(SRCS_UT) $(EXECSOURCE_UT) $(SRCS_IT) $(EXECSOURCE_IT)
 	@ctags -R -f ./.tags ./src ./test ./itest
 
 # --------------------------------------------------------------------------------------------------------------------- 
@@ -600,16 +582,16 @@ prepare-commit      : scan-main
 
 # Run server with some convenient default settings
 .PHONY              : run-server
-run-server          : $(MEXEC)
-	@$(MEXEC) --log-file .testlog --log-file-level trace --log-console --log-console-level trace --conn-timeout 1000000
+run-server          : $(EXEC_M)
+	@$(EXEC_M) --log-file .testlog --log-file-level trace --log-console --log-console-level trace --conn-timeout 1000000
 
 #######################################################################################################################
 # Dependency rules: http://stackoverflow.com/questions/8025766/makefile-auto-dependency-generation
 #######################################################################################################################
 
--include            $(MOBJS:.o=.d)
--include            $(MEXECOBJ:.o=.d)
--include            $(TOBJS:.o=.d)
--include            $(TEXECOBJ:.o=.d)
--include            $(ITOBJS:.o=.d)
--include            $(ITEXECOBJ:.o=.d)
+-include            $(OBJS_M:.o=.d)
+-include            $(EXECOBJ_M:.o=.d)
+-include            $(OBJS_UT:.o=.d)
+-include            $(EXECOBJ_UT:.o=.d)
+-include            $(OBJS_IT:.o=.d)
+-include            $(EXECOBJ_IT:.o=.d)
