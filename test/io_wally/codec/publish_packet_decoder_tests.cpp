@@ -22,7 +22,7 @@ SCENARIO( "publish_packet_decoder", "[decoder]" )
         auto const fixed_header = protocol::packet::header{type_and_flags, remaining_length};
 
         // Shameless act of robbery: https://github.com/surgemq/message/blob/master/publish_test.go
-        const std::array<std::uint8_t, remaining_length> buffer = {{
+        auto const buffer = std::array<std::uint8_t, remaining_length>{{
             0,  // topic name MSB (0)
             7,  // topic name LSB (7)
             's',
@@ -82,7 +82,7 @@ SCENARIO( "publish_packet_decoder", "[decoder]" )
         auto const fixed_header = protocol::packet::header{type_and_flags, remaining_length};
 
         // Shameless act of robbery: https://github.com/surgemq/message/blob/master/publish_test.go
-        const std::array<std::uint8_t, remaining_length> buffer = {{
+        auto const buffer = std::array<std::uint8_t, remaining_length>{{
             0,  // topic name MSB (0)
             7,  // topic name LSB (7)
             's',
@@ -146,7 +146,7 @@ SCENARIO( "publish_packet_decoder", "[decoder]" )
         auto const fixed_header = protocol::packet::header{type_and_flags, remaining_length};
 
         // Shameless act of robbery: https://github.com/surgemq/message/blob/master/publish_test.go
-        const std::array<std::uint8_t, remaining_length> buffer = {{
+        auto const buffer = std::array<std::uint8_t, remaining_length>{{
             0,  // topic name MSB (0)
             7,  // topic name LSB (7)
             's',
@@ -246,7 +246,7 @@ SCENARIO( "publish_packet_decoder", "[decoder]" )
         auto const fixed_header = protocol::packet::header{type_and_flags, remaining_length};
 
         // Shameless act of robbery: https://github.com/surgemq/message/blob/master/publish_test.go
-        const std::array<std::uint8_t, remaining_length> buffer = {{
+        auto const buffer = std::array<std::uint8_t, remaining_length>{{
             0,  // topic name MSB (0)
             8,  // topic name LSB (8)
             '/',
@@ -291,7 +291,7 @@ SCENARIO( "publish_packet_decoder", "[decoder]" )
         auto const fixed_header = protocol::packet::header{type_and_flags, remaining_length};
 
         // Shameless act of robbery: https://github.com/surgemq/message/blob/master/publish_test.go
-        const std::array<std::uint8_t, remaining_length> buffer = {{
+        auto const buffer = std::array<std::uint8_t, remaining_length>{{
             0,  // topic name MSB (0)
             8,  // topic name LSB (8)
             '/',
@@ -336,7 +336,7 @@ SCENARIO( "publish_packet_decoder", "[decoder]" )
         auto const fixed_header = protocol::packet::header{type_and_flags, remaining_length};
 
         // Shameless act of robbery: https://github.com/surgemq/message/blob/master/publish_test.go
-        const std::array<std::uint8_t, remaining_length> buffer = {{
+        auto const buffer = std::array<std::uint8_t, remaining_length>{{
             0,  // topic name MSB (0)
             8,  // topic name LSB (8)
             '/',
@@ -344,6 +344,96 @@ SCENARIO( "publish_packet_decoder", "[decoder]" )
             'a',
             'l',
             '\0',
+            'y',
+            '/',
+            'g',
+            0,  // packet ID MSB (0)
+            7,  // packet ID LSB (7)
+            's',
+            'e',
+            'n',
+            'd',
+            ' ',
+            'm',
+            'e',
+            ' ',
+            'h',
+            'o',
+            'm',
+            'e',
+        }};  /// avoids warning
+
+        WHEN( "a client passes that array into publish_packet_decoder::decode" )
+        {
+            THEN( "that client should see an error::malformed_mqtt_packet being thrown" )
+            {
+                REQUIRE_THROWS_AS( under_test.decode( fixed_header, buffer.begin( ), buffer.end( ) ),
+                                   error::malformed_mqtt_packet );
+            }
+        }
+    }
+
+    GIVEN( "a SUSBCRIBE header with dup flag set and QoS 0  (ILLEGAL)" )
+    {
+        auto const type_and_flags = std::uint8_t{( 3 << 4 ) | 9};  // PUBLISH + DUP 0, QoS 0, RETAIN 1
+        auto const remaining_length = std::uint32_t{24};
+
+        auto const fixed_header = protocol::packet::header{type_and_flags, remaining_length};
+
+        // Shameless act of robbery: https://github.com/surgemq/message/blob/master/publish_test.go
+        auto const buffer = std::array<std::uint8_t, remaining_length>{{
+            0,  // topic name MSB (0)
+            8,  // topic name LSB (8)
+            '/',
+            'w',
+            'a',
+            'l',
+            'l',
+            'y',
+            '/',
+            'g',
+            0,  // packet ID MSB (0)
+            7,  // packet ID LSB (7)
+            's',
+            'e',
+            'n',
+            'd',
+            ' ',
+            'm',
+            'e',
+            ' ',
+            'h',
+            'o',
+            'm',
+            'e',
+        }};  /// avoids warning
+
+        WHEN( "a client passes that array into publish_packet_decoder::decode" )
+        {
+            THEN( "that client should see an error::malformed_mqtt_packet being thrown" )
+            {
+                REQUIRE_THROWS_AS( under_test.decode( fixed_header, buffer.begin( ), buffer.end( ) ),
+                                   error::malformed_mqtt_packet );
+            }
+        }
+    }
+
+    GIVEN( "a SUSBCRIBE header with QoS 3  (ILLEGAL)" )
+    {
+        auto const type_and_flags = std::uint8_t{( 3 << 4 ) | 6};  // PUBLISH + DUP 0, QoS 3, RETAIN 0
+        auto const remaining_length = std::uint32_t{24};
+
+        auto const fixed_header = protocol::packet::header{type_and_flags, remaining_length};
+
+        // Shameless act of robbery: https://github.com/surgemq/message/blob/master/publish_test.go
+        auto const buffer = std::array<std::uint8_t, remaining_length>{{
+            0,  // topic name MSB (0)
+            8,  // topic name LSB (8)
+            '/',
+            'w',
+            'a',
+            'l',
+            'l',
             'y',
             '/',
             'g',

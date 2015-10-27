@@ -46,7 +46,15 @@ namespace io_wally
                             << "|actual:" << ( buf_end - buf_start ) << "]";
                     throw error::malformed_mqtt_packet( message.str( ) );
                 }
-                InputIterator application_message_end = buf_start + header.remaining_length( );
+                const InputIterator application_message_end = buf_start + header.remaining_length( );
+
+                // [MQTT-3.3.1-2]: dup flag must not be set for QoS 0
+                if ( header.flags( ).dup( ) && ( header.flags( ).qos( ) == protocol::packet::QoS::AT_MOST_ONCE ) )
+                    throw error::malformed_mqtt_packet( "[MQTT-3.3.1-2] DUP flag set but QoS is 0 (at most once)" );
+
+                // [MQTT-3.3.1-4]: QoS MUST NOT be RESERVED
+                if ( header.flags( ).qos( ) == protocol::packet::QoS::RESERVED )
+                    throw error::malformed_mqtt_packet( "[MQTT-3.3.1-4] QoS MUST NOT be 3 (RESERVED)" );
 
                 InputIterator new_buf_start = buf_start;
 
