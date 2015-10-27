@@ -9,6 +9,7 @@
 #include "io_wally/protocol/connect_packet.hpp"
 #include "io_wally/protocol/disconnect_packet.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
+#include "io_wally/protocol/publish_packet.hpp"
 
 namespace io_wally
 {
@@ -118,6 +119,14 @@ namespace io_wally
             {
                 return std::make_shared<packet_container<SENDER>>(
                     client_id, rx_connection, subscribe, dispatch::disconnect_reason::not_a_disconnect );
+            }
+
+            static packet_container<SENDER>::ptr publish_packet( const std::string& client_id,
+                                                                 sender_ptr rx_connection,
+                                                                 std::shared_ptr<const protocol::publish> publish )
+            {
+                return std::make_shared<packet_container<SENDER>>(
+                    client_id, rx_connection, publish, dispatch::disconnect_reason::not_a_disconnect );
             }
 
            public:

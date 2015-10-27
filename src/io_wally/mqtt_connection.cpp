@@ -284,9 +284,13 @@ namespace io_wally
                 process_subscribe_packet( dynamic_pointer_cast<const protocol::subscribe>( packet ) );
             }
             break;
+            case packet::Type::PUBLISH:
+            {
+                process_publish_packet( dynamic_pointer_cast<const protocol::publish>( packet ) );
+            }
+            break;
             case packet::Type::CONNACK:
             case packet::Type::PINGRESP:
-            case packet::Type::PUBLISH:
             case packet::Type::PUBACK:
             case packet::Type::PUBREL:
             case packet::Type::PUBREC:
@@ -439,6 +443,40 @@ namespace io_wally
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *subscribe;
         }
+    }
+
+    void mqtt_connection::process_publish_packet( shared_ptr<const protocol::publish> publish )
+    {
+        dispatch_publish_packet( publish );
+    }
+
+    void mqtt_connection::dispatch_publish_packet( shared_ptr<const protocol::publish> publish )
+    {
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *publish << " ...";
+        auto publish_container = packet_container_t::publish_packet( *client_id_, shared_from_this( ), publish );
+
+        auto self = shared_from_this( );
+        dispatcher_.async_enq( publish_container,
+                               strand_.wrap( [self, publish]( const boost::system::error_code& ec )
+                                             {
+                                                 self->handle_dispatch_publish_packet( ec, publish );
+                                             } ) );
+    }
+
+    void mqtt_connection::handle_dispatch_publish_packet( const boost::system::error_code& ec,
+                                                          shared_ptr<const protocol::publish> publish )
+    {
+        if ( ec )
+        {
+            BOOST_LOG_SEV( logger_, lvl::error ) << "--- DISPATCH FAILED: " << *publish << " [ec:" << ec
+                                                 << "|emsg:" << ec.message( ) << "]";
+            // TODO: If QoS > 0, send a negative PUBACK
+        }
+        else
+        {
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *publish;
+        }
+        read_header( );
     }
 
     void mqtt_connection::write_packet( const mqtt_packet& packet )

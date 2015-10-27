@@ -94,6 +94,10 @@ namespace io_wally
                     auto suback = topic_subscriptions_.subscribe( packet_container );
                     session_manager_.send( packet_container->client_id( ), suback );
                 }
+                else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBLISH )
+                {
+                    BOOST_LOG_SEV( logger_, lvl::warning ) << "NOT YET IMPLEMENTED: " << *packet_container->packet( );
+                }
                 else
                 {
                     assert( false );

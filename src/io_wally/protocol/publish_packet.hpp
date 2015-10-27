@@ -78,7 +78,12 @@ namespace io_wally
             virtual const std::string to_string( ) const override
             {
                 std::ostringstream output;
-                output << "publish[pktid:" << packet_identifier_ << "|topic:" << topic_
+                output << "publish[";
+                if ( ( header( ).flags( ).qos( ) == packet::QoS::AT_LEAST_ONCE ) ||
+                     ( header( ).flags( ).qos( ) == packet::QoS::EXACTLY_ONCE ) )
+                    output << "pktid:" << packet_identifier_ << "|";
+                output << "dup:" << header( ).flags( ).dup( ) << "|qos:" << header( ).flags( ).qos( )
+                       << "|ret:" << header( ).flags( ).retain( ) << "|topic:" << topic_
                        << "|msg-size:" << application_message_.size( ) << "]";
 
                 return output.str( );
