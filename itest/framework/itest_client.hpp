@@ -56,7 +56,7 @@ namespace framework
 
         bool is_mqtt_connected( )
         {
-            return ( MQTTClient_isConnected( client_ ) != 0 );
+            return ( MQTTClient_isConnected( client_ ) == 0 );
         }
 
        private:
