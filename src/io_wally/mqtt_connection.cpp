@@ -116,13 +116,15 @@ namespace io_wally
 
     void mqtt_connection::do_stop( )
     {
-        auto connection_desc = to_string( );
+        auto const connection_desc = to_string( );
         auto ignored_ec = boost::system::error_code{};
         socket_.shutdown( socket_.shutdown_both, ignored_ec );
         socket_.close( ignored_ec );
 
         BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPED: " << connection_desc;
     }
+
+    // Reading incoming messages
 
     void mqtt_connection::read_header( )
     {
@@ -153,7 +155,8 @@ namespace io_wally
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< Header data read [bt:" << bytes_transferred
                                                  << "|bufs:" << read_buffer_.size( ) << "]";
-            auto result = header_decoder_.decode( read_buffer_.begin( ), read_buffer_.begin( ) + bytes_transferred );
+            auto const result =
+                header_decoder_.decode( read_buffer_.begin( ), read_buffer_.begin( ) + bytes_transferred );
             if ( !result.is_parsing_complete( ) )
             {
                 // HIGHLY UNLIKELY: header is at most 5 bytes.
@@ -181,9 +184,9 @@ namespace io_wally
     void mqtt_connection::read_body( const header_decoder::result<buf_iter>& header_parse_result,
                                      const size_t bytes_transferred )
     {
-        auto total_length = header_parse_result.parsed_header( ).total_length( );
-        auto remaining_length = header_parse_result.parsed_header( ).remaining_length( );
-        auto header_length = total_length - remaining_length;
+        auto const total_length = header_parse_result.parsed_header( ).total_length( );
+        auto const remaining_length = header_parse_result.parsed_header( ).remaining_length( );
+        auto const header_length = total_length - remaining_length;
 
         BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< Reading body [tl:" << total_length << "|rl:" << remaining_length
                                              << "|bt:" << bytes_transferred << "|bufs:" << read_buffer_.size( )
@@ -236,7 +239,7 @@ namespace io_wally
             // We received a packet, so let's cancel keep alive timer
             close_on_keep_alive_timeout_.cancel( );
 
-            auto parsed_packet = packet_decoder_.decode(
+            auto const parsed_packet = packet_decoder_.decode(
                 header_parse_result.parsed_header( ),
                 header_parse_result.consumed_until( ),
                 header_parse_result.consumed_until( ) + header_parse_result.parsed_header( ).remaining_length( ) );
@@ -257,6 +260,8 @@ namespace io_wally
 
         return;
     }
+
+    // Processing and dispatching decoded messages
 
     void mqtt_connection::process_decoded_packet( shared_ptr<const mqtt_packet> packet )
     {
@@ -304,6 +309,8 @@ namespace io_wally
                 assert( false );
                 break;
         }
+        // Keep us in the loop!
+        read_header( );
     }
 
     void mqtt_connection::process_connect_packet( shared_ptr<const protocol::connect> connect )
@@ -476,8 +483,9 @@ namespace io_wally
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *publish;
         }
-        read_header( );
     }
+
+    // Sending messages
 
     void mqtt_connection::write_packet( const mqtt_packet& packet )
     {
@@ -508,7 +516,6 @@ namespace io_wally
                               else
                               {
                                   BOOST_LOG_SEV( self->logger_, lvl::debug ) << ">>> SENT";
-                                  self->read_header( );
                               }
                           } ) );
     }
@@ -535,19 +542,17 @@ namespace io_wally
                           {
                               if ( ec )
                               {
-                                  // TODO: connection_close_requested() may be inappropriate, sometimes
-                                  // connection_close_requested may be called for.
                                   self->connection_close_requested(
                                       ">>> Failed to send packet", reason, ec, lvl::error );
                               }
                               else
                               {
-                                  // TODO: connection_close_requested() may be inappropriate, sometimes
-                                  // connection_close_requested may be called for.
                                   self->connection_close_requested( ">>> SENT", reason, ec, lvl::debug );
                               }
                           } ) );
     }
+
+    // Closing this connection
 
     void mqtt_connection::close_on_keep_alive_timeout( )
     {

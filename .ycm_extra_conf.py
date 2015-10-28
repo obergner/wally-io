@@ -47,9 +47,7 @@ flags = [
     '-I',
     './itest',
     '-I',
-    './support/paho/packet',
-    '-I',
-    './support/paho/client',
+    './libs/org.eclipse.paho.mqtt.c/include',
     '-DBOOST_ASIO_HAS_STD_CHRONO',
 ]
 

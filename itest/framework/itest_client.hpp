@@ -1,70 +1,49 @@
 #pragma once
 
+#include <memory>
 #include <iostream>
 #include <string>
 #include <cstdint>
 #include <stdexcept>
+#include <mutex>
+#include <condition_variable>
 
 #include <boost/optional.hpp>
 
-#define MQTTCLIENT_QOS2 1
-
 #include "MQTTClient.h"
-
-#define DEFAULT_STACK_SIZE -1
-
-#include "linux.cpp"
 
 namespace framework
 {
-    class itest_client
+    class itest_client final
     {
        public:
-        itest_client( )
+        itest_client( const std::string& client_id = "itest_client" )
         {
+            auto const uri = "tcp://127.0.0.1:1883";
+            MQTTClient_create( &client_, uri, client_id.c_str( ), MQTTCLIENT_PERSISTENCE_NONE, nullptr );
         }
 
         virtual ~itest_client( )
         {
-            ipstack_.disconnect( );
+            MQTTClient_destroy( &client_ );
         }
 
-        bool tcp_connect( const std::string& host = "localhost", const std::uint16_t port = 1883 )
-        {
-            if ( tcp_connected_ )
-                throw std::runtime_error( "Client already TCP connected" );
-
-            std::cout << "[itest_client] TCP connecting [host:" << host << "|port:" << std::to_string( port ) << "] ..."
-                      << std::endl;
-            const int rc = ipstack_.connect( host.c_str( ), port );
-            tcp_connected_ = ( rc == 0 ? true : false );
-            std::cout << "[itest_client] TCP connected [host:" << host << "|port:" << std::to_string( port )
-                      << "]: " << tcp_connected_ << std::endl;
-
-            return tcp_connected_;
-        }
-
-        int mqtt_connect( const std::string& client_id,
-                          const boost::optional<const std::string>& username = boost::none,
+        int mqtt_connect( const boost::optional<const std::string>& username = boost::none,
                           const boost::optional<const std::string>& password = boost::none,
                           const unsigned long keep_alive_secs = 0L )
         {
-            if ( !tcp_connected_ )
-                throw std::runtime_error( "Client not TCP connected" );
-
             std::cout << "[itest_client] MQTT connecting ..." << std::endl;
 
-            MQTTPacket_connectData connect_packet = MQTTPacket_connectData_initializer;
-            connect_packet.MQTTVersion = 3;
-            connect_packet.clientID.cstring = const_cast<char*>( client_id.c_str( ) );
+            MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
             if ( username )
-                connect_packet.username.cstring = const_cast<char*>( ( *username ).c_str( ) );
+                conn_opts.username = ( *username ).c_str( );
             if ( password )
-                connect_packet.password.cstring = const_cast<char*>( ( *password ).c_str( ) );
+                conn_opts.password = ( *password ).c_str( );
             if ( keep_alive_secs > 0 )
-                connect_packet.keepAliveInterval = keep_alive_secs;
+                conn_opts.keepAliveInterval = keep_alive_secs;
 
-            int rc = client_.connect( connect_packet );
+            auto const rc = MQTTClient_connect( client_, &conn_opts );
+
             std::cout << "[itest_client] MQTT connected: rc = " << std::to_string( rc ) << std::endl;
 
             return rc;
@@ -72,31 +51,15 @@ namespace framework
 
         int mqtt_disconnect( )
         {
-            return client_.disconnect( );
-        }
-
-        bool is_tcp_connected( )
-        {
-            // return tcp_connected_;
-            return ipstack_.is_connected( );
+            return MQTTClient_disconnect( client_, 0 );
         }
 
         bool is_mqtt_connected( )
         {
-            return client_.isConnected( );
-        }
-
-        bool tcp_disconnect( )
-        {
-            const int rc = ipstack_.disconnect( );
-
-            return ( rc == 0 ? true : false );
+            return ( MQTTClient_isConnected( client_ ) != 0 );
         }
 
        private:
-        bool tcp_connected_{false};
-        IPStack ipstack_{};
-        MQTT::Client<IPStack, Countdown> client_{ipstack_};
+        MQTTClient client_{};
     };
-
 }  // namespace framework

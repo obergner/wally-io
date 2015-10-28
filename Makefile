@@ -3,6 +3,12 @@
 #######################################################################################################################
 
 # --------------------------------------------------------------------------------------------------------------------- 
+# INCLUDES
+# --------------------------------------------------------------------------------------------------------------------- 
+
+include ./libs/libs.mk
+
+# --------------------------------------------------------------------------------------------------------------------- 
 # Common definitions
 # --------------------------------------------------------------------------------------------------------------------- 
 
@@ -131,22 +137,6 @@ EXEC_UT           := $(BUILD_UT)/unit-tests
 # Integration tests
 # --------------------------------------------------------------------------------------------------------------------- 
 
-# Support libraries
-BUILD_SUPPORT    := $(BUILD)/support
-
-# Support: Paho MQTT client
-PINC_PAHO        := support/paho/packet
-CINC_PAHO        := support/paho/client
-
-PSRCS_PAHO       := $(wildcard support/paho/packet/*.c)
-CSRCS_PAHO       := $(wildcard support/paho/client/*.cpp)
-
-PBUILD_PAHO      := $(BUILD_SUPPORT)/paho/packet
-CBUILD_PAHO      := $(BUILD_SUPPORT)/paho/client
-
-OBJS_PAHO        := $(patsubst support/paho/packet/%.c, $(PBUILD_PAHO)/%.o, $(PSRCS_PAHO))
-OBJS_PAHO        += $(patsubst support/paho/client/%.cpp, $(CBUILD_PAHO)/%.o, $(CSRCS_PAHO))
-
 # Integrationtest framework SRCS
 SRCS_IT_FRM      := $(wildcard itest/framework/*.cpp)
 
@@ -185,23 +175,6 @@ EXECOBJ_SNIP     := $(patsubst itest/%.cpp, $(BUILD_IT)/%.o, $(EXECSOURCE_SNIP))
 EXEC_SNIP        := $(BUILD_IT)/snippets
 
 # --------------------------------------------------------------------------------------------------------------------- 
-# Third party libraries (included in this source tree): common
-# --------------------------------------------------------------------------------------------------------------------- 
-
-# Third-party libraries included in this source tree
-THIRD_PARTY_LIBS := ./libs
-
-# Build dir for third-party libraries
-LIBS_BUILD      := $(BUILD)/libs
-
-# --------------------------------------------------------------------------------------------------------------------- 
-# Third party libraries (included in this source tree): Boost Asio Queue Extension by Hans Ewetz
-# --------------------------------------------------------------------------------------------------------------------- 
-
-# Boost ASIO Queue Extension by Hans Ewetz
-BOOST_ASIO_QE   := $(THIRD_PARTY_LIBS)/boost-asio-queue-extension
-
-# --------------------------------------------------------------------------------------------------------------------- 
 # Tooling
 # --------------------------------------------------------------------------------------------------------------------- 
 
@@ -237,11 +210,10 @@ CC              := gcc
 
 # Standard compiler flags
 CXXFLAGS_M      := -std=c++14
-#CXXFLAGS_M      += -stdlib=libc++ # Requires complicated compiler/linker setup on Linux
 CXXFLAGS_M      += -fdiagnostics-color=auto
 CXXFLAGS_M      += -MMD # automatically generate dependency rules on each run
 CXXFLAGS_M      += -I ./src
-CXXFLAGS_M      += -I $(BOOST_ASIO_QE)
+CXXFLAGS_M      += -I $(BA_QUEUE_EXT_DIR)
 CXXFLAGS_M      += -Werror
 CXXFLAGS_M      += -Wall
 CXXFLAGS_M      += -Wextra
@@ -335,8 +307,8 @@ LDLIBS_UT       += -fsanitize=undefined
 CXXFLAGS_IT     := $(CXXFLAGS_M)
 CXXFLAGS_IT     += -O0
 CXXFLAGS_IT     += -I ./itest
-CXXFLAGS_IT     += -I $(PINC_PAHO)
-CXXFLAGS_IT     += -I $(CINC_PAHO)
+CXXFLAGS_IT     += -I $(PAHO_C_INC)
+CXXFLAGS_IT     += -Wno-missing-field-initializers
 CXXFLAGS_IT     := $(filter-out -Wswitch-default, $(CXXFLAGS_IT))
 CXXFLAGS_IT     := $(filter-out -Wswitch-enum, $(CXXFLAGS_IT))
 #CXXFLAGS_IT     += -fsanitize=address
@@ -346,6 +318,8 @@ CXXFLAGS_IT     := $(filter-out -Wswitch-enum, $(CXXFLAGS_IT))
 
 # Integrationtest linker flags
 LDLIBS_IT       := $(LDLIBS_M)
+LDLIBS_IT       += -L$(PAHO_C_LIBS)
+LDLIBS_IT       += -lpaho-mqtt3c
 #LDLIBS_IT       += -fsanitize=address
 #LDLIBS_IT       += -fsanitize=leak
 #LDLIBS_IT       += -fsanitize=undefined
@@ -438,35 +412,20 @@ $(BUILD_UT)/%.o     : test/%.cpp                             | $(BUILDDIRS_UT)
 	$(CXX) $(CXXFLAGS_UT) -o $@ -c $<
 
 # --------------------------------------------------------------------------------------------------------------------- 
-# Build Paho MQTT client to support integration tests
-# --------------------------------------------------------------------------------------------------------------------- 
-
-$(PBUILD_PAHO)      :
-	@mkdir -p $@
-
-$(PBUILD_PAHO)/%.o  : support/paho/packet/%.c                | $(PBUILD_PAHO)
-	$(CC) -o $@ -c $<
-
-$(CBUILD_PAHO)      :
-	@mkdir -p $@
-
-$(CBUILD_PAHO)/%.o  : support/paho/client/%.cpp              | $(CBUILD_PAHO)
-	$(CXX) -o $@ -c $<
-
-# --------------------------------------------------------------------------------------------------------------------- 
 # Build/run integration tests
 # --------------------------------------------------------------------------------------------------------------------- 
 
 .PHONY             : itest
 itest              : itest-compile
-	@./$(EXEC_IT) --success --durations yes
+	@LD_LIBRARY_PATH=$(PAHO_C_LIBS):$(LD_LIBRARY_PATH) ./$(EXEC_IT) --success --durations yes
 
+itest-compile      : paho-c
 itest-compile      : $(EXEC_IT)                              | $(BUILDDIRS_IT)
 
 $(BUILDDIRS_IT)    :
 	@mkdir -p $@
 
-$(EXEC_IT)         : $(OBJS_M) $(OBJS_IT) $(OBJS_IT_FRM) $(EXECOBJ_IT) $(OBJS_PAHO)    | $(BUILDDIRS_IT)
+$(EXEC_IT)         : $(OBJS_M) $(OBJS_IT) $(OBJS_IT_FRM) $(EXECOBJ_IT) | $(BUILDDIRS_IT)
 	$(CXX) $(LDLIBS_IT) -o $@ $^
 
 $(BUILD_IT)/%.o    : itest/%.cpp                             | $(BUILDDIRS_IT)
@@ -591,6 +550,11 @@ prepare-commit      : scan-main
 .PHONY              : run-server
 run-server          : $(EXEC_M)
 	@$(EXEC_M) --log-file .testlog --log-file-level trace --log-console --log-console-level trace --conn-timeout 1000000
+
+# Run server with some convenient default settings, this time using a binary instrumented by Clang's sanitizers
+.PHONY              : run-server-san
+run-server-san      : $(EXEC_M_SAN)
+	@$(EXEC_M_SAN) --log-file .testlog --log-file-level trace --log-console --log-console-level trace --conn-timeout 1000000
 
 #######################################################################################################################
 # Dependency rules: http://stackoverflow.com/questions/8025766/makefile-auto-dependency-generation

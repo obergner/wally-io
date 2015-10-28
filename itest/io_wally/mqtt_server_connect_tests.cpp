@@ -13,34 +13,16 @@ namespace
     };  // class itest_fixture
 }  // namespace
 
-SCENARIO_METHOD( itest_fixture, "mqtt_server TCP connection tests", "[mqtt_server]" )
-{
-    GIVEN( "a running mqtt_server instance" )
-    {
-        WHEN( "a client tries to open a TCP connection to that server" )
-        {
-            auto connected = client.tcp_connect( );
-
-            THEN( "it will succeed" )
-            {
-                REQUIRE( connected );
-            }
-        }
-    }
-}
-
 SCENARIO_METHOD( itest_fixture, "mqtt_server MQTT CONNECT tests", "[mqtt_server]" )
 {
     GIVEN( "a running mqtt_server instance" )
     {
         WHEN( "a client sends a valid CONNECT packet to that server" )
         {
-            auto connected = client.tcp_connect( );
-            auto login_rc = client.mqtt_connect( "CONNECT_itest" );
+            auto login_rc = client.mqtt_connect( );
 
             THEN( "it will succeed" )
             {
-                REQUIRE( connected );
                 REQUIRE( login_rc == 0 );
             }
         }

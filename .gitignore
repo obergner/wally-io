@@ -23,5 +23,5 @@
 target/
 work/
 compile_commands.json
-libs/dbus-cpp/
+libs/org.eclipse.paho.mqtt.c/
 build/.tags
