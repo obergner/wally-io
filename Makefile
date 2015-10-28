@@ -311,18 +311,18 @@ CXXFLAGS_IT     += -I $(PAHO_C_INC)
 CXXFLAGS_IT     += -Wno-missing-field-initializers
 CXXFLAGS_IT     := $(filter-out -Wswitch-default, $(CXXFLAGS_IT))
 CXXFLAGS_IT     := $(filter-out -Wswitch-enum, $(CXXFLAGS_IT))
-#CXXFLAGS_IT     += -fsanitize=address
-#CXXFLAGS_IT     += -fsanitize=leak
-#CXXFLAGS_IT     += -fsanitize=undefined
-#CXXFLAGS_IT     += -fno-omit-frame-pointer
+CXXFLAGS_IT     += -fsanitize=address
+CXXFLAGS_IT     += -fsanitize=leak
+CXXFLAGS_IT     += -fsanitize=undefined
+CXXFLAGS_IT     += -fno-omit-frame-pointer
 
 # Integrationtest linker flags
 LDLIBS_IT       := $(LDLIBS_M)
 LDLIBS_IT       += -L$(PAHO_C_LIBS)
 LDLIBS_IT       += -lpaho-mqtt3c
-#LDLIBS_IT       += -fsanitize=address
-#LDLIBS_IT       += -fsanitize=leak
-#LDLIBS_IT       += -fsanitize=undefined
+LDLIBS_IT       += -fsanitize=address
+LDLIBS_IT       += -fsanitize=leak
+LDLIBS_IT       += -fsanitize=undefined
 
 #######################################################################################################################
 # Rules
@@ -425,7 +425,7 @@ itest-compile      : $(EXEC_IT)                              | $(BUILDDIRS_IT)
 $(BUILDDIRS_IT)    :
 	@mkdir -p $@
 
-$(EXEC_IT)         : $(OBJS_M) $(OBJS_IT) $(OBJS_IT_FRM) $(EXECOBJ_IT) | $(BUILDDIRS_IT)
+$(EXEC_IT)         : $(OBJS_M_SAN) $(OBJS_IT) $(OBJS_IT_FRM) $(EXECOBJ_IT) | $(BUILDDIRS_IT)
 	$(CXX) $(LDLIBS_IT) -o $@ $^
 
 $(BUILD_IT)/%.o    : itest/%.cpp                             | $(BUILDDIRS_IT)
