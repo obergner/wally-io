@@ -43,20 +43,24 @@ namespace io_wally
            private:  // nested types
             struct subscription_container final
             {
-
                public:
                 subscription_container( const std::string& topic_filterp,
                                         const protocol::packet::QoS maximum_qosp,
-                                        const std::string& client_idp )
-                    : topic_filter{topic_filterp}, maximum_qos{maximum_qosp}, client_id{client_idp}
-                {
-                }
+                                        const std::string& client_idp );
 
-                bool operator==( const subscription_container& other ) const
+                inline bool operator==( const subscription_container& other ) const
                 {
                     return ( topic_filter == other.topic_filter ) && ( maximum_qos == other.maximum_qos ) &&
                            ( client_id == other.client_id );
                 }
+
+                /// \brief Test if supplied \c topic matches this \c topic \c filter.
+                ///
+                /// \param topic Topic to match against this \c topic \c filter
+                /// \return \c true if \c topic matches this \c topic \c filter, \c false otherwise
+                ///
+                /// \pre \c topic is a well-formed topic string
+                bool matches( const std::string& topic ) const;
 
                public:
                 const std::string topic_filter;
@@ -64,6 +68,7 @@ namespace io_wally
                 const std::string client_id;
             };  // struct subscription_container
 
+            /// \brief Hash functor. Needed for \c subscription_container to be usable in \c std::unordered_set.
             struct subscription_container_hash
             {
                 std::size_t operator( )( const subscription_container& subscr ) const
@@ -80,7 +85,7 @@ namespace io_wally
             std::unordered_set<subscription_container, subscription_container_hash> subscriptions_{1000};
             /// Our severity-enabled channel logger
             boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
-                boost::log::keywords::channel = "subscription-registry",
+                boost::log::keywords::channel = "topic-subscriptions",
                 boost::log::keywords::severity = boost::log::trivial::trace};
         };  // class topic_subscriptions
     }       // namespace dispatch

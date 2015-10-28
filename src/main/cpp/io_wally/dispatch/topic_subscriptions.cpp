@@ -34,5 +34,67 @@ namespace io_wally
 
             return suback;
         }
+
+        // struct subscriptions_container
+
+        topic_subscriptions::subscription_container::subscription_container( const std::string& topic_filterp,
+                                                                             const protocol::packet::QoS maximum_qosp,
+                                                                             const std::string& client_idp )
+            : topic_filter{topic_filterp}, maximum_qos{maximum_qosp}, client_id{client_idp}
+        {
+        }
+
+        bool topic_subscriptions::subscription_container::matches( const std::string& topic ) const
+        {
+            auto t_idx = size_t{0};
+            auto tf_idx = size_t{0};
+            while ( ( t_idx < topic.length( ) ) && ( tf_idx < topic_filter.length( ) ) )
+            {
+                auto cur_tf_char = topic_filter[t_idx];
+                switch ( cur_tf_char )
+                {
+                    case '/':
+                    {
+                        if ( topic[t_idx] != '/' )
+                        {
+                            return false;
+                        }
+                        ++t_idx;
+                        ++tf_idx;
+                    }
+                    break;
+                    case '+':
+                    {
+                        auto next_slash = topic.find( '/', t_idx );
+                        if ( next_slash == std::string::npos )
+                        {
+                            // No more topic levels left in "topic". We have eaten it.
+                            ++t_idx;
+                        }
+                        else
+                        {
+                            t_idx = next_slash;
+                        }
+                        ++tf_idx;
+                    }
+                    break;
+                    case '#':
+                    {
+                        return true;
+                    }
+                    break;
+                    default:  // regular character
+                    {
+                        if ( topic[t_idx] != cur_tf_char )
+                        {
+                            return false;
+                        }
+                        ++t_idx;
+                        ++tf_idx;
+                    }
+                }
+            }
+            return ( ( t_idx == topic.length( ) ) && ( tf_idx == topic_filter.length( ) ) );
+        }
     }  // namespace dispatch
 }  // namespace io_wally
