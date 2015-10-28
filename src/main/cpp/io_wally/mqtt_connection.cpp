@@ -1,5 +1,6 @@
 #include "io_wally/mqtt_connection.hpp"
 
+#include <sstream>
 #include <memory>
 #include <chrono>
 #include <functional>
@@ -15,6 +16,7 @@
 
 #include "io_wally/error/protocol.hpp"
 #include "io_wally/logging_support.hpp"
+#include "io_wally/mqtt_connection_handle.hpp"
 #include "io_wally/mqtt_connection_manager.hpp"
 
 namespace io_wally
@@ -34,7 +36,7 @@ namespace io_wally
     mqtt_connection::ptr mqtt_connection::create( tcp::socket socket,
                                                   mqtt_connection_manager& connection_manager,
                                                   const context& context,
-                                                  packetq_t& dispatchq )
+                                                  mqtt_connection_handle::packetq_t& dispatchq )
     {
         return std::shared_ptr<mqtt_connection>{
             new mqtt_connection{move( socket ), connection_manager, context, dispatchq}};
@@ -43,7 +45,7 @@ namespace io_wally
     mqtt_connection::mqtt_connection( tcp::socket socket,
                                       mqtt_connection_manager& connection_manager,
                                       const context& context,
-                                      packetq_t& dispatchq )
+                                      mqtt_connection_handle::packetq_t& dispatchq )
         : socket_{move( socket )},
           strand_{socket.get_io_service( )},
           connection_manager_{connection_manager},
@@ -55,6 +57,11 @@ namespace io_wally
           close_on_keep_alive_timeout_{socket.get_io_service( )}
     {
         return;
+    }
+
+    const boost::optional<const std::string>& mqtt_connection::client_id( ) const
+    {
+        return client_id_;
     }
 
     void mqtt_connection::start( )
@@ -350,7 +357,8 @@ namespace io_wally
     void mqtt_connection::dispatch_connect_packet( shared_ptr<const protocol::connect> connect )
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *connect << " ...";
-        auto connect_container = packet_container_t::connect_packet( shared_from_this( ), connect );
+        auto connect_container =
+            mqtt_connection_handle::packet_container_t::connect_packet( shared_from_this( ), connect );
 
         auto self = shared_from_this( );
         dispatcher_.async_enq( connect_container,
@@ -388,8 +396,8 @@ namespace io_wally
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *disconnect << "[rsn:" << disconnect_reason
                                              << "] ...";
-        auto connect_container =
-            packet_container_t::disconnect_packet( *client_id_, shared_from_this( ), disconnect, disconnect_reason );
+        auto connect_container = mqtt_connection_handle::packet_container_t::disconnect_packet(
+            *client_id_, shared_from_this( ), disconnect, disconnect_reason );
 
         auto self = shared_from_this( );
         dispatcher_.async_enq(
@@ -427,7 +435,8 @@ namespace io_wally
     void mqtt_connection::dispatch_subscribe_packet( shared_ptr<const protocol::subscribe> subscribe )
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *subscribe << " ...";
-        auto subscribe_container = packet_container_t::subscribe_packet( *client_id_, shared_from_this( ), subscribe );
+        auto subscribe_container =
+            mqtt_connection_handle::packet_container_t::subscribe_packet( *client_id_, shared_from_this( ), subscribe );
 
         auto self = shared_from_this( );
         dispatcher_.async_enq( subscribe_container,
@@ -460,7 +469,8 @@ namespace io_wally
     void mqtt_connection::dispatch_publish_packet( shared_ptr<const protocol::publish> publish )
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *publish << " ...";
-        auto publish_container = packet_container_t::publish_packet( *client_id_, shared_from_this( ), publish );
+        auto publish_container =
+            mqtt_connection_handle::packet_container_t::publish_packet( *client_id_, shared_from_this( ), publish );
 
         auto self = shared_from_this( );
         dispatcher_.async_enq( publish_container,

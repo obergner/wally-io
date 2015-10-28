@@ -17,6 +17,7 @@
 #include <boost/asio_queue.hpp>
 
 #include "io_wally/context.hpp"
+#include "io_wally/mqtt_connection_handle.hpp"
 #include "io_wally/logging_support.hpp"
 
 #include "io_wally/protocol/common.hpp"
@@ -38,17 +39,11 @@ namespace io_wally
     ///  \brief An MQTT client connection.
     ///
     /// Represents a persistent connection between a client and an \c mqtt_server.
-    class mqtt_connection final : public std::enable_shared_from_this<mqtt_connection>
+    class mqtt_connection final : public std::enable_shared_from_this<mqtt_connection>, public mqtt_connection_handle
     {
         friend class mqtt_connection_manager;
 
        public:  // static
-        /// A container for protocol packets
-        using packet_container_t = dispatch::packet_container<mqtt_connection>;
-
-        /// Queue of protocol packet containers
-        using packetq_t = boost::asio::simple_queue<packet_container_t::ptr>;
-
         /// A \c shared_ptr to an \c mqtt_connection.
         using ptr = std::shared_ptr<mqtt_connection>;
 
@@ -69,24 +64,19 @@ namespace io_wally
         /// \brief Start this connection, initiating reading incoming data.
         void start( );
 
+        virtual const boost::optional<const std::string>& client_id( ) const override;
+
         /// \brief Send an \c mqtt_packet to connected client.
-        void send( protocol::mqtt_packet::ptr packet );
+        virtual void send( protocol::mqtt_packet::ptr packet ) override;
 
         /// \brief Stop this connection, closing its \c tcp::socket.
-        void stop( const std::string& message = "",
-                   const boost::log::trivial::severity_level log_level = boost::log::trivial::info );
+        virtual void stop( const std::string& message = "",
+                           const boost::log::trivial::severity_level log_level = boost::log::trivial::info ) override;
 
         /// \brief Return a string representation to be used in log output.
         ///
         /// \return A string representation to be used in log output
-        const std::string to_string( ) const;
-
-        inline friend std::ostream& operator<<( std::ostream& output, mqtt_connection const& mqtt_connection )
-        {
-            output << mqtt_connection.to_string( );
-
-            return output;
-        }
+        virtual const std::string to_string( ) const override;
 
        private:
         /// Hide constructor since we MUST be created by static factory method 'create' above
@@ -190,10 +180,11 @@ namespace io_wally
         const context& context_;
         /// Our dispatcher queue, used for forwarding received protocol packets to dispatcher subsystem
         /// TODO: Consider removing this reference since all we need is dispatcher_ below.
-        packetq_t& dispatchq_;
+        mqtt_connection_handle::packetq_t& dispatchq_;
         /// Queue sender for dispatching received protocol packets asynchronously (from point of view of connection) to
         /// dispatcher queue.
-        boost::asio::queue_sender<packetq_t> dispatcher_{socket_.get_io_service( ), &dispatchq_};
+        boost::asio::queue_sender<mqtt_connection_handle::packetq_t> dispatcher_{socket_.get_io_service( ),
+                                                                                 &dispatchq_};
         /// Buffer incoming data
         std::vector<uint8_t> read_buffer_;
         /// Buffer outgoing data

@@ -6,7 +6,7 @@
 #include <boost/log/trivial.hpp>
 
 #include "io_wally/protocol/common.hpp"
-#include "io_wally/mqtt_connection.hpp"
+#include "io_wally/mqtt_connection_handle.hpp"
 #include "io_wally/dispatch/mqtt_client_session_manager.hpp"
 
 namespace io_wally
@@ -22,14 +22,14 @@ namespace io_wally
 
         mqtt_client_session::ptr mqtt_client_session::create( mqtt_client_session_manager& session_manager,
                                                               const std::string& client_id,
-                                                              std::weak_ptr<mqtt_connection> connection )
+                                                              std::weak_ptr<mqtt_connection_handle> connection )
         {
             return std::make_shared<mqtt_client_session>( session_manager, client_id, connection );
         }
 
         mqtt_client_session::mqtt_client_session( mqtt_client_session_manager& session_manager,
                                                   const std::string& client_id,
-                                                  std::weak_ptr<mqtt_connection> connection )
+                                                  std::weak_ptr<mqtt_connection_handle> connection )
             : session_manager_{session_manager}, client_id_{client_id}, connection_{connection}
         {
         }

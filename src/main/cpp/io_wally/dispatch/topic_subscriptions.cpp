@@ -4,6 +4,7 @@
 
 #include <boost/log/trivial.hpp>
 
+#include "io_wally/mqtt_connection_handle.hpp"
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
 
@@ -15,7 +16,7 @@ namespace io_wally
         using lvl = boost::log::trivial::severity_level;
 
         std::shared_ptr<const protocol::suback> topic_subscriptions::subscribe(
-            mqtt_connection::packet_container_t::ptr subscribe )
+            mqtt_connection_handle::packet_container_t::ptr subscribe )
         {
             assert( subscribe->packet_type( ) == protocol::packet::Type::SUBSCRIBE );
 

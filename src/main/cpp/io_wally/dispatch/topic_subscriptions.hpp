@@ -11,7 +11,7 @@
 #include "io_wally/protocol/subscription.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
 #include "io_wally/protocol/suback_packet.hpp"
-#include "io_wally/mqtt_connection.hpp"
+#include "io_wally/mqtt_connection_handle.hpp"
 #include "io_wally/dispatch/mqtt_client_session.hpp"
 #include "io_wally/dispatch/mqtt_client_session_manager.hpp"
 
@@ -38,7 +38,8 @@ namespace io_wally
 
             topic_subscriptions& operator=( topic_subscriptions ) = delete;
 
-            std::shared_ptr<const protocol::suback> subscribe( mqtt_connection::packet_container_t::ptr subscribe );
+            std::shared_ptr<const protocol::suback> subscribe(
+                mqtt_connection_handle::packet_container_t::ptr subscribe );
 
            private:  // nested types
             struct subscription_container final

@@ -8,7 +8,7 @@
 #include <boost/log/trivial.hpp>
 
 #include "io_wally/logging_support.hpp"
-#include "io_wally/mqtt_connection.hpp"
+#include "io_wally/mqtt_connection_handle.hpp"
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/dispatch/mqtt_client_session.hpp"
 
@@ -39,11 +39,12 @@ namespace io_wally
             ///
             /// \param client_id   Client ID contained in CONNECT request. Uniquely identifies \c mqtt_client_session to
             ///                    be created.
-            /// \param connection  \c mqtt_connection CONNECT request has been received on. Will be associated with new
-            ///                    \c mqtt_client_session. Passed as a \c std::weak_ptr since \c mqtt_connection
+            /// \param connection  \c mqtt_connection_handle CONNECT request has been received on. Will be associated
+            /// with new
+            ///                    \c mqtt_client_session. Passed as a \c std::weak_ptr since \c mqtt_connection_handle
             ///                    instances are owned by the network subsystem which may decide - potentially because
             ///                    network errors - to discard a connection at any time.
-            void client_connected( const std::string& client_id, std::weak_ptr<mqtt_connection> connection );
+            void client_connected( const std::string& client_id, std::weak_ptr<mqtt_connection_handle> connection );
 
             /// \brief Called when a client disconnects, either voluntarily by sending a DISCONNECT, or involuntarily
             /// due to network or protocol error. Destroys associated \c mqtt_client_session.
