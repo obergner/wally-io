@@ -1,11 +1,13 @@
 #include "io_wally/dispatch/topic_subscriptions.hpp"
 
 #include <cassert>
+#include <string>
 
 #include <boost/log/trivial.hpp>
 
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
+#include "io_wally/protocol/suback_packet.hpp"
 
 namespace io_wally
 {
@@ -13,6 +15,70 @@ namespace io_wally
     {
         using namespace std;
         using lvl = boost::log::trivial::severity_level;
+
+        // --------------------------------------------------------------------------------
+        // struct subscription_container
+        // --------------------------------------------------------------------------------
+
+        subscription_container::subscription_container( const std::string& topic_filterp,
+                                                        const protocol::packet::QoS maximum_qosp,
+                                                        const std::string& client_idp )
+            : topic_filter{topic_filterp}, maximum_qos{maximum_qosp}, client_id{client_idp}
+        {
+        }
+
+        bool subscription_container::matches( const std::string& topic ) const
+        {
+            auto t_idx = size_t{0};
+            auto tf_idx = size_t{0};
+            while ( ( t_idx < topic.length( ) ) && ( tf_idx < topic_filter.length( ) ) )
+            {
+                auto cur_tf_char = topic_filter[tf_idx];
+                auto cur_t_char = topic[t_idx];
+                switch ( cur_tf_char )
+                {
+                    case '+':  // single-level wildcard
+                    {
+                        // + matches empty topic level
+                        if ( cur_t_char != '/' )
+                        {
+                            while ( ( topic[t_idx] != '/' ) && ( t_idx < topic.length( ) ) )
+                                ++t_idx;
+                        }
+                        ++tf_idx;
+                    }
+                    break;
+                    case '#':  // multi-level wildcard
+                    {
+                        return true;
+                    }
+                    break;
+                    case '/':  // topic separator
+                    default:   // regular character
+                    {
+                        if ( cur_t_char != cur_tf_char )
+                        {
+                            return false;
+                        }
+                        ++t_idx;
+                        ++tf_idx;
+                    }
+                }
+            }
+            // If both topic_filter and topic are exhausted when we get here, the match has succeeded.
+            if ( ( t_idx == topic.length( ) ) && ( tf_idx == topic_filter.length( ) ) )
+            {
+                return true;
+            }
+            // Special case: wildcard character "#" represents the PARENT and any number of child levels. Since it also
+            // matches the PARENT level, "sport/tennis/player1/#" matches "sport/tennis/player1" (SIC!).
+            return ( ( tf_idx < topic_filter.length( ) - 1 ) &&
+                     ( topic_filter.compare( topic_filter.length( ) - 2, 2, "/#" ) == 0 ) );
+        }
+
+        // --------------------------------------------------------------------------------
+        // class topic_subscriptions
+        // --------------------------------------------------------------------------------
 
         std::shared_ptr<const protocol::suback> topic_subscriptions::subscribe(
             mqtt_connection::packet_container_t::ptr subscribe )
@@ -33,68 +99,6 @@ namespace io_wally
                                                  << "|subscr:" << *subscribe_packet << "] -> " << *suback;
 
             return suback;
-        }
-
-        // struct subscriptions_container
-
-        topic_subscriptions::subscription_container::subscription_container( const std::string& topic_filterp,
-                                                                             const protocol::packet::QoS maximum_qosp,
-                                                                             const std::string& client_idp )
-            : topic_filter{topic_filterp}, maximum_qos{maximum_qosp}, client_id{client_idp}
-        {
-        }
-
-        bool topic_subscriptions::subscription_container::matches( const std::string& topic ) const
-        {
-            auto t_idx = size_t{0};
-            auto tf_idx = size_t{0};
-            while ( ( t_idx < topic.length( ) ) && ( tf_idx < topic_filter.length( ) ) )
-            {
-                auto cur_tf_char = topic_filter[t_idx];
-                switch ( cur_tf_char )
-                {
-                    case '/':
-                    {
-                        if ( topic[t_idx] != '/' )
-                        {
-                            return false;
-                        }
-                        ++t_idx;
-                        ++tf_idx;
-                    }
-                    break;
-                    case '+':
-                    {
-                        auto next_slash = topic.find( '/', t_idx );
-                        if ( next_slash == std::string::npos )
-                        {
-                            // No more topic levels left in "topic". We have eaten it.
-                            ++t_idx;
-                        }
-                        else
-                        {
-                            t_idx = next_slash;
-                        }
-                        ++tf_idx;
-                    }
-                    break;
-                    case '#':
-                    {
-                        return true;
-                    }
-                    break;
-                    default:  // regular character
-                    {
-                        if ( topic[t_idx] != cur_tf_char )
-                        {
-                            return false;
-                        }
-                        ++t_idx;
-                        ++tf_idx;
-                    }
-                }
-            }
-            return ( ( t_idx == topic.length( ) ) && ( tf_idx == topic_filter.length( ) ) );
         }
     }  // namespace dispatch
 }  // namespace io_wally

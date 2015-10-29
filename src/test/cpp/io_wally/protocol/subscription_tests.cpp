@@ -29,7 +29,7 @@ SCENARIO( "subscription", "[packets]" )
 {
     GIVEN( "topic filter \"\"" )
     {
-        const std::string topic_filter( "" );
+        auto const topic_filter = "";
         WHEN( "a caller tries to create a subscription" )
         {
             THEN( "it should see an error::malformed_mqtt_packet being thrown" )
@@ -42,7 +42,7 @@ SCENARIO( "subscription", "[packets]" )
 
     GIVEN( "a well-formed topic filter of length 65535" )
     {
-        const std::string topic_filter = random_string( 65535 );
+        auto const topic_filter = random_string( 65535 );
         WHEN( "a caller tries to create a subscription" )
         {
             THEN( "it should NOT see an error::malformed_mqtt_packet being thrown" )
@@ -54,7 +54,7 @@ SCENARIO( "subscription", "[packets]" )
 
     GIVEN( "a topic filter of length 65536" )
     {
-        const std::string topic_filter = random_string( 65536 );
+        auto const topic_filter = random_string( 65536 );
         WHEN( "a caller tries to create a subscription" )
         {
             THEN( "it should see an error::malformed_mqtt_packet being thrown" )
@@ -67,7 +67,7 @@ SCENARIO( "subscription", "[packets]" )
 
     GIVEN( "topic filter \"#\"" )
     {
-        const std::string topic_filter( "#" );
+        auto const topic_filter = "#";
         WHEN( "a caller tries to create a subscription" )
         {
             THEN( "it should NOT see an error::malformed_mqtt_packet being thrown" )
@@ -79,7 +79,7 @@ SCENARIO( "subscription", "[packets]" )
 
     GIVEN( "topic filter \"+\"" )
     {
-        const std::string topic_filter( "+" );
+        auto const topic_filter = "+";
         WHEN( "a caller tries to create a subscription" )
         {
             THEN( "it should NOT see an error::malformed_mqtt_packet being thrown" )
@@ -91,7 +91,7 @@ SCENARIO( "subscription", "[packets]" )
 
     GIVEN( "topic filter \"A\"" )
     {
-        const std::string topic_filter( "A" );
+        auto const topic_filter = "A";
         WHEN( "a caller tries to create a subscription" )
         {
             THEN( "it should NOT see an error::malformed_mqtt_packet being thrown" )
@@ -103,7 +103,7 @@ SCENARIO( "subscription", "[packets]" )
 
     GIVEN( "topic filter \"finance/#\"" )
     {
-        const std::string topic_filter( "finance/#" );
+        auto const topic_filter = "finance/#";
         WHEN( "a caller tries to create a subscription" )
         {
             THEN( "it should NOT see an error::malformed_mqtt_packet being thrown" )
@@ -115,7 +115,7 @@ SCENARIO( "subscription", "[packets]" )
 
     GIVEN( "topic filter \"/sports/+/finance/+\"" )
     {
-        const std::string topic_filter( "/sports/+/finance/+" );
+        auto const topic_filter = "/sports/+/finance/+";
         WHEN( "a caller tries to create a subscription" )
         {
             THEN( "it should NOT see an error::malformed_mqtt_packet being thrown" )
@@ -127,7 +127,7 @@ SCENARIO( "subscription", "[packets]" )
 
     GIVEN( "topic filter \"sports/b+\"" )
     {
-        const std::string topic_filter( "sports/b+" );
+        auto const topic_filter = "sports/b+";
         WHEN( "a caller tries to create a subscription" )
         {
             THEN( "it should see an error::malformed_mqtt_packet being thrown" )
@@ -140,7 +140,7 @@ SCENARIO( "subscription", "[packets]" )
 
     GIVEN( "topic filter \"sports/+foo/+\"" )
     {
-        const std::string topic_filter( "sports/+foo/+" );
+        auto const topic_filter = "sports/+foo/+";
         WHEN( "a caller tries to create a subscription" )
         {
             THEN( "it should see an error::malformed_mqtt_packet being thrown" )
@@ -153,7 +153,7 @@ SCENARIO( "subscription", "[packets]" )
 
     GIVEN( "topic filter \"sports/b#\"" )
     {
-        const std::string topic_filter( "sports/b#" );
+        auto const topic_filter = "sports/b#";
         WHEN( "a caller tries to create a subscription" )
         {
             THEN( "it should see an error::malformed_mqtt_packet being thrown" )
@@ -166,7 +166,7 @@ SCENARIO( "subscription", "[packets]" )
 
     GIVEN( "topic filter \"sports/#foo/#\"" )
     {
-        const std::string topic_filter( "sports/#foo/#" );
+        auto const topic_filter = "sports/#foo/#";
         WHEN( "a caller tries to create a subscription" )
         {
             THEN( "it should see an error::malformed_mqtt_packet being thrown" )
@@ -179,7 +179,7 @@ SCENARIO( "subscription", "[packets]" )
 
     GIVEN( "topic filter \"sports/#/\"" )
     {
-        const std::string topic_filter( "sports/#/" );
+        auto const topic_filter = "sports/#/";
         WHEN( "a caller tries to create a subscription" )
         {
             THEN( "it should see an error::malformed_mqtt_packet being thrown" )

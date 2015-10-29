@@ -19,6 +19,49 @@ namespace io_wally
 {
     namespace dispatch
     {
+        /// \brief Value type combining \c topic \c filter, \c maximum \c QoS and \c client \c id to represent an MQTT
+        ///        client's subscription to a set of topics.
+        ///
+        /// NOTE: This class is public (for now) to facilitate unit tests since it encapsulates logic for matching a \c
+        /// topic against a \c topic \c filter. There are surely other, more elegant ways to achieve the same without
+        /// breaking encapsulation, but here I chose the easy way out.
+        struct subscription_container final
+        {
+           public:
+            subscription_container( const std::string& topic_filterp,
+                                    const protocol::packet::QoS maximum_qosp,
+                                    const std::string& client_idp );
+
+            inline bool operator==( const subscription_container& other ) const
+            {
+                return ( topic_filter == other.topic_filter ) && ( maximum_qos == other.maximum_qos ) &&
+                       ( client_id == other.client_id );
+            }
+
+            /// \brief Test if supplied \c topic matches this \c topic \c filter.
+            ///
+            /// \param topic Topic to match against this \c topic \c filter
+            /// \return \c true if \c topic matches this \c topic \c filter, \c false otherwise
+            ///
+            /// \pre \c topic is a well-formed topic string
+            bool matches( const std::string& topic ) const;
+
+           public:
+            const std::string topic_filter;
+            const protocol::packet::QoS maximum_qos;
+            const std::string client_id;
+        };  // struct subscription_container
+
+        /// \brief Hash functor. Needed for \c subscription_container to be usable in \c std::unordered_set.
+        struct subscription_container_hash
+        {
+            std::size_t operator( )( const subscription_container& subscr ) const
+            {
+                return std::hash<std::string>( )( subscr.topic_filter ) ^
+                       static_cast<std::size_t>( subscr.maximum_qos ) ^ std::hash<std::string>( )( subscr.client_id );
+            }
+        };  // struct subscription_container_hash
+
         /// \brief Manager for \c topic \c subscriptions.
         ///
         /// Manages all \c protocol::subscription (topic subscription) instances received from clients:
@@ -41,44 +84,6 @@ namespace io_wally
             std::shared_ptr<const protocol::suback> subscribe( mqtt_connection::packet_container_t::ptr subscribe );
 
            private:  // nested types
-            struct subscription_container final
-            {
-               public:
-                subscription_container( const std::string& topic_filterp,
-                                        const protocol::packet::QoS maximum_qosp,
-                                        const std::string& client_idp );
-
-                inline bool operator==( const subscription_container& other ) const
-                {
-                    return ( topic_filter == other.topic_filter ) && ( maximum_qos == other.maximum_qos ) &&
-                           ( client_id == other.client_id );
-                }
-
-                /// \brief Test if supplied \c topic matches this \c topic \c filter.
-                ///
-                /// \param topic Topic to match against this \c topic \c filter
-                /// \return \c true if \c topic matches this \c topic \c filter, \c false otherwise
-                ///
-                /// \pre \c topic is a well-formed topic string
-                bool matches( const std::string& topic ) const;
-
-               public:
-                const std::string topic_filter;
-                const protocol::packet::QoS maximum_qos;
-                const std::string client_id;
-            };  // struct subscription_container
-
-            /// \brief Hash functor. Needed for \c subscription_container to be usable in \c std::unordered_set.
-            struct subscription_container_hash
-            {
-                std::size_t operator( )( const subscription_container& subscr ) const
-                {
-                    return std::hash<std::string>( )( subscr.topic_filter ) ^
-                           static_cast<std::size_t>( subscr.maximum_qos ) ^
-                           std::hash<std::string>( )( subscr.client_id );
-                }
-            };  // struct subscription_container_hash
-
            private:
             // Set of subscriptions we manage (cannot be <const subscription_container> since members of std containers
             // in C++ need to be copy assignable or movable, which is incompatible with const)

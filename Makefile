@@ -119,8 +119,9 @@ SRCS_UT                   += $(wildcard $(SRC_DIR_UT)/io_wally/protocol/*.cpp)
 SRCS_UT                   += $(wildcard $(SRC_DIR_UT)/io_wally/codec/*.cpp)
 SRCS_UT                   += $(wildcard $(SRC_DIR_UT)/io_wally/impl/*.cpp)
 SRCS_UT                   += $(wildcard $(SRC_DIR_UT)/io_wally/app/*.cpp)
+SRCS_UT                   += $(wildcard $(SRC_DIR_UT)/io_wally/dispatch/*.cpp)
 
-EXECSOURCE_UT             := $(wildcard $(SRC_DIR_UT)/*.cpp)
+EXECSOURCE_UT             := $(wildcard $(SRC_DIR_UT)/tests_main.cpp)
 
 # Build dir for tests
 BUILD_UT                  := $(BUILD)/test
