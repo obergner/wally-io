@@ -29,6 +29,14 @@ namespace io_wally
     ///                         clients.
     namespace dispatch
     {
+        /// Represents a resolved topic subscriber: when processing a PUBLISH packet an MQTT broker may conclude
+        /// (correctly) that a client has registered more than one topic filter matching that PUBLISH packet's
+        /// topic. In this case, MQTT 3.1.1 mandates that the PUBLISH packet be delivered to that client only
+        /// once, using the maximum QoS of all matching subscriptions.
+        ///
+        /// This type represents this resolution process' result.
+        using resolved_subscriber_t = std::pair<const std::string, protocol::packet::QoS>;
+
         /// \brief Flags reason for why a client disconnected.
         ///
         /// We do not only forward DISCONNECT requests received from clients, but also generate "fake" DISCONNECT

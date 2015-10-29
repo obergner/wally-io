@@ -6,6 +6,7 @@
 #include "io_wally/codec/connack_packet_encoder.hpp"
 #include "io_wally/codec/pingresp_packet_encoder.hpp"
 #include "io_wally/codec/suback_packet_encoder.hpp"
+#include "io_wally/codec/publish_packet_encoder.hpp"
 
 namespace io_wally
 {
@@ -53,10 +54,11 @@ namespace io_wally
                         return pingresp_encoder_;
                     case protocol::packet::Type::SUBACK:
                         return suback_encoder_;
+                    case protocol::packet::Type::PUBLISH:
+                        return publish_encoder_;
                     case protocol::packet::Type::CONNECT:
                     case protocol::packet::Type::PINGREQ:
                     case protocol::packet::Type::DISCONNECT:
-                    case protocol::packet::Type::PUBLISH:
                     case protocol::packet::Type::PUBACK:
                     case protocol::packet::Type::PUBREL:
                     case protocol::packet::Type::PUBREC:
@@ -76,6 +78,7 @@ namespace io_wally
             const connack_packet_encoder<OutputIterator> connack_encoder_{};
             const pingresp_packet_encoder<OutputIterator> pingresp_encoder_{};
             const suback_packet_encoder<OutputIterator> suback_encoder_{};
+            const publish_packet_encoder<OutputIterator> publish_encoder_{};
         };
 
     }  /// namespace decoder

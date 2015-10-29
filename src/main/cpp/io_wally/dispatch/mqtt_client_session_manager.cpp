@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <map>
+#include <algorithm>
 
 #include <boost/log/trivial.hpp>
 
@@ -61,10 +62,28 @@ namespace io_wally
         void mqtt_client_session_manager::send( const std::string& client_id, protocol::mqtt_packet::ptr packet )
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "SEND: [cltid:" << client_id << "|pkt:" << *packet << "] ...";
-            auto session = sessions_[client_id];  // This will default construct a new session if client_id is not yet
-                                                  // mapped to a session.
+            // TODO: This will default construct (is that possible?) a new session if client_id is not yet registered.
+            auto session = sessions_[client_id];
             session->send( packet );
             BOOST_LOG_SEV( logger_, lvl::debug ) << "SENT: [cltid:" << client_id << "|pkt:" << *packet << "]";
+        }
+
+        void mqtt_client_session_manager::publish( const std::vector<resolved_subscriber_t>& subscribers,
+                                                   std::shared_ptr<const protocol::publish> publish )
+        {
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "PUBLISH:   [subscr:" << subscribers.size( ) << "|pkt:" << *publish
+                                                 << "] ...";
+            for_each( subscribers.begin( ),
+                      subscribers.end( ),
+                      [this, &publish]( const resolved_subscriber_t& subscriber )
+                      {
+                // TODO: This will default construct (is that possible?) a new session if client_id is not yet
+                // registered.
+                auto session = sessions_[subscriber.first];
+                session->send( publish );
+            } );
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "PUBLISHED: [subscr:" << subscribers.size( ) << "|pkt:" << *publish
+                                                 << "]";
         }
 
         void mqtt_client_session_manager::destroy( const std::string client_id )

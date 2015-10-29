@@ -262,8 +262,10 @@ CXXFLAGS_REL              += -O3
 
 CXXFLAGS_DEBUG            := $(CXXFLAGS_M)
 CXXFLAGS_DEBUG            += -O0 -g
-CXXFLAGS_DEBUG            += -D_GLIBCXX_DEBUG
 CXXFLAGS_DEBUG            += -DBOOST_ASIO_ENABLE_HANDLER_TRACKING
+# Actually, we would like to enable _GLIBCXX_DEBUG, but this is incompatible with Boost Program Options's debug build.
+# See: https://trac.macports.org/ticket/22112
+#CXXFLAGS_DEBUG            += -D_GLIBCXX_DEBUG
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Compiler configuration: main executable SANITIZE

@@ -58,6 +58,13 @@ namespace io_wally
             /// \param packet MQTT packet to send
             void send( const std::string& client_id, protocol::mqtt_packet::ptr packet );
 
+            /// \brief Publish packet \c publish to all \c subscribers.
+            ///
+            /// \param subscribers Subscribers to publish packet \c publish to
+            /// \param publish MQTT PUBLISH packet to publish
+            void publish( const std::vector<resolved_subscriber_t>& subscribers,
+                          std::shared_ptr<const protocol::publish> publish );
+
             /// \brief Destroy the \c mqtt_client_session identified by specified \c client_id.
             ///
             /// \param client_id Client ID associated with \c mqtt_client_session to destroy (remove from this manager)

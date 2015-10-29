@@ -74,7 +74,6 @@ namespace io_wally
             if ( ec )
             {
                 BOOST_LOG_SEV( logger_, lvl::error ) << "RX FAILED: [ec:" << ec << "|emsg:" << ec.message( ) << "]";
-                do_receive_packet( );
             }
             else
             {
@@ -96,14 +95,15 @@ namespace io_wally
                 }
                 else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBLISH )
                 {
-                    BOOST_LOG_SEV( logger_, lvl::warning ) << "NOT YET IMPLEMENTED: " << *packet_container->packet( );
+                    auto resolved_subscribers = topic_subscriptions_.resolve_subscribers( packet_container );
+                    session_manager_.publish( resolved_subscribers, packet_container->packetAs<protocol::publish>( ) );
                 }
                 else
                 {
                     assert( false );
                 }
-                do_receive_packet( );
             }
+            do_receive_packet( );
         }
     }  // namespace dispatch
 }  // namespace io_wally

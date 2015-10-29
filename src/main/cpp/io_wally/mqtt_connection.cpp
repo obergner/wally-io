@@ -144,6 +144,21 @@ namespace io_wally
 
     void mqtt_connection::on_header_data_read( const boost::system::error_code& ec, const size_t bytes_transferred )
     {
+        if ( ec && ( ec == boost::asio::error::operation_aborted ) )
+        {
+            // We are in a regular shutdown sequence
+            return;
+        }
+        if ( ec && ( ( ec == boost::asio::error::eof ) || ( ec == boost::asio::error::connection_reset ) ) )
+        {
+            // Client disconnected. Could be that he sent a last packet we want to decode.
+            BOOST_LOG_SEV( logger_, lvl::info ) << "<<< Received EOF/CONNECTION_RESET: client disconnected";
+            // TODO: We should at least try to decode a last DISCONNECT - otherwise (if there is no DISCONNECT) this was
+            // an unexpected connection loss.
+            connection_close_requested(
+                "<<< Client disconnected", dispatch::disconnect_reason::client_disconnect, ec, lvl::info );
+            return;
+        }
         if ( ec )
         {
             connection_close_requested(
@@ -226,6 +241,21 @@ namespace io_wally
                                              const boost::system::error_code& ec,
                                              const size_t bytes_transferred )
     {
+        if ( ec && ( ec == boost::asio::error::operation_aborted ) )
+        {
+            // We are in a regular shutdown sequence
+            return;
+        }
+        if ( ec && ( ( ec == boost::asio::error::eof ) || ( ec == boost::asio::error::connection_reset ) ) )
+        {
+            // Client disconnected. Could be that he sent a last packet we want to decode.
+            BOOST_LOG_SEV( logger_, lvl::info ) << "<<< Received EOF/CONNECTION_RESET: client disconnected";
+            // TODO: We should at least try to decode a last DISCONNECT - otherwise (if there is no DISCONNECT) this was
+            // an unexpected connection loss.
+            connection_close_requested(
+                "<<< Client disconnected", dispatch::disconnect_reason::client_disconnect, ec, lvl::info );
+            return;
+        }
         if ( ec )
         {
             connection_close_requested(
@@ -590,7 +620,7 @@ namespace io_wally
             // - we don't have a means of identifying any client_session anyway
             //
             auto disconnect = make_shared<const protocol::disconnect>( );
-            dispatch_disconnect_packet( disconnect, dispatch::disconnect_reason::network_or_server_failure );
+            dispatch_disconnect_packet( disconnect, reason );
         }
         else
         {

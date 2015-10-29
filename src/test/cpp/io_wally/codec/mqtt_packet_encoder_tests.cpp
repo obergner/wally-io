@@ -85,4 +85,81 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
             }
         }
     }
+
+    GIVEN( "a publish packet" )
+    {
+        auto header = protocol::packet::header{3 << 4 | 0x00, 23};
+        auto packet_identifier = uint16_t{7};
+        auto topic = "surgemq";
+        auto application_message = std::vector<uint8_t>{'s', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e'};
+        auto publish = protocol::publish{header, topic, packet_identifier, application_message};
+
+        auto result = std::array<std::uint8_t, 25>{{0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00,
+                                                    0x00}};
+        auto expected_result = std::array<std::uint8_t, 25>{{
+            ( 3 << 4 | 0x00 ),
+            0x17,
+            0x00,
+            0x07,
+            's',
+            'u',
+            'r',
+            'g',
+            'e',
+            'm',
+            'q',
+            0x00,
+            0x07,
+            's',
+            'e',
+            'n',
+            'd',
+            ' ',
+            'm',
+            'e',
+            ' ',
+            'h',
+            'o',
+            'm',
+            'e',
+        }};
+
+        WHEN( "a client passes that packet into publish_packet_encoder::encode" )
+        {
+            auto new_buf_start = under_test.encode( publish, result.begin( ), result.end( ) );
+
+            THEN( "that client should see a correctly encoded buffer" )
+            {
+                REQUIRE( result == expected_result );
+            }
+
+            AND_THEN( "it should see a correctly advanced out iterator" )
+            {
+                REQUIRE( ( new_buf_start - result.begin( ) ) == publish.header( ).total_length( ) );
+            }
+        }
+    }
 }
