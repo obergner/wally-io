@@ -144,25 +144,9 @@ namespace io_wally
 
     void mqtt_connection::on_header_data_read( const boost::system::error_code& ec, const size_t bytes_transferred )
     {
-        if ( ec && ( ec == boost::asio::error::operation_aborted ) )
-        {
-            // We are in a regular shutdown sequence
-            return;
-        }
-        if ( ec && ( ( ec == boost::asio::error::eof ) || ( ec == boost::asio::error::connection_reset ) ) )
-        {
-            // Client disconnected. Could be that he sent a last packet we want to decode.
-            BOOST_LOG_SEV( logger_, lvl::info ) << "<<< Received EOF/CONNECTION_RESET: client disconnected";
-            // TODO: We should at least try to decode a last DISCONNECT - otherwise (if there is no DISCONNECT) this was
-            // an unexpected connection loss.
-            connection_close_requested(
-                "<<< Client disconnected", dispatch::disconnect_reason::client_disconnect, ec, lvl::info );
-            return;
-        }
         if ( ec )
         {
-            connection_close_requested(
-                "<<< Failed to read header", dispatch::disconnect_reason::network_or_server_failure, ec, lvl::error );
+            on_read_failed( ec, bytes_transferred );
             return;
         }
 
@@ -241,25 +225,9 @@ namespace io_wally
                                              const boost::system::error_code& ec,
                                              const size_t bytes_transferred )
     {
-        if ( ec && ( ec == boost::asio::error::operation_aborted ) )
-        {
-            // We are in a regular shutdown sequence
-            return;
-        }
-        if ( ec && ( ( ec == boost::asio::error::eof ) || ( ec == boost::asio::error::connection_reset ) ) )
-        {
-            // Client disconnected. Could be that he sent a last packet we want to decode.
-            BOOST_LOG_SEV( logger_, lvl::info ) << "<<< Received EOF/CONNECTION_RESET: client disconnected";
-            // TODO: We should at least try to decode a last DISCONNECT - otherwise (if there is no DISCONNECT) this was
-            // an unexpected connection loss.
-            connection_close_requested(
-                "<<< Client disconnected", dispatch::disconnect_reason::client_disconnect, ec, lvl::info );
-            return;
-        }
         if ( ec )
         {
-            connection_close_requested(
-                "<<< Failed to read body", dispatch::disconnect_reason::network_or_server_failure, ec, lvl::error );
+            on_read_failed( ec, bytes_transferred );
             return;
         }
 
@@ -289,6 +257,41 @@ namespace io_wally
         }
 
         return;
+    }
+
+    void mqtt_connection::on_read_failed( const boost::system::error_code& ec, const size_t bytes_transferred )
+    {
+        assert( ec );
+        if ( ( ec == boost::asio::error::eof ) || ( ec == boost::asio::error::connection_reset ) )
+        {
+            // Client disconnected. Could be that he sent a last packet we want to decode.
+            BOOST_LOG_SEV( logger_, lvl::info )
+                << "<<< EOF/CONNECTION RESET: client disconnected - decoding last received packet ...";
+            // TODO: We should at least try to decode a last DISCONNECT - otherwise (if there is no DISCONNECT) this was
+            // an unexpected connection loss.
+            auto const result =
+                header_decoder_.decode( read_buffer_.begin( ), read_buffer_.begin( ) + bytes_transferred );
+            if ( !result.is_parsing_complete( ) )
+            {
+                // HIGHLY UNLIKELY: header is at most 5 bytes.
+                BOOST_LOG_SEV( logger_, lvl::warning ) << "<<< Header data incomplete - abort";
+            }
+            else
+            {
+                // Reset header_decoder's internal state: not needed since we will close this connection no matter what,
+                // but Mum always told me to clean up after yourself ...
+                header_decoder_.reset( );
+
+                BOOST_LOG_SEV( logger_, lvl::info ) << "<<< Last received message: " << result.parsed_header( );
+            }
+            connection_close_requested(
+                "<<< Client disconnected", dispatch::disconnect_reason::client_disconnect, ec, lvl::info );
+        }
+        else if ( ec != boost::asio::error::operation_aborted )  // opration_aborted: regular shutdown sequence
+        {
+            connection_close_requested(
+                "<<< Failed to read header", dispatch::disconnect_reason::network_or_server_failure, ec, lvl::error );
+        }
     }
 
     // Processing and dispatching decoded messages
