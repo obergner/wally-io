@@ -33,14 +33,14 @@ namespace io_wally
             auto tf_idx = size_t{0};
             while ( ( t_idx < topic.length( ) ) && ( tf_idx < topic_filter.length( ) ) )
             {
-                auto cur_tf_char = topic_filter[tf_idx];
-                auto cur_t_char = topic[t_idx];
-                switch ( cur_tf_char )
+                auto tf_char = topic_filter[tf_idx];
+                auto t_char = topic[t_idx];
+                switch ( tf_char )
                 {
                     case '+':  // single-level wildcard
                     {
                         // + matches empty topic level
-                        if ( cur_t_char != '/' )
+                        if ( t_char != '/' )
                         {
                             while ( ( topic[t_idx] != '/' ) && ( t_idx < topic.length( ) ) )
                                 ++t_idx;
@@ -56,7 +56,7 @@ namespace io_wally
                     case '/':  // topic separator
                     default:   // regular character
                     {
-                        if ( cur_t_char != cur_tf_char )
+                        if ( t_char != tf_char )
                         {
                             return false;
                         }
