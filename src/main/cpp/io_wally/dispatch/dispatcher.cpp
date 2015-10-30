@@ -11,7 +11,7 @@
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
 
-#include "io_wally/mqtt_connection.hpp"
+#include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/connect_packet.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
@@ -27,12 +27,12 @@ namespace io_wally
         // Public
         // ------------------------------------------------------------------------------------------------------------
 
-        dispatcher::ptr dispatcher::create( mqtt_connection::packetq_t& dispatchq )
+        dispatcher::ptr dispatcher::create( mqtt_packet_sender::packetq_t& dispatchq )
         {
             return std::make_shared<dispatcher>( dispatchq );
         }
 
-        dispatcher::dispatcher( mqtt_connection::packetq_t& dispatchq ) : dispatchq_{dispatchq}
+        dispatcher::dispatcher( mqtt_packet_sender::packetq_t& dispatchq ) : dispatchq_{dispatchq}
         {
         }
 
@@ -61,15 +61,15 @@ namespace io_wally
         void dispatcher::do_receive_packet( )
         {
             auto self = shared_from_this( );
-            packet_receiver_.async_deq( strand_.wrap(
-                [self]( const boost::system::error_code& ec, mqtt_connection::packet_container_t::ptr packet_container )
-                {
-                    self->handle_packet_received( ec, packet_container );
-                } ) );
+            packet_receiver_.async_deq( strand_.wrap( [self](
+                const boost::system::error_code& ec, mqtt_packet_sender::packet_container_t::ptr packet_container )
+                                                      {
+                                                          self->handle_packet_received( ec, packet_container );
+                                                      } ) );
         }
 
         void dispatcher::handle_packet_received( const boost::system::error_code& ec,
-                                                 mqtt_connection::packet_container_t::ptr packet_container )
+                                                 mqtt_packet_sender::packet_container_t::ptr packet_container )
         {
             if ( ec )
             {

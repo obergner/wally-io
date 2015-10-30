@@ -7,6 +7,7 @@
 
 #include <boost/log/trivial.hpp>
 
+#include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
 #include "io_wally/protocol/suback_packet.hpp"
@@ -83,7 +84,7 @@ namespace io_wally
         // --------------------------------------------------------------------------------
 
         std::shared_ptr<const protocol::suback> topic_subscriptions::subscribe(
-            mqtt_connection::packet_container_t::ptr subscribe )
+            mqtt_packet_sender::packet_container_t::ptr subscribe )
         {
             assert( subscribe->packet_type( ) == protocol::packet::Type::SUBSCRIBE );
 
@@ -104,7 +105,7 @@ namespace io_wally
         }
 
         const std::vector<resolved_subscriber_t> topic_subscriptions::resolve_subscribers(
-            mqtt_connection::packet_container_t::ptr publish ) const
+            mqtt_packet_sender::packet_container_t::ptr publish ) const
         {
             // Note on logging: since this method is declared as const we cannot use our logger here.
             assert( publish->packet_type( ) == protocol::packet::Type::PUBLISH );

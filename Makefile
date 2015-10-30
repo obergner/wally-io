@@ -114,6 +114,12 @@ EXEC_M_SAN               := $(BUILD_M_SAN)/wally-iod
 # Test SRCS
 SRC_DIR_UT                := src/test/cpp
 
+# Test framework SRCS
+SRCS_UT_FRM               := $(wildcard $(SRC_DIR_UT)/framework/*.cpp)
+
+# Test framework objects
+OBJS_UT_FRM               := $(patsubst $(SRC_DIR_UT)/%.cpp, $(BUILD_UT)/%.o, $(SRCS_UT_FRM))
+
 SRCS_UT                   := $(wildcard $(SRC_DIR_UT)/io_wally/*.cpp)
 SRCS_UT                   += $(wildcard $(SRC_DIR_UT)/io_wally/protocol/*.cpp)
 SRCS_UT                   += $(wildcard $(SRC_DIR_UT)/io_wally/codec/*.cpp)
@@ -301,6 +307,9 @@ CXXFLAGS_UT               += -fsanitize=leak
 CXXFLAGS_UT               += -fsanitize=undefined
 CXXFLAGS_UT               += -fno-omit-frame-pointer
 
+# Test preprocessor flags
+CPPFLAGS_UT               := $(CPPFLAGS_M)
+
 # Test linker flags
 LDLIBS_UT                 := $(LDLIBS_M)
 LDLIBS_UT                 += -fsanitize=address
@@ -413,11 +422,11 @@ test-compile              : $(EXEC_UT)                             | $(BUILDDIRS
 $(BUILDDIRS_UT)           :
 	@mkdir -p $@
 
-$(EXEC_UT)                : $(OBJS_M_SAN) $(OBJS_UT) $(EXECOBJ_UT) | $(BUILDDIRS_UT)
+$(EXEC_UT)                : $(OBJS_M_SAN) $(OBJS_UT) $(OBJS_UT_FRM) $(EXECOBJ_UT) | $(BUILDDIRS_UT)
 	$(CXX) $(LDLIBS_UT) -o $@ $^
 
 $(BUILD_UT)/%.o           : $(SRC_DIR_UT)/%.cpp                    | $(BUILDDIRS_UT)
-	$(CXX) $(CXXFLAGS_UT) -o $@ -c $<
+	$(CXX) $(CPPFLAGS_UT) $(CXXFLAGS_UT) -o $@ -c $<
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build/run integration tests
@@ -537,7 +546,7 @@ format                    : format-itest
 
 .PHONY                    : tags
 tags                      : $(SRCS_M) $(EXECSOURCE_M) $(SRCS_UT) $(EXECSOURCE_UT) $(SRCS_IT) $(EXECSOURCE_IT)
-	@ctags -R -f ./build/.tags $(SRC_DIR_M) $(SRC_DIR_UT) $(SRC_DIR_IT)
+	@ctags -R -f ./.tags $(SRC_DIR_M) $(SRC_DIR_UT) $(SRC_DIR_IT)
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Prepare a commit: run (almost) everything

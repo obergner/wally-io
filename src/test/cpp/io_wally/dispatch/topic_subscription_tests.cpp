@@ -1,5 +1,7 @@
 #include "catch.hpp"
 
+#include "framework/factories.hpp"
+
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/dispatch/topic_subscriptions.hpp"
@@ -8,32 +10,33 @@
 
 using namespace io_wally::protocol;
 
-// SCENARIO( "topic_subscriptions#resolve_subscribers", "[dispatch]" )
-//{
-//    static const packet::QoS MAX_QOS = packet::QoS::AT_LEAST_ONCE;
-//    static const std::string CLIENT_ID = "subscription_container_tests";
-//
-//    GIVEN(
-//        "topic filter \"/sports/premiere-league/barcelona/\" and the same topic "
-//        "\"/sports/premiere-league/barcelona/\"" )
-//    {
-//        auto header = packet::header{0x08 << 4, 20};  // 20 is just some number
-//        auto packet_id = uint16_t{9};
-//        auto subscriptions = std::vector<subscription>{{"/topic/*/level", packet::QoS::AT_MOST_ONCE},
-//                                                       {"/topic/*/*", packet::QoS::AT_LEAST_ONCE},
-//                                                       {"/topic/#", packet::QoS::EXACTLY_ONCE}};
-//        auto subscribe_packet = subscribe{header, packet_id, subscriptions};
-//
-//        auto const topic_filter = "/sports/premiere-league/barcelona/";
-//        auto const topic = "/sports/premiere-league/barcelona/";
-//        auto const under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
-//
-//        WHEN( "a caller matches topic against topic filter " )
-//        {
-//            THEN( "it should see the match succeed" )
-//            {
-//                REQUIRE( under_test.matches( topic ) == true );
-//            }
-//        }
-//    }
-//}
+SCENARIO( "topic_subscriptions#resolve_subscribers", "[dispatch]" )
+{
+    GIVEN( "topic_subscriptions with three subscriptions having different QoS" )
+    {
+        io_wally::dispatch::topic_subscriptions under_test{};
+
+        auto subscriptions = std::vector<subscription>{{"/topic/*/level", packet::QoS::AT_MOST_ONCE},
+                                                       {"/topic/*/*", packet::QoS::AT_LEAST_ONCE},
+                                                       {"/topic/#", packet::QoS::EXACTLY_ONCE}};
+        auto subscr_cont = framework::create_subscribe_container( subscriptions );
+        under_test.subscribe( subscr_cont );
+
+        WHEN( "a caller resolves subscribers for a topic that matches all three subscriptions " )
+        {
+            auto publish_cont = framework::create_publish_container( "/topic/first/level" );
+            auto subscribers = under_test.resolve_subscribers( publish_cont );
+
+            THEN( "it should receive a single subscriber" )
+            {
+                REQUIRE( subscribers.size( ) == 1 );
+            }
+
+            AND_THEN( "that subscriber should have the maximum of all three QoS levels assigned" )
+            {
+                auto const assigned_qos = subscribers[0].second;
+                REQUIRE( assigned_qos == packet::QoS::EXACTLY_ONCE );
+            }
+        }
+    }
+}

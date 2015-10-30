@@ -3,11 +3,11 @@
 #include <string>
 #include <memory>
 
-#include <boost/log/core.hpp>
+#include <boost/log/common.hpp>
 #include <boost/log/trivial.hpp>
 
 #include "io_wally/protocol/common.hpp"
-#include "io_wally/mqtt_connection.hpp"
+#include "io_wally/mqtt_packet_sender.hpp"
 
 namespace io_wally
 {
@@ -23,12 +23,12 @@ namespace io_wally
 
             static mqtt_client_session::ptr create( mqtt_client_session_manager& session_manager,
                                                     const std::string& client_id,
-                                                    std::weak_ptr<mqtt_connection> connection );
+                                                    std::weak_ptr<mqtt_packet_sender> connection );
 
            public:
             mqtt_client_session( mqtt_client_session_manager& session_manager,
                                  const std::string& client_id,
-                                 std::weak_ptr<mqtt_connection> connection );
+                                 std::weak_ptr<mqtt_packet_sender> connection );
 
             /// \brief ID of client connected to this \c mqtt_client_session.
             ///
@@ -46,7 +46,7 @@ namespace io_wally
            private:
             mqtt_client_session_manager& session_manager_;
             const std::string client_id_;
-            std::weak_ptr<mqtt_connection> connection_;
+            std::weak_ptr<mqtt_packet_sender> connection_;
             /// Our severity-enabled channel logger
             boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
                 boost::log::keywords::channel = "client-session:" + client_id_,

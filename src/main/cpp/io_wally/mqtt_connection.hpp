@@ -16,6 +16,7 @@
 
 #include <boost/asio_queue.hpp>
 
+#include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/context.hpp"
 #include "io_wally/logging_support.hpp"
 
@@ -38,17 +39,11 @@ namespace io_wally
     ///  \brief An MQTT client connection.
     ///
     /// Represents a persistent connection between a client and an \c mqtt_server.
-    class mqtt_connection final : public std::enable_shared_from_this<mqtt_connection>
+    class mqtt_connection final : public mqtt_packet_sender, public std::enable_shared_from_this<mqtt_connection>
     {
         friend class mqtt_connection_manager;
 
        public:  // static
-        /// A container for protocol packets
-        using packet_container_t = dispatch::packet_container<mqtt_connection>;
-
-        /// Queue of protocol packet containers
-        using packetq_t = boost::asio::simple_queue<packet_container_t::ptr>;
-
         /// A \c shared_ptr to an \c mqtt_connection.
         using ptr = std::shared_ptr<mqtt_connection>;
 
@@ -69,24 +64,29 @@ namespace io_wally
         /// \brief Start this connection, initiating reading incoming data.
         void start( );
 
+        virtual inline const boost::optional<const std::string>& client_id( ) const override
+        {
+            return client_id_;
+        }
+
         /// \brief Send an \c mqtt_packet to connected client.
-        void send( protocol::mqtt_packet::ptr packet );
+        virtual void send( protocol::mqtt_packet::ptr packet ) override;
 
         /// \brief Stop this connection, closing its \c tcp::socket.
-        void stop( const std::string& message = "",
-                   const boost::log::trivial::severity_level log_level = boost::log::trivial::info );
+        virtual void stop( const std::string& message = "",
+                           const boost::log::trivial::severity_level log_level = boost::log::trivial::info ) override;
 
         /// \brief Return a string representation to be used in log output.
         ///
         /// \return A string representation to be used in log output
-        const std::string to_string( ) const;
+        virtual const std::string to_string( ) const override;
 
-        inline friend std::ostream& operator<<( std::ostream& output, mqtt_connection const& mqtt_connection )
-        {
-            output << mqtt_connection.to_string( );
+        // inline friend std::ostream& operator<<( std::ostream& output, mqtt_connection const& mqtt_connection )
+        // {
+        //     output << mqtt_connection.to_string( );
 
-            return output;
-        }
+        //     return output;
+        // }
 
        private:
         /// Hide constructor since we MUST be created by static factory method 'create' above
