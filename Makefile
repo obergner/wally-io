@@ -359,6 +359,12 @@ LDLIBS_IT                 += -fsanitize=address
 LDLIBS_IT                 += -fsanitize=leak
 LDLIBS_IT                 += -fsanitize=undefined
 
+# --------------------------------------------------------------------------------------------------------------------- 
+# catch.hpp: test library on github
+# --------------------------------------------------------------------------------------------------------------------- 
+
+CATCH_DL_URL              := https://raw.githubusercontent.com/philsquared/Catch/master/single_include/catch.hpp
+
 #######################################################################################################################
 # Rules
 #######################################################################################################################
@@ -565,6 +571,13 @@ format                    : format-itest
 .PHONY                    : tags
 tags                      : $(SRCS_M) $(EXECSOURCE_M) $(SRCS_UT) $(EXECSOURCE_UT) $(SRCS_IT) $(EXECSOURCE_IT)
 	@ctags -R -f ./.tags $(SRC_DIR_M) $(SRC_DIR_UT) $(SRC_DIR_IT)
+
+.PHONY                    : upgrade-catch-hpp
+upgrade-catch-hpp         :
+	@mv $(SRC_DIR_UT)/catch.hpp $(SRC_DIR_UT)/catch.hpp.backup; \
+		curl --progress-bar --output $(SRC_DIR_UT)/catch.hpp $(CATCH_DL_URL); \
+		mv $(SRC_DIR_IT)/catch.hpp $(SRC_DIR_IT)/catch.hpp.backup; \
+		curl --progress-bar --output $(SRC_DIR_IT)/catch.hpp $(CATCH_DL_URL)
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Prepare a commit: run (almost) everything
