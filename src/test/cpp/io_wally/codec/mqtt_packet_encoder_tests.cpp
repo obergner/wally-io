@@ -86,9 +86,9 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
         }
     }
 
-    GIVEN( "a publish packet" )
+    GIVEN( "a PUBLISH packet with QoS 1" )
     {
-        auto header = protocol::packet::header{3 << 4 | 0x00, 23};
+        auto header = protocol::packet::header{3 << 4 | 0x02, 23};
         auto packet_identifier = uint16_t{7};
         auto topic = "surgemq";
         auto application_message = std::vector<uint8_t>{'s', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e'};
@@ -120,7 +120,7 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
                                                     0x00,
                                                     0x00}};
         auto expected_result = std::array<std::uint8_t, 25>{{
-            ( 3 << 4 | 0x00 ),
+            ( 3 << 4 | 0x02 ),
             0x17,
             0x00,
             0x07,

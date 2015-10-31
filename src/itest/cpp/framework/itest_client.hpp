@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdio.h>
+
 #include <iostream>
 #include <string>
 #include <cstdint>
@@ -65,12 +67,13 @@ namespace framework
 
             log( ) << "Receiving message ..." << std::endl;
             auto const rc = MQTTClient_receive( client_, &topic_name, &topic_len, &message, timeout_ms );
-            log( ) << "Received message: rc = " << rc << std::endl;
+            log( ) << "Received message: [rc:" << rc << "|msglen:" << message->payloadlen << "]" << std::endl;
 
             auto msg = boost::optional<const std::string>{};
             if ( message != nullptr )
             {
-                msg.emplace( std::string{static_cast<char*>( message->payload )} );
+                auto len = static_cast<size_t>( message->payloadlen );
+                msg.emplace( std::string{static_cast<char*>( message->payload ), len} );
             }
             else
             {

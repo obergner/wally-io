@@ -281,6 +281,7 @@ CXXFLAGS_DEBUG            += -DBOOST_ASIO_ENABLE_HANDLER_TRACKING
 # See: http://btorpey.github.io/blog/2014/03/27/using-clangs-address-sanitizer/
 CXXFLAGS_SAN              := $(CXXFLAGS_M)
 CXXFLAGS_SAN              += -O0
+CXXFLAGS_SAN              += -g # Needed by g++ to support line numbers in asan reports
 CXXFLAGS_SAN              += -fsanitize=address
 CXXFLAGS_SAN              += -fsanitize=leak
 CXXFLAGS_SAN              += -fsanitize=undefined
@@ -292,6 +293,21 @@ LDLIBS_SAN                += -fsanitize=address
 LDLIBS_SAN                += -fsanitize=leak
 LDLIBS_SAN                += -fsanitize=undefined
 
+# Correctly configure Address Sanitizer
+# See: https://www.chromium.org/developers/testing/leaksanitizer
+# See: http://tsdgeos.blogspot.de/2014/03/asan-and-gcc-how-to-get-line-numbers-in.html
+# NOTE: a comment to the latter post suggests that recent g++ versions do not use llvm's symbolizer anymore, yet
+# instead need sources compiled with debug flag set. THEREFORE, THESE OPTIONS ARE NOT USED ANYMORE.
+
+ASAN_OPTS                 := ASAN_OPTIONS="detect_leaks=1 symbolize=1"
+ASAN_SYMB_PATH            := ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer
+
+# Exempt some third-party libraries from leak sanitizer checks
+# See: http://clang.llvm.org/docs/AddressSanitizer.html#suppressing-reports-in-external-libraries
+# NOTE: currently not used
+LSAN_SUPP_FILE            := ./build/lsan.supp
+LSAN_OPTS                 := LSAN_OPTIONS=suppressions=$(LSAN_SUPP_FILE)
+
 # --------------------------------------------------------------------------------------------------------------------- 
 # Compiler configuration: unit tests
 # --------------------------------------------------------------------------------------------------------------------- 
@@ -299,6 +315,7 @@ LDLIBS_SAN                += -fsanitize=undefined
 # Test compiler flags
 CXXFLAGS_UT               := $(CXXFLAGS_M)
 CXXFLAGS_UT               += -O0
+CXXFLAGS_UT               += -g # Needed by g++ to support line numbers in asan reports
 CXXFLAGS_UT               += -I $(SRC_DIR_UT)
 CXXFLAGS_UT               := $(filter-out -Wswitch-default, $(CXXFLAGS_UT))
 CXXFLAGS_UT               := $(filter-out -Wswitch-enum, $(CXXFLAGS_UT))
@@ -323,6 +340,7 @@ LDLIBS_UT                 += -fsanitize=undefined
 # Integrationtest compiler flags
 CXXFLAGS_IT               := $(CXXFLAGS_M)
 CXXFLAGS_IT               += -O0
+CXXFLAGS_IT               += -g # Needed by g++ to support line numbers in asan reports
 CXXFLAGS_IT               += -I $(SRC_DIR_IT)
 CXXFLAGS_IT               += -I $(PAHO_C_INC)
 CXXFLAGS_IT               += -Wno-missing-field-initializers

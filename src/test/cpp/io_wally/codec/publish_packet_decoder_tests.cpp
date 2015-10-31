@@ -13,7 +13,7 @@ SCENARIO( "publish_packet_decoder", "[decoder]" )
 {
     auto under_test = decoder::publish_packet_decoder<const std::uint8_t*>{};
 
-    GIVEN( "a SUSBCRIBE packet body without packet identifier and a header with QoS 0" )
+    GIVEN( "a PUBLISH packet body without packet identifier and a header with QoS 0" )
     {
         auto const type_and_flags = std::uint8_t{( 3 << 4 ) | 1};  // PUBLISH + DUP 0, QoS 0, RETAIN 1
         auto const remaining_length = std::uint32_t{21};

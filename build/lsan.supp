@@ -1,0 +1,6 @@
+# Suppress memory leak errors reported by Clang's address sanitizer
+# in some third-party libraries
+
+# Paho C client library used in integration tests
+leak:src/Heap.c
+

@@ -28,12 +28,16 @@ SCENARIO_METHOD( itest_fixture, "mqtt_server MQTT PUBLISH tests", "[mqtt_server]
             auto login_pub_rc = publisher.mqtt_connect( );
             auto send_pub_rc = publisher.publish( "test/topic", "test" );
 
+            auto recvd_msg = subscriber.receive_message( 1000 );
+
             THEN( "it will succeed" )
             {
                 REQUIRE( login_rc == 0 );
                 REQUIRE( subscribe_rc == 0 );
                 REQUIRE( login_pub_rc == 0 );
                 REQUIRE( send_pub_rc == 0 );
+                REQUIRE( recvd_msg );
+                REQUIRE( *recvd_msg == "test" );
             }
         }
     }

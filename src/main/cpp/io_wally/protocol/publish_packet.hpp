@@ -36,6 +36,9 @@ namespace io_wally
             /// \brief Create a new \c publish instance.
             ///
             /// \param header           Fixed header, common to all MQTT control packets
+            /// \param topic            Topic this message should be published to
+            /// \param packet_identifier Unsigned 16 bit int identifying this packet: IGNORED IF QOS = 0
+            /// \param application_message The message payload, an opaque byte array
             publish( packet::header header,
                      const std::string& topic,
                      const uint16_t packet_identifier,
@@ -54,6 +57,16 @@ namespace io_wally
             const std::string& topic( ) const
             {
                 return topic_;
+            }
+
+            /// \brief Test if this PUBLISH packet contains a \c packet \c identifier, i.e. if QoS is NOT QoS 0 (at most
+            /// once).
+            ///
+            /// \return \c true if this packet contains a \c packet \c identifier (QoS != 0), \c false otherwise (QoS =
+            ///         0)
+            bool has_packet_identifier( ) const
+            {
+                return ( header( ).flags( ).qos( ) != packet::QoS::AT_MOST_ONCE );
             }
 
             /// \brief Return packet's \c packet_identifier.

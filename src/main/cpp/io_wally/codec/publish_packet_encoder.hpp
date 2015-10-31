@@ -39,8 +39,11 @@ namespace io_wally
                 // Encode topic
                 buf_start = encode_utf8_string( publish.topic( ), buf_start );
 
-                // Encode packet identifier
-                buf_start = encode_uint16( publish.packet_identifier( ), buf_start );
+                // Encode packet identifier IF QOS > 0
+                if ( publish.has_packet_identifier( ) )
+                {
+                    buf_start = encode_uint16( publish.packet_identifier( ), buf_start );
+                }
 
                 // Encode application message
                 std::for_each( publish.application_message( ).begin( ),
