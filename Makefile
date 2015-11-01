@@ -298,15 +298,10 @@ LDLIBS_SAN                += -fsanitize=undefined
 # See: http://tsdgeos.blogspot.de/2014/03/asan-and-gcc-how-to-get-line-numbers-in.html
 # NOTE: a comment to the latter post suggests that recent g++ versions do not use llvm's symbolizer anymore, yet
 # instead need sources compiled with debug flag set. THEREFORE, THESE OPTIONS ARE NOT USED ANYMORE.
+# NOTE: I *believe* ASAN_OPTIONS is only used when *running* an application, *not* when compiling it.
 
-ASAN_OPTS                 := ASAN_OPTIONS="detect_leaks=1 symbolize=1"
-ASAN_SYMB_PATH            := ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer
-
-# Exempt some third-party libraries from leak sanitizer checks
-# See: http://clang.llvm.org/docs/AddressSanitizer.html#suppressing-reports-in-external-libraries
-# NOTE: currently not used
-LSAN_SUPP_FILE            := ./build/lsan.supp
-LSAN_OPTS                 := LSAN_OPTIONS=suppressions=$(LSAN_SUPP_FILE)
+ASAN_SUPPRESSIONS         := ./build/asan.supp
+ASAN_OPTS                 := ASAN_OPTIONS=detect_leaks=1:symbolize=1:verbosity=0:suppressions=$(ASAN_SUPPRESSIONS)
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Compiler configuration: unit tests
@@ -324,7 +319,7 @@ CXXFLAGS_UT               += -fsanitize=leak
 CXXFLAGS_UT               += -fsanitize=undefined
 CXXFLAGS_UT               += -fno-omit-frame-pointer
 
-# Test preprocessor flags
+# Integrationtest preprocessor flags
 CPPFLAGS_UT               := $(CPPFLAGS_M)
 
 # Test linker flags
@@ -351,12 +346,15 @@ CXXFLAGS_IT               += -fsanitize=leak
 CXXFLAGS_IT               += -fsanitize=undefined
 CXXFLAGS_IT               += -fno-omit-frame-pointer
 
+# Integrationtest preprocessor flags
+CPPFLAGS_IT               := $(CPPFLAGS_M)
+
 # Integrationtest linker flags
 LDLIBS_IT                 := $(LDLIBS_M)
 LDLIBS_IT                 += -L$(PAHO_C_LIBS)
 LDLIBS_IT                 += -lpaho-mqtt3c
 LDLIBS_IT                 += -fsanitize=address
-LDLIBS_IT                 += -fsanitize=leak
+LDLIBS_IT                 += -fsanitize=leak 
 LDLIBS_IT                 += -fsanitize=undefined
 
 # --------------------------------------------------------------------------------------------------------------------- 
@@ -458,7 +456,7 @@ $(BUILD_UT)/%.o           : $(SRC_DIR_UT)/%.cpp                    | $(BUILDDIRS
 
 .PHONY                    : itest
 itest                     : itest-compile
-	@LD_LIBRARY_PATH=$(PAHO_C_LIBS):$(LD_LIBRARY_PATH) ./$(EXEC_IT) --success --durations yes
+	@LD_LIBRARY_PATH=$(PAHO_C_LIBS):$(LD_LIBRARY_PATH) $(ASAN_OPTS) ./$(EXEC_IT) --success --durations yes
 
 itest-compile             : paho-c
 itest-compile             : $(EXEC_IT)                             | $(BUILDDIRS_IT)
@@ -470,7 +468,7 @@ $(EXEC_IT)                : $(OBJS_M_SAN) $(OBJS_IT) $(OBJS_IT_FRM) $(EXECOBJ_IT
 	$(CXX) $(LDLIBS_IT) -o $@ $^
 
 $(BUILD_IT)/%.o           : $(SRC_DIR_IT)/%.cpp                    | $(BUILDDIRS_IT)
-	$(CXX) $(CPPFLAGS_M) $(CXXFLAGS_IT) -o $@ -c $<
+	$(CXX) $(CPPFLAGS_IT) $(CXXFLAGS_IT) -o $@ -c $<
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build snippets: try stuff, analyse bugs etc
