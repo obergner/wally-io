@@ -327,9 +327,13 @@ namespace io_wally
                 process_publish_packet( dynamic_pointer_cast<const protocol::publish>( packet ) );
             }
             break;
+            case packet::Type::PUBACK:
+            {
+                BOOST_LOG_SEV( logger_, lvl::warning ) << "NOT YET IMPLEMENTED: Discard " << *packet;
+            }
+            break;
             case packet::Type::CONNACK:
             case packet::Type::PINGRESP:
-            case packet::Type::PUBACK:
             case packet::Type::PUBREL:
             case packet::Type::PUBREC:
             case packet::Type::PUBCOMP:

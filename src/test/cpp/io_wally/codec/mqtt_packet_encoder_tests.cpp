@@ -162,4 +162,28 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
             }
         }
     }
+
+    GIVEN( "a puback packet" )
+    {
+        auto packet_identifier = uint16_t{65535};
+        auto puback = protocol::puback{packet_identifier};
+
+        auto result = std::array<std::uint8_t, 4>{{0x00, 0x00, 0x00, 0x00}};
+        auto expected_result = std::array<std::uint8_t, 4>{{0x40, 0x02, 0xFF, 0xFF}};
+
+        WHEN( "a client passes that packet into puback_packet_encoder::encode" )
+        {
+            auto new_buf_start = under_test.encode( puback, result.begin( ), result.end( ) );
+
+            THEN( "that client should see a correctly encoded buffer" )
+            {
+                REQUIRE( result == expected_result );
+            }
+
+            AND_THEN( "it should see a correctly advanced out iterator" )
+            {
+                REQUIRE( ( new_buf_start - result.begin( ) ) == puback.header( ).total_length( ) );
+            }
+        }
+    }
 }

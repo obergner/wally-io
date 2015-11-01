@@ -15,6 +15,7 @@
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/connect_packet.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
+#include "io_wally/protocol/puback_packet.hpp"
 #include "io_wally/dispatch/common.hpp"
 
 namespace io_wally
@@ -95,8 +96,11 @@ namespace io_wally
                 }
                 else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBLISH )
                 {
+                    auto publish = packet_container->packetAs<protocol::publish>( );
                     auto resolved_subscribers = topic_subscriptions_.resolve_subscribers( packet_container );
-                    session_manager_.publish( resolved_subscribers, packet_container->packetAs<protocol::publish>( ) );
+                    session_manager_.publish( resolved_subscribers, publish );
+                    auto puback = std::make_shared<protocol::puback>( publish->packet_identifier( ) );
+                    session_manager_.send( packet_container->client_id( ), puback );
                 }
                 else
                 {
