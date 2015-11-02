@@ -25,6 +25,10 @@ namespace io_wally
 
         static const int DEFAULT_SERVER_PORT = 1883;
 
+        static const uint32_t DEFAULT_PUB_ACK_TIMEOUT_MS = 1000;
+
+        static const size_t DEFAULT_PUB_MAX_RETRIES = 5;
+
         static const std::string DEFAULT_AUTHENTICATION_SERVICE_FACTORY = "accept_all";
     }  // namespace defaults
 }  // namespace io_wally

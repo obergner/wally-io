@@ -54,6 +54,12 @@ namespace io_wally
             static constexpr const char* WRITE_BUFFER_SIZE = "conn-wbuf-size";
             static constexpr const char* WRITE_BUFFER_SIZE_SPEC = "conn-wbuf-size";
 
+            static constexpr const char* PUB_ACK_TIMEOUT = "pub-ack-timeout";
+            static constexpr const char* PUB_ACK_TIMEOUT_SPEC = "pub-ack-timeout";
+
+            static constexpr const char* PUB_MAX_RETRIES = "pub-max-retries";
+            static constexpr const char* PUB_MAX_RETRIES_SPEC = "pub-max-retries";
+
            public:
             const std::pair<const boost::program_options::variables_map,
                             const boost::program_options::options_description>

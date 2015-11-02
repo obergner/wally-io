@@ -34,8 +34,6 @@ namespace io_wally
 {
     class mqtt_connection_manager;
 
-    using buf_iter = std::vector<uint8_t>::iterator;
-
     ///  \brief An MQTT client connection.
     ///
     /// Represents a persistent connection between a client and an \c mqtt_server.
@@ -46,6 +44,8 @@ namespace io_wally
        public:  // static
         /// A \c shared_ptr to an \c mqtt_connection.
         using ptr = std::shared_ptr<mqtt_connection>;
+
+        using buf_iter = std::vector<uint8_t>::iterator;
 
         /// Factory method for \c mqtt_connections.
         static mqtt_connection::ptr create( boost::asio::ip::tcp::socket socket,

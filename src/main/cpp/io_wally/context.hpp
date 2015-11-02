@@ -42,6 +42,10 @@ namespace io_wally
 
         static constexpr const char* WRITE_BUFFER_SIZE = app::options_parser::WRITE_BUFFER_SIZE;
 
+        static constexpr const char* PUB_ACK_TIMEOUT = app::options_parser::PUB_ACK_TIMEOUT;
+
+        static constexpr const char* PUB_MAX_RETRIES = app::options_parser::PUB_MAX_RETRIES;
+
        public:
         context( boost::program_options::variables_map options,
                  std::unique_ptr<spi::authentication_service> authentication_service )

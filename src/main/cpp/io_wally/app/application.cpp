@@ -62,7 +62,7 @@ DISCLAIMER:
 
                 auto ctx = context( move( config ), move( auth_service ) );
 
-                dispatcher_ = dispatch::dispatcher::create( dispatchq_ );
+                dispatcher_ = dispatch::dispatcher::create( ctx, dispatchq_ );
                 dispatcher_->run( );
 
                 server_ = mqtt_server::create( move( ctx ), dispatchq_ );

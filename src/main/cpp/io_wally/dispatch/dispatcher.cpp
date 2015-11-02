@@ -28,12 +28,13 @@ namespace io_wally
         // Public
         // ------------------------------------------------------------------------------------------------------------
 
-        dispatcher::ptr dispatcher::create( mqtt_packet_sender::packetq_t& dispatchq )
+        dispatcher::ptr dispatcher::create( const context& context, mqtt_packet_sender::packetq_t& dispatchq )
         {
-            return std::make_shared<dispatcher>( dispatchq );
+            return std::make_shared<dispatcher>( context, dispatchq );
         }
 
-        dispatcher::dispatcher( mqtt_packet_sender::packetq_t& dispatchq ) : dispatchq_{dispatchq}
+        dispatcher::dispatcher( const context& context, mqtt_packet_sender::packetq_t& dispatchq )
+            : context_{context}, dispatchq_{dispatchq}
         {
         }
 

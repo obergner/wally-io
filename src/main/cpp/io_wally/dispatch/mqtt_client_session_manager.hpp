@@ -4,10 +4,12 @@
 #include <memory>
 #include <map>
 
+#include <boost/asio.hpp>
 #include <boost/log/common.hpp>
 #include <boost/log/trivial.hpp>
 
 #include "io_wally/logging_support.hpp"
+#include "io_wally/context.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/dispatch/mqtt_client_session.hpp"
@@ -24,7 +26,7 @@ namespace io_wally
         {
            public:
             /// \brief Create a session manager.
-            mqtt_client_session_manager( ) = default;
+            mqtt_client_session_manager( const context& context, boost::asio::io_service& io_service );
 
             /// \brief Destroy this session manager, taking care to destroy all \c mqtt_client_session instances.
             ~mqtt_client_session_manager( );
@@ -33,6 +35,10 @@ namespace io_wally
             mqtt_client_session_manager( const mqtt_client_session_manager& ) = delete;
             /// An mqtt_client_session_manager cannot be copied.
             mqtt_client_session_manager& operator=( const mqtt_client_session_manager& ) = delete;
+
+            const io_wally::context& context( ) const;
+
+            boost::asio::io_service& io_service( ) const;
 
             /// \brief Called when a new successful CONNECT request has been received. Creates a new \c
             /// mqtt_client_session.
@@ -75,6 +81,10 @@ namespace io_wally
             void destroy_all( );
 
            private:
+            /// Our configuration context, to be passed on to client sessions
+            const io_wally::context& context_;
+            /// Boost Asio io_service, to be passed on to client sessions
+            boost::asio::io_service& io_service_;
             /// The managed sessions.
             std::map<const std::string, mqtt_client_session::ptr> sessions_{};
             /// Our severity-enabled channel logger

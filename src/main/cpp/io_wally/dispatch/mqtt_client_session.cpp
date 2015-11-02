@@ -31,7 +31,10 @@ namespace io_wally
         mqtt_client_session::mqtt_client_session( mqtt_client_session_manager& session_manager,
                                                   const std::string& client_id,
                                                   std::weak_ptr<mqtt_packet_sender> connection )
-            : session_manager_{session_manager}, client_id_{client_id}, connection_{connection}
+            : session_manager_{session_manager},
+              client_id_{client_id},
+              connection_{connection},
+              in_flight_publications_{session_manager.context( ), session_manager.io_service( ), connection}
         {
         }
 

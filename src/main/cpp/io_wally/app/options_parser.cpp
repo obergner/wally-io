@@ -68,6 +68,15 @@ namespace io_wally
                 "Do not log, neither to file nor to console\nIf this option is set --log-file, --log-console, "
                 "--log-file-level and --log-console-level will be ignored" );
 
+            auto publication_opts = options::options_description{"Publication", 100, 50};
+            publication_opts.add_options( )(
+                PUB_ACK_TIMEOUT_SPEC,
+                options::value<uint32_t>( )->default_value( DEFAULT_PUB_ACK_TIMEOUT_MS )->value_name( "<timeout>" ),
+                "Resend PUBLISH after <timeout> ms without receiving a PUBACK" )(
+                PUB_MAX_RETRIES_SPEC,
+                options::value<size_t>( )->default_value( DEFAULT_PUB_MAX_RETRIES )->value_name( "<retries>" ),
+                "Retry sending PUBLISH for at most <retries> times" );
+
             auto authentication_opts = options::options_description{"Authentication", 100, 50};
             authentication_opts.add_options( )(
                 AUTHENTICATION_SERVICE_FACTORY_SPEC,
@@ -76,12 +85,17 @@ namespace io_wally
                 "Use authentication service factory <name>" );
 
             auto all = options::options_description{"Allowed options", 100, 50};
-            all.add( cmd_line_opts ).add( logging_opts ).add( server_opts ).add( authentication_opts ).add(
-                connection_opts );
+            all.add( cmd_line_opts )
+                .add( logging_opts )
+                .add( server_opts )
+                .add( publication_opts )
+                .add( authentication_opts )
+                .add( connection_opts );
             options::store( options::parse_command_line( argc, argv, all ), config );
 
             auto config_file = options::options_description{"Config file options", 100, 50};
-            config_file.add( logging_opts ).add( server_opts ).add( authentication_opts ).add( connection_opts );
+            config_file.add( logging_opts ).add( server_opts ).add( publication_opts ).add( authentication_opts ).add(
+                connection_opts );
             auto config_fstream = ifstream{config[CONFIG_FILE].as<string>( ).c_str( )};
             options::store( options::parse_config_file( config_fstream, config_file ), config );
 

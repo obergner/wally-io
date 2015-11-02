@@ -8,6 +8,7 @@
 
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
+#include "io_wally/dispatch/in_flight_publications.hpp"
 
 namespace io_wally
 {
@@ -47,6 +48,7 @@ namespace io_wally
             mqtt_client_session_manager& session_manager_;
             const std::string client_id_;
             std::weak_ptr<mqtt_packet_sender> connection_;
+            in_flight_publications in_flight_publications_;
             /// Our severity-enabled channel logger
             boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
                 boost::log::keywords::channel = "client-session:" + client_id_,

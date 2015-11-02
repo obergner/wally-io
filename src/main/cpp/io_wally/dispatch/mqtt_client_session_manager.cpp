@@ -5,8 +5,10 @@
 #include <map>
 #include <algorithm>
 
+#include <boost/asio.hpp>
 #include <boost/log/trivial.hpp>
 
+#include "io_wally/context.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/dispatch/mqtt_client_session.hpp"
@@ -22,9 +24,25 @@ namespace io_wally
         // Public
         // ------------------------------------------------------------------------------------------------------------
 
+        mqtt_client_session_manager::mqtt_client_session_manager( const io_wally::context& context,
+                                                                  boost::asio::io_service& io_service )
+            : context_{context}, io_service_{io_service}
+        {
+        }
+
         mqtt_client_session_manager::~mqtt_client_session_manager( )
         {
             destroy_all( );
+        }
+
+        const io_wally::context& mqtt_client_session_manager::context( ) const
+        {
+            return context_;
+        }
+
+        boost::asio::io_service& mqtt_client_session_manager::io_service( ) const
+        {
+            return io_service_;
         }
 
         void mqtt_client_session_manager::client_connected( const std::string& client_id,
