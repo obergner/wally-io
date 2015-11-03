@@ -10,6 +10,7 @@
 #include "io_wally/protocol/disconnect_packet.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
 #include "io_wally/protocol/publish_packet.hpp"
+#include "io_wally/protocol/puback_packet.hpp"
 
 namespace io_wally
 {
@@ -135,6 +136,14 @@ namespace io_wally
             {
                 return std::make_shared<packet_container<SENDER>>(
                     client_id, rx_connection, publish, dispatch::disconnect_reason::not_a_disconnect );
+            }
+
+            static packet_container<SENDER>::ptr puback_packet( const std::string& client_id,
+                                                                sender_ptr rx_connection,
+                                                                std::shared_ptr<const protocol::puback> puback )
+            {
+                return std::make_shared<packet_container<SENDER>>(
+                    client_id, rx_connection, puback, dispatch::disconnect_reason::not_a_disconnect );
             }
 
            public:

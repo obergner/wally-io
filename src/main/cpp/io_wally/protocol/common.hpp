@@ -368,6 +368,10 @@ namespace io_wally
                     return;
                 }
 
+                header( const header& other ) = default;
+
+                header& operator=( const header& rhs ) = default;
+
                 /// \brief Return this control packet's \c type.
                 ///
                 /// \see packet::PacketType

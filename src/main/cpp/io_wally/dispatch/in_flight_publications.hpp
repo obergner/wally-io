@@ -25,84 +25,41 @@ namespace io_wally
             friend class publication;
             friend class qos1_publication;
 
+           private:  // static
+            static constexpr const std::uint16_t MAX_PACKET_IDENTIFIER = 0xFFFF;
+
            public:
             in_flight_publications( const context& context,
                                     boost::asio::io_service& io_service,
-                                    std::weak_ptr<mqtt_packet_sender> sender )
-                : context_{context}, io_service_{io_service}, sender_{sender}
-            {
-            }
+                                    std::weak_ptr<mqtt_packet_sender> sender );
 
-            const io_wally::context& context( ) const
-            {
-                return context_;
-            }
+            const io_wally::context& context( ) const;
 
-            boost::asio::io_service& io_service( ) const
-            {
-                return io_service_;
-            }
+            boost::asio::io_service& io_service( ) const;
 
-            void publish_received( std::shared_ptr<const protocol::publish> publish )
-            {
-                auto const qos = publish->header( ).flags( ).qos( );
-                assert( qos == protocol::packet::QoS::AT_LEAST_ONCE );
+            void publish_received( std::shared_ptr<const protocol::publish> incoming_publish );
 
-                auto publish_itr = std::unordered_map<std::uint16_t, std::shared_ptr<publication>>::iterator{};
-                auto inserted = false;
-                if ( qos == protocol::packet::QoS::AT_LEAST_ONCE )
-                {
-                    std::tie( publish_itr, inserted ) = publications_.emplace( std::make_pair(
-                        publish->packet_identifier( ), std::make_shared<qos1_publication>( *this, publish ) ) );
-                }
-                auto sndr = std::shared_ptr<mqtt_packet_sender>{};
-                if ( inserted && ( sndr = sender_.lock( ) ) )
-                {
-                    ( *publish_itr ).second->start( sndr );
-                }
-                // TODO: what to do if client sends another PUBLISH reusing packet identifier?
-            }
-
-            void response_received( std::shared_ptr<const protocol::mqtt_ack> ack )
-            {
-                auto sndr = std::shared_ptr<mqtt_packet_sender>{};
-                if ( !( sndr = sender_.lock( ) ) )
-                {  // Client connection has gone away. The client session we belong to will likely be discarded soon.
-                    return;
-                }
-
-                const protocol::packet::Type ack_type = ack->header( ).type( );
-                if ( ack_type == protocol::packet::Type::PUBACK )
-                {
-                    auto puback = std::dynamic_pointer_cast<const protocol::puback>( ack );
-                    auto const pktid = puback->packet_identifier( );
-                    if ( publications_.count( pktid ) > 0 )
-                    {
-                        publications_[pktid]->response_received( ack, sndr );
-                    }
-                    else
-                    {
-                        // TODO: what do we do if we receive a puback for a publish we don't know about?
-                    }
-                }
-                else
-                {
-                    assert( false );
-                }
-            }
+            void response_received( std::shared_ptr<const protocol::mqtt_ack> ack );
 
            private:
-            void release( std::shared_ptr<publication> publication )
-            {
-                auto const erase_count = publications_.erase( publication->packet_identifier( ) );
-                assert( erase_count == 1 );
-            }
+            std::uint16_t next_packet_identifier( );
+
+            void qos1_publish_received( std::shared_ptr<const protocol::publish> incoming_publish,
+                                        std::shared_ptr<mqtt_packet_sender> locked_sender );
+
+            void puback_received( std::shared_ptr<const protocol::puback> puback,
+                                  std::shared_ptr<mqtt_packet_sender> locked_sender );
+
+            void release( std::shared_ptr<publication> publication );
 
            private:
             const io_wally::context& context_;
             boost::asio::io_service& io_service_;
             std::weak_ptr<mqtt_packet_sender> sender_;
+            // TODO: packet identifiers are only unique per SENDER client identifier. We here are the RECEIVER's client
+            // session.
             std::unordered_map<std::uint16_t, std::shared_ptr<publication>> publications_{};
+            std::uint16_t next_packet_identifier_{0};
         };  // class publication
     }       // namespace dispatch
 }  // namespace io_wally

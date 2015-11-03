@@ -155,6 +155,15 @@ namespace io_wally
         void handle_dispatch_publish_packet( const boost::system::error_code& ec,
                                              std::shared_ptr<const protocol::publish> publish );
 
+        // Dealing with PUBACK packets
+
+        void process_puback_packet( std::shared_ptr<const protocol::puback> puback );
+
+        void dispatch_puback_packet( std::shared_ptr<const protocol::puback> puback );
+
+        void handle_dispatch_puback_packet( const boost::system::error_code& ec,
+                                            std::shared_ptr<const protocol::puback> puback );
+
         // Sending MQTT packets
 
         void write_packet( const protocol::mqtt_packet& packet );

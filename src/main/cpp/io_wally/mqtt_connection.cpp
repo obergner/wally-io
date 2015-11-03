@@ -1,5 +1,6 @@
 #include "io_wally/mqtt_connection.hpp"
 
+#include <cassert>
 #include <memory>
 #include <chrono>
 #include <functional>
@@ -329,7 +330,7 @@ namespace io_wally
             break;
             case packet::Type::PUBACK:
             {
-                BOOST_LOG_SEV( logger_, lvl::warning ) << "NOT YET IMPLEMENTED: Discard " << *packet;
+                process_puback_packet( dynamic_pointer_cast<const protocol::puback>( packet ) );
             }
             break;
             case packet::Type::CONNACK:
@@ -491,6 +492,9 @@ namespace io_wally
 
     void mqtt_connection::process_publish_packet( shared_ptr<const protocol::publish> publish )
     {
+        // For now, we only support QoS 0 and QoS 1
+        assert( publish->header( ).flags( ).qos( ) != protocol::packet::QoS::EXACTLY_ONCE );
+
         dispatch_publish_packet( publish );
     }
 
@@ -519,6 +523,38 @@ namespace io_wally
         else
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *publish;
+        }
+    }
+
+    void mqtt_connection::process_puback_packet( shared_ptr<const protocol::puback> puback )
+    {
+        dispatch_puback_packet( puback );
+    }
+
+    void mqtt_connection::dispatch_puback_packet( shared_ptr<const protocol::puback> puback )
+    {
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *puback << " ...";
+        auto puback_container = packet_container_t::puback_packet( *client_id_, shared_from_this( ), puback );
+
+        auto self = shared_from_this( );
+        dispatcher_.async_enq( puback_container,
+                               strand_.wrap( [self, puback]( const boost::system::error_code& ec )
+                                             {
+                                                 self->handle_dispatch_puback_packet( ec, puback );
+                                             } ) );
+    }
+
+    void mqtt_connection::handle_dispatch_puback_packet( const boost::system::error_code& ec,
+                                                         shared_ptr<const protocol::puback> puback )
+    {
+        if ( ec )
+        {
+            BOOST_LOG_SEV( logger_, lvl::error ) << "--- DISPATCH FAILED: " << *puback << " [ec:" << ec
+                                                 << "|emsg:" << ec.message( ) << "]";
+        }
+        else
+        {
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *puback;
         }
     }
 

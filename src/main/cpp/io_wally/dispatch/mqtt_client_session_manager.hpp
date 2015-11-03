@@ -11,6 +11,8 @@
 #include "io_wally/logging_support.hpp"
 #include "io_wally/context.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
+#include "io_wally/protocol/publish_packet.hpp"
+#include "io_wally/protocol/puback_packet.hpp"
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/dispatch/mqtt_client_session.hpp"
 
@@ -59,7 +61,7 @@ namespace io_wally
             /// \param reason      Why client was disconnected
             void client_disconnected( const std::string client_id, const dispatch::disconnect_reason reason );
 
-            /// \brief Send an \c mqtt_packet to connected client identified by \c client_id.
+            /// \brief Send \c packet to connected client
             ///
             /// \param client_id ID of client to send \c packet to
             /// \param packet MQTT packet to send
@@ -68,9 +70,15 @@ namespace io_wally
             /// \brief Publish packet \c publish to all \c subscribers.
             ///
             /// \param subscribers Subscribers to publish packet \c publish to
-            /// \param publish MQTT PUBLISH packet to publish
-            void publish( const std::vector<resolved_subscriber_t>& subscribers,
-                          std::shared_ptr<const protocol::publish> publish );
+            /// \param incoming_publish MQTT PUBLISH packet to publish
+            void client_published( const std::vector<resolved_subscriber_t>& subscribers,
+                                   std::shared_ptr<const protocol::publish> incoming_publish );
+
+            /// \brief Called when a client acknowledged a received QoS 1 PUBLISH, i.e. sent a PUBACK
+            ///
+            /// \param client_id ID of client that acked PUBLISH
+            /// \param puback PUBACK sent by connected client
+            void client_acked_publish( const std::string client_id, std::shared_ptr<const protocol::puback> puback );
 
             /// \brief Destroy the \c mqtt_client_session identified by specified \c client_id.
             ///

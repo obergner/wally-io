@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <memory>
 
 #include <boost/optional.hpp>
 
@@ -100,6 +101,14 @@ namespace io_wally
                        << "|msg-size:" << application_message_.size( ) << "]";
 
                 return output.str( );
+            }
+
+            std::shared_ptr<const publish> with_new_packet_identifier( const std::uint16_t new_packet_identifier ) const
+            {
+                const packet::header& header_copy = header( );
+
+                return std::make_shared<const publish>(
+                    header_copy, topic_, new_packet_identifier, application_message_ );
             }
 
            private:

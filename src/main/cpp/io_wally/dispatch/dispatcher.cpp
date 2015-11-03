@@ -98,10 +98,18 @@ namespace io_wally
                 else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBLISH )
                 {
                     auto publish = packet_container->packetAs<protocol::publish>( );
+                    // For now, we only support QoS 0 and QoS 1
+                    assert( publish->header( ).flags( ).qos( ) != protocol::packet::QoS::EXACTLY_ONCE );
+
                     auto resolved_subscribers = topic_subscriptions_.resolve_subscribers( packet_container );
-                    session_manager_.publish( resolved_subscribers, publish );
+                    session_manager_.client_published( resolved_subscribers, publish );
                     auto puback = std::make_shared<protocol::puback>( publish->packet_identifier( ) );
                     session_manager_.send( packet_container->client_id( ), puback );
+                }
+                else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBACK )
+                {
+                    auto puback = packet_container->packetAs<protocol::puback>( );
+                    session_manager_.client_acked_publish( packet_container->client_id( ), puback );
                 }
                 else
                 {

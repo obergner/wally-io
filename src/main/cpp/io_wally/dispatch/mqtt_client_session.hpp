@@ -41,6 +41,16 @@ namespace io_wally
             /// \param packet MQTT packet to send
             void send( protocol::mqtt_packet::ptr packet );
 
+            /// \brief Publish \c incoming_publish to connected client.
+            ///
+            /// \param incoming_publish PUBLISH packet received from (another) client
+            void publish( std::shared_ptr<const protocol::publish> incoming_publish );
+
+            /// \brief Called when this client acknowledged a received QoS 1 PUBLISH, i.e. sent a PUBACK
+            ///
+            /// \param puback PUBACK sent by connected client
+            void client_acked_publish( std::shared_ptr<const protocol::puback> puback );
+
             /// \brief Destroy this \c mqtt_client_session.
             void destroy( );
 

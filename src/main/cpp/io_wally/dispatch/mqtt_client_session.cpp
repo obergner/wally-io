@@ -61,6 +61,20 @@ namespace io_wally
             }
         }
 
+        void mqtt_client_session::publish( std::shared_ptr<const protocol::publish> incoming_publish )
+        {
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "PUBLISH:   " << *incoming_publish << " ...";
+            in_flight_publications_.publish_received( incoming_publish );
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "PUBLISHED: " << *incoming_publish;
+        }
+
+        void mqtt_client_session::client_acked_publish( std::shared_ptr<const protocol::puback> puback )
+        {
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "ACK:   " << *puback << " ...";
+            in_flight_publications_.response_received( puback );
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "ACKED: " << *puback;
+        }
+
         void mqtt_client_session::destroy( )
         {
             session_manager_.destroy( client_id_ );
