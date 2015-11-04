@@ -92,8 +92,8 @@ namespace io_wally
                 }
                 else if ( packet_container->packet_type( ) == protocol::packet::Type::SUBSCRIBE )
                 {
-                    auto suback = topic_subscriptions_.subscribe( packet_container );
-                    session_manager_.send( packet_container->client_id( ), suback );
+                    auto subscribe = packet_container->packetAs<const protocol::subscribe>( );
+                    session_manager_.client_subscribed( packet_container->client_id( ), subscribe );
                 }
                 else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBLISH )
                 {
@@ -101,10 +101,7 @@ namespace io_wally
                     // For now, we only support QoS 0 and QoS 1
                     assert( publish->header( ).flags( ).qos( ) != protocol::packet::QoS::EXACTLY_ONCE );
 
-                    auto resolved_subscribers = topic_subscriptions_.resolve_subscribers( packet_container );
-                    session_manager_.client_published( resolved_subscribers, publish );
-                    auto puback = std::make_shared<protocol::puback>( publish->packet_identifier( ) );
-                    session_manager_.send( packet_container->client_id( ), puback );
+                    session_manager_.client_published( packet_container->client_id( ), publish );
                 }
                 else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBACK )
                 {

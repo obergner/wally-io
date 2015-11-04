@@ -7,15 +7,15 @@
 #include <vector>
 #include <functional>
 
+#include <boost/log/common.hpp>
 #include <boost/log/trivial.hpp>
 
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/subscription.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
 #include "io_wally/protocol/suback_packet.hpp"
-#include "io_wally/mqtt_packet_sender.hpp"
-#include "io_wally/dispatch/mqtt_client_session.hpp"
-#include "io_wally/dispatch/mqtt_client_session_manager.hpp"
+#include "io_wally/protocol/publish_packet.hpp"
+#include "io_wally/dispatch/common.hpp"
 
 namespace io_wally
 {
@@ -83,15 +83,21 @@ namespace io_wally
 
             topic_subscriptions& operator=( topic_subscriptions ) = delete;
 
-            /// \brief Register all subscriptions contained in \c subscribe.
-            std::shared_ptr<const protocol::suback> subscribe( mqtt_packet_sender::packet_container_t::ptr subscribe );
+            /// \brief Register all subscriptions contained in \c subscribe for client \c client_id.
+            ///
+            /// \param client_id ID of client that wants to subscribe
+            /// \param subscribe SUBSCRIBE packet
+            std::shared_ptr<const protocol::suback> subscribe( const std::string& client_id,
+                                                               std::shared_ptr<const protocol::subscribe> subscribe );
 
             /// \brief Determine set of clients subscribed to \c topic packet \c publish is published to.
+            ///
+            /// \param publish PUBLISH packet for which we want to determine all subscribers
             ///
             /// TODO: Investigate if returning a std::vector by value has negative performance impacts, and if so, fix
             /// this.
             const std::vector<resolved_subscriber_t> resolve_subscribers(
-                mqtt_packet_sender::packet_container_t::ptr publish ) const;
+                std::shared_ptr<const protocol::publish> publish ) const;
 
            private:
             // Set of subscriptions we manage (cannot be <const subscription_container> since members of std containers

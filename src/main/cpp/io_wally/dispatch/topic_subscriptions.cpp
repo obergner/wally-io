@@ -11,6 +11,7 @@
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
 #include "io_wally/protocol/suback_packet.hpp"
+#include "io_wally/protocol/publish_packet.hpp"
 
 namespace io_wally
 {
@@ -84,33 +85,28 @@ namespace io_wally
         // --------------------------------------------------------------------------------
 
         std::shared_ptr<const protocol::suback> topic_subscriptions::subscribe(
-            mqtt_packet_sender::packet_container_t::ptr subscribe )
+            const std::string& client_id,
+            std::shared_ptr<const protocol::subscribe> subscribe )
         {
-            assert( subscribe->packet_type( ) == protocol::packet::Type::SUBSCRIBE );
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "SUBSRCIBE:  [cltid:" << client_id << "|subscr:" << *subscribe
+                                                 << "]";
 
-            auto subscribe_packet = subscribe->packetAs<const protocol::subscribe>( );
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "SUBSRCIBE:  [cltid:" << subscribe->client_id( )
-                                                 << "|subscr:" << *subscribe_packet << "]";
-
-            for ( auto& subscr : subscribe_packet->subscriptions( ) )
+            for ( auto& subscr : subscribe->subscriptions( ) )
             {
-                subscriptions_.emplace( subscr.topic_filter( ), subscr.maximum_qos( ), subscribe->client_id( ) );
+                subscriptions_.emplace( subscr.topic_filter( ), subscr.maximum_qos( ), client_id );
             }
-            auto suback = subscribe_packet->succeed( );
+            auto suback = subscribe->succeed( );
 
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "SUBSRCIBED: [cltid:" << subscribe->client_id( )
-                                                 << "|subscr:" << *subscribe_packet << "] -> " << *suback;
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "SUBSRCIBED: [cltid:" << client_id << "|subscr:" << *subscribe
+                                                 << "] -> " << *suback;
 
             return suback;
         }
 
         const std::vector<resolved_subscriber_t> topic_subscriptions::resolve_subscribers(
-            mqtt_packet_sender::packet_container_t::ptr publish ) const
+            std::shared_ptr<const protocol::publish> publish ) const
         {
-            // Note on logging: since this method is declared as const we cannot use our logger here.
-            assert( publish->packet_type( ) == protocol::packet::Type::PUBLISH );
-
-            auto const& topic = publish->packetAs<const protocol::publish>( )->topic( );
+            auto const& topic = publish->topic( );
 
             auto resolved_subscribers = vector<resolved_subscriber_t>{};
             for_each( subscriptions_.begin( ),

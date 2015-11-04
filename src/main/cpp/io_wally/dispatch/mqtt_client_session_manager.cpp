@@ -10,8 +10,13 @@
 
 #include "io_wally/context.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
+#include "io_wally/protocol/subscribe_packet.hpp"
+#include "io_wally/protocol/suback_packet.hpp"
+#include "io_wally/protocol/publish_packet.hpp"
+#include "io_wally/protocol/puback_packet.hpp"
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/dispatch/mqtt_client_session.hpp"
+#include "io_wally/dispatch/topic_subscriptions.hpp"
 
 namespace io_wally
 {
@@ -69,7 +74,7 @@ namespace io_wally
             }
         }
 
-        void mqtt_client_session_manager::client_disconnected( const std::string client_id,
+        void mqtt_client_session_manager::client_disconnected( const std::string& client_id,
                                                                const dispatch::disconnect_reason reason )
         {
             sessions_.erase( client_id );
@@ -77,22 +82,32 @@ namespace io_wally
                                                  << "] - session destroyed";
         }
 
-        void mqtt_client_session_manager::send( const std::string& client_id, protocol::mqtt_packet::ptr packet )
+        void mqtt_client_session_manager::client_subscribed( const std::string& client_id,
+                                                             std::shared_ptr<const protocol::subscribe> subscribe )
         {
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "SEND: [cltid:" << client_id << "|pkt:" << *packet << "] ...";
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "SUBSCRIBE:  [cltid:" << client_id << "|pkt:" << *subscribe
+                                                 << "] ...";
+            auto suback = topic_subscriptions_.subscribe( client_id, subscribe );
             // TODO: This will default construct (is that possible?) a new session if client_id is not yet registered.
             auto session = sessions_[client_id];
-            session->send( packet );
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "SENT: [cltid:" << client_id << "|pkt:" << *packet << "]";
+            session->send( suback );
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "SUBSCRIBED: [cltid:" << client_id << "|pkt:" << *subscribe << "]";
         }
 
-        void mqtt_client_session_manager::client_published( const std::vector<resolved_subscriber_t>& subscribers,
+        void mqtt_client_session_manager::client_published( const std::string& client_id,
                                                             std::shared_ptr<const protocol::publish> incoming_publish )
         {
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "PUBLISH:   [subscr:" << subscribers.size( )
-                                                 << "|pkt:" << *incoming_publish << "] ...";
-            for_each( subscribers.begin( ),
-                      subscribers.end( ),
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "PUBLISH:   [cltid:" << client_id << "|pkt:" << *incoming_publish
+                                                 << "] ...";
+
+            auto puback = std::make_shared<protocol::puback>( incoming_publish->packet_identifier( ) );
+            // TODO: This will default construct (is that possible?) a new session if client_id is not yet registered.
+            auto session = sessions_[client_id];
+            session->send( puback );
+
+            auto resolved_subscribers = topic_subscriptions_.resolve_subscribers( incoming_publish );
+            for_each( resolved_subscribers.begin( ),
+                      resolved_subscribers.end( ),
                       [this, &incoming_publish]( const resolved_subscriber_t& subscriber )
                       {
                 // TODO: This will default construct (is that possible?) a new session if client_id is not yet
@@ -100,11 +115,11 @@ namespace io_wally
                 auto session = sessions_[subscriber.first];
                 session->send( incoming_publish );
             } );
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "PUBLISHED: [subscr:" << subscribers.size( )
-                                                 << "|pkt:" << *incoming_publish << "]";
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "PUBLISHED: [cltid:" << client_id << "|pkt:" << *incoming_publish
+                                                 << "]";
         }
 
-        void mqtt_client_session_manager::client_acked_publish( const std::string client_id,
+        void mqtt_client_session_manager::client_acked_publish( const std::string& client_id,
                                                                 std::shared_ptr<const protocol::puback> puback )
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "RX ACK: [cltid:" << client_id << "|pkt:" << *puback << "] ...";
@@ -114,7 +129,7 @@ namespace io_wally
             BOOST_LOG_SEV( logger_, lvl::debug ) << "RX ACK: [cltid:" << client_id << "|pkt:" << *puback << "]";
         }
 
-        void mqtt_client_session_manager::destroy( const std::string client_id )
+        void mqtt_client_session_manager::destroy( const std::string& client_id )
         {
             auto rem_cnt = sessions_.erase( client_id );
             if ( rem_cnt > 0 )

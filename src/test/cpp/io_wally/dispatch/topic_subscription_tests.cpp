@@ -16,15 +16,16 @@ SCENARIO( "topic_subscriptions#resolve_subscribers", "[dispatch]" )
     {
         io_wally::dispatch::topic_subscriptions under_test{};
 
+        auto const client_id = "topic_subscription_tests";
         auto subscriptions = std::vector<subscription>{{"/topic/*/level", packet::QoS::AT_MOST_ONCE},
                                                        {"/topic/*/*", packet::QoS::AT_LEAST_ONCE},
                                                        {"/topic/#", packet::QoS::EXACTLY_ONCE}};
-        auto subscr_cont = framework::create_subscribe_container( subscriptions );
-        under_test.subscribe( subscr_cont );
+        auto subscr_cont = framework::create_subscribe_packet( subscriptions );
+        under_test.subscribe( client_id, subscr_cont );
 
         WHEN( "a caller resolves subscribers for a topic that matches all three subscriptions " )
         {
-            auto publish_cont = framework::create_publish_container( "/topic/first/level" );
+            auto publish_cont = framework::create_publish_packet( "/topic/first/level" );
             auto subscribers = under_test.resolve_subscribers( publish_cont );
 
             THEN( "it should receive a single subscriber" )
