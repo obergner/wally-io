@@ -9,7 +9,7 @@
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/publish_packet.hpp"
 #include "io_wally/protocol/puback_packet.hpp"
-#include "io_wally/dispatch/in_flight_publications.hpp"
+#include "io_wally/dispatch/tx_in_flight_publications.hpp"
 
 namespace io_wally
 {
@@ -24,7 +24,7 @@ namespace io_wally
             return publish_->packet_identifier( );
         }
 
-        publication::publication( in_flight_publications& parent, std::shared_ptr<const protocol::publish> publish )
+        publication::publication( tx_in_flight_publications& parent, std::shared_ptr<const protocol::publish> publish )
             : parent_{parent},
               ack_timeout_ms_{parent.context( )[io_wally::context::PUB_ACK_TIMEOUT].as<const std::uint32_t>( )},
               max_retries_{parent.context( )[io_wally::context::PUB_MAX_RETRIES].as<const std::size_t>( )},
@@ -38,7 +38,7 @@ namespace io_wally
         // class: qos1_publication
         // ------------------------------------------------------------------------------------------------------------
 
-        qos1_publication::qos1_publication( in_flight_publications& parent,
+        qos1_publication::qos1_publication( tx_in_flight_publications& parent,
                                             std::shared_ptr<const protocol::publish> publish )
             : publication( parent, publish )
         {

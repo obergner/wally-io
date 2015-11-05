@@ -17,7 +17,7 @@ namespace io_wally
 {
     namespace dispatch
     {
-        class in_flight_publications;
+        class tx_in_flight_publications;
 
         class publication
         {
@@ -30,10 +30,10 @@ namespace io_wally
                                             std::shared_ptr<mqtt_packet_sender> sender ) = 0;
 
            protected:
-            publication( in_flight_publications& parent, std::shared_ptr<const protocol::publish> publish );
+            publication( tx_in_flight_publications& parent, std::shared_ptr<const protocol::publish> publish );
 
            protected:
-            in_flight_publications& parent_;
+            tx_in_flight_publications& parent_;
             const std::uint32_t ack_timeout_ms_;
             const std::size_t max_retries_;
             boost::asio::io_service::strand strand_;
@@ -57,7 +57,7 @@ namespace io_wally
             };
 
            public:
-            qos1_publication( in_flight_publications& parent, std::shared_ptr<const protocol::publish> publish );
+            qos1_publication( tx_in_flight_publications& parent, std::shared_ptr<const protocol::publish> publish );
 
             virtual void start( std::shared_ptr<mqtt_packet_sender> sender ) override;
 

@@ -34,7 +34,7 @@ namespace io_wally
             : session_manager_{session_manager},
               client_id_{client_id},
               connection_{connection},
-              in_flight_publications_{session_manager.context( ), session_manager.io_service( ), connection}
+              tx_in_flight_publications_{session_manager.context( ), session_manager.io_service( ), connection}
         {
         }
 
@@ -64,14 +64,14 @@ namespace io_wally
         void mqtt_client_session::publish( std::shared_ptr<const protocol::publish> incoming_publish )
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "PUBLISH:   " << *incoming_publish << " ...";
-            in_flight_publications_.publish_received( incoming_publish );
+            tx_in_flight_publications_.publish_received( incoming_publish );
             BOOST_LOG_SEV( logger_, lvl::debug ) << "PUBLISHED: " << *incoming_publish;
         }
 
         void mqtt_client_session::client_acked_publish( std::shared_ptr<const protocol::puback> puback )
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "ACK:   " << *puback << " ...";
-            in_flight_publications_.response_received( puback );
+            tx_in_flight_publications_.response_received( puback );
             BOOST_LOG_SEV( logger_, lvl::debug ) << "ACKED: " << *puback;
         }
 

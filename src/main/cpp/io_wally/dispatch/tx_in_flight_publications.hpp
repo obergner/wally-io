@@ -20,7 +20,7 @@ namespace io_wally
 {
     namespace dispatch
     {
-        class in_flight_publications final : public std::enable_shared_from_this<in_flight_publications>
+        class tx_in_flight_publications final : public std::enable_shared_from_this<tx_in_flight_publications>
         {
             friend class publication;
             friend class qos1_publication;
@@ -29,7 +29,7 @@ namespace io_wally
             static constexpr const std::uint16_t MAX_PACKET_IDENTIFIER = 0xFFFF;
 
            public:
-            in_flight_publications( const context& context,
+            tx_in_flight_publications( const context& context,
                                     boost::asio::io_service& io_service,
                                     std::weak_ptr<mqtt_packet_sender> sender );
 

@@ -1,4 +1,4 @@
-#include "io_wally/dispatch/in_flight_publications.hpp"
+#include "io_wally/dispatch/tx_in_flight_publications.hpp"
 
 #include <cassert>
 #include <cstdint>
@@ -24,24 +24,24 @@ namespace io_wally
         //  Public
         // ------------------------------------------------------------------------------------------------------------
 
-        in_flight_publications::in_flight_publications( const io_wally::context& context,
-                                                        boost::asio::io_service& io_service,
-                                                        std::weak_ptr<mqtt_packet_sender> sender )
+        tx_in_flight_publications::tx_in_flight_publications( const io_wally::context& context,
+                                                              boost::asio::io_service& io_service,
+                                                              std::weak_ptr<mqtt_packet_sender> sender )
             : context_{context}, io_service_{io_service}, sender_{sender}
         {
         }
 
-        const io_wally::context& in_flight_publications::context( ) const
+        const io_wally::context& tx_in_flight_publications::context( ) const
         {
             return context_;
         }
 
-        boost::asio::io_service& in_flight_publications::io_service( ) const
+        boost::asio::io_service& tx_in_flight_publications::io_service( ) const
         {
             return io_service_;
         }
 
-        void in_flight_publications::publish_received( std::shared_ptr<const protocol::publish> incoming_publish )
+        void tx_in_flight_publications::publish_received( std::shared_ptr<const protocol::publish> incoming_publish )
         {
             auto const qos = incoming_publish->header( ).flags( ).qos( );
             assert( ( qos == protocol::packet::QoS::AT_LEAST_ONCE ) || ( qos == protocol::packet::QoS::AT_MOST_ONCE ) );
@@ -63,7 +63,7 @@ namespace io_wally
             }
         }
 
-        void in_flight_publications::response_received( std::shared_ptr<const protocol::mqtt_ack> ack )
+        void tx_in_flight_publications::response_received( std::shared_ptr<const protocol::mqtt_ack> ack )
         {
             const protocol::packet::Type ack_type = ack->header( ).type( );
             assert( ack_type == protocol::packet::Type::PUBACK );
@@ -86,7 +86,7 @@ namespace io_wally
         //  Private
         // ------------------------------------------------------------------------------------------------------------
 
-        std::uint16_t in_flight_publications::next_packet_identifier( )
+        std::uint16_t tx_in_flight_publications::next_packet_identifier( )
         {
             // For now, we don't need to be thread-safe
             if ( next_packet_identifier_ == MAX_PACKET_IDENTIFIER )
@@ -100,8 +100,9 @@ namespace io_wally
             return next_packet_identifier_;
         }
 
-        void in_flight_publications::qos1_publish_received( std::shared_ptr<const protocol::publish> incoming_publish,
-                                                            std::shared_ptr<mqtt_packet_sender> locked_sender )
+        void tx_in_flight_publications::qos1_publish_received(
+            std::shared_ptr<const protocol::publish> incoming_publish,
+            std::shared_ptr<mqtt_packet_sender> locked_sender )
         {
             // Need to copy incoming PUBLISH packet since we now start a new, unrelated OUTGOING publication we need a
             // packet identifier for that is unique for THIS client, not the client that sent this incoming PUBLISH.
@@ -118,8 +119,8 @@ namespace io_wally
             ( *publish_itr ).second->start( locked_sender );
         }
 
-        void in_flight_publications::puback_received( std::shared_ptr<const protocol::puback> puback,
-                                                      std::shared_ptr<mqtt_packet_sender> locked_sender )
+        void tx_in_flight_publications::puback_received( std::shared_ptr<const protocol::puback> puback,
+                                                         std::shared_ptr<mqtt_packet_sender> locked_sender )
         {
             auto const pktid = puback->packet_identifier( );
             if ( publications_.count( pktid ) > 0 )
@@ -132,7 +133,7 @@ namespace io_wally
             }
         }
 
-        void in_flight_publications::release( std::shared_ptr<publication> publication )
+        void tx_in_flight_publications::release( std::shared_ptr<publication> publication )
         {
             auto const erase_count = publications_.erase( publication->packet_identifier( ) );
             assert( erase_count == 1 );
