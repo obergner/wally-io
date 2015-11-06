@@ -30,8 +30,8 @@ namespace io_wally
 
            public:
             tx_in_flight_publications( const context& context,
-                                    boost::asio::io_service& io_service,
-                                    std::weak_ptr<mqtt_packet_sender> sender );
+                                       boost::asio::io_service& io_service,
+                                       std::weak_ptr<mqtt_packet_sender> sender );
 
             const io_wally::context& context( ) const;
 
@@ -50,14 +50,18 @@ namespace io_wally
             void puback_received( std::shared_ptr<const protocol::puback> puback,
                                   std::shared_ptr<mqtt_packet_sender> locked_sender );
 
+            // void qos2_publish_received( std::shared_ptr<const protocol::publish> incoming_publish,
+            //                            std::shared_ptr<mqtt_packet_sender> locked_sender );
+
+            // void pubrec_received( std::shared_ptr<const protocol::puback> puback,
+            //                      std::shared_ptr<mqtt_packet_sender> locked_sender );
+
             void release( std::shared_ptr<publication> publication );
 
            private:
             const io_wally::context& context_;
             boost::asio::io_service& io_service_;
             std::weak_ptr<mqtt_packet_sender> sender_;
-            // TODO: packet identifiers are only unique per SENDER client identifier. We here are the RECEIVER's client
-            // session.
             std::unordered_map<std::uint16_t, std::shared_ptr<publication>> publications_{};
             std::uint16_t next_packet_identifier_{0};
         };  // class publication

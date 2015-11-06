@@ -8,6 +8,7 @@
 #include "io_wally/codec/suback_packet_encoder.hpp"
 #include "io_wally/codec/publish_packet_encoder.hpp"
 #include "io_wally/codec/puback_packet_encoder.hpp"
+#include "io_wally/codec/pubrel_packet_encoder.hpp"
 
 namespace io_wally
 {
@@ -59,10 +60,11 @@ namespace io_wally
                         return publish_encoder_;
                     case protocol::packet::Type::PUBACK:
                         return puback_encoder_;
+                    case protocol::packet::Type::PUBREL:
+                        return pubrel_encoder_;
                     case protocol::packet::Type::CONNECT:
                     case protocol::packet::Type::PINGREQ:
                     case protocol::packet::Type::DISCONNECT:
-                    case protocol::packet::Type::PUBREL:
                     case protocol::packet::Type::PUBREC:
                     case protocol::packet::Type::PUBCOMP:
                     case protocol::packet::Type::SUBSCRIBE:
@@ -82,6 +84,7 @@ namespace io_wally
             const suback_packet_encoder<OutputIterator> suback_encoder_{};
             const publish_packet_encoder<OutputIterator> publish_encoder_{};
             const puback_packet_encoder<OutputIterator> puback_encoder_{};
+            const pubrel_packet_encoder<OutputIterator> pubrel_encoder_{};
         };
 
     }  /// namespace decoder

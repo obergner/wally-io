@@ -546,16 +546,18 @@ namespace io_wally
         struct mqtt_ack : public mqtt_packet
         {
            protected:
-            mqtt_ack( const packet::Type type, const uint32_t remaining_length )
-                : mqtt_packet{header_for( type, remaining_length )}
+            mqtt_ack( const packet::Type type, const uint32_t remaining_length, const uint8_t flags = 0x00 )
+                : mqtt_packet{header_for( type, remaining_length, flags )}
             {
                 return;
             }
 
            private:
-            static packet::header header_for( const packet::Type type, const uint32_t remaining_length )
+            static packet::header header_for( const packet::Type type,
+                                              const uint32_t remaining_length,
+                                              const uint8_t flags )
             {
-                uint8_t type_and_flags = 0x00;
+                uint8_t type_and_flags = flags;
                 packet::type_into( type, type_and_flags );
                 const packet::header res( type_and_flags, remaining_length );
 
