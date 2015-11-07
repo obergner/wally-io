@@ -24,7 +24,7 @@ namespace io_wally
             return publish_->packet_identifier( );
         }
 
-        publication::publication( tx_in_flight_publications& parent, std::shared_ptr<const protocol::publish> publish )
+        publication::publication( tx_in_flight_publications& parent, std::shared_ptr<protocol::publish> publish )
             : parent_{parent},
               ack_timeout_ms_{parent.context( )[io_wally::context::PUB_ACK_TIMEOUT].as<const std::uint32_t>( )},
               max_retries_{parent.context( )[io_wally::context::PUB_MAX_RETRIES].as<const std::size_t>( )},
@@ -39,7 +39,7 @@ namespace io_wally
         // ------------------------------------------------------------------------------------------------------------
 
         qos1_publication::qos1_publication( tx_in_flight_publications& parent,
-                                            std::shared_ptr<const protocol::publish> publish )
+                                            std::shared_ptr<protocol::publish> publish )
             : publication( parent, publish )
         {
         }
@@ -50,13 +50,13 @@ namespace io_wally
             start_ack_timeout( sender );
         }
 
-        void qos1_publication::response_received( std::shared_ptr<const protocol::mqtt_ack> ack,
+        void qos1_publication::response_received( std::shared_ptr<protocol::mqtt_ack> ack,
                                                   std::shared_ptr<mqtt_packet_sender> /* sender */ )
         {
             assert( state_ == state::waiting_for_ack );
             assert( ack->header( ).type( ) == protocol::packet::Type::PUBACK );
 
-            auto pub_ack = std::dynamic_pointer_cast<const protocol::puback>( ack );
+            auto pub_ack = std::dynamic_pointer_cast<protocol::puback>( ack );
             assert( pub_ack->packet_identifier( ) == publish_->packet_identifier( ) );
 
             state_ = state::completed;
@@ -83,6 +83,77 @@ namespace io_wally
         void qos1_publication::start_ack_timeout( std::shared_ptr<mqtt_packet_sender> sender )
         {
             state_ = state::waiting_for_ack;
+
+            auto self = shared_from_this( );
+            auto ack_tmo = std::chrono::milliseconds{ack_timeout_ms_};
+            retry_on_timeout_.expires_from_now( ack_tmo );
+            retry_on_timeout_.async_wait( strand_.wrap( [self, sender]( const boost::system::error_code& ec )
+                                                        {
+                                                            if ( !ec )
+                                                            {
+                                                                self->ack_timeout_expired( sender );
+                                                            }
+                                                        } ) );
+        }
+
+        // ------------------------------------------------------------------------------------------------------------
+        // class: qos2_publication
+        // ------------------------------------------------------------------------------------------------------------
+
+        qos2_publication::qos2_publication( tx_in_flight_publications& parent,
+                                            std::shared_ptr<protocol::publish> publish )
+            : publication( parent, publish )
+        {
+        }
+
+        void qos2_publication::start( std::shared_ptr<mqtt_packet_sender> sender )
+        {
+            sender->send( publish_ );
+            start_ack_timeout( sender );
+        }
+
+        void qos2_publication::response_received( std::shared_ptr<protocol::mqtt_ack> ack,
+                                                  std::shared_ptr<mqtt_packet_sender> /* sender */ )
+        {
+            assert( ( state_ == state::waiting_for_rec ) || ( state_ == state::waiting_for_comp ) );
+            assert( ( ack->header( ).type( ) == protocol::packet::Type::PUBREC ) ||
+                    ( ack->header( ).type( ) == protocol::packet::Type::PUBCOMP ) );
+
+            auto pub_ack = std::dynamic_pointer_cast<protocol::puback>( ack );
+            assert( pub_ack->packet_identifier( ) == publish_->packet_identifier( ) );
+
+            state_ = state::completed;
+            retry_on_timeout_.cancel( );
+
+            parent_.release( shared_from_this( ) );
+        }
+
+        void qos2_publication::ack_timeout_expired( std::shared_ptr<mqtt_packet_sender> sender )
+        {
+            assert( ( state_ == state::waiting_for_rec ) || ( state_ == state::waiting_for_comp ) );
+            if ( ++retry_count_ <= max_retries_ )
+            {
+                publish_->set_dup( );  // Mark this a duplication publish
+                sender->send( publish_ );
+                start_ack_timeout( sender );
+            }
+            else
+            {
+                state_ = state::terminally_failed;
+                parent_.release( shared_from_this( ) );
+            }
+        }
+
+        void qos2_publication::start_ack_timeout( std::shared_ptr<mqtt_packet_sender> sender )
+        {
+            if ( state_ == state::initial )
+            {
+                state_ = state::waiting_for_rec;
+            }
+            else
+            {
+                state_ = state::waiting_for_comp;
+            }
 
             auto self = shared_from_this( );
             auto ack_tmo = std::chrono::milliseconds{ack_timeout_ms_};

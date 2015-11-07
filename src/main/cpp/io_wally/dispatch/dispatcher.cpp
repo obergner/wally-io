@@ -92,7 +92,7 @@ namespace io_wally
                 }
                 else if ( packet_container->packet_type( ) == protocol::packet::Type::SUBSCRIBE )
                 {
-                    auto subscribe = packet_container->packetAs<const protocol::subscribe>( );
+                    auto subscribe = packet_container->packetAs<protocol::subscribe>( );
                     session_manager_.client_subscribed( packet_container->client_id( ), subscribe );
                 }
                 else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBLISH )

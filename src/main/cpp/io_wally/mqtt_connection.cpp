@@ -238,7 +238,7 @@ namespace io_wally
             // We received a packet, so let's cancel keep alive timer
             close_on_keep_alive_timeout_.cancel( );
 
-            auto const parsed_packet = packet_decoder_.decode(
+            auto parsed_packet = packet_decoder_.decode(
                 header_parse_result.parsed_header( ),
                 header_parse_result.consumed_until( ),
                 header_parse_result.consumed_until( ) + header_parse_result.parsed_header( ).remaining_length( ) );
@@ -297,14 +297,14 @@ namespace io_wally
 
     // Processing and dispatching decoded messages
 
-    void mqtt_connection::process_decoded_packet( shared_ptr<const mqtt_packet> packet )
+    void mqtt_connection::process_decoded_packet( shared_ptr<protocol::mqtt_packet> packet )
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << "--- PROCESSING: " << *packet << " ...";
         switch ( packet->header( ).type( ) )
         {
             case packet::Type::CONNECT:
             {
-                process_connect_packet( dynamic_pointer_cast<const protocol::connect>( packet ) );
+                process_connect_packet( dynamic_pointer_cast<protocol::connect>( packet ) );
             }
             break;
             case packet::Type::PINGREQ:
@@ -315,22 +315,22 @@ namespace io_wally
             break;
             case packet::Type::DISCONNECT:
             {
-                process_disconnect_packet( dynamic_pointer_cast<const protocol::disconnect>( packet ) );
+                process_disconnect_packet( dynamic_pointer_cast<protocol::disconnect>( packet ) );
             }
             break;
             case packet::Type::SUBSCRIBE:
             {
-                process_subscribe_packet( dynamic_pointer_cast<const protocol::subscribe>( packet ) );
+                process_subscribe_packet( dynamic_pointer_cast<protocol::subscribe>( packet ) );
             }
             break;
             case packet::Type::PUBLISH:
             {
-                process_publish_packet( dynamic_pointer_cast<const protocol::publish>( packet ) );
+                process_publish_packet( dynamic_pointer_cast<protocol::publish>( packet ) );
             }
             break;
             case packet::Type::PUBACK:
             {
-                process_puback_packet( dynamic_pointer_cast<const protocol::puback>( packet ) );
+                process_puback_packet( dynamic_pointer_cast<protocol::puback>( packet ) );
             }
             break;
             case packet::Type::CONNACK:
@@ -351,7 +351,7 @@ namespace io_wally
         read_header( );
     }
 
-    void mqtt_connection::process_connect_packet( shared_ptr<const protocol::connect> connect )
+    void mqtt_connection::process_connect_packet( shared_ptr<protocol::connect> connect )
     {
         if ( client_id_ )
         {
@@ -385,7 +385,7 @@ namespace io_wally
         }
     }
 
-    void mqtt_connection::dispatch_connect_packet( shared_ptr<const protocol::connect> connect )
+    void mqtt_connection::dispatch_connect_packet( shared_ptr<protocol::connect> connect )
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *connect << " ...";
         auto connect_container = packet_container_t::connect_packet( shared_from_this( ), connect );
@@ -399,7 +399,7 @@ namespace io_wally
     }
 
     void mqtt_connection::handle_dispatch_connect_packet( const boost::system::error_code& ec,
-                                                          shared_ptr<const protocol::connect> connect )
+                                                          shared_ptr<protocol::connect> connect )
     {
         if ( ec )
         {
@@ -416,12 +416,12 @@ namespace io_wally
         }
     }
 
-    void mqtt_connection::process_disconnect_packet( shared_ptr<const protocol::disconnect> disconnect )
+    void mqtt_connection::process_disconnect_packet( shared_ptr<protocol::disconnect> disconnect )
     {
         dispatch_disconnect_packet( disconnect );
     }
 
-    void mqtt_connection::dispatch_disconnect_packet( shared_ptr<const protocol::disconnect> disconnect,
+    void mqtt_connection::dispatch_disconnect_packet( shared_ptr<protocol::disconnect> disconnect,
                                                       const dispatch::disconnect_reason disconnect_reason )
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *disconnect << "[rsn:" << disconnect_reason
@@ -439,7 +439,7 @@ namespace io_wally
     }
 
     void mqtt_connection::handle_dispatch_disconnect_packet( const boost::system::error_code& ec,
-                                                             shared_ptr<const protocol::disconnect> disconnect,
+                                                             shared_ptr<protocol::disconnect> disconnect,
                                                              const dispatch::disconnect_reason disconnect_reason )
     {
         if ( ec )
@@ -457,12 +457,12 @@ namespace io_wally
         stop( msg.str( ), lvl::info );
     }
 
-    void mqtt_connection::process_subscribe_packet( shared_ptr<const protocol::subscribe> subscribe )
+    void mqtt_connection::process_subscribe_packet( shared_ptr<protocol::subscribe> subscribe )
     {
         dispatch_subscribe_packet( subscribe );
     }
 
-    void mqtt_connection::dispatch_subscribe_packet( shared_ptr<const protocol::subscribe> subscribe )
+    void mqtt_connection::dispatch_subscribe_packet( shared_ptr<protocol::subscribe> subscribe )
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *subscribe << " ...";
         auto subscribe_container = packet_container_t::subscribe_packet( *client_id_, shared_from_this( ), subscribe );
@@ -476,7 +476,7 @@ namespace io_wally
     }
 
     void mqtt_connection::handle_dispatch_subscribe_packet( const boost::system::error_code& ec,
-                                                            shared_ptr<const protocol::subscribe> subscribe )
+                                                            shared_ptr<protocol::subscribe> subscribe )
     {
         if ( ec )
         {
@@ -490,7 +490,7 @@ namespace io_wally
         }
     }
 
-    void mqtt_connection::process_publish_packet( shared_ptr<const protocol::publish> publish )
+    void mqtt_connection::process_publish_packet( shared_ptr<protocol::publish> publish )
     {
         // For now, we only support QoS 0 and QoS 1
         assert( publish->header( ).flags( ).qos( ) != protocol::packet::QoS::EXACTLY_ONCE );
@@ -498,7 +498,7 @@ namespace io_wally
         dispatch_publish_packet( publish );
     }
 
-    void mqtt_connection::dispatch_publish_packet( shared_ptr<const protocol::publish> publish )
+    void mqtt_connection::dispatch_publish_packet( shared_ptr<protocol::publish> publish )
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *publish << " ...";
         auto publish_container = packet_container_t::publish_packet( *client_id_, shared_from_this( ), publish );
@@ -512,7 +512,7 @@ namespace io_wally
     }
 
     void mqtt_connection::handle_dispatch_publish_packet( const boost::system::error_code& ec,
-                                                          shared_ptr<const protocol::publish> publish )
+                                                          shared_ptr<protocol::publish> publish )
     {
         if ( ec )
         {
@@ -526,12 +526,12 @@ namespace io_wally
         }
     }
 
-    void mqtt_connection::process_puback_packet( shared_ptr<const protocol::puback> puback )
+    void mqtt_connection::process_puback_packet( shared_ptr<protocol::puback> puback )
     {
         dispatch_puback_packet( puback );
     }
 
-    void mqtt_connection::dispatch_puback_packet( shared_ptr<const protocol::puback> puback )
+    void mqtt_connection::dispatch_puback_packet( shared_ptr<protocol::puback> puback )
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *puback << " ...";
         auto puback_container = packet_container_t::puback_packet( *client_id_, shared_from_this( ), puback );
@@ -545,7 +545,7 @@ namespace io_wally
     }
 
     void mqtt_connection::handle_dispatch_puback_packet( const boost::system::error_code& ec,
-                                                         shared_ptr<const protocol::puback> puback )
+                                                         shared_ptr<protocol::puback> puback )
     {
         if ( ec )
         {
@@ -560,7 +560,7 @@ namespace io_wally
 
     // Sending messages
 
-    void mqtt_connection::write_packet( const mqtt_packet& packet )
+    void mqtt_connection::write_packet( const protocol::mqtt_packet& packet )
     {
         if ( !socket_.is_open( ) )  // Socket was asynchronously closed
             return;
@@ -593,7 +593,7 @@ namespace io_wally
                           } ) );
     }
 
-    void mqtt_connection::write_packet_and_close_connection( const mqtt_packet& packet,
+    void mqtt_connection::write_packet_and_close_connection( const protocol::mqtt_packet& packet,
                                                              const string& message,
                                                              const dispatch::disconnect_reason reason )
     {
@@ -662,7 +662,7 @@ namespace io_wally
             // - there won't be client_session to close anyway
             // - we don't have a means of identifying any client_session anyway
             //
-            auto disconnect = make_shared<const protocol::disconnect>( );
+            auto disconnect = make_shared<protocol::disconnect>( );
             dispatch_disconnect_packet( disconnect, reason );
         }
         else

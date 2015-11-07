@@ -114,55 +114,55 @@ namespace io_wally
 
         // Processing decoded packets
 
-        void process_decoded_packet( std::shared_ptr<const protocol::mqtt_packet> packet );
+        void process_decoded_packet( std::shared_ptr<protocol::mqtt_packet> packet );
 
         // Dealing with CONNECT packets
 
-        void process_connect_packet( std::shared_ptr<const protocol::connect> connect );
+        void process_connect_packet( std::shared_ptr<protocol::connect> connect );
 
-        void dispatch_connect_packet( std::shared_ptr<const protocol::connect> connect );
+        void dispatch_connect_packet( std::shared_ptr<protocol::connect> connect );
 
         void handle_dispatch_connect_packet( const boost::system::error_code& ec,
-                                             std::shared_ptr<const protocol::connect> connect );
+                                             std::shared_ptr<protocol::connect> connect );
 
         // Dealing with DISCONNECT packets
 
-        void process_disconnect_packet( std::shared_ptr<const protocol::disconnect> disconnect );
+        void process_disconnect_packet( std::shared_ptr<protocol::disconnect> disconnect );
 
         void dispatch_disconnect_packet(
-            std::shared_ptr<const protocol::disconnect> disconnect,
+            std::shared_ptr<protocol::disconnect> disconnect,
             const dispatch::disconnect_reason disconnect_reason = dispatch::disconnect_reason::client_disconnect );
 
         void handle_dispatch_disconnect_packet( const boost::system::error_code& ec,
-                                                std::shared_ptr<const protocol::disconnect> disconnect,
+                                                std::shared_ptr<protocol::disconnect> disconnect,
                                                 const dispatch::disconnect_reason disconnect_reason );
 
         // Dealing with SUBSCRIBE packets
 
-        void process_subscribe_packet( std::shared_ptr<const protocol::subscribe> subscribe );
+        void process_subscribe_packet( std::shared_ptr<protocol::subscribe> subscribe );
 
-        void dispatch_subscribe_packet( std::shared_ptr<const protocol::subscribe> subscribe );
+        void dispatch_subscribe_packet( std::shared_ptr<protocol::subscribe> subscribe );
 
         void handle_dispatch_subscribe_packet( const boost::system::error_code& ec,
-                                               std::shared_ptr<const protocol::subscribe> subscribe );
+                                               std::shared_ptr<protocol::subscribe> subscribe );
 
         // Dealing with PUBLISH packets
 
-        void process_publish_packet( std::shared_ptr<const protocol::publish> publish );
+        void process_publish_packet( std::shared_ptr<protocol::publish> publish );
 
-        void dispatch_publish_packet( std::shared_ptr<const protocol::publish> publish );
+        void dispatch_publish_packet( std::shared_ptr<protocol::publish> publish );
 
         void handle_dispatch_publish_packet( const boost::system::error_code& ec,
-                                             std::shared_ptr<const protocol::publish> publish );
+                                             std::shared_ptr<protocol::publish> publish );
 
         // Dealing with PUBACK packets
 
-        void process_puback_packet( std::shared_ptr<const protocol::puback> puback );
+        void process_puback_packet( std::shared_ptr<protocol::puback> puback );
 
-        void dispatch_puback_packet( std::shared_ptr<const protocol::puback> puback );
+        void dispatch_puback_packet( std::shared_ptr<protocol::puback> puback );
 
         void handle_dispatch_puback_packet( const boost::system::error_code& ec,
-                                            std::shared_ptr<const protocol::puback> puback );
+                                            std::shared_ptr<protocol::puback> puback );
 
         // Sending MQTT packets
 

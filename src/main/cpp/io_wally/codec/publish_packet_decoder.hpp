@@ -29,9 +29,9 @@ namespace io_wally
             ///
             /// \see io_wally::protocol::decoder::packet_body_decoder::parse
             ///
-            virtual std::shared_ptr<const protocol::mqtt_packet> decode( const protocol::packet::header& header,
-                                                                         InputIterator buf_start,
-                                                                         const InputIterator buf_end ) const
+            virtual std::shared_ptr<protocol::mqtt_packet> decode( const protocol::packet::header& header,
+                                                                   InputIterator buf_start,
+                                                                   const InputIterator buf_end ) const
             {
                 using namespace io_wally::protocol;
 
@@ -75,7 +75,7 @@ namespace io_wally
                 std::vector<uint8_t> application_message{new_buf_start, application_message_end};
                 new_buf_start = application_message_end;
 
-                return std::make_shared<const protocol::publish>(
+                return std::make_shared<protocol::publish>(
                     header, topic_name, packet_identifier, application_message );
             }
 

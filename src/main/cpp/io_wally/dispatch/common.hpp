@@ -105,7 +105,7 @@ namespace io_wally
             using sender_ptr = std::shared_ptr<SENDER>;
 
             static packet_container<SENDER>::ptr connect_packet( sender_ptr rx_connection,
-                                                                 std::shared_ptr<const protocol::connect> connect )
+                                                                 std::shared_ptr<protocol::connect> connect )
             {
                 return std::make_shared<packet_container<SENDER>>(
                     connect->client_id( ), rx_connection, connect, dispatch::disconnect_reason::not_a_disconnect );
@@ -114,17 +114,16 @@ namespace io_wally
             static packet_container<SENDER>::ptr disconnect_packet(
                 const std::string& client_id,
                 sender_ptr rx_connection,
-                std::shared_ptr<const protocol::disconnect> disconnect,
+                std::shared_ptr<protocol::disconnect> disconnect,
                 const dispatch::disconnect_reason disconnect_reason = dispatch::disconnect_reason::client_disconnect )
             {
                 return std::make_shared<packet_container<SENDER>>(
                     client_id, rx_connection, disconnect, disconnect_reason );
             }
 
-            static packet_container<SENDER>::ptr subscribe_packet(
-                const std::string& client_id,
-                sender_ptr rx_connection,
-                std::shared_ptr<const protocol::subscribe> subscribe )
+            static packet_container<SENDER>::ptr subscribe_packet( const std::string& client_id,
+                                                                   sender_ptr rx_connection,
+                                                                   std::shared_ptr<protocol::subscribe> subscribe )
             {
                 return std::make_shared<packet_container<SENDER>>(
                     client_id, rx_connection, subscribe, dispatch::disconnect_reason::not_a_disconnect );
@@ -132,7 +131,7 @@ namespace io_wally
 
             static packet_container<SENDER>::ptr publish_packet( const std::string& client_id,
                                                                  sender_ptr rx_connection,
-                                                                 std::shared_ptr<const protocol::publish> publish )
+                                                                 std::shared_ptr<protocol::publish> publish )
             {
                 return std::make_shared<packet_container<SENDER>>(
                     client_id, rx_connection, publish, dispatch::disconnect_reason::not_a_disconnect );
@@ -140,7 +139,7 @@ namespace io_wally
 
             static packet_container<SENDER>::ptr puback_packet( const std::string& client_id,
                                                                 sender_ptr rx_connection,
-                                                                std::shared_ptr<const protocol::puback> puback )
+                                                                std::shared_ptr<protocol::puback> puback )
             {
                 return std::make_shared<packet_container<SENDER>>(
                     client_id, rx_connection, puback, dispatch::disconnect_reason::not_a_disconnect );
@@ -149,7 +148,7 @@ namespace io_wally
            public:
             packet_container( const std::string& client_id,
                               sender_ptr rx_connection,
-                              std::shared_ptr<const protocol::mqtt_packet> packet,
+                              std::shared_ptr<protocol::mqtt_packet> packet,
                               const dispatch::disconnect_reason disconnect_reason )
                 : client_id_{client_id},
                   rx_connection_{rx_connection},
@@ -179,7 +178,7 @@ namespace io_wally
                 return packet_->header( ).type( );
             }
 
-            std::shared_ptr<const protocol::mqtt_packet> packet( )
+            std::shared_ptr<protocol::mqtt_packet> packet( )
             {
                 return packet_;
             }
@@ -190,11 +189,11 @@ namespace io_wally
             }
 
             template <typename PACKET>
-            std::shared_ptr<const PACKET> packetAs( )
+            std::shared_ptr<PACKET> packetAs( )
             {
                 static_assert( std::is_base_of<protocol::mqtt_packet, PACKET>::value,
                                "Template parameter PACKET needs to be a subtype of protocol::mqtt_packet" );
-                return std::dynamic_pointer_cast<const PACKET>( packet_ );
+                return std::dynamic_pointer_cast<PACKET>( packet_ );
             }
 
            private:
@@ -202,7 +201,7 @@ namespace io_wally
                                                 std::chrono::system_clock::now( ).time_since_epoch( ) ).count( )};
             const std::string client_id_;
             std::weak_ptr<SENDER> rx_connection_;
-            std::shared_ptr<const protocol::mqtt_packet> packet_;
+            std::shared_ptr<protocol::mqtt_packet> packet_;
             const dispatch::disconnect_reason disconnect_reason_;
         };  // struct packet_container
 

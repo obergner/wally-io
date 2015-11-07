@@ -83,7 +83,7 @@ namespace io_wally
         }
 
         void mqtt_client_session_manager::client_subscribed( const std::string& client_id,
-                                                             std::shared_ptr<const protocol::subscribe> subscribe )
+                                                             std::shared_ptr<protocol::subscribe> subscribe )
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "SUBSCRIBE:  [cltid:" << client_id << "|pkt:" << *subscribe
                                                  << "] ...";
@@ -95,7 +95,7 @@ namespace io_wally
         }
 
         void mqtt_client_session_manager::client_published( const std::string& client_id,
-                                                            std::shared_ptr<const protocol::publish> incoming_publish )
+                                                            std::shared_ptr<protocol::publish> incoming_publish )
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "PUBLISH:   [cltid:" << client_id << "|pkt:" << *incoming_publish
                                                  << "] ...";
@@ -120,7 +120,7 @@ namespace io_wally
         }
 
         void mqtt_client_session_manager::client_acked_publish( const std::string& client_id,
-                                                                std::shared_ptr<const protocol::puback> puback )
+                                                                std::shared_ptr<protocol::puback> puback )
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "RX ACK: [cltid:" << client_id << "|pkt:" << *puback << "] ...";
             // TODO: This will default construct (is that possible?) a new session if client_id is not yet registered.

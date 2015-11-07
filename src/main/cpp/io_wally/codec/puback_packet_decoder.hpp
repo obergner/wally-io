@@ -27,9 +27,9 @@ namespace io_wally
             ///
             /// \see io_wally::protocol::decoder::packet_body_decoder::parse
             ///
-            virtual std::shared_ptr<const protocol::mqtt_packet> decode( const protocol::packet::header& header,
-                                                                         InputIterator buf_start,
-                                                                         const InputIterator buf_end ) const
+            virtual std::shared_ptr<protocol::mqtt_packet> decode( const protocol::packet::header& header,
+                                                                   InputIterator buf_start,
+                                                                   const InputIterator buf_end ) const
             {
                 using namespace io_wally::protocol;
 
@@ -55,7 +55,7 @@ namespace io_wally
                 uint16_t packet_identifier = -1;
                 std::tie( new_buf_start, packet_identifier ) = decode_uint16( new_buf_start, buf_end );
 
-                return std::make_shared<const protocol::puback>( packet_identifier );
+                return std::make_shared<protocol::puback>( packet_identifier );
             }
         };  // class puback_packet_decoder
 

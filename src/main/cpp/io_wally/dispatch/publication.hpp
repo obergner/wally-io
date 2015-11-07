@@ -26,11 +26,11 @@ namespace io_wally
 
             virtual void start( std::shared_ptr<mqtt_packet_sender> sender ) = 0;
 
-            virtual void response_received( std::shared_ptr<const protocol::mqtt_ack> ack,
+            virtual void response_received( std::shared_ptr<protocol::mqtt_ack> ack,
                                             std::shared_ptr<mqtt_packet_sender> sender ) = 0;
 
            protected:
-            publication( tx_in_flight_publications& parent, std::shared_ptr<const protocol::publish> publish );
+            publication( tx_in_flight_publications& parent, std::shared_ptr<protocol::publish> publish );
 
            protected:
             tx_in_flight_publications& parent_;
@@ -38,7 +38,7 @@ namespace io_wally
             const std::size_t max_retries_;
             boost::asio::io_service::strand strand_;
             boost::asio::steady_timer retry_on_timeout_;
-            std::shared_ptr<const protocol::publish> publish_;
+            std::shared_ptr<protocol::publish> publish_;
             std::uint16_t retry_count_{0};
         };  // class publication
 
@@ -57,11 +57,44 @@ namespace io_wally
             };
 
            public:
-            qos1_publication( tx_in_flight_publications& parent, std::shared_ptr<const protocol::publish> publish );
+            qos1_publication( tx_in_flight_publications& parent, std::shared_ptr<protocol::publish> publish );
 
             virtual void start( std::shared_ptr<mqtt_packet_sender> sender ) override;
 
-            virtual void response_received( std::shared_ptr<const protocol::mqtt_ack> ack,
+            virtual void response_received( std::shared_ptr<protocol::mqtt_ack> ack,
+                                            std::shared_ptr<mqtt_packet_sender> /* sender */ ) override;
+
+           private:
+            void ack_timeout_expired( std::shared_ptr<mqtt_packet_sender> sender );
+
+            void start_ack_timeout( std::shared_ptr<mqtt_packet_sender> sender );
+
+           private:
+            state state_{state::initial};
+        };  // class qos1_publication
+
+        class qos2_publication final : public publication, public std::enable_shared_from_this<qos2_publication>
+        {
+           private:
+            enum class state : std::uint8_t
+            {
+                initial = 0,
+
+                waiting_for_rec = 1,
+
+                waiting_for_comp = 2,
+
+                completed = 3,
+
+                terminally_failed = 4
+            };
+
+           public:
+            qos2_publication( tx_in_flight_publications& parent, std::shared_ptr<protocol::publish> publish );
+
+            virtual void start( std::shared_ptr<mqtt_packet_sender> sender ) override;
+
+            virtual void response_received( std::shared_ptr<protocol::mqtt_ack> ack,
                                             std::shared_ptr<mqtt_packet_sender> /* sender */ ) override;
 
            private:

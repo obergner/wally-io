@@ -6,9 +6,8 @@
 
 using namespace io_wally::protocol;
 
-TEST_CASE( "MQTT header flags are read", "[header]" )
+TEST_CASE( "MQTT header flags", "[header]" )
 {
-
     SECTION( "all flags are set" )
     {
         const std::uint8_t flgs = 0x0F;

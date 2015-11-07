@@ -492,7 +492,7 @@ namespace io_wally
 
                private:
                 /// Fields
-                const uint8_t control_packet_type_and_flags_;
+                uint8_t control_packet_type_and_flags_;
                 const uint32_t remaining_length_;
             };  /// struct header
         }       // namespace packet
@@ -507,9 +507,9 @@ namespace io_wally
             /// \brief Return this \c mqtt_packet's \c packet::header.
             ///
             /// \return This MQTT packet's packet::header
-            const struct packet::header& header( ) const
+            const struct packet::header header( ) const
             {
-                return header_;
+                return packet::header{type_and_flags_, remaining_length_};
             }
 
             /// \brief Return a string representation of this packet to be used e.g. in log output.
@@ -531,14 +531,17 @@ namespace io_wally
             /// \brief Create a new \c mqtt_packet instance from the supplied \c packet::header.
             ///
             /// \param header This MQTT packet's packet::header
-            mqtt_packet( struct packet::header header ) : header_{std::move( header )}
+            mqtt_packet( struct packet::header header )
+                : type_and_flags_{header.type_and_flags( )}, remaining_length_{header.remaining_length( )}
             {
                 return;
             }
 
+           protected:
+            uint8_t type_and_flags_;
+
            private:
-            /// Fields
-            const struct packet::header header_;
+            const uint32_t remaining_length_;
         };
 
         /// \brief Base class for MQTT acks.

@@ -418,9 +418,9 @@ namespace io_wally
             ///             \c mqtt_packet's on the wire format.
             /// \pre        \c header is of the same MQTT Control Packet type as this \c packet_body_decoder
             ///             expects to decode.
-            virtual std::shared_ptr<const protocol::mqtt_packet> decode( const protocol::packet::header& header,
-                                                                         InputIterator buf_start,
-                                                                         const InputIterator buf_end ) const = 0;
+            virtual std::shared_ptr<protocol::mqtt_packet> decode( const protocol::packet::header& header,
+                                                                   InputIterator buf_start,
+                                                                   const InputIterator buf_end ) const = 0;
         };  // packet_body_decoder
 
     }  /// namespace decoder

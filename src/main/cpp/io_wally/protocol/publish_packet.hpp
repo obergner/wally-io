@@ -52,6 +52,12 @@ namespace io_wally
                 assert( header.type( ) == packet::Type::PUBLISH );
             }
 
+            /// \brief Set DUP flag to mark this packet as a duplicate PUBLISH in a QoS 2 publication.
+            void set_dup( )
+            {
+                type_and_flags_ |= 0x08;
+            }
+
             /// \brief Return \c topic to publish this message to.
             ///
             /// \returm topic to publish this message to
@@ -103,12 +109,11 @@ namespace io_wally
                 return output.str( );
             }
 
-            std::shared_ptr<const publish> with_new_packet_identifier( const std::uint16_t new_packet_identifier ) const
+            std::shared_ptr<publish> with_new_packet_identifier( const std::uint16_t new_packet_identifier ) const
             {
                 const packet::header& header_copy = header( );
 
-                return std::make_shared<const publish>(
-                    header_copy, topic_, new_packet_identifier, application_message_ );
+                return std::make_shared<publish>( header_copy, topic_, new_packet_identifier, application_message_ );
             }
 
            private:

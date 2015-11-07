@@ -29,9 +29,9 @@ namespace io_wally
             ///
             /// \see io_wally::protocol::decoder::packet_body_decoder::parse
             ///
-            virtual std::shared_ptr<const protocol::mqtt_packet> decode( const protocol::packet::header& header,
-                                                                         InputIterator buf_start,
-                                                                         const InputIterator buf_end ) const
+            virtual std::shared_ptr<protocol::mqtt_packet> decode( const protocol::packet::header& header,
+                                                                   InputIterator buf_start,
+                                                                   const InputIterator buf_end ) const
             {
                 using namespace io_wally::protocol;
 
@@ -76,7 +76,7 @@ namespace io_wally
                         "[MQTT-3.8.3-3] A SUBSCRIBE packet MUST contain at least one subscription (topic filter/QoS "
                         "pair)" );
 
-                return std::make_shared<const protocol::subscribe>( header, packet_identifier, subscriptions );
+                return std::make_shared<protocol::subscribe>( header, packet_identifier, subscriptions );
             }
         };  // class subscribe_packet_decoder
 

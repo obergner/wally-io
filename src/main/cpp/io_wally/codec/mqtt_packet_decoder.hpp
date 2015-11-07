@@ -49,9 +49,9 @@ namespace io_wally
             ///             an \c mqtt_packet's on the wire format.
             /// \pre        \c buf_end points immediately past the last byte in a buffer representing an
             ///             \c mqtt_packet's on the wire format.
-            std::shared_ptr<const protocol::mqtt_packet> decode( const protocol::packet::header& header,
-                                                                 InputIterator buf_start,
-                                                                 const InputIterator buf_end ) const
+            std::shared_ptr<protocol::mqtt_packet> decode( const protocol::packet::header& header,
+                                                           InputIterator buf_start,
+                                                           const InputIterator buf_end ) const
             {
                 return body_decoder_for( header ).decode( header, buf_start, buf_end );
             }

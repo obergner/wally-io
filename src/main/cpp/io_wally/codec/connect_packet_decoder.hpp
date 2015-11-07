@@ -27,9 +27,9 @@ namespace io_wally
             ///
             /// \see io_wally::protocol::decoder::packet_body_decoder::parse
             ///
-            virtual std::shared_ptr<const protocol::mqtt_packet> decode( const protocol::packet::header& header,
-                                                                         InputIterator buf_start,
-                                                                         const InputIterator buf_end ) const
+            virtual std::shared_ptr<protocol::mqtt_packet> decode( const protocol::packet::header& header,
+                                                                   InputIterator buf_start,
+                                                                   const InputIterator buf_end ) const
             {
                 using namespace io_wally::protocol;
 
@@ -91,16 +91,16 @@ namespace io_wally
                     throw error::malformed_mqtt_packet(
                         "Combined size of fields in buffers does not add up to advertised remaining length" );
 
-                return std::make_shared<const protocol::connect>( header,
-                                                                  protocol_name.c_str( ),
-                                                                  protocol_level,
-                                                                  connect_flags,
-                                                                  keep_alive_secs,
-                                                                  client_id.c_str( ),
-                                                                  last_will_topic.c_str( ),
-                                                                  last_will_msg.c_str( ),
-                                                                  username.c_str( ),
-                                                                  password.c_str( ) );
+                return std::make_shared<protocol::connect>( header,
+                                                            protocol_name.c_str( ),
+                                                            protocol_level,
+                                                            connect_flags,
+                                                            keep_alive_secs,
+                                                            client_id.c_str( ),
+                                                            last_will_topic.c_str( ),
+                                                            last_will_msg.c_str( ),
+                                                            username.c_str( ),
+                                                            password.c_str( ) );
             }
         };  // class connect_packet_decoder
 

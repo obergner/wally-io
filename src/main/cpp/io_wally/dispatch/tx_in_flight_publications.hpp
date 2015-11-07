@@ -15,6 +15,8 @@
 #include "io_wally/protocol/publish_packet.hpp"
 #include "io_wally/protocol/puback_packet.hpp"
 #include "io_wally/dispatch/publication.hpp"
+#include "io_wally/protocol/pubrec_packet.hpp"
+#include "io_wally/protocol/pubcomp_packet.hpp"
 
 namespace io_wally
 {
@@ -24,6 +26,7 @@ namespace io_wally
         {
             friend class publication;
             friend class qos1_publication;
+            friend class qos2_publication;
 
            private:  // static
             static constexpr const std::uint16_t MAX_PACKET_IDENTIFIER = 0xFFFF;
@@ -37,24 +40,27 @@ namespace io_wally
 
             boost::asio::io_service& io_service( ) const;
 
-            void publish_received( std::shared_ptr<const protocol::publish> incoming_publish );
+            void publish_received( std::shared_ptr<protocol::publish> incoming_publish );
 
-            void response_received( std::shared_ptr<const protocol::mqtt_ack> ack );
+            void response_received( std::shared_ptr<protocol::mqtt_ack> ack );
 
            private:
             std::uint16_t next_packet_identifier( );
 
-            void qos1_publish_received( std::shared_ptr<const protocol::publish> incoming_publish,
+            void qos1_publish_received( std::shared_ptr<protocol::publish> incoming_publish,
                                         std::shared_ptr<mqtt_packet_sender> locked_sender );
 
-            void puback_received( std::shared_ptr<const protocol::puback> puback,
+            void puback_received( std::shared_ptr<protocol::puback> puback,
                                   std::shared_ptr<mqtt_packet_sender> locked_sender );
 
-            // void qos2_publish_received( std::shared_ptr<const protocol::publish> incoming_publish,
-            //                            std::shared_ptr<mqtt_packet_sender> locked_sender );
+            void qos2_publish_received( std::shared_ptr<protocol::publish> incoming_publish,
+                                        std::shared_ptr<mqtt_packet_sender> locked_sender );
 
-            // void pubrec_received( std::shared_ptr<const protocol::puback> puback,
-            //                      std::shared_ptr<mqtt_packet_sender> locked_sender );
+            void pubrec_received( std::shared_ptr<protocol::pubrec> puback,
+                                  std::shared_ptr<mqtt_packet_sender> locked_sender );
+
+            void pubcomp_received( std::shared_ptr<protocol::pubcomp> puback,
+                                   std::shared_ptr<mqtt_packet_sender> locked_sender );
 
             void release( std::shared_ptr<publication> publication );
 

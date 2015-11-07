@@ -73,21 +73,19 @@ namespace io_wally
             ///
             /// \param client_id ID of client that sent SUBSCRIBE packet
             /// \param subscribe MQTT SUBSCRIBE packet received from client
-            void client_subscribed( const std::string& client_id,
-                                    std::shared_ptr<const protocol::subscribe> subscribe );
+            void client_subscribed( const std::string& client_id, std::shared_ptr<protocol::subscribe> subscribe );
 
             /// \brief Called when client sent a PUBLISH packet.
             ///
             /// \param client_id ID of client that sent PUBLISH packet
             /// \param incoming_publish MQTT PUBLISH packet received from client \c client_id
-            void client_published( const std::string& client_id,
-                                   std::shared_ptr<const protocol::publish> incoming_publish );
+            void client_published( const std::string& client_id, std::shared_ptr<protocol::publish> incoming_publish );
 
             /// \brief Called when a client acknowledged a received QoS 1 PUBLISH, i.e. sent a PUBACK
             ///
             /// \param client_id ID of client that acked PUBLISH
             /// \param puback PUBACK sent by connected client
-            void client_acked_publish( const std::string& client_id, std::shared_ptr<const protocol::puback> puback );
+            void client_acked_publish( const std::string& client_id, std::shared_ptr<protocol::puback> puback );
 
             /// \brief Destroy the \c mqtt_client_session identified by specified \c client_id.
             ///
