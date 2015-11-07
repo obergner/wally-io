@@ -296,4 +296,109 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
             }
         }
     }
+
+    GIVEN( "a well-formed PUBACK" )
+    {
+        const std::uint8_t type_and_flags = ( 4 << 4 ) | 0;  // PUBACK
+        const std::uint32_t remaining_length = 2;
+
+        const struct protocol::packet::header fixed_header( type_and_flags, remaining_length );
+
+        // Shameless act of robbery: https://github.com/surgemq/surgemq/blob/master/message/puback_test.go#L132
+        const std::array<std::uint8_t, remaining_length> buffer = {{
+            0,  // packet ID MSB (0)
+            7,  // packet ID LSB (7)
+        }};     /// avoids warning
+
+        WHEN( "a client passes that array into puback_packet_decoder::decode" )
+        {
+            std::shared_ptr<const protocol::mqtt_packet> result =
+                under_test.decode( fixed_header, buffer.begin( ), buffer.end( ) );
+
+            THEN( "that client should receive a non-null mqtt_packet pointer" )
+            {
+                REQUIRE( result );
+            }
+
+            AND_THEN( "it should be able to cast that result to a 'puback' instance with all fields correctly set" )
+            {
+                const protocol::mqtt_packet& raw_result = *result;
+                const protocol::puback& puback_packet = static_cast<const protocol::puback&>( raw_result );
+
+                CHECK( puback_packet.header( ).type( ) == protocol::packet::Type::PUBACK );
+
+                CHECK( puback_packet.packet_identifier( ) == 7 );
+            }
+        }
+    }
+
+    GIVEN( "a well-formed PUBREC" )
+    {
+        const std::uint8_t type_and_flags = ( 5 << 4 ) | 0;  // PUBREC
+        const std::uint32_t remaining_length = 2;
+
+        const struct protocol::packet::header fixed_header( type_and_flags, remaining_length );
+
+        // Shameless act of robbery: https://github.com/surgemq/surgemq/blob/master/message/pubrec_test.go#L132
+        const std::array<std::uint8_t, remaining_length> buffer = {{
+            0,  // packet ID MSB (0)
+            7,  // packet ID LSB (7)
+        }};     /// avoids warning
+
+        WHEN( "a client passes that array into pubrec_packet_decoder::decode" )
+        {
+            std::shared_ptr<const protocol::mqtt_packet> result =
+                under_test.decode( fixed_header, buffer.begin( ), buffer.end( ) );
+
+            THEN( "that client should receive a non-null mqtt_packet pointer" )
+            {
+                REQUIRE( result );
+            }
+
+            AND_THEN( "it should be able to cast that result to a 'pubrec' instance with all fields correctly set" )
+            {
+                const protocol::mqtt_packet& raw_result = *result;
+                const protocol::pubrec& pubrec_packet = static_cast<const protocol::pubrec&>( raw_result );
+
+                CHECK( pubrec_packet.header( ).type( ) == protocol::packet::Type::PUBREC );
+
+                CHECK( pubrec_packet.packet_identifier( ) == 7 );
+            }
+        }
+    }
+
+    GIVEN( "a well-formed PUBCOMP" )
+    {
+        const std::uint8_t type_and_flags = ( 7 << 4 ) | 0;  // PUBCOMP
+        const std::uint32_t remaining_length = 2;
+
+        const struct protocol::packet::header fixed_header( type_and_flags, remaining_length );
+
+        // Shameless act of robbery: https://github.com/surgemq/surgemq/blob/master/message/pubcomp_test.go#L132
+        const std::array<std::uint8_t, remaining_length> buffer = {{
+            0,  // packet ID MSB (0)
+            7,  // packet ID LSB (7)
+        }};     /// avoids warning
+
+        WHEN( "a client passes that array into pubcomp_packet_decoder::decode" )
+        {
+            std::shared_ptr<const protocol::mqtt_packet> result =
+                under_test.decode( fixed_header, buffer.begin( ), buffer.end( ) );
+
+            THEN( "that client should receive a non-null mqtt_packet pointer" )
+            {
+                REQUIRE( result );
+            }
+
+            AND_THEN( "it should be able to cast that result to a 'pubcomp' instance with all fields correctly set" )
+            {
+                const protocol::mqtt_packet& raw_result = *result;
+                const protocol::pubcomp& pubcomp_packet = static_cast<const protocol::pubcomp&>( raw_result );
+
+                CHECK( pubcomp_packet.header( ).type( ) == protocol::packet::Type::PUBCOMP );
+
+                CHECK( pubcomp_packet.packet_identifier( ) == 7 );
+            }
+        }
+    }
 }

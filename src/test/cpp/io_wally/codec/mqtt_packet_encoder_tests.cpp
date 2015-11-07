@@ -70,7 +70,7 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
         auto result = std::array<std::uint8_t, 7>{{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
         auto expected_result = std::array<std::uint8_t, 7>{{0x90, 0x05, 0x00, 0x07, 0x01, 0x02, 0x80}};
 
-        WHEN( "a client passes that packet into suback_packet_encoder::encode" )
+        WHEN( "a client passes that packet into mqtt_packet_encoder::encode" )
         {
             auto new_buf_start = under_test.encode( suback, result.begin( ), result.end( ) );
 
@@ -147,7 +147,7 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
             'e',
         }};
 
-        WHEN( "a client passes that packet into publish_packet_encoder::encode" )
+        WHEN( "a client passes that packet into mqtt_packet_encoder::encode" )
         {
             auto new_buf_start = under_test.encode( publish, result.begin( ), result.end( ) );
 
@@ -171,7 +171,7 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
         auto result = std::array<std::uint8_t, 4>{{0x00, 0x00, 0x00, 0x00}};
         auto expected_result = std::array<std::uint8_t, 4>{{0x40, 0x02, 0xFF, 0xFF}};
 
-        WHEN( "a client passes that packet into puback_packet_encoder::encode" )
+        WHEN( "a client passes that packet into mqtt_packet_encoder::encode" )
         {
             auto new_buf_start = under_test.encode( puback, result.begin( ), result.end( ) );
 
@@ -183,6 +183,30 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
             AND_THEN( "it should see a correctly advanced out iterator" )
             {
                 REQUIRE( ( new_buf_start - result.begin( ) ) == puback.header( ).total_length( ) );
+            }
+        }
+    }
+
+    GIVEN( "a pubrel packet" )
+    {
+        auto packet_identifier = uint16_t{7};
+        auto pubrel = protocol::pubrel{packet_identifier};
+
+        auto result = std::array<std::uint8_t, 4>{{0x00, 0x00, 0x00, 0x00}};
+        auto expected_result = std::array<std::uint8_t, 4>{{0x62, 0x02, 0x00, 0x07}};
+
+        WHEN( "a client passes that packet into mqtt_packet_encoder::encode" )
+        {
+            auto new_buf_start = under_test.encode( pubrel, result.begin( ), result.end( ) );
+
+            THEN( "that client should see a correctly encoded buffer" )
+            {
+                REQUIRE( result == expected_result );
+            }
+
+            AND_THEN( "it should see a correctly advanced out iterator" )
+            {
+                REQUIRE( ( new_buf_start - result.begin( ) ) == pubrel.header( ).total_length( ) );
             }
         }
     }
