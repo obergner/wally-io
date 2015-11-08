@@ -50,11 +50,8 @@ SCENARIO( "subscribe", "[packets]" )
 
         WHEN( "a caller asks for a success suback" )
         {
-            // TODO: For now, we support only QoS 0 and QoS 1
-            // auto expected_rcs = std::vector<suback_return_code>{
-            //    suback_return_code::MAXIMUM_QOS0, suback_return_code::MAXIMUM_QOS1, suback_return_code::MAXIMUM_QOS2};
             auto expected_rcs = std::vector<suback_return_code>{
-                suback_return_code::MAXIMUM_QOS0, suback_return_code::MAXIMUM_QOS1, suback_return_code::MAXIMUM_QOS1};
+                suback_return_code::MAXIMUM_QOS0, suback_return_code::MAXIMUM_QOS1, suback_return_code::MAXIMUM_QOS2};
             auto success_suback = under_test.succeed( );
 
             THEN( "it should see correct success suback returned" )

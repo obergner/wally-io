@@ -333,11 +333,19 @@ namespace io_wally
                 process_puback_packet( dynamic_pointer_cast<protocol::puback>( packet ) );
             }
             break;
+            case packet::Type::PUBREC:
+            {
+                process_pubrec_packet( dynamic_pointer_cast<protocol::pubrec>( packet ) );
+            }
+            break;
+            case packet::Type::PUBCOMP:
+            {
+                process_pubcomp_packet( dynamic_pointer_cast<protocol::pubcomp>( packet ) );
+            }
+            break;
             case packet::Type::CONNACK:
             case packet::Type::PINGRESP:
             case packet::Type::PUBREL:
-            case packet::Type::PUBREC:
-            case packet::Type::PUBCOMP:
             case packet::Type::SUBACK:
             case packet::Type::UNSUBSCRIBE:
             case packet::Type::UNSUBACK:
@@ -555,6 +563,70 @@ namespace io_wally
         else
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *puback;
+        }
+    }
+
+    void mqtt_connection::process_pubrec_packet( shared_ptr<protocol::pubrec> pubrec )
+    {
+        dispatch_pubrec_packet( pubrec );
+    }
+
+    void mqtt_connection::dispatch_pubrec_packet( shared_ptr<protocol::pubrec> pubrec )
+    {
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *pubrec << " ...";
+        auto pubrec_container = packet_container_t::pubrec_packet( *client_id_, shared_from_this( ), pubrec );
+
+        auto self = shared_from_this( );
+        dispatcher_.async_enq( pubrec_container,
+                               strand_.wrap( [self, pubrec]( const boost::system::error_code& ec )
+                                             {
+                                                 self->handle_dispatch_pubrec_packet( ec, pubrec );
+                                             } ) );
+    }
+
+    void mqtt_connection::handle_dispatch_pubrec_packet( const boost::system::error_code& ec,
+                                                         shared_ptr<protocol::pubrec> pubrec )
+    {
+        if ( ec )
+        {
+            BOOST_LOG_SEV( logger_, lvl::error ) << "--- DISPATCH FAILED: " << *pubrec << " [ec:" << ec
+                                                 << "|emsg:" << ec.message( ) << "]";
+        }
+        else
+        {
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *pubrec;
+        }
+    }
+
+    void mqtt_connection::process_pubcomp_packet( shared_ptr<protocol::pubcomp> pubcomp )
+    {
+        dispatch_pubcomp_packet( pubcomp );
+    }
+
+    void mqtt_connection::dispatch_pubcomp_packet( shared_ptr<protocol::pubcomp> pubcomp )
+    {
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *pubcomp << " ...";
+        auto pubcomp_container = packet_container_t::pubcomp_packet( *client_id_, shared_from_this( ), pubcomp );
+
+        auto self = shared_from_this( );
+        dispatcher_.async_enq( pubcomp_container,
+                               strand_.wrap( [self, pubcomp]( const boost::system::error_code& ec )
+                                             {
+                                                 self->handle_dispatch_pubcomp_packet( ec, pubcomp );
+                                             } ) );
+    }
+
+    void mqtt_connection::handle_dispatch_pubcomp_packet( const boost::system::error_code& ec,
+                                                          shared_ptr<protocol::pubcomp> pubcomp )
+    {
+        if ( ec )
+        {
+            BOOST_LOG_SEV( logger_, lvl::error ) << "--- DISPATCH FAILED: " << *pubcomp << " [ec:" << ec
+                                                 << "|emsg:" << ec.message( ) << "]";
+        }
+        else
+        {
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *pubcomp;
         }
     }
 

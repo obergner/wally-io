@@ -36,9 +36,7 @@ SCENARIO( "topic_subscriptions#resolve_subscribers", "[dispatch]" )
             AND_THEN( "that subscriber should have the maximum of all three QoS levels assigned" )
             {
                 auto const assigned_qos = subscribers[0].second;
-                // TODO: For now, we only support QoS 0 and QoS 1
-                // REQUIRE( assigned_qos == packet::QoS::EXACTLY_ONCE );
-                REQUIRE( assigned_qos == packet::QoS::AT_LEAST_ONCE );
+                REQUIRE( assigned_qos == packet::QoS::EXACTLY_ONCE );
             }
         }
     }

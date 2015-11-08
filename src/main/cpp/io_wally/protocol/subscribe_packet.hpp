@@ -98,8 +98,7 @@ namespace io_wally
                             rcs.push_back( protocol::suback_return_code::MAXIMUM_QOS1 );
                             break;
                         case protocol::packet::QoS::EXACTLY_ONCE:
-                            // Fow now, we only support QoS 0 and QoS 1
-                            rcs.push_back( protocol::suback_return_code::MAXIMUM_QOS1 );
+                            rcs.push_back( protocol::suback_return_code::MAXIMUM_QOS2 );
                             break;
                         case protocol::packet::QoS::RESERVED:
                             rcs.push_back( protocol::suback_return_code::FAILURE );

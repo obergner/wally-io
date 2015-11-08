@@ -8,6 +8,10 @@
 
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/protocol/common.hpp"
+#include "io_wally/protocol/publish_packet.hpp"
+#include "io_wally/protocol/puback_packet.hpp"
+#include "io_wally/protocol/pubrec_packet.hpp"
+#include "io_wally/protocol/pubcomp_packet.hpp"
 #include "io_wally/dispatch/mqtt_client_session_manager.hpp"
 
 namespace io_wally
@@ -61,11 +65,14 @@ namespace io_wally
             }
         }
 
-        void mqtt_client_session::publish( std::shared_ptr<protocol::publish> incoming_publish )
+        void mqtt_client_session::publish( std::shared_ptr<protocol::publish> incoming_publish,
+                                           const protocol::packet::QoS maximum_qos )
         {
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "PUBLISH:   " << *incoming_publish << " ...";
-            tx_in_flight_publications_.publish_received( incoming_publish );
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "PUBLISHED: " << *incoming_publish;
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "PUBLISH:   " << *incoming_publish << "(maxqos:" << maximum_qos
+                                                 << ") ...";
+            tx_in_flight_publications_.publish( incoming_publish, maximum_qos );
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "PUBLISHED: " << *incoming_publish << "(maxqos:" << maximum_qos
+                                                 << ")";
         }
 
         void mqtt_client_session::client_acked_publish( std::shared_ptr<protocol::puback> puback )
@@ -73,6 +80,20 @@ namespace io_wally
             BOOST_LOG_SEV( logger_, lvl::debug ) << "ACK:   " << *puback << " ...";
             tx_in_flight_publications_.response_received( puback );
             BOOST_LOG_SEV( logger_, lvl::debug ) << "ACKED: " << *puback;
+        }
+
+        void mqtt_client_session::client_received_publish( std::shared_ptr<protocol::pubrec> pubrec )
+        {
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "RCV:  " << *pubrec << " ...";
+            tx_in_flight_publications_.response_received( pubrec );
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "RCVD: " << *pubrec;
+        }
+
+        void mqtt_client_session::client_completed_publish( std::shared_ptr<protocol::pubcomp> pubcomp )
+        {
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "CMP:  " << *pubcomp << " ...";
+            tx_in_flight_publications_.response_received( pubcomp );
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "CMPD: " << *pubcomp;
         }
 
         void mqtt_client_session::destroy( )

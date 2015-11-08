@@ -14,6 +14,8 @@
 #include "io_wally/protocol/subscribe_packet.hpp"
 #include "io_wally/protocol/publish_packet.hpp"
 #include "io_wally/protocol/puback_packet.hpp"
+#include "io_wally/protocol/pubrec_packet.hpp"
+#include "io_wally/protocol/pubcomp_packet.hpp"
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/dispatch/mqtt_client_session.hpp"
 #include "io_wally/dispatch/topic_subscriptions.hpp"
@@ -86,6 +88,18 @@ namespace io_wally
             /// \param client_id ID of client that acked PUBLISH
             /// \param puback PUBACK sent by connected client
             void client_acked_publish( const std::string& client_id, std::shared_ptr<protocol::puback> puback );
+
+            /// \brief Called when a client received a QoS 2 PUBLISH, i.e. sent a PUBREC.
+            ///
+            /// \param client_id ID of client that received PUBLISH
+            /// \param pubrec PUBREC sent by connected client
+            void client_received_publish( const std::string& client_id, std::shared_ptr<protocol::pubrec> pubrec );
+
+            /// \brief Called when a client completed a QoS 2 PUBLISH, i.e. sent a PUBCOMP.
+            ///
+            /// \param client_id ID of client that completed PUBLISH
+            /// \param pubrec PUBCOMP sent by connected client
+            void client_completed_publish( const std::string& client_id, std::shared_ptr<protocol::pubcomp> pubcomp );
 
             /// \brief Destroy the \c mqtt_client_session identified by specified \c client_id.
             ///

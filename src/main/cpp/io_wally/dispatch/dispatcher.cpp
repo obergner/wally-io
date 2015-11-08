@@ -16,6 +16,8 @@
 #include "io_wally/protocol/connect_packet.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
 #include "io_wally/protocol/puback_packet.hpp"
+#include "io_wally/protocol/pubrec_packet.hpp"
+#include "io_wally/protocol/pubcomp_packet.hpp"
 #include "io_wally/dispatch/common.hpp"
 
 namespace io_wally
@@ -107,6 +109,16 @@ namespace io_wally
                 {
                     auto puback = packet_container->packetAs<protocol::puback>( );
                     session_manager_.client_acked_publish( packet_container->client_id( ), puback );
+                }
+                else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBREC )
+                {
+                    auto pubrec = packet_container->packetAs<protocol::pubrec>( );
+                    session_manager_.client_received_publish( packet_container->client_id( ), pubrec );
+                }
+                else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBCOMP )
+                {
+                    auto pubcomp = packet_container->packetAs<protocol::pubcomp>( );
+                    session_manager_.client_completed_publish( packet_container->client_id( ), pubcomp );
                 }
                 else
                 {

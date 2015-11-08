@@ -41,11 +41,9 @@ namespace io_wally
             return io_service_;
         }
 
-        void tx_in_flight_publications::publish_received( std::shared_ptr<protocol::publish> incoming_publish )
+        void tx_in_flight_publications::publish( std::shared_ptr<protocol::publish> incoming_publish,
+                                                 const protocol::packet::QoS maximum_qos )
         {
-            auto const qos = incoming_publish->header( ).flags( ).qos( );
-            assert( ( qos == protocol::packet::QoS::AT_LEAST_ONCE ) || ( qos == protocol::packet::QoS::AT_MOST_ONCE ) );
-
             auto locked_sender = sender_.lock( );
             if ( !locked_sender )
             {
@@ -53,20 +51,25 @@ namespace io_wally
                 return;
             }
 
-            if ( qos == protocol::packet::QoS::AT_MOST_ONCE )
+            if ( maximum_qos == protocol::packet::QoS::AT_MOST_ONCE )
             {
-                locked_sender->send( incoming_publish );
+                publish_using_qos0( incoming_publish, locked_sender );
             }
-            else if ( qos == protocol::packet::QoS::AT_LEAST_ONCE )
+            else if ( maximum_qos == protocol::packet::QoS::AT_LEAST_ONCE )
             {
-                qos1_publish_received( incoming_publish, locked_sender );
+                publish_using_qos1( incoming_publish, locked_sender );
+            }
+            else if ( maximum_qos == protocol::packet::QoS::EXACTLY_ONCE )
+            {
+                publish_using_qos2( incoming_publish, locked_sender );
             }
         }
 
         void tx_in_flight_publications::response_received( std::shared_ptr<protocol::mqtt_ack> ack )
         {
             const protocol::packet::Type ack_type = ack->header( ).type( );
-            assert( ack_type == protocol::packet::Type::PUBACK );
+            assert( ( ack_type == protocol::packet::Type::PUBACK ) || ( ack_type == protocol::packet::Type::PUBREC ) ||
+                    ( ack_type == protocol::packet::Type::PUBCOMP ) );
 
             auto locked_sender = sender_.lock( );
             if ( !locked_sender )
@@ -79,6 +82,16 @@ namespace io_wally
             {
                 auto puback = std::dynamic_pointer_cast<protocol::puback>( ack );
                 puback_received( puback, locked_sender );
+            }
+            else if ( ack_type == protocol::packet::Type::PUBREC )
+            {
+                auto pubrec = std::dynamic_pointer_cast<protocol::pubrec>( ack );
+                pubrec_received( pubrec, locked_sender );
+            }
+            else if ( ack_type == protocol::packet::Type::PUBCOMP )
+            {
+                auto pubcomp = std::dynamic_pointer_cast<protocol::pubcomp>( ack );
+                pubcomp_received( pubcomp, locked_sender );
             }
         }
 
@@ -100,8 +113,15 @@ namespace io_wally
             return next_packet_identifier_;
         }
 
-        void tx_in_flight_publications::qos1_publish_received( std::shared_ptr<protocol::publish> incoming_publish,
-                                                               std::shared_ptr<mqtt_packet_sender> locked_sender )
+        void tx_in_flight_publications::publish_using_qos0( std::shared_ptr<protocol::publish> incoming_publish,
+                                                            std::shared_ptr<mqtt_packet_sender> locked_sender )
+        {
+            incoming_publish->qos( protocol::packet::QoS::AT_MOST_ONCE );
+            locked_sender->send( incoming_publish );
+        }
+
+        void tx_in_flight_publications::publish_using_qos1( std::shared_ptr<protocol::publish> incoming_publish,
+                                                            std::shared_ptr<mqtt_packet_sender> locked_sender )
         {
             // Need to copy incoming PUBLISH packet since we now start a new, unrelated OUTGOING publication we need a
             // packet identifier for that is unique for THIS client, not the client that sent this incoming PUBLISH.
@@ -132,8 +152,8 @@ namespace io_wally
             }
         }
 
-        void tx_in_flight_publications::qos2_publish_received( std::shared_ptr<protocol::publish> incoming_publish,
-                                                               std::shared_ptr<mqtt_packet_sender> locked_sender )
+        void tx_in_flight_publications::publish_using_qos2( std::shared_ptr<protocol::publish> incoming_publish,
+                                                            std::shared_ptr<mqtt_packet_sender> locked_sender )
         {
             // Need to copy incoming PUBLISH packet since we now start a new, unrelated OUTGOING publication we need a
             // packet identifier for that is unique for THIS client, not the client that sent this incoming PUBLISH.

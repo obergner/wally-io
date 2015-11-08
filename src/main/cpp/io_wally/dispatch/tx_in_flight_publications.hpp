@@ -40,21 +40,25 @@ namespace io_wally
 
             boost::asio::io_service& io_service( ) const;
 
-            void publish_received( std::shared_ptr<protocol::publish> incoming_publish );
+            void publish( std::shared_ptr<protocol::publish> incoming_publish,
+                          const protocol::packet::QoS maximum_qos );
 
             void response_received( std::shared_ptr<protocol::mqtt_ack> ack );
 
            private:
             std::uint16_t next_packet_identifier( );
 
-            void qos1_publish_received( std::shared_ptr<protocol::publish> incoming_publish,
-                                        std::shared_ptr<mqtt_packet_sender> locked_sender );
+            void publish_using_qos0( std::shared_ptr<protocol::publish> incoming_publish,
+                                     std::shared_ptr<mqtt_packet_sender> locked_sender );
+
+            void publish_using_qos1( std::shared_ptr<protocol::publish> incoming_publish,
+                                     std::shared_ptr<mqtt_packet_sender> locked_sender );
 
             void puback_received( std::shared_ptr<protocol::puback> puback,
                                   std::shared_ptr<mqtt_packet_sender> locked_sender );
 
-            void qos2_publish_received( std::shared_ptr<protocol::publish> incoming_publish,
-                                        std::shared_ptr<mqtt_packet_sender> locked_sender );
+            void publish_using_qos2( std::shared_ptr<protocol::publish> incoming_publish,
+                                     std::shared_ptr<mqtt_packet_sender> locked_sender );
 
             void pubrec_received( std::shared_ptr<protocol::pubrec> puback,
                                   std::shared_ptr<mqtt_packet_sender> locked_sender );

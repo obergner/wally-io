@@ -20,7 +20,7 @@
 #include "io_wally/context.hpp"
 #include "io_wally/logging_support.hpp"
 
-#include "io_wally/protocol/common.hpp"
+#include "io_wally/protocol/protocol.hpp"
 
 #include "io_wally/codec/decoder.hpp"
 #include "io_wally/codec/mqtt_packet_decoder.hpp"
@@ -163,6 +163,24 @@ namespace io_wally
 
         void handle_dispatch_puback_packet( const boost::system::error_code& ec,
                                             std::shared_ptr<protocol::puback> puback );
+
+        // Dealing with PUBREC packets
+
+        void process_pubrec_packet( std::shared_ptr<protocol::pubrec> pubrec );
+
+        void dispatch_pubrec_packet( std::shared_ptr<protocol::pubrec> pubrec );
+
+        void handle_dispatch_pubrec_packet( const boost::system::error_code& ec,
+                                            std::shared_ptr<protocol::pubrec> pubrec );
+
+        // Dealing with PUBCOMP packets
+
+        void process_pubcomp_packet( std::shared_ptr<protocol::pubcomp> pubcomp );
+
+        void dispatch_pubcomp_packet( std::shared_ptr<protocol::pubcomp> pubcomp );
+
+        void handle_dispatch_pubcomp_packet( const boost::system::error_code& ec,
+                                             std::shared_ptr<protocol::pubcomp> pubcomp );
 
         // Sending MQTT packets
 

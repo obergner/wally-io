@@ -7,6 +7,10 @@
 #include <boost/log/trivial.hpp>
 
 #include "io_wally/protocol/common.hpp"
+#include "io_wally/protocol/publish_packet.hpp"
+#include "io_wally/protocol/puback_packet.hpp"
+#include "io_wally/protocol/pubrec_packet.hpp"
+#include "io_wally/protocol/pubcomp_packet.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/dispatch/tx_in_flight_publications.hpp"
 
@@ -44,12 +48,24 @@ namespace io_wally
             /// \brief Publish \c incoming_publish to connected client.
             ///
             /// \param incoming_publish PUBLISH packet received from (another) client
-            void publish( std::shared_ptr<protocol::publish> incoming_publish );
+            /// \param maximum_qos Maximum quality of service level to use when publishing
+            void publish( std::shared_ptr<protocol::publish> incoming_publish,
+                          const protocol::packet::QoS maximum_qos );
 
             /// \brief Called when this client acknowledged a received QoS 1 PUBLISH, i.e. sent a PUBACK
             ///
             /// \param puback PUBACK sent by connected client
             void client_acked_publish( std::shared_ptr<protocol::puback> puback );
+
+            /// \brief Called when this client acknowledged a received QoS 2 PUBLISH, i.e. sent a PUBREC
+            ///
+            /// \param pubrec PUBREC sent by connected client
+            void client_received_publish( std::shared_ptr<protocol::pubrec> pubrec );
+
+            /// \brief Called when this client completed a received QoS 2 PUBLISH, i.e. sent a PUBCOMP
+            ///
+            /// \param pubcomp PUBCOMP sent by connected client
+            void client_completed_publish( std::shared_ptr<protocol::pubcomp> pubcomp );
 
             /// \brief Destroy this \c mqtt_client_session.
             void destroy( );

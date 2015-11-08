@@ -52,10 +52,42 @@ namespace io_wally
                 assert( header.type( ) == packet::Type::PUBLISH );
             }
 
+            /// \brief Return whether DUP flag is set, i.e. this PUBLISH packet is a duplicate publication.
+            ///
+            /// \return \c true if DUP flag is set, \c false otherwise
+            bool dup( ) const
+            {
+                return header( ).flags( ).dup( );
+            }
+
             /// \brief Set DUP flag to mark this packet as a duplicate PUBLISH in a QoS 2 publication.
             void set_dup( )
             {
                 type_and_flags_ |= 0x08;
+            }
+
+            /// \brief Return quality of service assigned this PUBLISH packet.
+            ///
+            /// \return quality of service level (At most once, At least once, Exactly once) assigned this packet
+            packet::QoS qos( ) const
+            {
+                return header( ).flags( ).qos( );
+            }
+
+            /// \brief Assign quality of service level assigned this PUBLISH packet.
+            ///
+            /// \param quality of service level to use for this PUBLISH
+            void qos( const packet::QoS qos )
+            {
+                type_and_flags_ = ( type_and_flags_ & 0xF9 ) | ( static_cast<uint8_t>( qos ) << 1 );
+            }
+
+            /// \brief Return whether RETAIN flag is set, i.e. message should be retained.
+            ///
+            /// \return \c true if RETAIN flag is set, \c false otherwise
+            bool retain( ) const
+            {
+                return header( ).flags( ).retain( );
             }
 
             /// \brief Return \c topic to publish this message to.

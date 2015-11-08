@@ -129,11 +129,7 @@ namespace io_wally
                 }
                 else
                 {
-                    // For now, we only support QoS 0 and QoS 1
-                    auto capped_maxim_qos = ( subscr.maximum_qos == protocol::packet::QoS::EXACTLY_ONCE
-                                                  ? protocol::packet::QoS::AT_LEAST_ONCE
-                                                  : subscr.maximum_qos );
-                    resolved_subscribers.emplace_back( resolved_subscriber_t{subscr.client_id, capped_maxim_qos} );
+                    resolved_subscribers.emplace_back( resolved_subscriber_t{subscr.client_id, subscr.maximum_qos} );
                 }
             } );
 
