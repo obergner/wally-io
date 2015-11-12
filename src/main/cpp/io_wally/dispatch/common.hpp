@@ -106,61 +106,14 @@ namespace io_wally
 
             using sender_ptr = std::shared_ptr<SENDER>;
 
-            static packet_container<SENDER>::ptr connect_packet( sender_ptr rx_connection,
-                                                                 std::shared_ptr<protocol::connect> connect )
-            {
-                return std::make_shared<packet_container<SENDER>>(
-                    connect->client_id( ), rx_connection, connect, dispatch::disconnect_reason::not_a_disconnect );
-            }
-
-            static packet_container<SENDER>::ptr disconnect_packet(
+            static packet_container<SENDER>::ptr contain(
                 const std::string& client_id,
                 sender_ptr rx_connection,
-                std::shared_ptr<protocol::disconnect> disconnect,
-                const dispatch::disconnect_reason disconnect_reason = dispatch::disconnect_reason::client_disconnect )
+                std::shared_ptr<protocol::mqtt_packet> packet,
+                const dispatch::disconnect_reason disconnect_reason = dispatch::disconnect_reason::not_a_disconnect )
             {
                 return std::make_shared<packet_container<SENDER>>(
-                    client_id, rx_connection, disconnect, disconnect_reason );
-            }
-
-            static packet_container<SENDER>::ptr subscribe_packet( const std::string& client_id,
-                                                                   sender_ptr rx_connection,
-                                                                   std::shared_ptr<protocol::subscribe> subscribe )
-            {
-                return std::make_shared<packet_container<SENDER>>(
-                    client_id, rx_connection, subscribe, dispatch::disconnect_reason::not_a_disconnect );
-            }
-
-            static packet_container<SENDER>::ptr publish_packet( const std::string& client_id,
-                                                                 sender_ptr rx_connection,
-                                                                 std::shared_ptr<protocol::publish> publish )
-            {
-                return std::make_shared<packet_container<SENDER>>(
-                    client_id, rx_connection, publish, dispatch::disconnect_reason::not_a_disconnect );
-            }
-
-            static packet_container<SENDER>::ptr puback_packet( const std::string& client_id,
-                                                                sender_ptr rx_connection,
-                                                                std::shared_ptr<protocol::puback> puback )
-            {
-                return std::make_shared<packet_container<SENDER>>(
-                    client_id, rx_connection, puback, dispatch::disconnect_reason::not_a_disconnect );
-            }
-
-            static packet_container<SENDER>::ptr pubrec_packet( const std::string& client_id,
-                                                                sender_ptr rx_connection,
-                                                                std::shared_ptr<protocol::pubrec> pubrec )
-            {
-                return std::make_shared<packet_container<SENDER>>(
-                    client_id, rx_connection, pubrec, dispatch::disconnect_reason::not_a_disconnect );
-            }
-
-            static packet_container<SENDER>::ptr pubcomp_packet( const std::string& client_id,
-                                                                 sender_ptr rx_connection,
-                                                                 std::shared_ptr<protocol::pubcomp> pubcomp )
-            {
-                return std::make_shared<packet_container<SENDER>>(
-                    client_id, rx_connection, pubcomp, dispatch::disconnect_reason::not_a_disconnect );
+                    client_id, rx_connection, packet, disconnect_reason );
             }
 
            public:

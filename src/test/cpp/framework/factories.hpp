@@ -38,8 +38,7 @@ namespace framework
 
         auto sender_ptr = framework::packet_sender_mock::create( );
 
-        return io_wally::mqtt_packet_sender::packet_container_t::subscribe_packet(
-            "client_mock", sender_ptr, subscribe_ptr );
+        return io_wally::mqtt_packet_sender::packet_container_t::contain( "client_mock", sender_ptr, subscribe_ptr );
     }
 
     std::shared_ptr<io_wally::protocol::publish> create_publish_packet( const std::string& topic );
@@ -61,7 +60,6 @@ namespace framework
 
         auto sender_ptr = framework::packet_sender_mock::create( );
 
-        return io_wally::mqtt_packet_sender::packet_container_t::publish_packet(
-            "client_mock", sender_ptr, publish_ptr );
+        return io_wally::mqtt_packet_sender::packet_container_t::contain( "client_mock", sender_ptr, publish_ptr );
     }
 }  // namespace framework

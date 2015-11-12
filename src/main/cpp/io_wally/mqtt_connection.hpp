@@ -137,50 +137,12 @@ namespace io_wally
                                                 std::shared_ptr<protocol::disconnect> disconnect,
                                                 const dispatch::disconnect_reason disconnect_reason );
 
-        // Dealing with SUBSCRIBE packets
+        // Dealing with non-connection managing packets
 
-        void process_subscribe_packet( std::shared_ptr<protocol::subscribe> subscribe );
+        void dispatch_packet( std::shared_ptr<protocol::mqtt_packet> packet );
 
-        void dispatch_subscribe_packet( std::shared_ptr<protocol::subscribe> subscribe );
-
-        void handle_dispatch_subscribe_packet( const boost::system::error_code& ec,
-                                               std::shared_ptr<protocol::subscribe> subscribe );
-
-        // Dealing with PUBLISH packets
-
-        void process_publish_packet( std::shared_ptr<protocol::publish> publish );
-
-        void dispatch_publish_packet( std::shared_ptr<protocol::publish> publish );
-
-        void handle_dispatch_publish_packet( const boost::system::error_code& ec,
-                                             std::shared_ptr<protocol::publish> publish );
-
-        // Dealing with PUBACK packets
-
-        void process_puback_packet( std::shared_ptr<protocol::puback> puback );
-
-        void dispatch_puback_packet( std::shared_ptr<protocol::puback> puback );
-
-        void handle_dispatch_puback_packet( const boost::system::error_code& ec,
-                                            std::shared_ptr<protocol::puback> puback );
-
-        // Dealing with PUBREC packets
-
-        void process_pubrec_packet( std::shared_ptr<protocol::pubrec> pubrec );
-
-        void dispatch_pubrec_packet( std::shared_ptr<protocol::pubrec> pubrec );
-
-        void handle_dispatch_pubrec_packet( const boost::system::error_code& ec,
-                                            std::shared_ptr<protocol::pubrec> pubrec );
-
-        // Dealing with PUBCOMP packets
-
-        void process_pubcomp_packet( std::shared_ptr<protocol::pubcomp> pubcomp );
-
-        void dispatch_pubcomp_packet( std::shared_ptr<protocol::pubcomp> pubcomp );
-
-        void handle_dispatch_pubcomp_packet( const boost::system::error_code& ec,
-                                             std::shared_ptr<protocol::pubcomp> pubcomp );
+        void handle_dispatch_packet( const boost::system::error_code& ec,
+                                     std::shared_ptr<protocol::mqtt_packet> packet );
 
         // Sending MQTT packets
 
