@@ -130,9 +130,10 @@ namespace io_wally
             {
                 if ( ack->header( ).type( ) != protocol::packet::Type::PUBREC )
                 {
-                    // Protocol violation: client sent PUBCOMP _BEFORE_ PUBREC
-                    sender->stop( "Protocol violation: client sent PUBCOMP *before* PUBREC.",
-                                  boost::log::trivial::warning );
+                    // Protocol violation: client did not send PUBREC but one of PUBCOMP or even PUBACK
+                    sender->stop(
+                        "Protocol violation: client did not send expected PUBREC but one of PUBCOMP or PUBACK",
+                        boost::log::trivial::warning );
                     return;
                 }
                 auto pubrec = std::dynamic_pointer_cast<protocol::pubrec>( ack );
@@ -172,6 +173,11 @@ namespace io_wally
                 {
                     publish_->set_dup( );  // Mark this a duplication publish
                     sender->send( publish_ );
+                }
+                else  // waiting for pubcomp
+                {
+                    auto pubrel = std::make_shared<protocol::pubrel>( publish_->packet_identifier( ) );
+                    sender->send( pubrel );
                 }
                 start_ack_timeout( sender );
             }
