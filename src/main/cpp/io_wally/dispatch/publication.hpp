@@ -11,7 +11,7 @@
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/publish_packet.hpp"
-#include "io_wally/protocol/puback_packet.hpp"
+#include "io_wally/protocol/publish_ack_packet.hpp"
 
 namespace io_wally
 {
@@ -26,7 +26,7 @@ namespace io_wally
 
             virtual void start( std::shared_ptr<mqtt_packet_sender> sender ) = 0;
 
-            virtual void response_received( std::shared_ptr<protocol::mqtt_ack> ack,
+            virtual void response_received( std::shared_ptr<protocol::publish_ack> ack,
                                             std::shared_ptr<mqtt_packet_sender> sender ) = 0;
 
            protected:
@@ -61,7 +61,7 @@ namespace io_wally
 
             virtual void start( std::shared_ptr<mqtt_packet_sender> sender ) override;
 
-            virtual void response_received( std::shared_ptr<protocol::mqtt_ack> ack,
+            virtual void response_received( std::shared_ptr<protocol::publish_ack> ack,
                                             std::shared_ptr<mqtt_packet_sender> /* sender */ ) override;
 
            private:
@@ -94,7 +94,7 @@ namespace io_wally
 
             virtual void start( std::shared_ptr<mqtt_packet_sender> sender ) override;
 
-            virtual void response_received( std::shared_ptr<protocol::mqtt_ack> ack,
+            virtual void response_received( std::shared_ptr<protocol::publish_ack> ack,
                                             std::shared_ptr<mqtt_packet_sender> /* sender */ ) override;
 
            private:

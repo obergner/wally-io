@@ -10,6 +10,7 @@
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/publish_packet.hpp"
+#include "io_wally/protocol/publish_ack_packet.hpp"
 #include "io_wally/protocol/puback_packet.hpp"
 #include "io_wally/protocol/pubrel_packet.hpp"
 #include "io_wally/protocol/pubcomp_packet.hpp"
@@ -55,7 +56,7 @@ namespace io_wally
             start_ack_timeout( sender );
         }
 
-        void qos1_publication::response_received( std::shared_ptr<protocol::mqtt_ack> ack,
+        void qos1_publication::response_received( std::shared_ptr<protocol::publish_ack> ack,
                                                   std::shared_ptr<mqtt_packet_sender> /* sender */ )
         {
             assert( state_ == state::waiting_for_ack );
@@ -119,7 +120,7 @@ namespace io_wally
             start_ack_timeout( sender );
         }
 
-        void qos2_publication::response_received( std::shared_ptr<protocol::mqtt_ack> ack,
+        void qos2_publication::response_received( std::shared_ptr<protocol::publish_ack> ack,
                                                   std::shared_ptr<mqtt_packet_sender> sender )
         {
             assert( ( state_ == state::waiting_for_rec ) || ( state_ == state::waiting_for_comp ) );

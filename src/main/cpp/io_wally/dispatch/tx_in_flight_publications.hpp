@@ -13,6 +13,7 @@
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/publish_packet.hpp"
+#include "io_wally/protocol/publish_ack_packet.hpp"
 #include "io_wally/protocol/puback_packet.hpp"
 #include "io_wally/dispatch/publication.hpp"
 #include "io_wally/protocol/pubrec_packet.hpp"
@@ -43,7 +44,7 @@ namespace io_wally
             void publish( std::shared_ptr<protocol::publish> incoming_publish,
                           const protocol::packet::QoS maximum_qos );
 
-            void response_received( std::shared_ptr<protocol::mqtt_ack> ack );
+            void response_received( std::shared_ptr<protocol::publish_ack> publish_ack );
 
            private:
             std::uint16_t next_packet_identifier( );
@@ -54,17 +55,8 @@ namespace io_wally
             void publish_using_qos1( std::shared_ptr<protocol::publish> incoming_publish,
                                      std::shared_ptr<mqtt_packet_sender> locked_sender );
 
-            void puback_received( std::shared_ptr<protocol::puback> puback,
-                                  std::shared_ptr<mqtt_packet_sender> locked_sender );
-
             void publish_using_qos2( std::shared_ptr<protocol::publish> incoming_publish,
                                      std::shared_ptr<mqtt_packet_sender> locked_sender );
-
-            void pubrec_received( std::shared_ptr<protocol::pubrec> puback,
-                                  std::shared_ptr<mqtt_packet_sender> locked_sender );
-
-            void pubcomp_received( std::shared_ptr<protocol::pubcomp> puback,
-                                   std::shared_ptr<mqtt_packet_sender> locked_sender );
 
             void release( std::shared_ptr<publication> publication );
 

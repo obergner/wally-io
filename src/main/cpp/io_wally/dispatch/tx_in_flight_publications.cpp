@@ -13,7 +13,10 @@
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/publish_packet.hpp"
+#include "io_wally/protocol/publish_ack_packet.hpp"
 #include "io_wally/protocol/puback_packet.hpp"
+#include "io_wally/protocol/pubrec_packet.hpp"
+#include "io_wally/protocol/pubcomp_packet.hpp"
 #include "io_wally/dispatch/publication.hpp"
 
 namespace io_wally
@@ -65,9 +68,9 @@ namespace io_wally
             }
         }
 
-        void tx_in_flight_publications::response_received( std::shared_ptr<protocol::mqtt_ack> ack )
+        void tx_in_flight_publications::response_received( std::shared_ptr<protocol::publish_ack> publish_ack )
         {
-            const protocol::packet::Type ack_type = ack->header( ).type( );
+            const protocol::packet::Type ack_type = publish_ack->header( ).type( );
             assert( ( ack_type == protocol::packet::Type::PUBACK ) || ( ack_type == protocol::packet::Type::PUBREC ) ||
                     ( ack_type == protocol::packet::Type::PUBCOMP ) );
 
@@ -77,21 +80,14 @@ namespace io_wally
                 // Client connection has gone away. The client session we belong to will likely be discarded soon.
                 return;
             }
-
-            if ( ack_type == protocol::packet::Type::PUBACK )
+            auto const pktid = publish_ack->packet_identifier( );
+            if ( publications_.count( pktid ) > 0 )
             {
-                auto puback = std::dynamic_pointer_cast<protocol::puback>( ack );
-                puback_received( puback, locked_sender );
+                publications_[pktid]->response_received( publish_ack, locked_sender );
             }
-            else if ( ack_type == protocol::packet::Type::PUBREC )
+            else
             {
-                auto pubrec = std::dynamic_pointer_cast<protocol::pubrec>( ack );
-                pubrec_received( pubrec, locked_sender );
-            }
-            else if ( ack_type == protocol::packet::Type::PUBCOMP )
-            {
-                auto pubcomp = std::dynamic_pointer_cast<protocol::pubcomp>( ack );
-                pubcomp_received( pubcomp, locked_sender );
+                // TODO: what do we do if we receive a puback for a publish we don't know about?
             }
         }
 
@@ -138,20 +134,6 @@ namespace io_wally
             ( *publish_itr ).second->start( locked_sender );
         }
 
-        void tx_in_flight_publications::puback_received( std::shared_ptr<protocol::puback> puback,
-                                                         std::shared_ptr<mqtt_packet_sender> locked_sender )
-        {
-            auto const pktid = puback->packet_identifier( );
-            if ( publications_.count( pktid ) > 0 )
-            {
-                publications_[pktid]->response_received( puback, locked_sender );
-            }
-            else
-            {
-                // TODO: what do we do if we receive a puback for a publish we don't know about?
-            }
-        }
-
         void tx_in_flight_publications::publish_using_qos2( std::shared_ptr<protocol::publish> incoming_publish,
                                                             std::shared_ptr<mqtt_packet_sender> locked_sender )
         {
@@ -168,34 +150,6 @@ namespace io_wally
             assert( inserted );  // Could only happen if we have more than 65535 in flight publications
 
             ( *publish_itr ).second->start( locked_sender );
-        }
-
-        void tx_in_flight_publications::pubrec_received( std::shared_ptr<protocol::pubrec> puback,
-                                                         std::shared_ptr<mqtt_packet_sender> locked_sender )
-        {
-            auto const pktid = puback->packet_identifier( );
-            if ( publications_.count( pktid ) > 0 )
-            {
-                publications_[pktid]->response_received( puback, locked_sender );
-            }
-            else
-            {
-                // TODO: what do we do if we receive a puback for a publish we don't know about?
-            }
-        }
-
-        void tx_in_flight_publications::pubcomp_received( std::shared_ptr<protocol::pubcomp> puback,
-                                                          std::shared_ptr<mqtt_packet_sender> locked_sender )
-        {
-            auto const pktid = puback->packet_identifier( );
-            if ( publications_.count( pktid ) > 0 )
-            {
-                publications_[pktid]->response_received( puback, locked_sender );
-            }
-            else
-            {
-                // TODO: what do we do if we receive a puback for a publish we don't know about?
-            }
         }
 
         void tx_in_flight_publications::release( std::shared_ptr<publication> publication )
