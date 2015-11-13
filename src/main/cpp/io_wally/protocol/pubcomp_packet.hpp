@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "io_wally/protocol/common.hpp"
+#include "io_wally/protocol/publish_ack_packet.hpp"
 
 namespace io_wally
 {
@@ -15,24 +16,12 @@ namespace io_wally
         /// A PUBCOMP packet contains in its variable header the \c packet_identifier sent by a client in the
         /// corresponding PUBLISH packet.
         ///
-        /// The PUBCOMP packet's payload contains a list of return codes, corresponding to the list of topic
-        /// subscriptions in the acknowledged PUBLISH packet, in that order.
-        ///
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718068
-        struct pubcomp final : public mqtt_ack
+        struct pubcomp final : public publish_ack
         {
            public:
-            pubcomp( const uint16_t packet_identifier )
-                : mqtt_ack{packet::Type::PUBCOMP, 2}, packet_identifier_{packet_identifier}
+            pubcomp( const uint16_t packet_identifier ) : publish_ack{packet::Type::PUBCOMP, packet_identifier}
             {
-            }
-
-            /// \brief Return \c packet_identifier sent in corresponding PUBLISH packet.
-            ///
-            /// \return \c packet_identifier sent in corresponding PUBLISH packet.
-            uint16_t packet_identifier( ) const
-            {
-                return packet_identifier_;
             }
 
             /// \return A string representation to be used in log output
@@ -43,9 +32,6 @@ namespace io_wally
 
                 return output.str( );
             }
-
-           private:
-            const uint16_t packet_identifier_;
         };  // struct pubcomp
 
     }  // namespace protocol
