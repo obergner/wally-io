@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <ostream>
 #include <memory>
 
 #include <boost/optional.hpp>
@@ -40,11 +41,11 @@ namespace io_wally
         /// \brief Return a string representation to be used in log output.
         ///
         /// \return A string representation to be used in log output
-        virtual const std::string to_string( ) const = 0;
+        virtual operator const std::string&( ) const = 0;
 
         inline friend std::ostream& operator<<( std::ostream& output, mqtt_packet_sender const& packet_sender )
         {
-            output << packet_sender.to_string( );
+            output << static_cast<const std::string&>( packet_sender );
 
             return output;
         }

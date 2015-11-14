@@ -76,17 +76,10 @@ namespace io_wally
         virtual void stop( const std::string& message = "",
                            const boost::log::trivial::severity_level log_level = boost::log::trivial::info ) override;
 
-        /// \brief Return a string representation to be used in log output.
-        ///
-        /// \return A string representation to be used in log output
-        virtual const std::string to_string( ) const override;
-
-        // inline friend std::ostream& operator<<( std::ostream& output, mqtt_connection const& mqtt_connection )
-        // {
-        //     output << mqtt_connection.to_string( );
-
-        //     return output;
-        // }
+        virtual operator const std::string&( ) const override
+        {
+            return description_;
+        }
 
        private:
         /// Hide constructor since we MUST be created by static factory method 'create' above
@@ -167,6 +160,8 @@ namespace io_wally
        private:
         /// Connected client's client_id. Only assigned once successful authenticated.
         boost::optional<const std::string> client_id_ = boost::none;
+        /// This connection's current string represenation, used in log output
+        std::string description_;
         /// Somehow we need to parse those headers
         decoder::header_decoder header_decoder_{};
         /// And while we are at it, why not parse the rest of those packets, too?

@@ -1,5 +1,6 @@
 #include "io_wally/dispatch/tx_in_flight_publications.hpp"
 
+#include <iostream>
 #include <cassert>
 #include <cstdint>
 #include <memory>
@@ -154,7 +155,9 @@ namespace io_wally
 
         void tx_in_flight_publications::release( std::shared_ptr<publication> publication )
         {
+            std::cerr << "release: " << publication->packet_identifier( ) << std::endl << std::flush;
             auto const erase_count = publications_.erase( publication->packet_identifier( ) );
+            std::cerr << "release: " << erase_count << std::endl << std::flush;
             assert( erase_count == 1 );
         }
     }  // namespace dispatch

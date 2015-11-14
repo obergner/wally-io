@@ -45,7 +45,9 @@ namespace io_wally
                                       mqtt_connection_manager& connection_manager,
                                       const context& context,
                                       packetq_t& dispatchq )
-        : socket_{move( socket )},
+        : description_{"connection/" + socket.remote_endpoint( ).address( ).to_string( ) + ":" +
+                       std::to_string( socket.remote_endpoint( ).port( ) )},
+          socket_{move( socket )},
           strand_{socket.get_io_service( )},
           connection_manager_{connection_manager},
           context_{context},
@@ -60,7 +62,7 @@ namespace io_wally
 
     void mqtt_connection::start( )
     {
-        BOOST_LOG_SEV( logger_, lvl::info ) << "START: " << to_string( );
+        BOOST_LOG_SEV( logger_, lvl::info ) << "START: " << *this;
 
         // Start deadline timer that will close this connection if connect timeout expires without receiving CONNECT
         // request
@@ -99,30 +101,17 @@ namespace io_wally
                                                           } ) );
     }
 
-    const string mqtt_connection::to_string( ) const
-    {
-        auto output = ostringstream{};
-        // WARNING: Calling to_string() on a closed socket will crash process!
-        if ( socket_.is_open( ) )
-            output << "connection[" << socket_ << "]";
-        else
-            output << "connection[DISCONNECTED/" << ( client_id_ ? *client_id_ : "[NOT AUTHENTICATED]" ) << "]";
-
-        return output.str( );
-    }
-
     // ---------------------------------------------------------------------------------------------------------------
     // Private
     // ---------------------------------------------------------------------------------------------------------------
 
     void mqtt_connection::do_stop( )
     {
-        auto const connection_desc = to_string( );
         auto ignored_ec = boost::system::error_code{};
         socket_.shutdown( socket_.shutdown_both, ignored_ec );
         socket_.close( ignored_ec );
 
-        BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPED: " << connection_desc;
+        BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPED: " << *this;
     }
 
     // Reading incoming messages
@@ -354,6 +343,7 @@ namespace io_wally
                 "connection - connection will be closed",
                 dispatch::disconnect_reason::protocol_violation );
         }
+        // TODO: Calling socket_.remote_endpoint() is not safe since we can be disconnected at any time
         else if ( !context_.authentication_service( ).authenticate(
                       socket_.remote_endpoint( ).address( ).to_string( ), connect->username( ), connect->password( ) ) )
         {
@@ -470,8 +460,10 @@ namespace io_wally
         {
             BOOST_LOG_SEV( logger_, lvl::error ) << "--- DISPATCH FAILED: " << *packet << " [ec:" << ec
                                                  << "|emsg:" << ec.message( ) << "]";
-            connection_close_requested(
-                "Dispatching packet failed", dispatch::disconnect_reason::network_or_server_failure, ec, lvl::error );
+            connection_close_requested( "[MQTT-4.8.0-2] Dispatching packet failed",
+                                        dispatch::disconnect_reason::network_or_server_failure,
+                                        ec,
+                                        lvl::error );
         }
         else
         {

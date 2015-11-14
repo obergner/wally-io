@@ -41,7 +41,7 @@ namespace framework
         /// \brief Return a string representation to be used in log output.
         ///
         /// \return A string representation to be used in log output
-        virtual const std::string to_string( ) const override
+        virtual operator const std::string&( ) const override
         {
             return to_string_;
         }
