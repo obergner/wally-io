@@ -52,6 +52,11 @@ namespace io_wally
             void publish( std::shared_ptr<protocol::publish> incoming_publish,
                           const protocol::packet::QoS maximum_qos );
 
+            /// \brief Called when this client sent a PUBLISH.
+            ///
+            /// \param incoming_publish PUBLISH packet sent by client
+            void client_sent_publish( std::shared_ptr<protocol::publish> incoming_publish );
+
             /// \brief Called when this client acknowledged a received QoS 1 PUBLISH, i.e. sent a PUBACK
             ///
             /// \param puback PUBACK sent by connected client

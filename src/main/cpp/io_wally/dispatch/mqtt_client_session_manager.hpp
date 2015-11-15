@@ -30,6 +30,8 @@ namespace io_wally
         /// WARNING: This class is NOT thread safe.
         class mqtt_client_session_manager final
         {
+            friend class mqtt_client_session;
+
            public:
             /// \brief Create a session manager.
             mqtt_client_session_manager( const context& context, boost::asio::io_service& io_service );
@@ -108,6 +110,9 @@ namespace io_wally
 
             /// \brief Destroy all \c mqtt_client_sessions.
             void destroy_all( );
+
+           private:
+            void publish( std::shared_ptr<protocol::publish> incoming_publish );
 
            private:
             /// Our configuration context, to be passed on to client sessions
