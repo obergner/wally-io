@@ -134,17 +134,19 @@ namespace io_wally
                     sender->stop(
                         "Protocol violation: client did not send expected PUBREC but one of PUBCOMP or PUBACK",
                         boost::log::trivial::warning );
-                    return;
                 }
-                auto pubrec = std::dynamic_pointer_cast<protocol::pubrec>( ack );
-                assert( pubrec->packet_identifier( ) == publish_->packet_identifier( ) );
+                else
+                {
+                    auto pubrec = std::dynamic_pointer_cast<protocol::pubrec>( ack );
+                    assert( pubrec->packet_identifier( ) == publish_->packet_identifier( ) );
 
-                auto pubrel = std::make_shared<protocol::pubrel>( publish_->packet_identifier( ) );
-                sender->send( pubrel );
+                    auto pubrel = std::make_shared<protocol::pubrel>( publish_->packet_identifier( ) );
+                    sender->send( pubrel );
 
-                start_ack_timeout( sender );
+                    start_ack_timeout( sender );
+                }
             }
-            else
+            else  // waiting for pubcomp
             {
                 if ( ack->header( ).type( ) == protocol::packet::Type::PUBREC )
                 {
@@ -158,7 +160,7 @@ namespace io_wally
                 {
                     assert( ack->header( ).type( ) == protocol::packet::Type::PUBCOMP );
                     state_ = state::completed;
-                    // Now, this packet identifiere may be re-used
+                    // Now, this packet identifier may be re-used
                     parent_.release( shared_from_this( ) );
                 }
             }
@@ -184,7 +186,7 @@ namespace io_wally
             else
             {
                 state_ = state::terminally_failed;
-                // Now, this packet identifiere may be re-used
+                // Now, this packet identifier may be re-used
                 parent_.release( shared_from_this( ) );
             }
         }

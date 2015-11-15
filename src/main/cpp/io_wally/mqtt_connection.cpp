@@ -18,6 +18,23 @@
 #include "io_wally/logging_support.hpp"
 #include "io_wally/mqtt_connection_manager.hpp"
 
+namespace
+{
+    std::string connection_description( const boost::asio::ip::tcp::socket& socket,
+                                        const std::string& client_id = "ANON" )
+    {
+        if ( socket.is_open( ) )
+        {
+            return "connection/" + socket.remote_endpoint( ).address( ).to_string( ) + ":" +
+                   std::to_string( socket.remote_endpoint( ).port( ) ) + "/" + client_id;
+        }
+        else
+        {
+            return "connection/DISCONNECTED/" + client_id;
+        }
+    }
+}
+
 namespace io_wally
 {
     using boost::asio::ip::tcp;
@@ -45,8 +62,7 @@ namespace io_wally
                                       mqtt_connection_manager& connection_manager,
                                       const context& context,
                                       packetq_t& dispatchq )
-        : description_{"connection/" + socket.remote_endpoint( ).address( ).to_string( ) + ":" +
-                       std::to_string( socket.remote_endpoint( ).port( ) )},
+        : description_{connection_description( socket )},
           socket_{move( socket )},
           strand_{socket.get_io_service( )},
           connection_manager_{connection_manager},
@@ -355,6 +371,7 @@ namespace io_wally
         {
             close_on_connection_timeout_.cancel( );
             client_id_.emplace( connect->client_id( ) );  // use emplace() to preserve string constness
+            description_ = connection_description( socket_, *client_id_ );
 
             if ( connect->keep_alive_secs( ) > 0 )
             {
