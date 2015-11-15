@@ -10,6 +10,7 @@
 #include "io_wally/protocol/subscribe_packet.hpp"
 #include "io_wally/protocol/suback_packet.hpp"
 #include "io_wally/protocol/publish_packet.hpp"
+#include "io_wally/protocol/publish_ack_packet.hpp"
 #include "io_wally/protocol/puback_packet.hpp"
 #include "io_wally/protocol/pubrec_packet.hpp"
 #include "io_wally/protocol/pubrel_packet.hpp"

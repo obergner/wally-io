@@ -9,6 +9,8 @@
 #include "io_wally/codec/publish_packet_encoder.hpp"
 #include "io_wally/codec/puback_packet_encoder.hpp"
 #include "io_wally/codec/pubrel_packet_encoder.hpp"
+#include "io_wally/codec/pubrec_packet_encoder.hpp"
+#include "io_wally/codec/pubcomp_packet_encoder.hpp"
 
 namespace io_wally
 {
@@ -62,11 +64,13 @@ namespace io_wally
                         return puback_encoder_;
                     case protocol::packet::Type::PUBREL:
                         return pubrel_encoder_;
+                    case protocol::packet::Type::PUBREC:
+                        return pubrec_encoder_;
+                    case protocol::packet::Type::PUBCOMP:
+                        return pubcomp_encoder_;
                     case protocol::packet::Type::CONNECT:
                     case protocol::packet::Type::PINGREQ:
                     case protocol::packet::Type::DISCONNECT:
-                    case protocol::packet::Type::PUBREC:
-                    case protocol::packet::Type::PUBCOMP:
                     case protocol::packet::Type::SUBSCRIBE:
                     case protocol::packet::Type::UNSUBSCRIBE:
                     case protocol::packet::Type::UNSUBACK:
@@ -85,6 +89,8 @@ namespace io_wally
             const publish_packet_encoder<OutputIterator> publish_encoder_{};
             const puback_packet_encoder<OutputIterator> puback_encoder_{};
             const pubrel_packet_encoder<OutputIterator> pubrel_encoder_{};
+            const pubrec_packet_encoder<OutputIterator> pubrec_encoder_{};
+            const pubcomp_packet_encoder<OutputIterator> pubcomp_encoder_{};
         };
 
     }  /// namespace decoder

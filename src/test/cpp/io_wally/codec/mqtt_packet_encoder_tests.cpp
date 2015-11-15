@@ -4,6 +4,7 @@
 #include <array>
 
 #include "io_wally/codec/mqtt_packet_encoder.hpp"
+#include "io_wally/protocol/protocol.hpp"
 
 using namespace io_wally;
 
@@ -207,6 +208,54 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
             AND_THEN( "it should see a correctly advanced out iterator" )
             {
                 REQUIRE( ( new_buf_start - result.begin( ) ) == pubrel.header( ).total_length( ) );
+            }
+        }
+    }
+
+    GIVEN( "a pubrec packet" )
+    {
+        auto packet_identifier = uint16_t{65535};
+        auto pubrec = protocol::pubrec{packet_identifier};
+
+        auto result = std::array<std::uint8_t, 4>{{0x00, 0x00, 0x00, 0x00}};
+        auto expected_result = std::array<std::uint8_t, 4>{{0x50, 0x02, 0xFF, 0xFF}};
+
+        WHEN( "a client passes that packet into pubrec_packet_encoder::encode" )
+        {
+            auto new_buf_start = under_test.encode( pubrec, result.begin( ), result.end( ) );
+
+            THEN( "that client should see a correctly encoded buffer" )
+            {
+                REQUIRE( result == expected_result );
+            }
+
+            AND_THEN( "it should see a correctly advanced out iterator" )
+            {
+                REQUIRE( ( new_buf_start - result.begin( ) ) == pubrec.header( ).total_length( ) );
+            }
+        }
+    }
+
+    GIVEN( "a pubcomp packet" )
+    {
+        auto packet_identifier = uint16_t{65535};
+        auto pubcomp = protocol::pubcomp{packet_identifier};
+
+        auto result = std::array<std::uint8_t, 4>{{0x00, 0x00, 0x00, 0x00}};
+        auto expected_result = std::array<std::uint8_t, 4>{{0x70, 0x02, 0xFF, 0xFF}};
+
+        WHEN( "a client passes that packet into pubcomp_packet_encoder::encode" )
+        {
+            auto new_buf_start = under_test.encode( pubcomp, result.begin( ), result.end( ) );
+
+            THEN( "that client should see a correctly encoded buffer" )
+            {
+                REQUIRE( result == expected_result );
+            }
+
+            AND_THEN( "it should see a correctly advanced out iterator" )
+            {
+                REQUIRE( ( new_buf_start - result.begin( ) ) == pubcomp.header( ).total_length( ) );
             }
         }
     }

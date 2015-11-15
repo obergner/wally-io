@@ -12,6 +12,7 @@
 #include "io_wally/codec/publish_packet_decoder.hpp"
 #include "io_wally/codec/puback_packet_decoder.hpp"
 #include "io_wally/codec/pubrec_packet_decoder.hpp"
+#include "io_wally/codec/pubrel_packet_decoder.hpp"
 #include "io_wally/codec/pubcomp_packet_decoder.hpp"
 
 namespace io_wally
@@ -78,8 +79,9 @@ namespace io_wally
                         return pubrec_packet_decoder_;
                     case protocol::packet::Type::PUBCOMP:
                         return pubcomp_packet_decoder_;
-                    case protocol::packet::Type::CONNACK:
                     case protocol::packet::Type::PUBREL:
+                        return pubrel_packet_decoder_;
+                    case protocol::packet::Type::CONNACK:
                     case protocol::packet::Type::SUBACK:
                     case protocol::packet::Type::UNSUBSCRIBE:
                     case protocol::packet::Type::UNSUBACK:
@@ -102,6 +104,7 @@ namespace io_wally
             const publish_packet_decoder<InputIterator> publish_packet_decoder_{};
             const puback_packet_decoder<InputIterator> puback_packet_decoder_{};
             const pubrec_packet_decoder<InputIterator> pubrec_packet_decoder_{};
+            const pubrel_packet_decoder<InputIterator> pubrel_packet_decoder_{};
             const pubcomp_packet_decoder<InputIterator> pubcomp_packet_decoder_{};
         };
 
