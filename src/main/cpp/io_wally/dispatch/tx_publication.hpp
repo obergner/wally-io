@@ -19,7 +19,7 @@ namespace io_wally
     {
         class tx_in_flight_publications;
 
-        class publication
+        class tx_publication
         {
            public:
             uint16_t packet_identifier( ) const;
@@ -30,7 +30,7 @@ namespace io_wally
                                             std::shared_ptr<mqtt_packet_sender> sender ) = 0;
 
            protected:
-            publication( tx_in_flight_publications& parent, std::shared_ptr<protocol::publish> publish );
+            tx_publication( tx_in_flight_publications& parent, std::shared_ptr<protocol::publish> publish );
 
            protected:
             tx_in_flight_publications& parent_;
@@ -40,9 +40,10 @@ namespace io_wally
             boost::asio::steady_timer retry_on_timeout_;
             std::shared_ptr<protocol::publish> publish_;
             std::uint16_t retry_count_{0};
-        };  // class publication
+        };  // class tx_publication
 
-        class qos1_publication final : public publication, public std::enable_shared_from_this<qos1_publication>
+        class qos1_tx_publication final : public tx_publication,
+                                          public std::enable_shared_from_this<qos1_tx_publication>
         {
            private:
             enum class state : std::uint8_t
@@ -57,7 +58,7 @@ namespace io_wally
             };
 
            public:
-            qos1_publication( tx_in_flight_publications& parent, std::shared_ptr<protocol::publish> publish );
+            qos1_tx_publication( tx_in_flight_publications& parent, std::shared_ptr<protocol::publish> publish );
 
             virtual void start( std::shared_ptr<mqtt_packet_sender> sender ) override;
 
@@ -71,9 +72,10 @@ namespace io_wally
 
            private:
             state state_{state::initial};
-        };  // class qos1_publication
+        };  // class qos1_tx_publication
 
-        class qos2_publication final : public publication, public std::enable_shared_from_this<qos2_publication>
+        class qos2_tx_publication final : public tx_publication,
+                                          public std::enable_shared_from_this<qos2_tx_publication>
         {
            private:
             enum class state : std::uint8_t
@@ -90,7 +92,7 @@ namespace io_wally
             };
 
            public:
-            qos2_publication( tx_in_flight_publications& parent, std::shared_ptr<protocol::publish> publish );
+            qos2_tx_publication( tx_in_flight_publications& parent, std::shared_ptr<protocol::publish> publish );
 
             virtual void start( std::shared_ptr<mqtt_packet_sender> sender ) override;
 
@@ -104,6 +106,6 @@ namespace io_wally
 
            private:
             state state_{state::initial};
-        };  // class qos1_publication
+        };  // class qos1_tx_publication
     }       // namespace dispatch
 }  // namespace io_wally

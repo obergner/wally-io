@@ -30,22 +30,6 @@
 
 #include "io_wally/dispatch/common.hpp"
 
-namespace
-{
-    std::string endpoint_description( const boost::asio::ip::tcp::socket& socket )
-    {
-        if ( socket.is_open( ) )
-        {
-            return "connection/" + socket.remote_endpoint( ).address( ).to_string( ) + ":" +
-                   std::to_string( socket.remote_endpoint( ).port( ) );
-        }
-        else
-        {
-            return "connection/DISCONNECTED";
-        }
-    }
-}
-
 namespace io_wally
 {
     class mqtt_connection_manager;
@@ -68,6 +52,12 @@ namespace io_wally
                                             mqtt_connection_manager& connection_manager,
                                             const context& context,
                                             packetq_t& dispatchq );
+
+       private:  // static
+        static const std::string endpoint_description( const boost::asio::ip::tcp::socket& socket );
+
+        static const std::string connection_description( const boost::asio::ip::tcp::socket& socket,
+                                                         const std::string& client_id = "ANON" );
 
        public:
         /// Naturally, mqtt_connections cannot be copied.
@@ -210,7 +200,7 @@ namespace io_wally
         boost::asio::steady_timer close_on_keep_alive_timeout_;
         /// Our severity-enabled channel logger
         boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
-            boost::log::keywords::channel = endpoint_description( socket_ ),
+            boost::log::keywords::channel = mqtt_connection::endpoint_description( socket_ ),
             boost::log::keywords::severity = boost::log::trivial::trace};
     };  // class mqtt_connection
 }

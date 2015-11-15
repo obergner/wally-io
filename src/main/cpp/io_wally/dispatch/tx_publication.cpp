@@ -1,4 +1,4 @@
-#include "io_wally/dispatch/publication.hpp"
+#include "io_wally/dispatch/tx_publication.hpp"
 
 #include <cstdint>
 #include <memory>
@@ -21,15 +21,15 @@ namespace io_wally
     namespace dispatch
     {
         // ------------------------------------------------------------------------------------------------------------
-        // class: publication
+        // class: tx_publication
         // ------------------------------------------------------------------------------------------------------------
 
-        uint16_t publication::packet_identifier( ) const
+        uint16_t tx_publication::packet_identifier( ) const
         {
             return publish_->packet_identifier( );
         }
 
-        publication::publication( tx_in_flight_publications& parent, std::shared_ptr<protocol::publish> publish )
+        tx_publication::tx_publication( tx_in_flight_publications& parent, std::shared_ptr<protocol::publish> publish )
             : parent_{parent},
               ack_timeout_ms_{parent.context( )[io_wally::context::PUB_ACK_TIMEOUT].as<const std::uint32_t>( )},
               max_retries_{parent.context( )[io_wally::context::PUB_MAX_RETRIES].as<const std::size_t>( )},
@@ -40,24 +40,24 @@ namespace io_wally
         }
 
         // ------------------------------------------------------------------------------------------------------------
-        // class: qos1_publication
+        // class: qos1_tx_publication
         // ------------------------------------------------------------------------------------------------------------
 
-        qos1_publication::qos1_publication( tx_in_flight_publications& parent,
-                                            std::shared_ptr<protocol::publish> publish )
-            : publication( parent, publish )
+        qos1_tx_publication::qos1_tx_publication( tx_in_flight_publications& parent,
+                                                  std::shared_ptr<protocol::publish> publish )
+            : tx_publication( parent, publish )
         {
             publish_->qos( protocol::packet::QoS::AT_LEAST_ONCE );
         }
 
-        void qos1_publication::start( std::shared_ptr<mqtt_packet_sender> sender )
+        void qos1_tx_publication::start( std::shared_ptr<mqtt_packet_sender> sender )
         {
             sender->send( publish_ );
             start_ack_timeout( sender );
         }
 
-        void qos1_publication::response_received( std::shared_ptr<protocol::publish_ack> ack,
-                                                  std::shared_ptr<mqtt_packet_sender> /* sender */ )
+        void qos1_tx_publication::response_received( std::shared_ptr<protocol::publish_ack> ack,
+                                                     std::shared_ptr<mqtt_packet_sender> /* sender */ )
         {
             assert( state_ == state::waiting_for_ack );
             assert( ack->header( ).type( ) == protocol::packet::Type::PUBACK );
@@ -71,7 +71,7 @@ namespace io_wally
             parent_.release( shared_from_this( ) );
         }
 
-        void qos1_publication::ack_timeout_expired( std::shared_ptr<mqtt_packet_sender> sender )
+        void qos1_tx_publication::ack_timeout_expired( std::shared_ptr<mqtt_packet_sender> sender )
         {
             assert( state_ == state::waiting_for_ack );
             if ( ++retry_count_ <= max_retries_ )
@@ -87,7 +87,7 @@ namespace io_wally
             }
         }
 
-        void qos1_publication::start_ack_timeout( std::shared_ptr<mqtt_packet_sender> sender )
+        void qos1_tx_publication::start_ack_timeout( std::shared_ptr<mqtt_packet_sender> sender )
         {
             state_ = state::waiting_for_ack;
 
@@ -104,24 +104,24 @@ namespace io_wally
         }
 
         // ------------------------------------------------------------------------------------------------------------
-        // class: qos2_publication
+        // class: qos2_tx_publication
         // ------------------------------------------------------------------------------------------------------------
 
-        qos2_publication::qos2_publication( tx_in_flight_publications& parent,
-                                            std::shared_ptr<protocol::publish> publish )
-            : publication( parent, publish )
+        qos2_tx_publication::qos2_tx_publication( tx_in_flight_publications& parent,
+                                                  std::shared_ptr<protocol::publish> publish )
+            : tx_publication( parent, publish )
         {
             publish_->qos( protocol::packet::QoS::EXACTLY_ONCE );
         }
 
-        void qos2_publication::start( std::shared_ptr<mqtt_packet_sender> sender )
+        void qos2_tx_publication::start( std::shared_ptr<mqtt_packet_sender> sender )
         {
             sender->send( publish_ );
             start_ack_timeout( sender );
         }
 
-        void qos2_publication::response_received( std::shared_ptr<protocol::publish_ack> ack,
-                                                  std::shared_ptr<mqtt_packet_sender> sender )
+        void qos2_tx_publication::response_received( std::shared_ptr<protocol::publish_ack> ack,
+                                                     std::shared_ptr<mqtt_packet_sender> sender )
         {
             assert( ( state_ == state::waiting_for_rec ) || ( state_ == state::waiting_for_comp ) );
 
@@ -166,7 +166,7 @@ namespace io_wally
             }
         }
 
-        void qos2_publication::ack_timeout_expired( std::shared_ptr<mqtt_packet_sender> sender )
+        void qos2_tx_publication::ack_timeout_expired( std::shared_ptr<mqtt_packet_sender> sender )
         {
             assert( ( state_ == state::waiting_for_rec ) || ( state_ == state::waiting_for_comp ) );
             if ( ++retry_count_ <= max_retries_ )
@@ -191,7 +191,7 @@ namespace io_wally
             }
         }
 
-        void qos2_publication::start_ack_timeout( std::shared_ptr<mqtt_packet_sender> sender )
+        void qos2_tx_publication::start_ack_timeout( std::shared_ptr<mqtt_packet_sender> sender )
         {
             if ( state_ == state::initial )
             {

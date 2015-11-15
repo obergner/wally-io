@@ -15,7 +15,7 @@
 #include "io_wally/protocol/publish_packet.hpp"
 #include "io_wally/protocol/publish_ack_packet.hpp"
 #include "io_wally/protocol/puback_packet.hpp"
-#include "io_wally/dispatch/publication.hpp"
+#include "io_wally/dispatch/tx_publication.hpp"
 #include "io_wally/protocol/pubrec_packet.hpp"
 #include "io_wally/protocol/pubcomp_packet.hpp"
 
@@ -25,9 +25,9 @@ namespace io_wally
     {
         class tx_in_flight_publications final : public std::enable_shared_from_this<tx_in_flight_publications>
         {
-            friend class publication;
-            friend class qos1_publication;
-            friend class qos2_publication;
+            friend class tx_publication;
+            friend class qos1_tx_publication;
+            friend class qos2_tx_publication;
 
            private:  // static
             static constexpr const std::uint16_t MAX_PACKET_IDENTIFIER = 0xFFFF;
@@ -58,14 +58,14 @@ namespace io_wally
             void publish_using_qos2( std::shared_ptr<protocol::publish> incoming_publish,
                                      std::shared_ptr<mqtt_packet_sender> locked_sender );
 
-            void release( std::shared_ptr<publication> publication );
+            void release( std::shared_ptr<tx_publication> publication );
 
            private:
             const io_wally::context& context_;
             boost::asio::io_service& io_service_;
             std::weak_ptr<mqtt_packet_sender> sender_;
-            std::unordered_map<std::uint16_t, std::shared_ptr<publication>> publications_{};
+            std::unordered_map<std::uint16_t, std::shared_ptr<tx_publication>> publications_{};
             std::uint16_t next_packet_identifier_{0};
-        };  // class publication
+        };  // class tx_in_flight_publications
     }       // namespace dispatch
 }  // namespace io_wally

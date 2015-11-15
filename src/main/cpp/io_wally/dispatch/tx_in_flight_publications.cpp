@@ -18,7 +18,7 @@
 #include "io_wally/protocol/puback_packet.hpp"
 #include "io_wally/protocol/pubrec_packet.hpp"
 #include "io_wally/protocol/pubcomp_packet.hpp"
-#include "io_wally/dispatch/publication.hpp"
+#include "io_wally/dispatch/tx_publication.hpp"
 
 namespace io_wally
 {
@@ -124,11 +124,11 @@ namespace io_wally
             // packet identifier for that is unique for THIS client, not the client that sent this incoming PUBLISH.
             auto outgoing_publish = incoming_publish->with_new_packet_identifier( next_packet_identifier( ) );
 
-            auto publish_itr = std::unordered_map<std::uint16_t, std::shared_ptr<publication>>::iterator{};
+            auto publish_itr = std::unordered_map<std::uint16_t, std::shared_ptr<tx_publication>>::iterator{};
             auto inserted = false;
             std::tie( publish_itr, inserted ) = publications_.emplace(
                 std::make_pair( outgoing_publish->packet_identifier( ),
-                                std::make_shared<qos1_publication>( *this, outgoing_publish ) ) );
+                                std::make_shared<qos1_tx_publication>( *this, outgoing_publish ) ) );
 
             assert( inserted );  // Could only happen if we have more than 65535 in flight publications
 
@@ -142,18 +142,18 @@ namespace io_wally
             // packet identifier for that is unique for THIS client, not the client that sent this incoming PUBLISH.
             auto outgoing_publish = incoming_publish->with_new_packet_identifier( next_packet_identifier( ) );
 
-            auto publish_itr = std::unordered_map<std::uint16_t, std::shared_ptr<publication>>::iterator{};
+            auto publish_itr = std::unordered_map<std::uint16_t, std::shared_ptr<tx_publication>>::iterator{};
             auto inserted = false;
             std::tie( publish_itr, inserted ) = publications_.emplace(
                 std::make_pair( outgoing_publish->packet_identifier( ),
-                                std::make_shared<qos2_publication>( *this, outgoing_publish ) ) );
+                                std::make_shared<qos2_tx_publication>( *this, outgoing_publish ) ) );
 
             assert( inserted );  // Could only happen if we have more than 65535 in flight publications
 
             ( *publish_itr ).second->start( locked_sender );
         }
 
-        void tx_in_flight_publications::release( std::shared_ptr<publication> publication )
+        void tx_in_flight_publications::release( std::shared_ptr<tx_publication> publication )
         {
             std::cerr << "release: " << publication->packet_identifier( ) << std::endl << std::flush;
             auto const erase_count = publications_.erase( publication->packet_identifier( ) );

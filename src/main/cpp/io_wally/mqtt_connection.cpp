@@ -18,23 +18,6 @@
 #include "io_wally/logging_support.hpp"
 #include "io_wally/mqtt_connection_manager.hpp"
 
-namespace
-{
-    std::string connection_description( const boost::asio::ip::tcp::socket& socket,
-                                        const std::string& client_id = "ANON" )
-    {
-        if ( socket.is_open( ) )
-        {
-            return "connection/" + socket.remote_endpoint( ).address( ).to_string( ) + ":" +
-                   std::to_string( socket.remote_endpoint( ).port( ) ) + "/" + client_id;
-        }
-        else
-        {
-            return "connection/DISCONNECTED/" + client_id;
-        }
-    }
-}
-
 namespace io_wally
 {
     using boost::asio::ip::tcp;
@@ -46,7 +29,7 @@ namespace io_wally
     namespace lvl = boost::log::trivial;
 
     // ---------------------------------------------------------------------------------------------------------------
-    // Public
+    // Public/static
     // ---------------------------------------------------------------------------------------------------------------
 
     mqtt_connection::ptr mqtt_connection::create( tcp::socket socket,
@@ -57,6 +40,41 @@ namespace io_wally
         return std::shared_ptr<mqtt_connection>{
             new mqtt_connection{move( socket ), connection_manager, context, dispatchq}};
     }
+
+    // ---------------------------------------------------------------------------------------------------------------
+    // Private/static
+    // ---------------------------------------------------------------------------------------------------------------
+
+    const std::string mqtt_connection::endpoint_description( const boost::asio::ip::tcp::socket& socket )
+    {
+        if ( socket.is_open( ) )
+        {
+            return "connection/" + socket.remote_endpoint( ).address( ).to_string( ) + ":" +
+                   std::to_string( socket.remote_endpoint( ).port( ) );
+        }
+        else
+        {
+            return "connection/DISCONNECTED";
+        }
+    }
+
+    const std::string mqtt_connection::connection_description( const boost::asio::ip::tcp::socket& socket,
+                                                               const std::string& client_id )
+    {
+        if ( socket.is_open( ) )
+        {
+            return "connection/" + socket.remote_endpoint( ).address( ).to_string( ) + ":" +
+                   std::to_string( socket.remote_endpoint( ).port( ) ) + "/" + client_id;
+        }
+        else
+        {
+            return "connection/DISCONNECTED/" + client_id;
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------------------------
+    // Public
+    // ---------------------------------------------------------------------------------------------------------------
 
     mqtt_connection::mqtt_connection( tcp::socket socket,
                                       mqtt_connection_manager& connection_manager,
