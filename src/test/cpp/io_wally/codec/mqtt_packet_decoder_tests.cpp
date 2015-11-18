@@ -22,64 +22,26 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
         const std::array<std::uint8_t, remaining_length> buffer = {{
             0,  // Length MSB (0)
             4,  // Length LSB (4)
-            'M',
-            'Q',
-            'T',
-            'T',
+            'M', 'Q', 'T', 'T',
             4,    // Protocol level 4
             206,  // connect flags 11001110, will QoS = 01
             0,    // Keep Alive MSB (0)
             10,   // Keep Alive LSB (10)
             0,    // Client ID MSB (0)
             7,    // Client ID LSB (7)
-            's',
-            'u',
-            'r',
-            'g',
-            'e',
-            'm',
-            'q',
+            's', 'u', 'r', 'g', 'e', 'm', 'q',
             0,  // Will Topic MSB (0)
             4,  // Will Topic LSB (4)
-            'w',
-            'i',
-            'l',
-            'l',
+            'w', 'i', 'l', 'l',
             0,   // Will Message MSB (0)
             12,  // Will Message LSB (12)
-            's',
-            'e',
-            'n',
-            'd',
-            ' ',
-            'm',
-            'e',
-            ' ',
-            'h',
-            'o',
-            'm',
-            'e',
+            's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
             0,  // Username ID MSB (0)
             7,  // Username ID LSB (7)
-            's',
-            'u',
-            'r',
-            'g',
-            'e',
-            'm',
-            'q',
+            's', 'u', 'r', 'g', 'e', 'm', 'q',
             0,   // Password ID MSB (0)
             10,  // Password ID LSB (10)
-            'v',
-            'e',
-            'r',
-            'y',
-            's',
-            'e',
-            'c',
-            'r',
-            'e',
-            't',
+            'v', 'e', 'r', 'y', 's', 'e', 'c', 'r', 'e', 't',
         }};  /// avoids warning
 
         WHEN( "a client passes that array into mqtt_packet_decoder::parse" )
@@ -166,37 +128,15 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
             7,  // packet ID LSB (7)
             0,  // topic name MSB (0)
             7,  // topic name LSB (7)
-            's',
-            'u',
-            'r',
-            'g',
-            'e',
-            'm',
-            'q',
+            's', 'u', 'r', 'g', 'e', 'm', 'q',
             0,  // QoS
             0,  // topic name MSB (0)
             8,  // topic name LSB (8)
-            '/',
-            'a',
-            '/',
-            'b',
-            '/',
-            'c',
-            '/',
-            '#',
+            '/', 'a', '/', 'b', '/', 'c', '/', '#',
             1,   // QoS
             0,   // topic name MSB (0)
             10,  // topic name LSB (10)
-            '/',
-            'a',
-            '/',
-            'b',
-            '/',
-            'c',
-            'd',
-            'd',
-            '/',
-            '#',
+            '/', 'a', '/', 'b', '/', 'c', 'd', 'd', '/', '#',
             2  // QoS
         }};    /// avoids warning
 
@@ -245,27 +185,10 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
         const std::array<std::uint8_t, remaining_length> buffer = {{
             0,  // topic name MSB (0)
             7,  // topic name LSB (7)
-            's',
-            'u',
-            'r',
-            'g',
-            'e',
-            'm',
-            'q',
+            's', 'u', 'r', 'g', 'e', 'm', 'q',
             0,  // packet ID MSB (0)
             7,  // packet ID LSB (7)
-            's',
-            'e',
-            'n',
-            'd',
-            ' ',
-            'm',
-            'e',
-            ' ',
-            'h',
-            'o',
-            'm',
-            'e',
+            's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
         }};  /// avoids warning
 
         WHEN( "a client passes that array into publish_packet_decoder::decode" )

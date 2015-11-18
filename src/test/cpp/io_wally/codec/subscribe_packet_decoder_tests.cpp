@@ -26,37 +26,15 @@ SCENARIO( "subscribe_packet_decoder", "[decoder]" )
             7,  // packet ID LSB (7)
             0,  // topic name MSB (0)
             7,  // topic name LSB (7)
-            's',
-            'u',
-            'r',
-            'g',
-            'e',
-            'm',
-            'q',
+            's', 'u', 'r', 'g', 'e', 'm', 'q',
             0,  // QoS
             0,  // topic name MSB (0)
             8,  // topic name LSB (8)
-            '/',
-            'a',
-            '/',
-            'b',
-            '/',
-            'c',
-            '/',
-            '#',
+            '/', 'a', '/', 'b', '/', 'c', '/', '#',
             1,   // QoS
             0,   // topic name MSB (0)
             10,  // topic name LSB (10)
-            '/',
-            'a',
-            '/',
-            'b',
-            '/',
-            'c',
-            'd',
-            'd',
-            '/',
-            '#',
+            '/', 'a', '/', 'b', '/', 'c', 'd', 'd', '/', '#',
             2  // QoS
         }};    /// avoids warning
 
@@ -129,37 +107,15 @@ SCENARIO( "subscribe_packet_decoder", "[decoder]" )
             7,  // packet ID LSB (7)
             0,  // topic name MSB (0)
             7,  // topic name LSB (7)
-            's',
-            'u',
-            'r',
-            'g',
-            'e',
-            'm',
-            'q',
+            's', 'u', 'r', 'g', 'e', 'm', 'q',
             0,  // QoS
             0,  // topic name MSB (0)
             8,  // topic name LSB (8)
-            '/',
-            'a',
-            '/',
-            'b',
-            '/',
-            'c',
-            '/',
-            '#',
+            '/', 'a', '/', 'b', '/', 'c', '/', '#',
             1,   // QoS
             0,   // topic name MSB (0)
             10,  // topic name LSB (10)
-            '/',
-            'a',
-            '/',
-            'b',
-            '/',
-            'c',
-            'd',
-            'd',
-            '/',
-            '#',
+            '/', 'a', '/', 'b', '/', 'c', 'd', 'd', '/', '#',
             2  // QoS
         }};    /// avoids warning
 

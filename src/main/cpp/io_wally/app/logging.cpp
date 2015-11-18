@@ -53,8 +53,8 @@ namespace io_wally
                 {
                     cerr << "ERROR: log level \"" << log_level
                          << "\" is not supported and will be replaced with default log level \"" << default_level
-                         << "\"" << endl << "HINT:  supported log levels are: (trace|debug|info|warning|error|fatal)"
-                         << endl;
+                         << "\"" << endl
+                         << "HINT:  supported log levels are: (trace|debug|info|warning|error|fatal)" << endl;
 
                     return "%Severity% >= " + default_level;
                 }

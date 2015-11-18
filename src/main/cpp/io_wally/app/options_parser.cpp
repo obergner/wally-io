@@ -34,8 +34,7 @@ namespace io_wally
                 SERVER_ADDRESS_SPEC,
                 options::value<string>( )->default_value( DEFAULT_SERVER_ADDRESS )->value_name( "<IP>" ),
                 "Bind server to <IP>" )(
-                SERVER_PORT_SPEC,
-                options::value<int>( )->default_value( DEFAULT_SERVER_PORT )->value_name( "<port>" ),
+                SERVER_PORT_SPEC, options::value<int>( )->default_value( DEFAULT_SERVER_PORT )->value_name( "<port>" ),
                 "Bind server to <port>" );
 
             auto connection_opts = options::options_description{"Connection", 100, 50};
@@ -52,8 +51,7 @@ namespace io_wally
 
             auto logging_opts = options::options_description{"Logging", 100, 50};
             logging_opts.add_options( )(
-                LOG_FILE_SPEC,
-                options::value<string>( )->default_value( DEFAULT_LOG_FILE )->value_name( "<file>" ),
+                LOG_FILE_SPEC, options::value<string>( )->default_value( DEFAULT_LOG_FILE )->value_name( "<file>" ),
                 "Direct log output to <file>" )(
                 LOG_FILE_LEVEL_SPEC,
                 options::value<string>( )->default_value( DEFAULT_LOG_FILE_LEVEL )->value_name( "<level>" ),
@@ -63,8 +61,7 @@ namespace io_wally
                 LOG_CONSOLE_LEVEL_SPEC,
                 options::value<string>( )->default_value( DEFAULT_LOG_CONSOLE_LEVEL )->value_name( "<level>" ),
                 "Restrict console log output to <level> or above:\n  (trace|debug|info|warning|error|fatal)" )(
-                LOG_DISABLE_SPEC,
-                options::bool_switch( ),
+                LOG_DISABLE_SPEC, options::bool_switch( ),
                 "Do not log, neither to file nor to console\nIf this option is set --log-file, --log-console, "
                 "--log-file-level and --log-console-level will be ignored" );
 
@@ -78,11 +75,11 @@ namespace io_wally
                 "Retry sending PUBLISH for at most <retries> times" );
 
             auto authentication_opts = options::options_description{"Authentication", 100, 50};
-            authentication_opts.add_options( )(
-                AUTHENTICATION_SERVICE_FACTORY_SPEC,
-                options::value<string>( )->default_value( DEFAULT_AUTHENTICATION_SERVICE_FACTORY )->value_name(
-                    "<name>" ),
-                "Use authentication service factory <name>" );
+            authentication_opts.add_options( )( AUTHENTICATION_SERVICE_FACTORY_SPEC,
+                                                options::value<string>( )
+                                                    ->default_value( DEFAULT_AUTHENTICATION_SERVICE_FACTORY )
+                                                    ->value_name( "<name>" ),
+                                                "Use authentication service factory <name>" );
 
             auto all = options::options_description{"Allowed options", 100, 50};
             all.add( cmd_line_opts )
@@ -94,8 +91,11 @@ namespace io_wally
             options::store( options::parse_command_line( argc, argv, all ), config );
 
             auto config_file = options::options_description{"Config file options", 100, 50};
-            config_file.add( logging_opts ).add( server_opts ).add( publication_opts ).add( authentication_opts ).add(
-                connection_opts );
+            config_file.add( logging_opts )
+                .add( server_opts )
+                .add( publication_opts )
+                .add( authentication_opts )
+                .add( connection_opts );
             auto config_fstream = ifstream{config[CONFIG_FILE].as<string>( ).c_str( )};
             options::store( options::parse_config_file( config_fstream, config_file ), config );
 

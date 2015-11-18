@@ -25,16 +25,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header,
-                                  prot_name,
-                                  prot_level,
-                                  prot_flags,
-                                  keep_alive_secs,
-                                  client_id,
-                                  will_topic,
-                                  will_message,
-                                  username,
-                                  password );
+        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
+                                  will_message, username, password );
 
         WHEN( "a caller asks for the protocol name" )
         {
@@ -60,16 +52,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header,
-                                  prot_name,
-                                  prot_level,
-                                  prot_flags,
-                                  keep_alive_secs,
-                                  client_id,
-                                  will_topic,
-                                  will_message,
-                                  username,
-                                  password );
+        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
+                                  will_message, username, password );
 
         WHEN( "a caller asks for the protocol name" )
         {
@@ -95,16 +79,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header,
-                                  prot_name,
-                                  prot_level,
-                                  prot_flags,
-                                  keep_alive_secs,
-                                  client_id,
-                                  will_topic,
-                                  will_message,
-                                  username,
-                                  password );
+        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
+                                  will_message, username, password );
 
         WHEN( "a caller asks for the protocol level" )
         {
@@ -130,16 +106,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header,
-                                  prot_name,
-                                  prot_level,
-                                  prot_flags,
-                                  keep_alive_secs,
-                                  client_id,
-                                  will_topic,
-                                  will_message,
-                                  username,
-                                  password );
+        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
+                                  will_message, username, password );
 
         WHEN( "a caller asks for the protocol level" )
         {
@@ -165,16 +133,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header,
-                                  prot_name,
-                                  prot_level,
-                                  prot_flags,
-                                  keep_alive_secs,
-                                  client_id,
-                                  will_topic,
-                                  will_message,
-                                  username,
-                                  password );
+        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
+                                  will_message, username, password );
 
         WHEN( "a caller asks if the username flag is set" )
         {
@@ -200,16 +160,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header,
-                                  prot_name,
-                                  prot_level,
-                                  prot_flags,
-                                  keep_alive_secs,
-                                  client_id,
-                                  will_topic,
-                                  will_message,
-                                  username,
-                                  password );
+        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
+                                  will_message, username, password );
 
         WHEN( "a caller asks if the username flag is set" )
         {
@@ -235,16 +187,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header,
-                                  prot_name,
-                                  prot_level,
-                                  prot_flags,
-                                  keep_alive_secs,
-                                  client_id,
-                                  will_topic,
-                                  will_message,
-                                  username,
-                                  password );
+        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
+                                  will_message, username, password );
 
         WHEN( "a caller asks if the password flag is set" )
         {
@@ -270,16 +214,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header,
-                                  prot_name,
-                                  prot_level,
-                                  prot_flags,
-                                  keep_alive_secs,
-                                  client_id,
-                                  will_topic,
-                                  will_message,
-                                  username,
-                                  password );
+        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
+                                  will_message, username, password );
 
         WHEN( "a caller asks if the password flag is set" )
         {
@@ -305,16 +241,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header,
-                                  prot_name,
-                                  prot_level,
-                                  prot_flags,
-                                  keep_alive_secs,
-                                  client_id,
-                                  will_topic,
-                                  will_message,
-                                  username,
-                                  password );
+        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
+                                  will_message, username, password );
 
         WHEN( "a caller asks if the receiver should retain any last will message" )
         {
@@ -340,16 +268,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header,
-                                  prot_name,
-                                  prot_level,
-                                  prot_flags,
-                                  keep_alive_secs,
-                                  client_id,
-                                  will_topic,
-                                  will_message,
-                                  username,
-                                  password );
+        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
+                                  will_message, username, password );
 
         WHEN( "a caller asks if the receiver should retain any last will message" )
         {
@@ -375,16 +295,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header,
-                                  prot_name,
-                                  prot_level,
-                                  prot_flags,
-                                  keep_alive_secs,
-                                  client_id,
-                                  will_topic,
-                                  will_message,
-                                  username,
-                                  password );
+        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
+                                  will_message, username, password );
 
         WHEN( "a caller asks for the last will quality of service" )
         {
@@ -410,16 +322,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header,
-                                  prot_name,
-                                  prot_level,
-                                  prot_flags,
-                                  keep_alive_secs,
-                                  client_id,
-                                  will_topic,
-                                  will_message,
-                                  username,
-                                  password );
+        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
+                                  will_message, username, password );
 
         WHEN( "a caller asks for the last will quality of service" )
         {
@@ -445,16 +349,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header,
-                                  prot_name,
-                                  prot_level,
-                                  prot_flags,
-                                  keep_alive_secs,
-                                  client_id,
-                                  will_topic,
-                                  will_message,
-                                  username,
-                                  password );
+        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
+                                  will_message, username, password );
 
         WHEN( "a caller asks for the last will quality of service" )
         {
@@ -480,16 +376,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header,
-                                  prot_name,
-                                  prot_level,
-                                  prot_flags,
-                                  keep_alive_secs,
-                                  client_id,
-                                  will_topic,
-                                  will_message,
-                                  username,
-                                  password );
+        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
+                                  will_message, username, password );
 
         WHEN( "a caller asks whether the packet contains a last will message" )
         {
@@ -515,16 +403,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header,
-                                  prot_name,
-                                  prot_level,
-                                  prot_flags,
-                                  keep_alive_secs,
-                                  client_id,
-                                  will_topic,
-                                  will_message,
-                                  username,
-                                  password );
+        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
+                                  will_message, username, password );
 
         WHEN( "a caller asks whether the packet contains a last will message" )
         {
@@ -550,16 +430,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header,
-                                  prot_name,
-                                  prot_level,
-                                  prot_flags,
-                                  keep_alive_secs,
-                                  client_id,
-                                  will_topic,
-                                  will_message,
-                                  username,
-                                  password );
+        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
+                                  will_message, username, password );
 
         WHEN( "a caller asks whether the client session should be cleaned" )
         {
@@ -585,16 +457,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header,
-                                  prot_name,
-                                  prot_level,
-                                  prot_flags,
-                                  keep_alive_secs,
-                                  client_id,
-                                  will_topic,
-                                  will_message,
-                                  username,
-                                  password );
+        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
+                                  will_message, username, password );
 
         WHEN( "a caller asks whether the client session should be cleaned" )
         {
@@ -620,16 +484,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header,
-                                  prot_name,
-                                  prot_level,
-                                  prot_flags,
-                                  keep_alive_secs,
-                                  client_id,
-                                  will_topic,
-                                  will_message,
-                                  username,
-                                  password );
+        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
+                                  will_message, username, password );
 
         WHEN( "a caller calls accessors for all fields" )
         {
@@ -663,16 +519,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = nullptr;
         const char* const password = nullptr;
 
-        const connect under_test( header,
-                                  prot_name,
-                                  prot_level,
-                                  prot_flags,
-                                  keep_alive_secs,
-                                  client_id,
-                                  will_topic,
-                                  will_message,
-                                  username,
-                                  password );
+        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
+                                  will_message, username, password );
 
         WHEN( "a caller calls accessors for all fields" )
         {

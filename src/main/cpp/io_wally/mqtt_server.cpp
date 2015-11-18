@@ -60,11 +60,10 @@ namespace io_wally
     void mqtt_server::wait_until_bound( )
     {
         auto ul = unique_lock<mutex>{bind_mutex_};
-        bound_.wait( ul,
-                     [this]( )
+        bound_.wait( ul, [this]( )
                      {
-            return acceptor_.is_open( );
-        } );
+                         return acceptor_.is_open( );
+                     } );
     }
 
     void mqtt_server::close_connections( const std::string& message )
@@ -79,11 +78,10 @@ namespace io_wally
     void mqtt_server::wait_until_connections_closed( )
     {
         auto ul = unique_lock<mutex>{bind_mutex_};
-        conn_closed_.wait( ul,
-                           [this]( )
+        conn_closed_.wait( ul, [this]( )
                            {
-            return connections_closed_;
-        } );
+                               return connections_closed_;
+                           } );
     }
 
     void mqtt_server::stop( const std::string& message )
@@ -105,25 +103,25 @@ namespace io_wally
     void mqtt_server::do_accept( )
     {
         auto self = shared_from_this( );
-        acceptor_.async_accept( socket_,
-                                [self]( const boost::system::error_code& ec )
+        acceptor_.async_accept( socket_, [self]( const boost::system::error_code& ec )
                                 {
-            BOOST_LOG_SEV( self->logger_, lvl::debug ) << "ACCEPTED: " << self->socket_;
-            // Check whether the mqtt_server was stopped by a signal before this
-            // completion handler had a chance to run.
-            if ( !self->acceptor_.is_open( ) )
-            {
-                return;
-            }
-            if ( !ec )
-            {
-                mqtt_connection::ptr session = mqtt_connection::create(
-                    move( self->socket_ ), self->connection_manager_, self->context_, self->dispatchq_ );
-                self->connection_manager_.start( session );
-            }
+                                    BOOST_LOG_SEV( self->logger_, lvl::debug ) << "ACCEPTED: " << self->socket_;
+                                    // Check whether the mqtt_server was stopped by a signal before this
+                                    // completion handler had a chance to run.
+                                    if ( !self->acceptor_.is_open( ) )
+                                    {
+                                        return;
+                                    }
+                                    if ( !ec )
+                                    {
+                                        mqtt_connection::ptr session =
+                                            mqtt_connection::create( move( self->socket_ ), self->connection_manager_,
+                                                                     self->context_, self->dispatchq_ );
+                                        self->connection_manager_.start( session );
+                                    }
 
-            self->do_accept( );
-        } );
+                                    self->do_accept( );
+                                } );
     }
 
     void mqtt_server::do_await_stop( )

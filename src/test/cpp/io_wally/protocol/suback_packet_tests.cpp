@@ -11,10 +11,9 @@ SCENARIO( "suback", "[packets]" )
     GIVEN( "a suback packet with packet identifier and 4 return codes" )
     {
         auto packet_id = uint16_t{9};
-        auto return_codes = std::vector<suback_return_code>{suback_return_code::MAXIMUM_QOS0,
-                                                            suback_return_code::MAXIMUM_QOS1,
-                                                            suback_return_code::MAXIMUM_QOS2,
-                                                            suback_return_code::FAILURE};
+        auto return_codes =
+            std::vector<suback_return_code>{suback_return_code::MAXIMUM_QOS0, suback_return_code::MAXIMUM_QOS1,
+                                            suback_return_code::MAXIMUM_QOS2, suback_return_code::FAILURE};
         auto under_test = suback{packet_id, return_codes};
 
         WHEN( "a caller asks for the packet identifier" )

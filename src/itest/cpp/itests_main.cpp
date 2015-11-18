@@ -19,19 +19,23 @@ namespace
     void log_info( const std::string msg )
     {
         std::cout << prefix << "--------------------------------------------------------------------------------"
-                  << std::endl << std::flush;
+                  << std::endl
+                  << std::flush;
         std::cout << prefix << msg << std::endl << std::flush;
         std::cout << prefix << "--------------------------------------------------------------------------------"
-                  << std::endl << std::flush;
+                  << std::endl
+                  << std::flush;
     }
 
     void log_error( const std::string msg )
     {
         std::cerr << prefix << "--------------------------------------------------------------------------------"
-                  << std::endl << std::flush;
+                  << std::endl
+                  << std::flush;
         std::cerr << prefix << msg << std::endl << std::flush;
         std::cerr << prefix << "--------------------------------------------------------------------------------"
-                  << std::endl << std::flush;
+                  << std::endl
+                  << std::flush;
     }
 
     int run_system_under_test( )

@@ -25,25 +25,7 @@ SCENARIO( "publish_packet_decoder", "[decoder]" )
         auto const buffer = std::array<std::uint8_t, remaining_length>{{
             0,  // topic name MSB (0)
             7,  // topic name LSB (7)
-            's',
-            'u',
-            'r',
-            'g',
-            'e',
-            'm',
-            'q',
-            's',
-            'e',
-            'n',
-            'd',
-            ' ',
-            'm',
-            'e',
-            ' ',
-            'h',
-            'o',
-            'm',
-            'e',
+            's', 'u', 'r', 'g', 'e', 'm', 'q', 's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
         }};  /// avoids warning
 
         WHEN( "a client passes that array into publish_packet_decoder::decode" )
@@ -85,27 +67,10 @@ SCENARIO( "publish_packet_decoder", "[decoder]" )
         auto const buffer = std::array<std::uint8_t, remaining_length>{{
             0,  // topic name MSB (0)
             7,  // topic name LSB (7)
-            's',
-            'u',
-            'r',
-            'g',
-            'e',
-            'm',
-            'q',
+            's', 'u', 'r', 'g', 'e', 'm', 'q',
             0,  // packet ID MSB (0)
             7,  // packet ID LSB (7)
-            's',
-            'e',
-            'n',
-            'd',
-            ' ',
-            'm',
-            'e',
-            ' ',
-            'h',
-            'o',
-            'm',
-            'e',
+            's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
         }};  /// avoids warning
 
         WHEN( "a client passes that array into publish_packet_decoder::decode" )
@@ -149,27 +114,10 @@ SCENARIO( "publish_packet_decoder", "[decoder]" )
         auto const buffer = std::array<std::uint8_t, remaining_length>{{
             0,  // topic name MSB (0)
             7,  // topic name LSB (7)
-            's',
-            'u',
-            'r',
-            'g',
-            'e',
-            'm',
-            'q',
+            's', 'u', 'r', 'g', 'e', 'm', 'q',
             0x23,  // packet ID MSB (0)
             0x34,  // packet ID LSB (7)
-            's',
-            'e',
-            'n',
-            'd',
-            ' ',
-            'm',
-            'e',
-            ' ',
-            'h',
-            'o',
-            'm',
-            'e',
+            's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
         }};  /// avoids warning
 
         WHEN( "a client passes that array into publish_packet_decoder::decode" )
@@ -214,18 +162,7 @@ SCENARIO( "publish_packet_decoder", "[decoder]" )
             0,  // topic name LSB (7)
             0,  // packet ID MSB (0)
             7,  // packet ID LSB (7)
-            's',
-            'e',
-            'n',
-            'd',
-            ' ',
-            'm',
-            'e',
-            ' ',
-            'h',
-            'o',
-            'm',
-            'e',
+            's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
         }};  /// avoids warning
 
         WHEN( "a client passes that array into publish_packet_decoder::decode" )
@@ -249,28 +186,10 @@ SCENARIO( "publish_packet_decoder", "[decoder]" )
         auto const buffer = std::array<std::uint8_t, remaining_length>{{
             0,  // topic name MSB (0)
             8,  // topic name LSB (8)
-            '/',
-            'w',
-            'a',
-            'l',
-            'l',
-            'y',
-            '/',
-            '#',
+            '/', 'w', 'a', 'l', 'l', 'y', '/', '#',
             0,  // packet ID MSB (0)
             7,  // packet ID LSB (7)
-            's',
-            'e',
-            'n',
-            'd',
-            ' ',
-            'm',
-            'e',
-            ' ',
-            'h',
-            'o',
-            'm',
-            'e',
+            's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
         }};  /// avoids warning
 
         WHEN( "a client passes that array into publish_packet_decoder::decode" )
@@ -294,28 +213,10 @@ SCENARIO( "publish_packet_decoder", "[decoder]" )
         auto const buffer = std::array<std::uint8_t, remaining_length>{{
             0,  // topic name MSB (0)
             8,  // topic name LSB (8)
-            '/',
-            'w',
-            'a',
-            'l',
-            'l',
-            'y',
-            '/',
-            '+',
+            '/', 'w', 'a', 'l', 'l', 'y', '/', '+',
             0,  // packet ID MSB (0)
             7,  // packet ID LSB (7)
-            's',
-            'e',
-            'n',
-            'd',
-            ' ',
-            'm',
-            'e',
-            ' ',
-            'h',
-            'o',
-            'm',
-            'e',
+            's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
         }};  /// avoids warning
 
         WHEN( "a client passes that array into publish_packet_decoder::decode" )
@@ -339,28 +240,10 @@ SCENARIO( "publish_packet_decoder", "[decoder]" )
         auto const buffer = std::array<std::uint8_t, remaining_length>{{
             0,  // topic name MSB (0)
             8,  // topic name LSB (8)
-            '/',
-            'w',
-            'a',
-            'l',
-            '\0',
-            'y',
-            '/',
-            'g',
+            '/', 'w', 'a', 'l', '\0', 'y', '/', 'g',
             0,  // packet ID MSB (0)
             7,  // packet ID LSB (7)
-            's',
-            'e',
-            'n',
-            'd',
-            ' ',
-            'm',
-            'e',
-            ' ',
-            'h',
-            'o',
-            'm',
-            'e',
+            's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
         }};  /// avoids warning
 
         WHEN( "a client passes that array into publish_packet_decoder::decode" )
@@ -384,28 +267,10 @@ SCENARIO( "publish_packet_decoder", "[decoder]" )
         auto const buffer = std::array<std::uint8_t, remaining_length>{{
             0,  // topic name MSB (0)
             8,  // topic name LSB (8)
-            '/',
-            'w',
-            'a',
-            'l',
-            'l',
-            'y',
-            '/',
-            'g',
+            '/', 'w', 'a', 'l', 'l', 'y', '/', 'g',
             0,  // packet ID MSB (0)
             7,  // packet ID LSB (7)
-            's',
-            'e',
-            'n',
-            'd',
-            ' ',
-            'm',
-            'e',
-            ' ',
-            'h',
-            'o',
-            'm',
-            'e',
+            's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
         }};  /// avoids warning
 
         WHEN( "a client passes that array into publish_packet_decoder::decode" )
@@ -429,28 +294,10 @@ SCENARIO( "publish_packet_decoder", "[decoder]" )
         auto const buffer = std::array<std::uint8_t, remaining_length>{{
             0,  // topic name MSB (0)
             8,  // topic name LSB (8)
-            '/',
-            'w',
-            'a',
-            'l',
-            'l',
-            'y',
-            '/',
-            'g',
+            '/', 'w', 'a', 'l', 'l', 'y', '/', 'g',
             0,  // packet ID MSB (0)
             7,  // packet ID LSB (7)
-            's',
-            'e',
-            'n',
-            'd',
-            ' ',
-            'm',
-            'e',
-            ' ',
-            'h',
-            'o',
-            'm',
-            'e',
+            's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
         }};  /// avoids warning
 
         WHEN( "a client passes that array into publish_packet_decoder::decode" )

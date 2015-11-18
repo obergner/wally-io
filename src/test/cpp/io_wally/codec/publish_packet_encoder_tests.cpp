@@ -23,53 +23,12 @@ SCENARIO( "publish_packet_encoder", "[encoder]" )
         auto application_message = std::vector<uint8_t>{'s', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e'};
         auto publish = protocol::publish{header, topic, packet_identifier, application_message};
 
-        auto result = std::array<std::uint8_t, 23>{{0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00}};
+        auto result =
+            std::array<std::uint8_t, 23>{{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
         auto expected_result = std::array<std::uint8_t, 23>{{
-            0x00,
-            0x07,
-            's',
-            'u',
-            'r',
-            'g',
-            'e',
-            'm',
-            'q',
-            0x00,
-            0x07,
-            's',
-            'e',
-            'n',
-            'd',
-            ' ',
-            'm',
-            'e',
-            ' ',
-            'h',
-            'o',
-            'm',
-            'e',
+            0x00, 0x07, 's', 'u', 'r', 'g', 'e', 'm', 'q', 0x00, 0x07, 's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o',
+            'm', 'e',
         }};
 
         WHEN( "a client passes that packet into publish_packet_encoder::encode" )
@@ -96,27 +55,8 @@ SCENARIO( "publish_packet_encoder", "[encoder]" )
         auto application_message = std::vector<uint8_t>{'s', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e'};
         auto publish = protocol::publish{header, topic, packet_identifier, application_message};
 
-        auto result = std::array<std::uint8_t, 21>{{0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00,
-                                                    0x00}};
+        auto result = std::array<std::uint8_t, 21>{{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
         auto expected_result = std::array<std::uint8_t, 21>{{
             0x00, 0x07, 's', 'u', 'r', 'g', 'e', 'm', 'q', 's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
         }};

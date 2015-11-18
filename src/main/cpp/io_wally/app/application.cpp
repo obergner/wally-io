@@ -100,11 +100,10 @@ DISCLAIMER:
                 // Nested block: we don't want to hold this lock when calling wait_for_bound() below
                 auto ul = unique_lock<mutex>{startup_mutex_};
 
-                startup_completed_.wait( ul,
-                                         [this]( )
+                startup_completed_.wait( ul, [this]( )
                                          {
-                    return server_.use_count( ) > 0;
-                } );
+                                             return server_.use_count( ) > 0;
+                                         } );
             }
 
             server_->wait_until_bound( );

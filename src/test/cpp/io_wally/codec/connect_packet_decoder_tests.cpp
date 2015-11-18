@@ -24,64 +24,26 @@ SCENARIO( "connect_packet_decoder", "[decoder]" )
         const std::array<std::uint8_t, remaining_length> buffer = {{
             0,  // Length MSB (0)
             4,  // Length LSB (4)
-            'M',
-            'Q',
-            'T',
-            'T',
+            'M', 'Q', 'T', 'T',
             4,    // Protocol level 4
             206,  // connect flags 11001110, will QoS = 01
             0,    // Keep Alive MSB (0)
             10,   // Keep Alive LSB (10)
             0,    // Client ID MSB (0)
             7,    // Client ID LSB (7)
-            's',
-            'u',
-            'r',
-            'g',
-            'e',
-            'm',
-            'q',
+            's', 'u', 'r', 'g', 'e', 'm', 'q',
             0,  // Will Topic MSB (0)
             4,  // Will Topic LSB (4)
-            'w',
-            'i',
-            'l',
-            'l',
+            'w', 'i', 'l', 'l',
             0,   // Will Message MSB (0)
             12,  // Will Message LSB (12)
-            's',
-            'e',
-            'n',
-            'd',
-            ' ',
-            'm',
-            'e',
-            ' ',
-            'h',
-            'o',
-            'm',
-            'e',
+            's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
             0,  // Username ID MSB (0)
             7,  // Username ID LSB (7)
-            's',
-            'u',
-            'r',
-            'g',
-            'e',
-            'm',
-            'q',
+            's', 'u', 'r', 'g', 'e', 'm', 'q',
             0,   // Password ID MSB (0)
             10,  // Password ID LSB (10)
-            'v',
-            'e',
-            'r',
-            'y',
-            's',
-            'e',
-            'c',
-            'r',
-            'e',
-            't',
+            'v', 'e', 'r', 'y', 's', 'e', 'c', 'r', 'e', 't',
         }};  /// avoids warning
 
         WHEN( "a client passes that array into connect_packet_decoder::decode" )
@@ -136,64 +98,26 @@ SCENARIO( "connect_packet_decoder", "[decoder]" )
         const std::array<std::uint8_t, 60> buffer = {{
             0,  // Length MSB (0)
             4,  // Length LSB (4)
-            'M',
-            'Q',
-            'T',
-            'T',
+            'M', 'Q', 'T', 'T',
             4,    // Protocol level 4
             206,  // connect flags 11001110, will QoS = 01
             0,    // Keep Alive MSB (0)
             10,   // Keep Alive LSB (10)
             0,    // Client ID MSB (0)
             7,    // Client ID LSB (7)
-            's',
-            'u',
-            'r',
-            'g',
-            'e',
-            'm',
-            'q',
+            's', 'u', 'r', 'g', 'e', 'm', 'q',
             0,  // Will Topic MSB (0)
             4,  // Will Topic LSB (4)
-            'w',
-            'i',
-            'l',
-            'l',
+            'w', 'i', 'l', 'l',
             0,   // Will Message MSB (0)
             12,  // Will Message LSB (12)
-            's',
-            'e',
-            'n',
-            'd',
-            ' ',
-            'm',
-            'e',
-            ' ',
-            'h',
-            'o',
-            'm',
-            'e',
+            's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
             0,  // Username ID MSB (0)
             7,  // Username ID LSB (7)
-            's',
-            'u',
-            'r',
-            'g',
-            'e',
-            'm',
-            'q',
+            's', 'u', 'r', 'g', 'e', 'm', 'q',
             0,   // Password ID MSB (0)
             10,  // Password ID LSB (10)
-            'v',
-            'e',
-            'r',
-            'y',
-            's',
-            'e',
-            'c',
-            'r',
-            'e',
-            't',
+            'v', 'e', 'r', 'y', 's', 'e', 'c', 'r', 'e', 't',
         }};  /// avoids warning
 
         WHEN( "a client passes that array into connect_packet_decoder::decode" )
@@ -218,64 +142,26 @@ SCENARIO( "connect_packet_decoder", "[decoder]" )
         const std::array<std::uint8_t, remaining_length> buffer = {{
             0,  // Length MSB (0)
             4,  // Length LSB (4)
-            'M',
-            'Q',
-            'T',
-            'T',
+            'M', 'Q', 'T', 'T',
             4,    // Protocol level 4
             206,  // connect flags 11001110, will QoS = 01
             0,    // Keep Alive MSB (0)
             10,   // Keep Alive LSB (10)
             0,    // Client ID MSB (0)
             7,    // Client ID LSB (7)
-            's',
-            'u',
-            'r',
-            'g',
-            'e',
-            'm',
-            'q',
+            's', 'u', 'r', 'g', 'e', 'm', 'q',
             0,  // Will Topic MSB (0)
             5,  // Will Topic LSB (5) !WRONG!
-            'w',
-            'i',
-            'l',
-            'l',
+            'w', 'i', 'l', 'l',
             0,   // Will Message MSB (0)
             12,  // Will Message LSB (12)
-            's',
-            'e',
-            'n',
-            'd',
-            ' ',
-            'm',
-            'e',
-            ' ',
-            'h',
-            'o',
-            'm',
-            'e',
+            's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
             0,  // Username ID MSB (0)
             7,  // Username ID LSB (7)
-            's',
-            'u',
-            'r',
-            'g',
-            'e',
-            'm',
-            'q',
+            's', 'u', 'r', 'g', 'e', 'm', 'q',
             0,   // Password ID MSB (0)
             10,  // Password ID LSB (10)
-            'v',
-            'e',
-            'r',
-            'y',
-            's',
-            'e',
-            'c',
-            'r',
-            'e',
-            't',
+            'v', 'e', 'r', 'y', 's', 'e', 'c', 'r', 'e', 't',
         }};  /// avoids warning
 
         WHEN( "a client passes that array into connect_packet_decoder::decode" )
@@ -300,64 +186,23 @@ SCENARIO( "connect_packet_decoder", "[decoder]" )
         const std::array<std::uint8_t, remaining_length> buffer = {{
             0,  // Length MSB (0)
             4,  // Length LSB (4)
-            'M',
-            'Q',
-            'T',
-            'T',
+            'M', 'Q', 'T', 'T',
             4,    // Protocol level 4
             206,  // connect flags 11001110, will QoS = 01
             0,    // Keep Alive MSB (0)
             10,   // Keep Alive LSB (10)
             0,    // Client ID MSB (0)
             7,    // Client ID LSB (7)
-            's',
-            'u',
-            'r',
-            'g',
-            'e',
-            'm',
-            'q',
+            's', 'u', 'r', 'g', 'e', 'm', 'q',
             0,  // Will Topic MSB (0)
             4,  // Will Topic LSB (4)
-            'w',
-            'i',
-            'l',
-            'l',
+            'w', 'i', 'l', 'l',
             0,   // Will Message MSB (0)
             21,  // Will Message LSB (21)
-            's',
-            'e',
-            'n',
-            'd',
-            ' ',
-            'm',
-            'e',
-            ' ',
-            'h',
-            'o',
-            'm',
-            'e',
-            'x',
-            'x',
-            'x',
-            'x',
-            'x',
-            'x',
-            'x',
-            'x',
-            'x',
+            's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x',
             0,   // Password ID MSB (0)
             10,  // Password ID LSB (10)
-            'v',
-            'e',
-            'r',
-            'y',
-            's',
-            'e',
-            'c',
-            'r',
-            'e',
-            't',
+            'v', 'e', 'r', 'y', 's', 'e', 'c', 'r', 'e', 't',
         }};  /// avoids warning
 
         WHEN( "a client passes that array into connect_packet_decoder::decode" )
@@ -382,64 +227,26 @@ SCENARIO( "connect_packet_decoder", "[decoder]" )
         const std::array<std::uint8_t, remaining_length> buffer = {{
             0,  // Length MSB (0)
             4,  // Length LSB (4)
-            'M',
-            'Q',
-            'T',
-            'T',
+            'M', 'Q', 'T', 'T',
             4,    // Protocol level 4
             206,  // connect flags 11001110, will QoS = 01
             0,    // Keep Alive MSB (0)
             10,   // Keep Alive LSB (10)
             0,    // Client ID MSB (0)
             7,    // Client ID LSB (7)
-            's',
-            'u',
-            'r',
-            'g',
-            'e',
-            'm',
-            'q',
+            's', 'u', 'r', 'g', 'e', 'm', 'q',
             0,  // Will Topic MSB (0)
             4,  // Will Topic LSB (4)
-            'w',
-            'i',
-            'l',
-            'l',
+            'w', 'i', 'l', 'l',
             0,   // Will Message MSB (0)
             12,  // Will Message LSB (12)
-            's',
-            'e',
-            'n',
-            'd',
-            ' ',
-            'm',
-            'e',
-            ' ',
-            'h',
-            'o',
-            'm',
-            'e',
+            's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
             0,  // Username ID MSB (0)
             7,  // Username ID LSB (7)
-            's',
-            'u',
-            'r',
-            'g',
-            'e',
-            'm',
-            'q',
+            's', 'u', 'r', 'g', 'e', 'm', 'q',
             0,  // Password ID MSB (0)
             9,  // Password ID LSB (9) !ONE BYTE SHORT!
-            'v',
-            'e',
-            'r',
-            'y',
-            's',
-            'e',
-            'c',
-            'r',
-            'e',
-            'x',
+            'v', 'e', 'r', 'y', 's', 'e', 'c', 'r', 'e', 'x',
         }};  /// avoids warning
 
         WHEN( "a client passes that array into connect_packet_decoder::decode" )

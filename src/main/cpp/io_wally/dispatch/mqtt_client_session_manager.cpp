@@ -162,15 +162,14 @@ namespace io_wally
         void mqtt_client_session_manager::publish( std::shared_ptr<protocol::publish> incoming_publish )
         {
             auto resolved_subscribers = topic_subscriptions_.resolve_subscribers( incoming_publish );
-            for_each( resolved_subscribers.begin( ),
-                      resolved_subscribers.end( ),
+            for_each( resolved_subscribers.begin( ), resolved_subscribers.end( ),
                       [this, &incoming_publish]( const resolved_subscriber_t& subscriber )
                       {
-                // TODO: This will default construct (is that possible?) a new session if client_id is not yet
-                // registered.
-                auto session = sessions_[subscriber.first];
-                session->publish( incoming_publish, subscriber.second );
-            } );
+                          // TODO: This will default construct (is that possible?) a new session if client_id is not yet
+                          // registered.
+                          auto session = sessions_[subscriber.first];
+                          session->publish( incoming_publish, subscriber.second );
+                      } );
         }
     }  // namespace dispatch
 }  // namespace io_wally
