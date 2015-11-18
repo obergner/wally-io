@@ -123,6 +123,15 @@ namespace io_wally
             session->client_received_publish( pubrec );
         }
 
+        void mqtt_client_session_manager::client_released_publish( const std::string& client_id,
+                                                                   std::shared_ptr<protocol::pubrel> pubrel )
+        {
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "RX REL: [cltid:" << client_id << "|pkt:" << *pubrel << "]";
+            // TODO: This will default construct (is that possible?) a new session if client_id is not yet registered.
+            auto session = sessions_[client_id];
+            session->client_released_publish( pubrel );
+        }
+
         void mqtt_client_session_manager::client_completed_publish( const std::string& client_id,
                                                                     std::shared_ptr<protocol::pubcomp> pubcomp )
         {

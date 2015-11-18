@@ -38,7 +38,8 @@ namespace io_wally
             : session_manager_{session_manager},
               client_id_{client_id},
               connection_{connection},
-              tx_in_flight_publications_{session_manager.context( ), session_manager.io_service( ), connection}
+              tx_in_flight_publications_{session_manager.context( ), session_manager.io_service( ), connection},
+              rx_in_flight_publications_{session_manager.context( ), session_manager.io_service( ), connection}
         {
         }
 
@@ -74,11 +75,16 @@ namespace io_wally
 
         void mqtt_client_session::client_sent_publish( std::shared_ptr<protocol::publish> incoming_publish )
         {
-            auto puback = std::make_shared<protocol::puback>( incoming_publish->packet_identifier( ) );
-            send( puback );
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "ACKED: " << *incoming_publish << " ---> " << puback;
-
-            session_manager_.publish( incoming_publish );
+            bool dispatch_publish = rx_in_flight_publications_.client_sent_publish( incoming_publish );
+            if ( dispatch_publish )
+            {
+                session_manager_.publish( incoming_publish );
+            }
+            else
+            {
+                BOOST_LOG_SEV( logger_, lvl::info ) << "Client re-sent PUBLISH packet " << incoming_publish
+                                                    << " - will be ignored";
+            }
         }
 
         void mqtt_client_session::client_acked_publish( std::shared_ptr<protocol::puback> puback )
@@ -91,6 +97,12 @@ namespace io_wally
         {
             tx_in_flight_publications_.response_received( pubrec );
             BOOST_LOG_SEV( logger_, lvl::debug ) << "RCVD: " << *pubrec;
+        }
+
+        void mqtt_client_session::client_released_publish( std::shared_ptr<protocol::pubrel> pubrel )
+        {
+            rx_in_flight_publications_.client_sent_pubrel( pubrel );
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "RCVD: " << *pubrel;
         }
 
         void mqtt_client_session::client_completed_publish( std::shared_ptr<protocol::pubcomp> pubcomp )

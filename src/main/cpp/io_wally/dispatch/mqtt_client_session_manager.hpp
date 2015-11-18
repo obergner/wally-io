@@ -97,6 +97,12 @@ namespace io_wally
             /// \param pubrec PUBREC sent by connected client
             void client_received_publish( const std::string& client_id, std::shared_ptr<protocol::pubrec> pubrec );
 
+            /// \brief Called when a client released a QoS 2 PUBLISH, i.e. sent a PUBREL.
+            ///
+            /// \param client_id ID of client that received PUBLISH
+            /// \param pubrel PUBREL sent by connected client
+            void client_released_publish( const std::string& client_id, std::shared_ptr<protocol::pubrel> pubrel );
+
             /// \brief Called when a client completed a QoS 2 PUBLISH, i.e. sent a PUBCOMP.
             ///
             /// \param client_id ID of client that completed PUBLISH

@@ -1,5 +1,6 @@
 #include "io_wally/dispatch/tx_publication.hpp"
 
+#include <cassert>
 #include <cstdint>
 #include <memory>
 #include <chrono>

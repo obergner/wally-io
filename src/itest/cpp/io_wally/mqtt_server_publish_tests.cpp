@@ -93,11 +93,11 @@ SCENARIO_METHOD( itest_fixture_qos2, "mqtt_server MQTT PUBLISH tests (QoS 2)", "
         auto login_rc = subscriber.mqtt_connect( );
         auto subscribe_rc = subscriber.subscribe( "test/topic/qos2", io_wally::protocol::packet::QoS::EXACTLY_ONCE );
 
-        WHEN( "another client sends a valid PUBLISH packet with QoS 1 to that topic" )
+        WHEN( "another client sends a valid PUBLISH packet with QoS 2 to that topic" )
         {
             auto login_pub_rc = publisher.mqtt_connect( );
             auto send_pub_rc =
-                publisher.publish( "test/topic/qos2", "test/qos2", io_wally::protocol::packet::QoS::AT_LEAST_ONCE );
+                publisher.publish( "test/topic/qos2", "test/qos2", io_wally::protocol::packet::QoS::EXACTLY_ONCE );
 
             auto recvd_msg = subscriber.receive_message( 1000 );
 

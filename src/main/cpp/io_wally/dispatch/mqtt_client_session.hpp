@@ -13,6 +13,7 @@
 #include "io_wally/protocol/pubcomp_packet.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/dispatch/tx_in_flight_publications.hpp"
+#include "io_wally/dispatch/rx_in_flight_publications.hpp"
 
 namespace io_wally
 {
@@ -67,6 +68,11 @@ namespace io_wally
             /// \param pubrec PUBREC sent by connected client
             void client_received_publish( std::shared_ptr<protocol::pubrec> pubrec );
 
+            /// \brief Called when this client released a sent QoS 2 PUBLISH, i.e. sent a PUBREL.
+            ///
+            /// \param pubrel PUBREL sent by connected client
+            void client_released_publish( std::shared_ptr<protocol::pubrel> pubrel );
+
             /// \brief Called when this client completed a received QoS 2 PUBLISH, i.e. sent a PUBCOMP
             ///
             /// \param pubcomp PUBCOMP sent by connected client
@@ -80,6 +86,7 @@ namespace io_wally
             const std::string client_id_;
             std::weak_ptr<mqtt_packet_sender> connection_;
             tx_in_flight_publications tx_in_flight_publications_;
+            rx_in_flight_publications rx_in_flight_publications_;
             /// Our severity-enabled channel logger
             boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
                 boost::log::keywords::channel = "client-session:" + client_id_,

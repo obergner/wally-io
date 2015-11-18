@@ -100,8 +100,6 @@ namespace io_wally
                 else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBLISH )
                 {
                     auto publish = packet_container->packetAs<protocol::publish>( );
-                    // For now, we only support QoS 0 and QoS 1
-                    assert( publish->header( ).flags( ).qos( ) != protocol::packet::QoS::EXACTLY_ONCE );
 
                     session_manager_.client_published( packet_container->client_id( ), publish );
                 }
@@ -114,6 +112,11 @@ namespace io_wally
                 {
                     auto pubrec = packet_container->packetAs<protocol::pubrec>( );
                     session_manager_.client_received_publish( packet_container->client_id( ), pubrec );
+                }
+                else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBREL )
+                {
+                    auto pubrel = packet_container->packetAs<protocol::pubrel>( );
+                    session_manager_.client_released_publish( packet_container->client_id( ), pubrel );
                 }
                 else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBCOMP )
                 {
