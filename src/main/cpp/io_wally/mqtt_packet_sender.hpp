@@ -28,6 +28,10 @@ namespace io_wally
         using packetq_t = boost::asio::simple_queue<packet_container_t::ptr>;
 
        public:
+        virtual ~mqtt_packet_sender( )
+        {
+        }
+
         /// \brief Return ID of connected client, if already authenticated. Otherwise, return \c boost::none.
         virtual const boost::optional<const std::string>& client_id( ) const = 0;
 

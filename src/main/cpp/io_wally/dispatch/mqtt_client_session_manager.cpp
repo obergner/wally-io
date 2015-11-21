@@ -87,10 +87,13 @@ namespace io_wally
         {
             auto suback = topic_subscriptions_.subscribe( client_id, subscribe );
             // TODO: This will default construct (is that possible?) a new session if client_id is not yet registered.
-            auto session = sessions_[client_id];
-            // TODO: mqtt_client_session exposes an event-oriented interface, i.e. client code (as this code) tells it
-            // what has happened, not what to do. This "send()" method is the only exception. Can we get rid of it?
-            session->send( suback );
+            if ( auto session = sessions_[client_id] )
+            {
+                // TODO: mqtt_client_session exposes an event-oriented interface, i.e. client code (as this code) tells
+                // it
+                // what has happened, not what to do. This "send()" method is the only exception. Can we get rid of it?
+                session->send( suback );
+            }
             BOOST_LOG_SEV( logger_, lvl::debug ) << "SUBSCRIBED: [cltid:" << client_id << "|pkt:" << *subscribe << "]";
         }
 
@@ -100,8 +103,10 @@ namespace io_wally
             BOOST_LOG_SEV( logger_, lvl::debug ) << "RX PUBLISH: [cltid:" << client_id << "|pkt:" << *incoming_publish
                                                  << "]";
             // TODO: This will default construct (is that possible?) a new session if client_id is not yet registered.
-            auto session = sessions_[client_id];
-            session->client_sent_publish( incoming_publish );
+            if ( auto session = sessions_[client_id] )
+            {
+                session->client_sent_publish( incoming_publish );
+            }
         }
 
         void mqtt_client_session_manager::client_acked_publish( const std::string& client_id,
@@ -110,8 +115,10 @@ namespace io_wally
             BOOST_LOG_SEV( logger_, lvl::debug ) << "RX ACK: [cltid:" << client_id << "|pkt:" << *puback << "]";
             // TODO: This will default construct (is that possible?) a new session if client_id is not yet
             // registered.
-            auto session = sessions_[client_id];
-            session->client_acked_publish( puback );
+            if ( auto session = sessions_[client_id] )
+            {
+                session->client_acked_publish( puback );
+            }
         }
 
         void mqtt_client_session_manager::client_received_publish( const std::string& client_id,
@@ -119,8 +126,10 @@ namespace io_wally
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "RX REC: [cltid:" << client_id << "|pkt:" << *pubrec << "]";
             // TODO: This will default construct (is that possible?) a new session if client_id is not yet registered.
-            auto session = sessions_[client_id];
-            session->client_received_publish( pubrec );
+            if ( auto session = sessions_[client_id] )
+            {
+                session->client_received_publish( pubrec );
+            }
         }
 
         void mqtt_client_session_manager::client_released_publish( const std::string& client_id,
@@ -128,8 +137,10 @@ namespace io_wally
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "RX REL: [cltid:" << client_id << "|pkt:" << *pubrel << "]";
             // TODO: This will default construct (is that possible?) a new session if client_id is not yet registered.
-            auto session = sessions_[client_id];
-            session->client_released_publish( pubrel );
+            if ( auto session = sessions_[client_id] )
+            {
+                session->client_released_publish( pubrel );
+            }
         }
 
         void mqtt_client_session_manager::client_completed_publish( const std::string& client_id,
@@ -137,8 +148,10 @@ namespace io_wally
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "RX COMP: [cltid:" << client_id << "|pkt:" << *pubcomp << "]";
             // TODO: This will default construct (is that possible?) a new session if client_id is not yet registered.
-            auto session = sessions_[client_id];
-            session->client_completed_publish( pubcomp );
+            if ( auto session = sessions_[client_id] )
+            {
+                session->client_completed_publish( pubcomp );
+            }
         }
 
         void mqtt_client_session_manager::destroy( const std::string& client_id )
@@ -167,8 +180,10 @@ namespace io_wally
                       {
                           // TODO: This will default construct (is that possible?) a new session if client_id is not yet
                           // registered.
-                          auto session = sessions_[subscriber.first];
-                          session->publish( incoming_publish, subscriber.second );
+                          if ( auto session = sessions_[subscriber.first] )
+                          {
+                              session->publish( incoming_publish, subscriber.second );
+                          }
                       } );
         }
     }  // namespace dispatch

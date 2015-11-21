@@ -108,17 +108,17 @@ namespace io_wally
 
             static packet_container<SENDER>::ptr contain(
                 const std::string& client_id,
-                sender_ptr rx_connection,
+                const std::shared_ptr<SENDER>& rx_connection,
                 std::shared_ptr<protocol::mqtt_packet> packet,
                 const dispatch::disconnect_reason disconnect_reason = dispatch::disconnect_reason::not_a_disconnect )
             {
-                return std::make_shared<packet_container<SENDER>>(
-                    client_id, rx_connection, packet, disconnect_reason );
+                return std::make_shared<packet_container<SENDER>>( client_id, rx_connection, packet,
+                                                                   disconnect_reason );
             }
 
            public:
             packet_container( const std::string& client_id,
-                              sender_ptr rx_connection,
+                              const std::shared_ptr<SENDER>& rx_connection,
                               std::shared_ptr<protocol::mqtt_packet> packet,
                               const dispatch::disconnect_reason disconnect_reason )
                 : client_id_{client_id},
@@ -168,8 +168,10 @@ namespace io_wally
             }
 
            private:
-            const std::time_t rx_timestamp_{std::chrono::duration_cast<std::chrono::milliseconds>(
-                                                std::chrono::system_clock::now( ).time_since_epoch( ) ).count( )};
+            const std::time_t rx_timestamp_{
+                std::chrono::duration_cast<std::chrono::milliseconds>( std::chrono::system_clock::now( )
+                                                                           .time_since_epoch( ) )
+                    .count( )};
             const std::string client_id_;
             std::weak_ptr<SENDER> rx_connection_;
             std::shared_ptr<protocol::mqtt_packet> packet_;

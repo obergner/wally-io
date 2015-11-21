@@ -92,12 +92,18 @@ namespace io_wally
         {
             state_ = state::waiting_for_ack;
 
-            auto self = shared_from_this( );
+            // We use a weak_ptr in this async callback since our owner - mqtt_client_session via
+            // tx_in_flight_publications - may go away anytime while we wait for this timeout to expire
+            auto self_weak = std::weak_ptr<qos1_tx_publication>{shared_from_this( )};
             auto ack_tmo = std::chrono::milliseconds{ack_timeout_ms_};
             retry_on_timeout_.expires_from_now( ack_tmo );
-            retry_on_timeout_.async_wait( strand_.wrap( [self, sender]( const boost::system::error_code& ec )
+            retry_on_timeout_.async_wait( strand_.wrap( [self_weak, sender]( const boost::system::error_code& ec )
                                                         {
-                                                            if ( !ec )
+                                                            if ( ec )
+                                                            {
+                                                                return;
+                                                            }
+                                                            if ( auto self = self_weak.lock( ) )
                                                             {
                                                                 self->ack_timeout_expired( sender );
                                                             }
@@ -203,12 +209,18 @@ namespace io_wally
                 state_ = state::waiting_for_comp;
             }
 
-            auto self = shared_from_this( );
+            // We use a weak_ptr in this async callback since our owner - mqtt_client_session via
+            // tx_in_flight_publications - may go away anytime while we wait for this timeout to expire
+            auto self_weak = std::weak_ptr<qos2_tx_publication>{shared_from_this( )};
             auto ack_tmo = std::chrono::milliseconds{ack_timeout_ms_};
             retry_on_timeout_.expires_from_now( ack_tmo );
-            retry_on_timeout_.async_wait( strand_.wrap( [self, sender]( const boost::system::error_code& ec )
+            retry_on_timeout_.async_wait( strand_.wrap( [self_weak, sender]( const boost::system::error_code& ec )
                                                         {
-                                                            if ( !ec )
+                                                            if ( ec )
+                                                            {
+                                                                return;
+                                                            }
+                                                            if ( auto self = self_weak.lock( ) )
                                                             {
                                                                 self->ack_timeout_expired( sender );
                                                             }

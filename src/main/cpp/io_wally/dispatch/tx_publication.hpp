@@ -22,6 +22,10 @@ namespace io_wally
         class tx_publication
         {
            public:
+            virtual ~tx_publication( )
+            {
+            }
+
             uint16_t packet_identifier( ) const;
 
             virtual void start( std::shared_ptr<mqtt_packet_sender> sender ) = 0;
@@ -60,6 +64,11 @@ namespace io_wally
            public:
             qos1_tx_publication( tx_in_flight_publications& parent, std::shared_ptr<protocol::publish> publish );
 
+            ~qos1_tx_publication( )
+            {
+                retry_on_timeout_.cancel( );
+            }
+
             virtual void start( std::shared_ptr<mqtt_packet_sender> sender ) override;
 
             virtual void response_received( std::shared_ptr<protocol::publish_ack> ack,
@@ -93,6 +102,11 @@ namespace io_wally
 
            public:
             qos2_tx_publication( tx_in_flight_publications& parent, std::shared_ptr<protocol::publish> publish );
+
+            ~qos2_tx_publication( )
+            {
+                retry_on_timeout_.cancel( );
+            }
 
             virtual void start( std::shared_ptr<mqtt_packet_sender> sender ) override;
 
