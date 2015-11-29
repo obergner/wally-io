@@ -178,5 +178,6 @@ namespace io_wally
             const dispatch::disconnect_reason disconnect_reason_;
         };  // struct packet_container
 
+        bool topic_filter_matches_topic( const std::string& topic_filter, const std::string& topic );
     }  // namespace dispatch
 }  // namespace io_wally

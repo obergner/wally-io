@@ -12,6 +12,7 @@
 #include "io_wally/protocol/subscribe_packet.hpp"
 #include "io_wally/protocol/suback_packet.hpp"
 #include "io_wally/protocol/publish_packet.hpp"
+#include "io_wally/dispatch/common.hpp"
 
 namespace io_wally
 {
@@ -33,51 +34,7 @@ namespace io_wally
 
         bool subscription_container::matches( const std::string& topic ) const
         {
-            auto t_idx = size_t{0};
-            auto tf_idx = size_t{0};
-            while ( ( t_idx < topic.length( ) ) && ( tf_idx < topic_filter.length( ) ) )
-            {
-                auto tf_char = topic_filter[tf_idx];
-                auto t_char = topic[t_idx];
-                switch ( tf_char )
-                {
-                    case '+':  // single-level wildcard
-                    {
-                        // + matches empty topic level
-                        if ( t_char != '/' )
-                        {
-                            while ( ( topic[t_idx] != '/' ) && ( t_idx < topic.length( ) ) )
-                                ++t_idx;
-                        }
-                        ++tf_idx;
-                    }
-                    break;
-                    case '#':  // multi-level wildcard
-                    {
-                        return true;
-                    }
-                    break;
-                    case '/':  // topic separator
-                    default:   // regular character
-                    {
-                        if ( t_char != tf_char )
-                        {
-                            return false;
-                        }
-                        ++t_idx;
-                        ++tf_idx;
-                    }
-                }
-            }
-            // If both topic_filter and topic are exhausted when we get here, the match has succeeded.
-            if ( ( t_idx == topic.length( ) ) && ( tf_idx == topic_filter.length( ) ) )
-            {
-                return true;
-            }
-            // Special case: wildcard character "#" represents the PARENT and any number of child levels. Since it also
-            // matches the PARENT level, "sport/tennis/player1/#" matches "sport/tennis/player1" (SIC!).
-            return ( ( tf_idx < topic_filter.length( ) - 1 ) &&
-                     ( topic_filter.compare( topic_filter.length( ) - 2, 2, "/#" ) == 0 ) );
+            return io_wally::dispatch::topic_filter_matches_topic( topic_filter, topic );
         }
 
         // --------------------------------------------------------------------------------

@@ -55,8 +55,7 @@ namespace io_wally
         void mqtt_client_session_manager::client_connected( const std::string& client_id,
                                                             std::weak_ptr<mqtt_packet_sender> connection )
         {
-            auto connection_ptr = shared_ptr<mqtt_packet_sender>( connection );
-            if ( connection_ptr )
+            if ( auto connection_ptr = connection.lock( ) )
             {
                 // TODO: Maybe we shouldn't pass a REFERENCE to this, since we might go away (likewise in
                 // mqtt_packet_sender)

@@ -285,8 +285,8 @@ namespace io_wally
         if ( ( ec == boost::asio::error::eof ) || ( ec == boost::asio::error::connection_reset ) )
         {
             // Client disconnected. Could be that he sent a last packet we want to decode.
-            BOOST_LOG_SEV( logger_, lvl::info )
-                << "<<< EOF/CONNECTION RESET: client disconnected - decoding last received packet ...";
+            BOOST_LOG_SEV( logger_, lvl::info ) << "<<< CONNECTION LOST (" << ec.message( )
+                                                << "): decoding last received packet ...";
             // TODO: We should at least try to decode a last DISCONNECT - otherwise (if there is no DISCONNECT) this was
             // an unexpected connection loss.
             auto const result =

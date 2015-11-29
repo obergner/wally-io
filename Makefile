@@ -199,6 +199,13 @@ BUILD_DOC                 := $(BUILD)/doc
 # Clang's compilation database needed for some of its tooling
 COMPILATIONDB             := compile_commands.json
 
+# Third-party tools, mainly used for testing
+TOOLSDIR                  := tools
+
+# Paho conformance test suite
+PAHO_CONFORM_DIR          := $(TOOLSDIR)/paho
+PAHO_CONFORM_EXEC         := $(PAHO_CONFORM_DIR)/client_test.py
+
 # --------------------------------------------------------------------------------------------------------------------- 
 # Miscellaneous
 # --------------------------------------------------------------------------------------------------------------------- 
@@ -469,6 +476,14 @@ $(EXEC_IT)                : $(OBJS_M_SAN) $(OBJS_IT) $(OBJS_IT_FRM) $(EXECOBJ_IT
 
 $(BUILD_IT)/%.o           : $(SRC_DIR_IT)/%.cpp                    | $(BUILDDIRS_IT)
 	$(CXX) $(CPPFLAGS_IT) $(CXXFLAGS_IT) -o $@ -c $<
+
+# --------------------------------------------------------------------------------------------------------------------- 
+# Paho conformance test suit
+# --------------------------------------------------------------------------------------------------------------------- 
+
+.PHONY                    : conformance-tests
+conformance-tests         :
+	@python3 $(PAHO_CONFORM_EXEC)
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build snippets: try stuff, analyse bugs etc
