@@ -1,10 +1,8 @@
 #pragma once
 
-#include <cassert>
 #include <cstdint>
 #include <memory>
 #include <utility>
-#include <tuple>
 #include <unordered_map>
 
 #include <boost/asio.hpp>
@@ -14,10 +12,7 @@
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/publish_packet.hpp"
 #include "io_wally/protocol/publish_ack_packet.hpp"
-#include "io_wally/protocol/puback_packet.hpp"
 #include "io_wally/dispatch/tx_publication.hpp"
-#include "io_wally/protocol/pubrec_packet.hpp"
-#include "io_wally/protocol/pubcomp_packet.hpp"
 
 namespace io_wally
 {

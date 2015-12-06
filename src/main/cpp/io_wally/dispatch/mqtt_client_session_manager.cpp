@@ -85,7 +85,6 @@ namespace io_wally
                                                              std::shared_ptr<protocol::subscribe> subscribe )
         {
             auto suback = topic_subscriptions_.subscribe( client_id, subscribe );
-            // TODO: This will default construct (is that possible?) a new session if client_id is not yet registered.
             if ( auto session = sessions_[client_id] )
             {
                 // TODO: mqtt_client_session exposes an event-oriented interface, i.e. client code (as this code) tells
@@ -101,7 +100,13 @@ namespace io_wally
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "RX PUBLISH: [cltid:" << client_id << "|pkt:" << *incoming_publish
                                                  << "]";
-            // TODO: This will default construct (is that possible?) a new session if client_id is not yet registered.
+            if ( incoming_publish->retain( ) )
+            {
+                retained_messages_.retain( incoming_publish );
+                BOOST_LOG_SEV( logger_, lvl::debug ) << "RETAINED: [topic:" << incoming_publish->topic( )
+                                                     << "|size:" << incoming_publish->application_message( ).size( )
+                                                     << "]";
+            }
             if ( auto session = sessions_[client_id] )
             {
                 session->client_sent_publish( incoming_publish );

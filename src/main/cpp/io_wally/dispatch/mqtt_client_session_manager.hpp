@@ -19,6 +19,7 @@
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/dispatch/mqtt_client_session.hpp"
 #include "io_wally/dispatch/topic_subscriptions.hpp"
+#include "io_wally/dispatch/retained_messages.hpp"
 
 namespace io_wally
 {
@@ -129,6 +130,8 @@ namespace io_wally
             topic_subscriptions topic_subscriptions_;
             /// The managed sessions.
             std::map<const std::string, mqtt_client_session::ptr> sessions_{};
+            /// All retained messages
+            retained_messages retained_messages_{};
             /// Our severity-enabled channel logger
             boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
                 boost::log::keywords::channel = "client-session-manager",

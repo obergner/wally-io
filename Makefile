@@ -117,9 +117,7 @@ SRC_DIR_UT                := src/test/cpp
 # Test framework SRCS
 SRCS_UT_FRM               := $(wildcard $(SRC_DIR_UT)/framework/*.cpp)
 
-# Test framework objects
-OBJS_UT_FRM               := $(patsubst $(SRC_DIR_UT)/%.cpp, $(BUILD_UT)/%.o, $(SRCS_UT_FRM))
-
+# Test SRCS
 SRCS_UT                   := $(wildcard $(SRC_DIR_UT)/io_wally/*.cpp)
 SRCS_UT                   += $(wildcard $(SRC_DIR_UT)/io_wally/protocol/*.cpp)
 SRCS_UT                   += $(wildcard $(SRC_DIR_UT)/io_wally/codec/*.cpp)
@@ -131,6 +129,9 @@ EXECSOURCE_UT             := $(wildcard $(SRC_DIR_UT)/tests_main.cpp)
 
 # Build dir for tests
 BUILD_UT                  := $(BUILD)/test
+
+# Test framework objects
+OBJS_UT_FRM               := $(patsubst $(SRC_DIR_UT)/%.cpp, $(BUILD_UT)/%.o, $(SRCS_UT_FRM))
 
 # Test objects
 OBJS_UT                   := $(patsubst $(SRC_DIR_UT)/%.cpp, $(BUILD_UT)/%.o, $(SRCS_UT))
