@@ -140,6 +140,7 @@ EXECOBJ_UT                := $(patsubst $(SRC_DIR_UT)/%.cpp, $(BUILD_UT)/%.o, $(
 
 # Subdirs in build directory need to reflect subdirs in test directory
 BUILDDIRS_UT              := $(sort $(dir $(OBJS_UT)))
+BUILDDIRS_UT              += $(dir $(OBJS_UT_FRM))
 
 # Main test executable
 EXEC_UT                   := $(BUILD_UT)/unit-tests
