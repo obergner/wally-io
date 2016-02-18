@@ -64,7 +64,7 @@ namespace
         return result;
     }
 
-    int run_catch( int argc, char* const argv[] )
+    int run_catch( int argc, char const** argv )
     {
         auto result = int{};
         try
@@ -93,7 +93,7 @@ namespace
     }
 }
 
-int main( int argc, char* const argv[] )
+int main( int argc, char const** argv )
 {
     int result = 0;
 
