@@ -2,12 +2,14 @@
 
 #include <cstdint>
 #include <cstring>
+#include <cmath>
 #include <string>
 #include <tuple>
 #include <stdexcept>
 #include <memory>
 
 #include <boost/optional.hpp>
+#include <boost/system/error_code.hpp>
 
 #include "io_wally/error/protocol.hpp"
 #include "io_wally/protocol/common.hpp"
@@ -91,6 +93,77 @@ namespace io_wally
             uint32_t current_ = 0;
             uint32_t multiplier_ = 1;
         };
+
+        class frame_reader final
+        {
+           private:  // static
+            static constexpr const uint8_t MSB_MASK = 0x80;
+
+           public:
+            frame_reader( std::vector<uint8_t>& buffer ) : buffer_{buffer}
+            {
+            }
+
+            // frame_reader( const frame_reader& ) = delete;
+
+            // frame_reader( frame_reader&& ) = delete;
+
+            // frame_reader& operator=( const frame_reader& ) = delete;
+
+            // frame_reader& operator=( frame_reader&& ) = delete;
+
+            std::size_t operator( )( const boost::system::error_code& error, std::size_t bytes_transferred )
+            {
+                assert( bytes_transferred == buffer_.size( ) );
+                if ( error )
+                {
+                    return 0;
+                }
+
+                const auto rlen_hlen = decode_remaining_length( );
+                if ( !rlen_hlen )
+                {
+                    // It should happen exceedingly rarely that we do not receive enough bytes to decode a packet's
+                    // remaining length header field. If it happens, we proceed very cautiously and tell asio to only
+                    // read one more byte.
+                    return 1;
+                }
+                const auto rlen = ( *rlen_hlen ).first;
+                const auto hlen = ( *rlen_hlen ).second;
+                assert( rlen + hlen >= buffer_.size( ) );
+                return ( rlen + hlen ) - buffer_.size( );
+            }
+
+           private:
+            const boost::optional<std::pair<std::size_t, std::size_t>> decode_remaining_length( ) const
+            {
+                if ( buffer_.size( ) < 2 )
+                {
+                    return boost::none;
+                }
+
+                auto rlen = std::size_t{0};
+                for ( std::vector<uint8_t>::size_type i = 1; i < buffer_.size( ); ++i )
+                {
+                    if ( i > 4 )
+                    {
+                        throw error::malformed_mqtt_packet( "Encoded remaining length exceeds maximum allowed value" );
+                    }
+                    const auto current_byte = buffer_[i];
+                    const auto multiplier = pow( 128, i - 1 );
+                    rlen += ( current_byte & ~MSB_MASK ) * multiplier;
+                    if ( ( current_byte & MSB_MASK ) == 0 )
+                    {
+                        return std::make_pair( rlen, i + 1 );
+                    }
+                }
+
+                return boost::none;
+            }
+
+           private:
+            std::vector<uint8_t>& buffer_;
+        };  // class frame_reader
 
         /// \brief Stateful decoder for MQTT \c headers.
         ///

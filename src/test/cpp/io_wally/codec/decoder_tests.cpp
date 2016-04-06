@@ -4,7 +4,11 @@
 #include <array>
 #include <string>
 #include <tuple>
+#include <algorithm>
 
+#include <boost/system/error_code.hpp>
+
+#include "io_wally/protocol/common.hpp"
 #include "io_wally/error/protocol.hpp"
 #include "io_wally/codec/decoder.hpp"
 
@@ -169,6 +173,230 @@ SCENARIO( "remaining_length functor", "[packets]" )
                 REQUIRE( st3 == decoder::ParseState::INCOMPLETE );
                 REQUIRE( st4 == decoder::ParseState::COMPLETE );
                 REQUIRE( actual_result == expected_result );
+            }
+        }
+    }
+}
+
+SCENARIO( "frame_reader", "[packets]" )
+{
+    auto buffer = std::vector<uint8_t>{};
+    auto under_test = decoder::frame_reader{buffer};
+
+    GIVEN( "a well-formed packet header of length two encoding a remaining length of 0" )
+    {
+        const auto serialized_header = std::array<uint8_t, 2>{{0x01 << 4, 0x00}};
+        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+
+        WHEN( "a caller calls frame_reader as a functor" )
+        {
+            const auto frame_remainder = under_test(
+                boost::system::errc::make_error_code( boost::system::errc::success ), serialized_header.size( ) );
+
+            THEN( "it should receive 0" )
+            {
+                REQUIRE( frame_remainder == 0 );
+            }
+        }
+    }
+
+    GIVEN( "a well-formed packet header of length two encoding a remaining length of 127" )
+    {
+        const auto serialized_header = std::array<uint8_t, 2>{{0x05 << 4, 0x7F}};
+        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+
+        WHEN( "a caller calls frame_reader as a functor for the first time" )
+        {
+            const auto frame_remainder = under_test(
+                boost::system::errc::make_error_code( boost::system::errc::success ), serialized_header.size( ) );
+
+            THEN( "it should receive 127" )
+            {
+                REQUIRE( frame_remainder == 127 );
+            }
+        }
+    }
+
+    GIVEN( "a well-formed packet header of length three encoding a remaining length of 128" )
+    {
+        const auto serialized_header = std::array<uint8_t, 3>{{0x07 << 4, 0x80, 0x01}};
+        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+
+        WHEN( "a caller calls frame_reader as a functor for the first time" )
+        {
+            const auto frame_remainder = under_test(
+                boost::system::errc::make_error_code( boost::system::errc::success ), serialized_header.size( ) );
+
+            THEN( "it should receive 128" )
+            {
+                REQUIRE( frame_remainder == 128 );
+            }
+        }
+    }
+
+    GIVEN( "a well-formed packet header of length three encoding a remaining length of 127 * 128 + 127" )
+    {
+        const auto serialized_header = std::array<uint8_t, 3>{{0x07 << 4, 0xFF, 0x7F}};
+        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+
+        WHEN( "a caller calls frame_reader as a functor for the first time" )
+        {
+            const auto frame_remainder = under_test(
+                boost::system::errc::make_error_code( boost::system::errc::success ), serialized_header.size( ) );
+
+            THEN( "it should receive 127 * 128 + 127" )
+            {
+                REQUIRE( frame_remainder == 127 * 128 + 127 );
+            }
+        }
+    }
+
+    GIVEN( "a well-formed packet header of length four encoding a remaining length of 128 * 128" )
+    {
+        const auto serialized_header = std::array<uint8_t, 4>{{0x07 << 4, 0x80, 0x80, 0x01}};
+        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+
+        WHEN( "a caller calls frame_reader as a functor for the first time" )
+        {
+            const auto frame_remainder = under_test(
+                boost::system::errc::make_error_code( boost::system::errc::success ), serialized_header.size( ) );
+
+            THEN( "it should receive 128 * 128" )
+            {
+                REQUIRE( frame_remainder == 128 * 128 );
+            }
+        }
+    }
+
+    GIVEN(
+        "a well-formed packet header of length four encoding a remaining length of 127 * 128 * 128 + 127 * 128 + 127" )
+    {
+        const auto serialized_header = std::array<uint8_t, 4>{{0x07 << 4, 0xFF, 0xFF, 0x7F}};
+        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+
+        WHEN( "a caller calls frame_reader as a functor for the first time" )
+        {
+            const auto frame_remainder = under_test(
+                boost::system::errc::make_error_code( boost::system::errc::success ), serialized_header.size( ) );
+
+            THEN( "it should receive 127 * 128 * 128 + 127 * 128 + 127" )
+            {
+                REQUIRE( frame_remainder == 127 * 128 * 128 + 127 * 128 + 127 );
+            }
+        }
+    }
+
+    GIVEN( "a well-formed packet header of length five encoding a remaining length of 128 * 128 * 128" )
+    {
+        const auto serialized_header = std::array<uint8_t, 5>{{0x07 << 4, 0x80, 0x80, 0x80, 0x01}};
+        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+
+        WHEN( "a caller calls frame_reader as a functor for the first time" )
+        {
+            const auto frame_remainder = under_test(
+                boost::system::errc::make_error_code( boost::system::errc::success ), serialized_header.size( ) );
+
+            THEN( "it should receive 128 * 128 * 128" )
+            {
+                REQUIRE( frame_remainder == 128 * 128 * 128 );
+            }
+        }
+    }
+
+    GIVEN( "a well-formed packet header of length five encoding maximum allowed remaining length" )
+    {
+        const auto serialized_header = std::array<uint8_t, 5>{{0x07 << 4, 0xFF, 0xFF, 0xFF, 0x7F}};
+        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+
+        WHEN( "a caller calls frame_reader as a functor for the first time" )
+        {
+            const auto frame_remainder = under_test(
+                boost::system::errc::make_error_code( boost::system::errc::success ), serialized_header.size( ) );
+
+            THEN( "it should receive maximum allowed remaining length" )
+            {
+                REQUIRE( frame_remainder == io_wally::protocol::packet::MAX_ALLOWED_PACKET_LENGTH );
+            }
+        }
+    }
+
+    GIVEN( "a mal-formed packet header of length six encoding maximum allowed remaining length + 1" )
+    {
+        const auto serialized_header = std::array<uint8_t, 6>{{0x07 << 4, 0xFF, 0xFF, 0xFF, 0xFF, 0x01}};
+        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+
+        WHEN( "a caller calls frame_reader as a functor for the first time" )
+        {
+            THEN( "it should see an error::malformed_mqtt_packet being thrown" )
+            {
+                REQUIRE_THROWS_AS( under_test( boost::system::errc::make_error_code( boost::system::errc::success ),
+                                               serialized_header.size( ) ),
+                                   error::malformed_mqtt_packet );
+            }
+        }
+    }
+
+    GIVEN( "a well-formed packet header with maximum allowed remaining length" )
+    {
+        const auto serialized_header = std::array<uint8_t, 5>{{0x07 << 4, 0xFF, 0xFF, 0xFF, 0x7F}};
+        const auto total_frame_length =
+            serialized_header.size( ) + io_wally::protocol::packet::MAX_ALLOWED_PACKET_LENGTH;
+        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+        const auto ec_success = boost::system::errc::make_error_code( boost::system::errc::success );
+
+        WHEN( "a caller calls frame_reader as a functor for the first time" )
+        {
+            const auto frame_remainder = under_test( ec_success, serialized_header.size( ) );
+
+            THEN( "it should receive maximum allowed remaining length" )
+            {
+                REQUIRE( frame_remainder == io_wally::protocol::packet::MAX_ALLOWED_PACKET_LENGTH );
+            }
+        }
+
+        WHEN( "a caller repeatedly calls frame_reader as a functor while buffer is being filled" )
+        {
+            const auto step_size = std::size_t{100000};  // Large step size so that test runs faster
+            const auto frame_remainder = under_test( ec_success, serialized_header.size( ) );
+
+            THEN( "on each call it should receive correct number of bytes still to be read" )
+            {
+                auto frame_remainder = io_wally::protocol::packet::MAX_ALLOWED_PACKET_LENGTH;
+                while ( frame_remainder > 0 )
+                {
+                    buffer.insert( std::end( buffer ), std::min( step_size, total_frame_length - buffer.size( ) ),
+                                   0x01 );
+                    frame_remainder = under_test( ec_success, buffer.size( ) );
+                    REQUIRE( frame_remainder == total_frame_length - buffer.size( ) );
+                }
+
+                REQUIRE( under_test( ec_success, buffer.size( ) ) == 0 );
+            }
+        }
+    }
+
+    GIVEN( "a partial packet header of eventual length 4" )
+    {
+        const auto serialized_header = std::array<uint8_t, 2>{{0x07 << 4, 0xFF}};
+        const auto ec_success = boost::system::errc::make_error_code( boost::system::errc::success );
+        const auto actual_remaining_length = 127 * 128 * 128 + 127 * 128 + 127;
+
+        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+
+        WHEN( "a caller repeatedly calls frame_reader as a functor" )
+        {
+            const auto frame_remainder = under_test(
+                boost::system::errc::make_error_code( boost::system::errc::success ), serialized_header.size( ) );
+
+            THEN( "it should receive 1 until header is complete" )
+            {
+                REQUIRE( under_test( ec_success, buffer.size( ) ) == 1 );
+
+                buffer.insert( std::end( buffer ), 0xFF );
+                REQUIRE( under_test( ec_success, buffer.size( ) ) == 1 );
+
+                buffer.insert( std::end( buffer ), 0x7F );
+                REQUIRE( under_test( ec_success, buffer.size( ) ) == actual_remaining_length );
             }
         }
     }

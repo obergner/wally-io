@@ -98,25 +98,6 @@ namespace io_wally
     {
         BOOST_LOG_SEV( logger_, lvl::info ) << "START: " << *this;
 
-        // Start deadline timer that will close this connection if connect timeout expires without receiving CONNECT
-        // request
-        auto self = shared_from_this( );
-        auto conn_to = chrono::milliseconds{context_[context::CONNECT_TIMEOUT].as<const uint32_t>( )};
-        close_on_connection_timeout_.expires_from_now( conn_to );
-        close_on_connection_timeout_.async_wait(
-            strand_.wrap( [self]( const boost::system::error_code& ec )
-                          {
-                              if ( !ec )
-                              {
-                                  auto msg = ostringstream{};
-                                  msg << "CONNECTION TIMEOUT EXPIRED after ["
-                                      << self->context_[context::CONNECT_TIMEOUT].as<const uint32_t>( )
-                                      << "] ms - connection [" << self->socket_ << "] will be closed";
-                                  self->connection_close_requested(
-                                      msg.str( ), dispatch::disconnect_reason::protocol_violation, ec, lvl::warning );
-                              }
-                          } ) );
-
         read_header( );
     }
 
@@ -156,6 +137,26 @@ namespace io_wally
             return;
 
         BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< READ: header [bufs:" << read_buffer_.size( ) << "] ...";
+
+        // Start deadline timer that will close this connection if connect timeout expires without receiving CONNECT
+        // request
+        auto self = shared_from_this( );
+        auto conn_to = chrono::milliseconds{context_[context::CONNECT_TIMEOUT].as<const uint32_t>( )};
+        close_on_connection_timeout_.expires_from_now( conn_to );
+        close_on_connection_timeout_.async_wait(
+            strand_.wrap( [self]( const boost::system::error_code& ec )
+                          {
+                              if ( !ec )
+                              {
+                                  auto msg = ostringstream{};
+                                  msg << "CONNECTION TIMEOUT EXPIRED after ["
+                                      << self->context_[context::CONNECT_TIMEOUT].as<const uint32_t>( )
+                                      << "] ms - connection [" << self->socket_ << "] will be closed";
+                                  self->connection_close_requested(
+                                      msg.str( ), dispatch::disconnect_reason::protocol_violation, ec, lvl::warning );
+                              }
+                          } ) );
+
         boost::asio::async_read(
             socket_, boost::asio::buffer( read_buffer_ ),
             boost::asio::transfer_at_least( 2 ),  // FIXME: This won't work if we are called in a loop
