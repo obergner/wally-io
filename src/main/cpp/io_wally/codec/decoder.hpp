@@ -114,13 +114,13 @@ namespace io_wally
 
             std::size_t operator( )( const boost::system::error_code& error, std::size_t bytes_transferred )
             {
-                assert( bytes_transferred == buffer_.size( ) );
+                assert( bytes_transferred <= buffer_.size( ) );
                 if ( error )
                 {
                     return 0;
                 }
 
-                const auto rlen_hlen = decode_remaining_length( );
+                const auto rlen_hlen = decode_remaining_length( bytes_transferred );
                 if ( !rlen_hlen )
                 {
                     // It should happen exceedingly rarely that we do not receive enough bytes to decode a packet's
@@ -130,20 +130,28 @@ namespace io_wally
                 }
                 const auto rlen = ( *rlen_hlen ).first;
                 const auto hlen = ( *rlen_hlen ).second;
-                assert( rlen + hlen >= buffer_.size( ) );
-                return ( rlen + hlen ) - buffer_.size( );
+
+                // Expand buffer to accommodate entire frame if necessary
+                if ( rlen + hlen > buffer_.size( ) )
+                {
+                    buffer_.insert( std::end( buffer_ ), ( rlen + hlen ) - buffer_.size( ), 0x00 );
+                }
+                assert( rlen + hlen <= buffer_.size( ) );
+
+                return ( rlen + hlen ) - bytes_transferred;
             }
 
            private:
-            const boost::optional<std::pair<std::size_t, std::size_t>> decode_remaining_length( ) const
+            const boost::optional<std::pair<std::size_t, std::size_t>> decode_remaining_length(
+                std::size_t bytes_transferred ) const
             {
-                if ( buffer_.size( ) < 2 )
+                if ( bytes_transferred < 2 )
                 {
                     return boost::none;
                 }
 
                 auto rlen = std::size_t{0};
-                for ( std::vector<uint8_t>::size_type i = 1; i < buffer_.size( ); ++i )
+                for ( std::vector<uint8_t>::size_type i = 1; i < bytes_transferred; ++i )
                 {
                     if ( i > 4 )
                     {

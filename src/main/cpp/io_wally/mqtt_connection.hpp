@@ -98,16 +98,11 @@ namespace io_wally
 
         // Receiving MQTT packets
 
-        void read_header( );
+        void read_frame( );
 
-        void on_header_data_read( const boost::system::error_code& ec, const size_t bytes_transferred );
+        void on_frame_read( const boost::system::error_code& ec, const size_t bytes_transferred );
 
-        void read_body( const decoder::header_decoder::result<buf_iter>& header_parse_result,
-                        const size_t bytes_transferred );
-
-        void on_body_data_read( const decoder::header_decoder::result<buf_iter>& header_parse_result,
-                                const boost::system::error_code& ec,
-                                const size_t bytes_transferred );
+        void decode_packet( const size_t bytes_transferred );
 
         void on_read_failed( const boost::system::error_code& ec, const size_t bytes_transferred );
 
@@ -190,6 +185,8 @@ namespace io_wally
         boost::asio::queue_sender<packetq_t> dispatcher_{socket_.get_io_service( ), &dispatchq_};
         /// Buffer incoming data
         std::vector<uint8_t> read_buffer_;
+        /// Read entire MQTT frame
+        decoder::frame_reader frame_reader_{read_buffer_};
         /// Buffer outgoing data
         std::vector<uint8_t> write_buffer_;
         /// Timer, will fire if connection timeout expires without receiving a CONNECT request

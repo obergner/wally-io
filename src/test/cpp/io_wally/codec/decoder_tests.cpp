@@ -180,18 +180,18 @@ SCENARIO( "remaining_length functor", "[packets]" )
 
 SCENARIO( "frame_reader", "[packets]" )
 {
-    auto buffer = std::vector<uint8_t>{};
+    auto buffer = std::vector<uint8_t>( 512 );
     auto under_test = decoder::frame_reader{buffer};
+    const auto ec_success = boost::system::errc::make_error_code( boost::system::errc::success );
 
     GIVEN( "a well-formed packet header of length two encoding a remaining length of 0" )
     {
         const auto serialized_header = std::array<uint8_t, 2>{{0x01 << 4, 0x00}};
-        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+        buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
 
         WHEN( "a caller calls frame_reader as a functor" )
         {
-            const auto frame_remainder = under_test(
-                boost::system::errc::make_error_code( boost::system::errc::success ), serialized_header.size( ) );
+            const auto frame_remainder = under_test( ec_success, serialized_header.size( ) );
 
             THEN( "it should receive 0" )
             {
@@ -203,12 +203,11 @@ SCENARIO( "frame_reader", "[packets]" )
     GIVEN( "a well-formed packet header of length two encoding a remaining length of 127" )
     {
         const auto serialized_header = std::array<uint8_t, 2>{{0x05 << 4, 0x7F}};
-        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+        buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
 
         WHEN( "a caller calls frame_reader as a functor for the first time" )
         {
-            const auto frame_remainder = under_test(
-                boost::system::errc::make_error_code( boost::system::errc::success ), serialized_header.size( ) );
+            const auto frame_remainder = under_test( ec_success, serialized_header.size( ) );
 
             THEN( "it should receive 127" )
             {
@@ -220,12 +219,11 @@ SCENARIO( "frame_reader", "[packets]" )
     GIVEN( "a well-formed packet header of length three encoding a remaining length of 128" )
     {
         const auto serialized_header = std::array<uint8_t, 3>{{0x07 << 4, 0x80, 0x01}};
-        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+        buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
 
         WHEN( "a caller calls frame_reader as a functor for the first time" )
         {
-            const auto frame_remainder = under_test(
-                boost::system::errc::make_error_code( boost::system::errc::success ), serialized_header.size( ) );
+            const auto frame_remainder = under_test( ec_success, serialized_header.size( ) );
 
             THEN( "it should receive 128" )
             {
@@ -237,12 +235,11 @@ SCENARIO( "frame_reader", "[packets]" )
     GIVEN( "a well-formed packet header of length three encoding a remaining length of 127 * 128 + 127" )
     {
         const auto serialized_header = std::array<uint8_t, 3>{{0x07 << 4, 0xFF, 0x7F}};
-        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+        buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
 
         WHEN( "a caller calls frame_reader as a functor for the first time" )
         {
-            const auto frame_remainder = under_test(
-                boost::system::errc::make_error_code( boost::system::errc::success ), serialized_header.size( ) );
+            const auto frame_remainder = under_test( ec_success, serialized_header.size( ) );
 
             THEN( "it should receive 127 * 128 + 127" )
             {
@@ -254,12 +251,11 @@ SCENARIO( "frame_reader", "[packets]" )
     GIVEN( "a well-formed packet header of length four encoding a remaining length of 128 * 128" )
     {
         const auto serialized_header = std::array<uint8_t, 4>{{0x07 << 4, 0x80, 0x80, 0x01}};
-        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+        buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
 
         WHEN( "a caller calls frame_reader as a functor for the first time" )
         {
-            const auto frame_remainder = under_test(
-                boost::system::errc::make_error_code( boost::system::errc::success ), serialized_header.size( ) );
+            const auto frame_remainder = under_test( ec_success, serialized_header.size( ) );
 
             THEN( "it should receive 128 * 128" )
             {
@@ -272,12 +268,11 @@ SCENARIO( "frame_reader", "[packets]" )
         "a well-formed packet header of length four encoding a remaining length of 127 * 128 * 128 + 127 * 128 + 127" )
     {
         const auto serialized_header = std::array<uint8_t, 4>{{0x07 << 4, 0xFF, 0xFF, 0x7F}};
-        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+        buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
 
         WHEN( "a caller calls frame_reader as a functor for the first time" )
         {
-            const auto frame_remainder = under_test(
-                boost::system::errc::make_error_code( boost::system::errc::success ), serialized_header.size( ) );
+            const auto frame_remainder = under_test( ec_success, serialized_header.size( ) );
 
             THEN( "it should receive 127 * 128 * 128 + 127 * 128 + 127" )
             {
@@ -289,12 +284,11 @@ SCENARIO( "frame_reader", "[packets]" )
     GIVEN( "a well-formed packet header of length five encoding a remaining length of 128 * 128 * 128" )
     {
         const auto serialized_header = std::array<uint8_t, 5>{{0x07 << 4, 0x80, 0x80, 0x80, 0x01}};
-        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+        buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
 
         WHEN( "a caller calls frame_reader as a functor for the first time" )
         {
-            const auto frame_remainder = under_test(
-                boost::system::errc::make_error_code( boost::system::errc::success ), serialized_header.size( ) );
+            const auto frame_remainder = under_test( ec_success, serialized_header.size( ) );
 
             THEN( "it should receive 128 * 128 * 128" )
             {
@@ -306,12 +300,11 @@ SCENARIO( "frame_reader", "[packets]" )
     GIVEN( "a well-formed packet header of length five encoding maximum allowed remaining length" )
     {
         const auto serialized_header = std::array<uint8_t, 5>{{0x07 << 4, 0xFF, 0xFF, 0xFF, 0x7F}};
-        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+        buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
 
         WHEN( "a caller calls frame_reader as a functor for the first time" )
         {
-            const auto frame_remainder = under_test(
-                boost::system::errc::make_error_code( boost::system::errc::success ), serialized_header.size( ) );
+            const auto frame_remainder = under_test( ec_success, serialized_header.size( ) );
 
             THEN( "it should receive maximum allowed remaining length" )
             {
@@ -323,15 +316,13 @@ SCENARIO( "frame_reader", "[packets]" )
     GIVEN( "a mal-formed packet header of length six encoding maximum allowed remaining length + 1" )
     {
         const auto serialized_header = std::array<uint8_t, 6>{{0x07 << 4, 0xFF, 0xFF, 0xFF, 0xFF, 0x01}};
-        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+        buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
 
         WHEN( "a caller calls frame_reader as a functor for the first time" )
         {
             THEN( "it should see an error::malformed_mqtt_packet being thrown" )
             {
-                REQUIRE_THROWS_AS( under_test( boost::system::errc::make_error_code( boost::system::errc::success ),
-                                               serialized_header.size( ) ),
-                                   error::malformed_mqtt_packet );
+                REQUIRE_THROWS_AS( under_test( ec_success, serialized_header.size( ) ), error::malformed_mqtt_packet );
             }
         }
     }
@@ -341,8 +332,7 @@ SCENARIO( "frame_reader", "[packets]" )
         const auto serialized_header = std::array<uint8_t, 5>{{0x07 << 4, 0xFF, 0xFF, 0xFF, 0x7F}};
         const auto total_frame_length =
             serialized_header.size( ) + io_wally::protocol::packet::MAX_ALLOWED_PACKET_LENGTH;
-        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
-        const auto ec_success = boost::system::errc::make_error_code( boost::system::errc::success );
+        buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
 
         WHEN( "a caller calls frame_reader as a functor for the first time" )
         {
@@ -359,18 +349,22 @@ SCENARIO( "frame_reader", "[packets]" )
             const auto step_size = std::size_t{100000};  // Large step size so that test runs faster
             const auto frame_remainder = under_test( ec_success, serialized_header.size( ) );
 
+            auto bytes_transferred = serialized_header.size( );
+
             THEN( "on each call it should receive correct number of bytes still to be read" )
             {
                 auto frame_remainder = io_wally::protocol::packet::MAX_ALLOWED_PACKET_LENGTH;
                 while ( frame_remainder > 0 )
                 {
-                    buffer.insert( std::end( buffer ), std::min( step_size, total_frame_length - buffer.size( ) ),
-                                   0x01 );
-                    frame_remainder = under_test( ec_success, buffer.size( ) );
-                    REQUIRE( frame_remainder == total_frame_length - buffer.size( ) );
+                    auto insert_count = std::min( step_size, total_frame_length - bytes_transferred );
+                    buffer.insert( std::end( buffer ), insert_count, 0x01 );
+                    bytes_transferred += insert_count;
+
+                    frame_remainder = under_test( ec_success, bytes_transferred );
+                    REQUIRE( frame_remainder == total_frame_length - bytes_transferred );
                 }
 
-                REQUIRE( under_test( ec_success, buffer.size( ) ) == 0 );
+                REQUIRE( under_test( ec_success, bytes_transferred ) == 0 );
             }
         }
     }
@@ -381,22 +375,20 @@ SCENARIO( "frame_reader", "[packets]" )
         const auto ec_success = boost::system::errc::make_error_code( boost::system::errc::success );
         const auto actual_remaining_length = 127 * 128 * 128 + 127 * 128 + 127;
 
-        buffer.insert( std::end( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+        buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+        auto bytes_transferred = serialized_header.size( );
 
         WHEN( "a caller repeatedly calls frame_reader as a functor" )
         {
-            const auto frame_remainder = under_test(
-                boost::system::errc::make_error_code( boost::system::errc::success ), serialized_header.size( ) );
-
             THEN( "it should receive 1 until header is complete" )
             {
-                REQUIRE( under_test( ec_success, buffer.size( ) ) == 1 );
+                REQUIRE( under_test( ec_success, bytes_transferred ) == 1 );
 
-                buffer.insert( std::end( buffer ), 0xFF );
-                REQUIRE( under_test( ec_success, buffer.size( ) ) == 1 );
+                buffer.insert( std::begin( buffer ) + bytes_transferred++, 0xFF );
+                REQUIRE( under_test( ec_success, bytes_transferred ) == 1 );
 
-                buffer.insert( std::end( buffer ), 0x7F );
-                REQUIRE( under_test( ec_success, buffer.size( ) ) == actual_remaining_length );
+                buffer.insert( std::begin( buffer ) + bytes_transferred++, 0x7F );
+                REQUIRE( under_test( ec_success, bytes_transferred ) == actual_remaining_length );
             }
         }
     }

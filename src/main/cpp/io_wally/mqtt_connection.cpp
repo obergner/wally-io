@@ -98,7 +98,7 @@ namespace io_wally
     {
         BOOST_LOG_SEV( logger_, lvl::info ) << "START: " << *this;
 
-        read_header( );
+        read_frame( );
     }
 
     void mqtt_connection::send( mqtt_packet::ptr packet )
@@ -131,12 +131,12 @@ namespace io_wally
 
     // Reading incoming messages
 
-    void mqtt_connection::read_header( )
+    void mqtt_connection::read_frame( )
     {
         if ( !socket_.is_open( ) )  // Socket was closed
             return;
 
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< READ: header [bufs:" << read_buffer_.size( ) << "] ...";
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< READ: frame [buf_s:" << read_buffer_.size( ) << "] ...";
 
         // Start deadline timer that will close this connection if connect timeout expires without receiving CONNECT
         // request
@@ -157,43 +157,51 @@ namespace io_wally
                               }
                           } ) );
 
-        boost::asio::async_read(
-            socket_, boost::asio::buffer( read_buffer_ ),
-            boost::asio::transfer_at_least( 2 ),  // FIXME: This won't work if we are called in a loop
-            strand_.wrap( boost::bind( &mqtt_connection::on_header_data_read, shared_from_this( ),
-                                       boost::asio::placeholders::error,
-                                       boost::asio::placeholders::bytes_transferred ) ) );
+        boost::asio::async_read( socket_, boost::asio::buffer( read_buffer_ ), frame_reader_,
+                                 strand_.wrap( boost::bind( &mqtt_connection::on_frame_read, shared_from_this( ),
+                                                            boost::asio::placeholders::error,
+                                                            boost::asio::placeholders::bytes_transferred ) ) );
     }
 
-    void mqtt_connection::on_header_data_read( const boost::system::error_code& ec, const size_t bytes_transferred )
+    void mqtt_connection::on_frame_read( const boost::system::error_code& ec, const size_t bytes_transferred )
     {
         if ( ec )
         {
             on_read_failed( ec, bytes_transferred );
             return;
         }
+        // We received a packet, so let's cancel keep alive timer
+        close_on_keep_alive_timeout_.cancel( );
 
+        decode_packet( bytes_transferred );
+    }
+
+    void mqtt_connection::decode_packet( const size_t bytes_transferred )
+    {
         try
         {
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< Header data read [bt:" << bytes_transferred
-                                                 << "|bufs:" << read_buffer_.size( ) << "]";
-            auto const result =
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< Frame read [bt:" << bytes_transferred
+                                                 << "|buf_s:" << read_buffer_.size( ) << "] - decoding packet ...";
+            auto const header_parse_result =
                 header_decoder_.decode( read_buffer_.begin( ), read_buffer_.begin( ) + bytes_transferred );
-            if ( !result.is_parsing_complete( ) )
-            {
-                // HIGHLY UNLIKELY: header is at most 5 bytes.
-                BOOST_LOG_SEV( logger_, lvl::warning ) << "<<< Header data incomplete - continue";
-                read_header( );
-
-                return;
-            }
+            assert( header_parse_result.is_parsing_complete( ) );
             // Reset header_decoder's internal state
             header_decoder_.reset( );
 
-            BOOST_LOG_SEV( logger_, lvl::info ) << "<<< HEADER [res:" << result.parsed_header( )
-                                                << "|bt:" << bytes_transferred << "|bufs:" << read_buffer_.size( )
+            BOOST_LOG_SEV( logger_, lvl::info ) << "<<< HEADER [res:" << header_parse_result.parsed_header( )
+                                                << "|bt:" << bytes_transferred << "|buf_s:" << read_buffer_.size( )
                                                 << "]";
-            read_body( result, bytes_transferred );
+
+            auto parsed_packet = packet_decoder_.decode(
+                header_parse_result.parsed_header( ), header_parse_result.consumed_until( ),
+                header_parse_result.consumed_until( ) + header_parse_result.parsed_header( ).remaining_length( ) );
+            BOOST_LOG_SEV( logger_, lvl::info ) << "<<< DECODED [res:" << *parsed_packet << "|bt:" << bytes_transferred
+                                                << "|buf_s:" << read_buffer_.size( ) << "]";
+
+            // TODO: Think about better resizing strategy
+            read_buffer_.resize( context_[context::READ_BUFFER_SIZE].as<const size_t>( ) );
+
+            process_decoded_packet( move( parsed_packet ) );
         }
         catch ( const error::malformed_mqtt_packet& e )
         {
@@ -203,115 +211,19 @@ namespace io_wally
         }
     }
 
-    void mqtt_connection::read_body( const header_decoder::result<buf_iter>& header_parse_result,
-                                     const size_t bytes_transferred )
-    {
-        auto const total_length = header_parse_result.parsed_header( ).total_length( );
-        auto const remaining_length = header_parse_result.parsed_header( ).remaining_length( );
-        auto const header_length = total_length - remaining_length;
-
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< Reading body [tl:" << total_length << "|rl:" << remaining_length
-                                             << "|bt:" << bytes_transferred << "|bufs:" << read_buffer_.size( )
-                                             << "] ...";
-
-        if ( bytes_transferred >= total_length )
-        {
-            // We already received the entire packet. No need to wait for more data.
-            on_body_data_read( header_parse_result,
-                               boost::system::errc::make_error_code( boost::system::errc::success ),
-                               bytes_transferred - header_length );
-        }
-        else
-        {
-            // FIXME: This code path has probably never been excercised and needs to be revisited.
-            if ( !socket_.is_open( ) )  // Socket was asynchronously closed
-                return;
-
-            // Resize read buffer to allow for storing the control packet, but do NOT shrink it below
-            // its initial default capacity
-            read_buffer_.resize( total_length );
-
-            auto self = shared_from_this( );
-            boost::asio::async_read(
-                socket_, boost::asio::buffer( read_buffer_, total_length ),
-                boost::asio::transfer_at_least( total_length - bytes_transferred ),
-                strand_.wrap(
-                    [self, header_parse_result]( const boost::system::error_code& ec, const size_t bytes_transferred )
-                    {
-                        self->on_body_data_read( header_parse_result, ec, bytes_transferred );
-                    } ) );
-        }
-    }
-
-    void mqtt_connection::on_body_data_read( const header_decoder::result<buf_iter>& header_parse_result,
-                                             const boost::system::error_code& ec,
-                                             const size_t bytes_transferred )
-    {
-        if ( ec )
-        {
-            on_read_failed( ec, bytes_transferred );
-            return;
-        }
-
-        try
-        {
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< Body data read. Decoding ...";
-            // We received a packet, so let's cancel keep alive timer
-            close_on_keep_alive_timeout_.cancel( );
-
-            auto parsed_packet = packet_decoder_.decode(
-                header_parse_result.parsed_header( ), header_parse_result.consumed_until( ),
-                header_parse_result.consumed_until( ) + header_parse_result.parsed_header( ).remaining_length( ) );
-            BOOST_LOG_SEV( logger_, lvl::info ) << "<<< DECODED [res:" << *parsed_packet << "|bt:" << bytes_transferred
-                                                << "|bufs:" << read_buffer_.size( ) << "]";
-            // FIXME: This risks discarding (the first bytes of) another packet that might already have been received!
-            read_buffer_.clear( );
-            read_buffer_.resize( context_[context::READ_BUFFER_SIZE].as<const size_t>( ) );
-
-            process_decoded_packet( move( parsed_packet ) );
-        }
-        catch ( const error::malformed_mqtt_packet& e )
-        {
-            connection_close_requested(
-                "<<< Malformed control packet body - will stop this connection: " + string{e.what( )},
-                dispatch::disconnect_reason::protocol_violation );
-        }
-
-        return;
-    }
-
     void mqtt_connection::on_read_failed( const boost::system::error_code& ec, const size_t bytes_transferred )
     {
         assert( ec );
-        if ( ( ec == boost::asio::error::eof ) || ( ec == boost::asio::error::connection_reset ) )
+        // Reset header_decoder's internal state: not needed since we will close this connection no matter what,
+        // but Mum always told me to clean up after yourself ...
+        header_decoder_.reset( );
+        if ( ec != boost::asio::error::operation_aborted )  // opration_aborted: regular shutdown sequence
         {
-            // Client disconnected. Could be that he sent a last packet we want to decode.
-            BOOST_LOG_SEV( logger_, lvl::info ) << "<<< CONNECTION LOST (" << ec.message( )
-                                                << "): decoding last received packet ...";
-            // TODO: We should at least try to decode a last DISCONNECT - otherwise (if there is no DISCONNECT) this was
-            // an unexpected connection loss.
-            auto const result =
-                header_decoder_.decode( read_buffer_.begin( ), read_buffer_.begin( ) + bytes_transferred );
-            if ( !result.is_parsing_complete( ) )
-            {
-                // HIGHLY UNLIKELY: header is at most 5 bytes.
-                BOOST_LOG_SEV( logger_, lvl::warning ) << "<<< Header data incomplete - abort";
-            }
-            else
-            {
-                // Reset header_decoder's internal state: not needed since we will close this connection no matter what,
-                // but Mum always told me to clean up after yourself ...
-                header_decoder_.reset( );
-
-                BOOST_LOG_SEV( logger_, lvl::info ) << "<<< Last received message: " << result.parsed_header( );
-            }
-            connection_close_requested( "<<< Client disconnected", dispatch::disconnect_reason::client_disconnect, ec,
-                                        lvl::info );
-        }
-        else if ( ec != boost::asio::error::operation_aborted )  // opration_aborted: regular shutdown sequence
-        {
-            connection_close_requested( "<<< Failed to read header",
-                                        dispatch::disconnect_reason::network_or_server_failure, ec, lvl::error );
+            BOOST_LOG_SEV( logger_, lvl::warning ) << "<<< NETWORK ERROR (" << ec.message( ) << ") after ["
+                                                   << bytes_transferred
+                                                   << "] bytes transferred: closing connection ...";
+            connection_close_requested( "<<< Network error", dispatch::disconnect_reason::network_or_server_failure, ec,
+                                        lvl::error );
         }
     }
 
@@ -325,17 +237,22 @@ namespace io_wally
             case packet::Type::CONNECT:
             {
                 process_connect_packet( dynamic_pointer_cast<protocol::connect>( packet ) );
+                // Keep us in the loop!
+                read_frame( );
             }
             break;
             case packet::Type::PINGREQ:
             {
                 write_packet( pingresp( ) );
                 BOOST_LOG_SEV( logger_, lvl::info ) << "--- PROCESSED: " << *packet;
+                // Keep us in the loop!
+                read_frame( );
             }
             break;
             case packet::Type::DISCONNECT:
             {
                 process_disconnect_packet( dynamic_pointer_cast<protocol::disconnect>( packet ) );
+                // Terminate loop
             }
             break;
             case packet::Type::SUBSCRIBE:
@@ -346,6 +263,8 @@ namespace io_wally
             case packet::Type::PUBCOMP:
             {
                 dispatch_packet( packet );
+                // Keep us in the loop!
+                read_frame( );
             }
             break;
             case packet::Type::CONNACK:
@@ -359,8 +278,6 @@ namespace io_wally
                 assert( false );
                 break;
         }
-        // Keep us in the loop!
-        read_header( );
     }
 
     void mqtt_connection::process_connect_packet( shared_ptr<protocol::connect> connect )
