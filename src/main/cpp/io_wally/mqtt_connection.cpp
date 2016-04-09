@@ -157,6 +157,7 @@ namespace io_wally
                               }
                           } ) );
 
+        frame_reader_.reset( );
         boost::asio::async_read( socket_, boost::asio::buffer( read_buffer_ ), frame_reader_,
                                  strand_.wrap( boost::bind( &mqtt_connection::on_frame_read, shared_from_this( ),
                                                             boost::asio::placeholders::error,
@@ -198,7 +199,7 @@ namespace io_wally
             BOOST_LOG_SEV( logger_, lvl::info ) << "<<< DECODED [res:" << *parsed_packet << "|bt:" << bytes_transferred
                                                 << "|buf_s:" << read_buffer_.size( ) << "]";
 
-            // TODO: Think about better resizing strategy
+            // TODO: Think about better resizing strategy - maybe using a max buffer capacity
             read_buffer_.resize( context_[context::READ_BUFFER_SIZE].as<const size_t>( ) );
 
             process_decoded_packet( move( parsed_packet ) );

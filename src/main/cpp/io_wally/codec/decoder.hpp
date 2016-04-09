@@ -94,6 +94,28 @@ namespace io_wally
             uint32_t multiplier_ = 1;
         };
 
+        struct frame final
+        {
+           public:  // static
+            using const_iterator_t = std::vector<uint8_t>::const_iterator;
+
+           public:
+            frame( const uint8_t type_and_flags, const const_iterator_t begin, const const_iterator_t end )
+                : type_and_flags{type_and_flags}, begin{begin}, end{end}
+            {
+            }
+
+            std::size_t remaining_length( ) const
+            {
+                return std::distance( begin, end );
+            }
+
+           public:
+            const uint8_t type_and_flags;
+            const const_iterator_t begin;
+            const const_iterator_t end;
+        };  // struct frame
+
         class frame_reader final
         {
            private:  // static
@@ -130,15 +152,33 @@ namespace io_wally
                 }
                 const auto rlen = ( *rlen_hlen ).first;
                 const auto hlen = ( *rlen_hlen ).second;
+                const auto len = hlen + rlen;
+                const auto remaining = len - bytes_transferred;
 
                 // Expand buffer to accommodate entire frame if necessary
-                if ( rlen + hlen > buffer_.size( ) )
+                if ( len > buffer_.size( ) )
                 {
-                    buffer_.insert( std::end( buffer_ ), ( rlen + hlen ) - buffer_.size( ), 0x00 );
+                    buffer_.insert( std::end( buffer_ ), len - buffer_.size( ), 0x00 );
                 }
-                assert( rlen + hlen <= buffer_.size( ) );
+                assert( len <= buffer_.size( ) );
 
-                return ( rlen + hlen ) - bytes_transferred;
+                if ( remaining == 0 )
+                {
+                    // Need to use emplace() here to preserve frame constness
+                    frame_.emplace( frame{buffer_[0], std::begin( buffer_ ) + hlen, std::begin( buffer_ ) + len} );
+                }
+
+                return remaining;
+            }
+
+            boost::optional<const frame> get_frame( ) const
+            {
+                return frame_;
+            }
+
+            void reset( )
+            {
+                frame_ = boost::none;
             }
 
            private:
@@ -171,6 +211,7 @@ namespace io_wally
 
            private:
             std::vector<uint8_t>& buffer_;
+            boost::optional<const frame> frame_ = boost::none;
         };  // class frame_reader
 
         /// \brief Stateful decoder for MQTT \c headers.

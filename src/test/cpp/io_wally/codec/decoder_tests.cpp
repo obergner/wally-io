@@ -186,7 +186,9 @@ SCENARIO( "frame_reader", "[packets]" )
 
     GIVEN( "a well-formed packet header of length two encoding a remaining length of 0" )
     {
-        const auto serialized_header = std::array<uint8_t, 2>{{0x01 << 4, 0x00}};
+        const auto remaining_length = std::size_t{0};
+        const auto type_and_flags = uint8_t{0x01 << 4};
+        const auto serialized_header = std::array<uint8_t, 2>{{type_and_flags, 0x00}};
         buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
 
         WHEN( "a caller calls frame_reader as a functor" )
@@ -195,14 +197,25 @@ SCENARIO( "frame_reader", "[packets]" )
 
             THEN( "it should receive 0" )
             {
-                REQUIRE( frame_remainder == 0 );
+                REQUIRE( frame_remainder == remaining_length );
+            }
+
+            AND_THEN( "it should receive a correctly decoded frame from get_frame()" )
+            {
+                const auto frame = under_test.get_frame( );
+
+                REQUIRE( frame );
+                REQUIRE( frame->type_and_flags == type_and_flags );
+                REQUIRE( frame->remaining_length( ) == remaining_length );
             }
         }
     }
 
     GIVEN( "a well-formed packet header of length two encoding a remaining length of 127" )
     {
-        const auto serialized_header = std::array<uint8_t, 2>{{0x05 << 4, 0x7F}};
+        const auto remaining_length = std::size_t{127};
+        const auto type_and_flags = uint8_t{0x05 << 4};
+        const auto serialized_header = std::array<uint8_t, 2>{{type_and_flags, 0x7F}};
         buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
 
         WHEN( "a caller calls frame_reader as a functor for the first time" )
@@ -211,14 +224,38 @@ SCENARIO( "frame_reader", "[packets]" )
 
             THEN( "it should receive 127" )
             {
-                REQUIRE( frame_remainder == 127 );
+                REQUIRE( frame_remainder == remaining_length );
+            }
+        }
+
+        WHEN( "a caller calls frame_reader as a functor when frame is completed" )
+        {
+            buffer.insert( std::end( buffer ), remaining_length, 0x00 );
+            const auto frame_remainder = under_test( ec_success, serialized_header.size( ) + remaining_length );
+
+            THEN( "it should receive 0" )
+            {
+                REQUIRE( frame_remainder == 0 );
+            }
+
+            AND_THEN( "it should receive a correctly decoded frame from get_frame()" )
+            {
+                const auto frame = under_test.get_frame( );
+
+                REQUIRE( frame );
+                REQUIRE( frame->type_and_flags == type_and_flags );
+                REQUIRE( frame->remaining_length( ) == remaining_length );
+                REQUIRE( *frame->begin == 0x00 );
+                REQUIRE( *( frame->begin - 1 ) == 0x7F );
             }
         }
     }
 
     GIVEN( "a well-formed packet header of length three encoding a remaining length of 128" )
     {
-        const auto serialized_header = std::array<uint8_t, 3>{{0x07 << 4, 0x80, 0x01}};
+        const auto remaining_length = std::size_t{128};
+        const auto type_and_flags = uint8_t{0x07 << 4};
+        const auto serialized_header = std::array<uint8_t, 3>{{type_and_flags, 0x80, 0x01}};
         buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
 
         WHEN( "a caller calls frame_reader as a functor for the first time" )
@@ -227,14 +264,38 @@ SCENARIO( "frame_reader", "[packets]" )
 
             THEN( "it should receive 128" )
             {
-                REQUIRE( frame_remainder == 128 );
+                REQUIRE( frame_remainder == remaining_length );
+            }
+        }
+
+        WHEN( "a caller calls frame_reader as a functor when frame is completed" )
+        {
+            buffer.insert( std::end( buffer ), remaining_length, 0x00 );
+            const auto frame_remainder = under_test( ec_success, serialized_header.size( ) + remaining_length );
+
+            THEN( "it should receive 0" )
+            {
+                REQUIRE( frame_remainder == 0 );
+            }
+
+            AND_THEN( "it should receive a correctly decoded frame from get_frame()" )
+            {
+                const auto frame = under_test.get_frame( );
+
+                REQUIRE( frame );
+                REQUIRE( frame->type_and_flags == type_and_flags );
+                REQUIRE( frame->remaining_length( ) == remaining_length );
+                REQUIRE( *frame->begin == 0x00 );
+                REQUIRE( *( frame->begin - 1 ) == 0x01 );
             }
         }
     }
 
     GIVEN( "a well-formed packet header of length three encoding a remaining length of 127 * 128 + 127" )
     {
-        const auto serialized_header = std::array<uint8_t, 3>{{0x07 << 4, 0xFF, 0x7F}};
+        const auto remaining_length = std::size_t{127 * 128 + 127};
+        const auto type_and_flags = uint8_t{0x08 << 4};
+        const auto serialized_header = std::array<uint8_t, 3>{{type_and_flags, 0xFF, 0x7F}};
         buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
 
         WHEN( "a caller calls frame_reader as a functor for the first time" )
@@ -243,14 +304,38 @@ SCENARIO( "frame_reader", "[packets]" )
 
             THEN( "it should receive 127 * 128 + 127" )
             {
-                REQUIRE( frame_remainder == 127 * 128 + 127 );
+                REQUIRE( frame_remainder == remaining_length );
+            }
+        }
+
+        WHEN( "a caller calls frame_reader as a functor when frame is completed" )
+        {
+            buffer.insert( std::end( buffer ), remaining_length, 0x00 );
+            const auto frame_remainder = under_test( ec_success, serialized_header.size( ) + remaining_length );
+
+            THEN( "it should receive 0" )
+            {
+                REQUIRE( frame_remainder == 0 );
+            }
+
+            AND_THEN( "it should receive a correctly decoded frame from get_frame()" )
+            {
+                const auto frame = under_test.get_frame( );
+
+                REQUIRE( frame );
+                REQUIRE( frame->type_and_flags == type_and_flags );
+                REQUIRE( frame->remaining_length( ) == remaining_length );
+                REQUIRE( *frame->begin == 0x00 );
+                REQUIRE( *( frame->begin - 1 ) == 0x7F );
             }
         }
     }
 
     GIVEN( "a well-formed packet header of length four encoding a remaining length of 128 * 128" )
     {
-        const auto serialized_header = std::array<uint8_t, 4>{{0x07 << 4, 0x80, 0x80, 0x01}};
+        const auto remaining_length = std::size_t{128 * 128};
+        const auto type_and_flags = uint8_t{0x09 << 4};
+        const auto serialized_header = std::array<uint8_t, 4>{{type_and_flags, 0x80, 0x80, 0x01}};
         buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
 
         WHEN( "a caller calls frame_reader as a functor for the first time" )
@@ -259,15 +344,40 @@ SCENARIO( "frame_reader", "[packets]" )
 
             THEN( "it should receive 128 * 128" )
             {
-                REQUIRE( frame_remainder == 128 * 128 );
+                REQUIRE( frame_remainder == remaining_length );
+            }
+        }
+
+        WHEN( "a caller calls frame_reader as a functor when frame is completed" )
+        {
+            buffer.insert( std::end( buffer ), remaining_length, 0x00 );
+            const auto frame_remainder = under_test( ec_success, serialized_header.size( ) + remaining_length );
+
+            THEN( "it should receive 0" )
+            {
+                REQUIRE( frame_remainder == 0 );
+            }
+
+            AND_THEN( "it should receive a correctly decoded frame from get_frame()" )
+            {
+                const auto frame = under_test.get_frame( );
+
+                REQUIRE( frame );
+                REQUIRE( frame->type_and_flags == type_and_flags );
+                REQUIRE( frame->remaining_length( ) == remaining_length );
+                REQUIRE( *frame->begin == 0x00 );
+                REQUIRE( *( frame->begin - 1 ) == 0x01 );
             }
         }
     }
 
     GIVEN(
-        "a well-formed packet header of length four encoding a remaining length of 127 * 128 * 128 + 127 * 128 + 127" )
+        "a well-formed packet header of length four encoding a remaining length of 127 * 128 * 128 + 127 * 128 + "
+        "127" )
     {
-        const auto serialized_header = std::array<uint8_t, 4>{{0x07 << 4, 0xFF, 0xFF, 0x7F}};
+        const auto remaining_length = std::size_t{127 * 128 * 128 + 127 * 128 + 127};
+        const auto type_and_flags = uint8_t{0x0A << 4};
+        const auto serialized_header = std::array<uint8_t, 4>{{type_and_flags, 0xFF, 0xFF, 0x7F}};
         buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
 
         WHEN( "a caller calls frame_reader as a functor for the first time" )
@@ -276,14 +386,38 @@ SCENARIO( "frame_reader", "[packets]" )
 
             THEN( "it should receive 127 * 128 * 128 + 127 * 128 + 127" )
             {
-                REQUIRE( frame_remainder == 127 * 128 * 128 + 127 * 128 + 127 );
+                REQUIRE( frame_remainder == remaining_length );
+            }
+        }
+
+        WHEN( "a caller calls frame_reader as a functor when frame is completed" )
+        {
+            buffer.insert( std::end( buffer ), remaining_length, 0x00 );
+            const auto frame_remainder = under_test( ec_success, serialized_header.size( ) + remaining_length );
+
+            THEN( "it should receive 0" )
+            {
+                REQUIRE( frame_remainder == 0 );
+            }
+
+            AND_THEN( "it should receive a correctly decoded frame from get_frame()" )
+            {
+                const auto frame = under_test.get_frame( );
+
+                REQUIRE( frame );
+                REQUIRE( frame->type_and_flags == type_and_flags );
+                REQUIRE( frame->remaining_length( ) == remaining_length );
+                REQUIRE( *frame->begin == 0x00 );
+                REQUIRE( *( frame->begin - 1 ) == 0x7F );
             }
         }
     }
 
     GIVEN( "a well-formed packet header of length five encoding a remaining length of 128 * 128 * 128" )
     {
-        const auto serialized_header = std::array<uint8_t, 5>{{0x07 << 4, 0x80, 0x80, 0x80, 0x01}};
+        const auto remaining_length = std::size_t{128 * 128 * 128};
+        const auto type_and_flags = uint8_t{0x0B << 4};
+        const auto serialized_header = std::array<uint8_t, 5>{{type_and_flags, 0x80, 0x80, 0x80, 0x01}};
         buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
 
         WHEN( "a caller calls frame_reader as a functor for the first time" )
@@ -292,44 +426,37 @@ SCENARIO( "frame_reader", "[packets]" )
 
             THEN( "it should receive 128 * 128 * 128" )
             {
-                REQUIRE( frame_remainder == 128 * 128 * 128 );
+                REQUIRE( frame_remainder == remaining_length );
+            }
+        }
+
+        WHEN( "a caller calls frame_reader as a functor when frame is completed" )
+        {
+            buffer.insert( std::end( buffer ), remaining_length, 0x00 );
+            const auto frame_remainder = under_test( ec_success, serialized_header.size( ) + remaining_length );
+
+            THEN( "it should receive 0" )
+            {
+                REQUIRE( frame_remainder == 0 );
+            }
+
+            AND_THEN( "it should receive a correctly decoded frame from get_frame()" )
+            {
+                const auto frame = under_test.get_frame( );
+
+                REQUIRE( frame );
+                REQUIRE( frame->type_and_flags == type_and_flags );
+                REQUIRE( frame->remaining_length( ) == remaining_length );
+                REQUIRE( *frame->begin == 0x00 );
+                REQUIRE( *( frame->begin - 1 ) == 0x01 );
             }
         }
     }
 
     GIVEN( "a well-formed packet header of length five encoding maximum allowed remaining length" )
     {
-        const auto serialized_header = std::array<uint8_t, 5>{{0x07 << 4, 0xFF, 0xFF, 0xFF, 0x7F}};
-        buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
-
-        WHEN( "a caller calls frame_reader as a functor for the first time" )
-        {
-            const auto frame_remainder = under_test( ec_success, serialized_header.size( ) );
-
-            THEN( "it should receive maximum allowed remaining length" )
-            {
-                REQUIRE( frame_remainder == io_wally::protocol::packet::MAX_ALLOWED_PACKET_LENGTH );
-            }
-        }
-    }
-
-    GIVEN( "a mal-formed packet header of length six encoding maximum allowed remaining length + 1" )
-    {
-        const auto serialized_header = std::array<uint8_t, 6>{{0x07 << 4, 0xFF, 0xFF, 0xFF, 0xFF, 0x01}};
-        buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
-
-        WHEN( "a caller calls frame_reader as a functor for the first time" )
-        {
-            THEN( "it should see an error::malformed_mqtt_packet being thrown" )
-            {
-                REQUIRE_THROWS_AS( under_test( ec_success, serialized_header.size( ) ), error::malformed_mqtt_packet );
-            }
-        }
-    }
-
-    GIVEN( "a well-formed packet header with maximum allowed remaining length" )
-    {
-        const auto serialized_header = std::array<uint8_t, 5>{{0x07 << 4, 0xFF, 0xFF, 0xFF, 0x7F}};
+        const auto type_and_flags = uint8_t{0x0C << 4};
+        const auto serialized_header = std::array<uint8_t, 5>{{type_and_flags, 0xFF, 0xFF, 0xFF, 0x7F}};
         const auto total_frame_length =
             serialized_header.size( ) + io_wally::protocol::packet::MAX_ALLOWED_PACKET_LENGTH;
         buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
@@ -362,9 +489,29 @@ SCENARIO( "frame_reader", "[packets]" )
 
                     frame_remainder = under_test( ec_success, bytes_transferred );
                     REQUIRE( frame_remainder == total_frame_length - bytes_transferred );
+
+                    if ( frame_remainder > 0 )
+                    {
+                        REQUIRE( !under_test.get_frame( ) );
+                    }
                 }
 
                 REQUIRE( under_test( ec_success, bytes_transferred ) == 0 );
+                REQUIRE( under_test.get_frame( ) );
+            }
+        }
+    }
+
+    GIVEN( "a mal-formed packet header of length six encoding maximum allowed remaining length + 1" )
+    {
+        const auto serialized_header = std::array<uint8_t, 6>{{0x07 << 4, 0xFF, 0xFF, 0xFF, 0xFF, 0x01}};
+        buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
+
+        WHEN( "a caller calls frame_reader as a functor for the first time" )
+        {
+            THEN( "it should see an error::malformed_mqtt_packet being thrown" )
+            {
+                REQUIRE_THROWS_AS( under_test( ec_success, serialized_header.size( ) ), error::malformed_mqtt_packet );
             }
         }
     }
@@ -389,6 +536,23 @@ SCENARIO( "frame_reader", "[packets]" )
 
                 buffer.insert( std::begin( buffer ) + bytes_transferred++, 0x7F );
                 REQUIRE( under_test( ec_success, bytes_transferred ) == actual_remaining_length );
+            }
+        }
+
+        WHEN( "a caller repeatedly calls frame_reader as a functor" )
+        {
+            THEN( "it should receive boost::none from get_frame() while frame is incomplete" )
+            {
+                under_test( ec_success, bytes_transferred );
+                REQUIRE( !under_test.get_frame( ) );
+
+                buffer.insert( std::begin( buffer ) + bytes_transferred++, 0xFF );
+                under_test( ec_success, bytes_transferred );
+                REQUIRE( !under_test.get_frame( ) );
+
+                buffer.insert( std::begin( buffer ) + bytes_transferred++, 0x7F );
+                under_test( ec_success, bytes_transferred );
+                REQUIRE( !under_test.get_frame( ) );
             }
         }
     }
