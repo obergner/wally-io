@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <string>
-#include <chrono>
 #include <memory>
 
 #include "io_wally/protocol/common.hpp"
@@ -129,11 +128,6 @@ namespace io_wally
                 return;
             }
 
-            const std::chrono::system_clock::time_point received( ) const
-            {
-                return std::chrono::system_clock::from_time_t( rx_timestamp_ );
-            }
-
             const std::string& client_id( ) const
             {
                 return client_id_;
@@ -168,10 +162,6 @@ namespace io_wally
             }
 
            private:
-            const std::time_t rx_timestamp_{
-                std::chrono::duration_cast<std::chrono::milliseconds>( std::chrono::system_clock::now( )
-                                                                           .time_since_epoch( ) )
-                    .count( )};
             const std::string client_id_;
             std::weak_ptr<SENDER> rx_connection_;
             std::shared_ptr<protocol::mqtt_packet> packet_;
