@@ -184,7 +184,7 @@ namespace io_wally
         /// Read entire MQTT frame
         decoder::frame_reader frame_reader_{read_buffer_};
         /// For decoding mqtt packets, you know
-        const decoder::packet_decoder packet_decoder_{};
+        const decoder::mqtt_packet_decoder packet_decoder_{};
         /// Buffer outgoing data
         std::vector<uint8_t> write_buffer_;
         /// Timer, will fire if connection timeout expires without receiving a CONNECT request

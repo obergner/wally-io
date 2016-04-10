@@ -24,7 +24,7 @@ namespace io_wally
         /// Takes \c frame containing an MQTT packet's on the wire representation. Deduces
         /// from the supplied \c frame the type of \c mqtt_packet to decode and delegates to an appropriate
         /// \c packet_body_decoder implementation.
-        class packet_decoder final
+        class mqtt_packet_decoder final
         {
            public:
             /// Methods

@@ -7,9 +7,9 @@
 
 using namespace io_wally;
 
-SCENARIO( "packet_decoder", "[decoder]" )
+SCENARIO( "mqtt_packet_decoder", "[decoder]" )
 {
-    const auto under_test = decoder::packet_decoder{};
+    const auto under_test = decoder::mqtt_packet_decoder{};
 
     GIVEN( "a well-formed and complete header byte array of type CONNECT with 1 length byte" )
     {
