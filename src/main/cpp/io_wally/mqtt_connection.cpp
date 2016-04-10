@@ -157,8 +157,11 @@ namespace io_wally
                               }
                           } ) );
 
-        frame_reader_.reset( );
-        boost::asio::async_read( socket_, boost::asio::buffer( read_buffer_ ), frame_reader_,
+        boost::asio::async_read( socket_, boost::asio::buffer( read_buffer_ ),
+                                 [self]( const boost::system::error_code& ec, const size_t bytes_transferred ) -> size_t
+                                 {
+                                     return self->frame_reader_( ec, bytes_transferred );
+                                 },
                                  strand_.wrap( boost::bind( &mqtt_connection::on_frame_read, shared_from_this( ),
                                                             boost::asio::placeholders::error,
                                                             boost::asio::placeholders::bytes_transferred ) ) );
@@ -183,22 +186,14 @@ namespace io_wally
         {
             BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< Frame read [bt:" << bytes_transferred
                                                  << "|buf_s:" << read_buffer_.size( ) << "] - decoding packet ...";
-            auto const header_parse_result =
-                header_decoder_.decode( read_buffer_.begin( ), read_buffer_.begin( ) + bytes_transferred );
-            assert( header_parse_result.is_parsing_complete( ) );
-            // Reset header_decoder's internal state
-            header_decoder_.reset( );
 
-            BOOST_LOG_SEV( logger_, lvl::info ) << "<<< HEADER [res:" << header_parse_result.parsed_header( )
-                                                << "|bt:" << bytes_transferred << "|buf_s:" << read_buffer_.size( )
-                                                << "]";
-
-            auto parsed_packet = packet_decoder_.decode(
-                header_parse_result.parsed_header( ), header_parse_result.consumed_until( ),
-                header_parse_result.consumed_until( ) + header_parse_result.parsed_header( ).remaining_length( ) );
+            const boost::optional<const frame> frame = frame_reader_.get_frame( );
+            assert( frame );
+            auto parsed_packet = packet_decoder_.decode( *frame );
             BOOST_LOG_SEV( logger_, lvl::info ) << "<<< DECODED [res:" << *parsed_packet << "|bt:" << bytes_transferred
                                                 << "|buf_s:" << read_buffer_.size( ) << "]";
 
+            frame_reader_.reset( );
             // TODO: Think about better resizing strategy - maybe using a max buffer capacity
             read_buffer_.resize( context_[context::READ_BUFFER_SIZE].as<const size_t>( ) );
 

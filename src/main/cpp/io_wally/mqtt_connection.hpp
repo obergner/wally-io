@@ -166,7 +166,7 @@ namespace io_wally
         /// Somehow we need to parse those headers
         decoder::header_decoder header_decoder_{};
         /// And while we are at it, why not parse the rest of those packets, too?
-        const decoder::mqtt_packet_decoder<buf_iter> packet_decoder_{};
+        const decoder::packet_decoder packet_decoder_{};
         /// Encode outgoing packets
         const encoder::mqtt_packet_encoder<buf_iter> packet_encoder_{};
         /// The client socket this connection is connected to
