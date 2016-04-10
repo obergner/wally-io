@@ -212,7 +212,6 @@ namespace io_wally
         assert( ec );
         // Reset header_decoder's internal state: not needed since we will close this connection no matter what,
         // but Mum always told me to clean up after yourself ...
-        header_decoder_.reset( );
         if ( ec != boost::asio::error::operation_aborted )  // opration_aborted: regular shutdown sequence
         {
             BOOST_LOG_SEV( logger_, lvl::warning ) << "<<< NETWORK ERROR (" << ec.message( ) << ") after ["

@@ -1,7 +1,6 @@
 #include "catch.hpp"
 
 #include <cstdint>
-#include <array>
 #include <vector>
 #include <memory>
 
@@ -9,69 +8,6 @@
 #include "io_wally/codec/puback_packet_decoder.hpp"
 
 using namespace io_wally;
-
-SCENARIO( "puback_packet_decoder", "[decoder]" )
-{
-    decoder::puback_packet_decoder<const std::uint8_t*> under_test{};
-
-    GIVEN( "a well-formed PUBACK" )
-    {
-        const std::uint8_t type_and_flags = ( 4 << 4 ) | 0;  // PUBACK
-        const std::uint32_t remaining_length = 2;
-
-        const struct protocol::packet::header fixed_header( type_and_flags, remaining_length );
-
-        // Shameless act of robbery: https://github.com/surgemq/surgemq/blob/master/message/puback_test.go#L132
-        const std::array<std::uint8_t, remaining_length> buffer = {{
-            0,  // packet ID MSB (0)
-            7,  // packet ID LSB (7)
-        }};     /// avoids warning
-
-        WHEN( "a client passes that array into puback_packet_decoder::decode" )
-        {
-            std::shared_ptr<const protocol::mqtt_packet> result =
-                under_test.decode( fixed_header, buffer.begin( ), buffer.end( ) );
-
-            THEN( "that client should receive a non-null mqtt_packet pointer" )
-            {
-                REQUIRE( result );
-            }
-
-            AND_THEN( "it should be able to cast that result to a 'puback' instance with all fields correctly set" )
-            {
-                const protocol::mqtt_packet& raw_result = *result;
-                const protocol::puback& puback_packet = static_cast<const protocol::puback&>( raw_result );
-
-                CHECK( puback_packet.header( ).type( ) == protocol::packet::Type::PUBACK );
-
-                CHECK( puback_packet.packet_identifier( ) == 7 );
-            }
-        }
-    }
-
-    GIVEN( "a PUBACK packet with a header having illegal flags set" )
-    {
-        const std::uint8_t type_and_flags = ( 4 << 4 ) | 1;  // PUBACK
-        const std::uint32_t remaining_length = 2;
-
-        const struct protocol::packet::header fixed_header( type_and_flags, remaining_length );
-
-        // Shameless act of robbery: https://github.com/surgemq/surgemq/blob/master/message/puback_test.go#L132
-        const std::array<std::uint8_t, remaining_length> buffer = {{
-            0,  // packet ID MSB (0)
-            7,  // packet ID LSB (7)
-        }};     /// avoids warning
-
-        WHEN( "a client passes that header into puback_packet_decoder::decode" )
-        {
-            THEN( "that client should see an error::malformed_mqtt_packet being thrown" )
-            {
-                REQUIRE_THROWS_AS( under_test.decode( fixed_header, buffer.begin( ), buffer.end( ) ),
-                                   error::malformed_mqtt_packet );
-            }
-        }
-    }
-}
 
 SCENARIO( "puback_packet_decoder_impl", "[decoder]" )
 {
@@ -81,10 +17,10 @@ SCENARIO( "puback_packet_decoder_impl", "[decoder]" )
     {
         const auto type_and_flags = std::uint8_t{( 4 << 4 ) | 0};  // PUBACK
         // Shameless act of robbery: https://github.com/surgemq/surgemq/blob/master/message/puback_test.go#L132
-        const std::vector<std::uint8_t> buffer = {{
+        const std::vector<std::uint8_t> buffer = {
             0,  // packet ID MSB (0)
             7,  // packet ID LSB (7)
-        }};     /// avoids warning
+        };
         const auto frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
 
         WHEN( "a client passes that array into puback_packet_decoder::decode" )
@@ -112,10 +48,10 @@ SCENARIO( "puback_packet_decoder_impl", "[decoder]" )
     {
         const auto type_and_flags = std::uint8_t{( 4 << 4 ) | 1};  // PUBACK
         // Shameless act of robbery: https://github.com/surgemq/surgemq/blob/master/message/puback_test.go#L132
-        const std::vector<std::uint8_t> buffer = {{
+        const std::vector<std::uint8_t> buffer = {
             0,  // packet ID MSB (0)
             7,  // packet ID LSB (7)
-        }};     /// avoids warning
+        };
         const auto frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
 
         WHEN( "a client passes that header into puback_packet_decoder::decode" )

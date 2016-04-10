@@ -163,10 +163,6 @@ namespace io_wally
         boost::optional<const std::string> client_id_ = boost::none;
         /// This connection's current string represenation, used in log output
         std::string description_;
-        /// Somehow we need to parse those headers
-        decoder::header_decoder header_decoder_{};
-        /// And while we are at it, why not parse the rest of those packets, too?
-        const decoder::packet_decoder packet_decoder_{};
         /// Encode outgoing packets
         const encoder::mqtt_packet_encoder<buf_iter> packet_encoder_{};
         /// The client socket this connection is connected to
@@ -187,6 +183,8 @@ namespace io_wally
         std::vector<uint8_t> read_buffer_;
         /// Read entire MQTT frame
         decoder::frame_reader frame_reader_{read_buffer_};
+        /// For decoding mqtt packets, you know
+        const decoder::packet_decoder packet_decoder_{};
         /// Buffer outgoing data
         std::vector<uint8_t> write_buffer_;
         /// Timer, will fire if connection timeout expires without receiving a CONNECT request
