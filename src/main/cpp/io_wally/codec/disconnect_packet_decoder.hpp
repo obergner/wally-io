@@ -63,5 +63,43 @@ namespace io_wally
                 return std::make_shared<protocol::disconnect>( );
             }
         };
+        //
+        /// \brief \c packet_body_decoder implementation for DISCONNECT packets.
+        ///
+        /// Interprets the supplied buffer to contain a serialized DISCONNECT packet. Decodes the buffer and returns
+        /// decoded \c disconnect_packet.
+        ///
+        /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718081
+        class disconnect_packet_decoder_impl final : public packet_decoder_impl
+        {
+           public:
+            /// \brief Decode the supplied frame into a \c disconnect_packet.
+            ///
+            /// \see io_wally::protocol::decoder::packet_body_decoder::decode
+            ///
+            virtual std::shared_ptr<protocol::mqtt_packet> decode( const frame& frame ) const
+            {
+                using namespace io_wally::protocol;
+
+                assert( frame.type( ) == packet::Type::DISCONNECT );
+
+                // MQTT-3.14.1-1: Header flags MUST be zero
+                if ( ( frame.type_and_flags & 0x0F ) != 0 )
+                {
+                    throw error::malformed_mqtt_packet(
+                        "[MQTT-3.14.1.-1] DISCONNECT header has non-zero flags set (violates MQTT 3.1.1 spec)" );
+                }
+
+                // Check that remaining length is 0, as required by MQTT 3.1.1
+                if ( frame.remaining_length( ) != 0 )
+                {
+                    std::ostringstream message;
+                    message << "DISCONNECT fixed header reports remaining length != 0 (violates MQTT 3.1.1 spec)";
+                    throw error::malformed_mqtt_packet( message.str( ) );
+                }
+
+                return std::make_shared<protocol::disconnect>( );
+            }
+        };
     }  // namespace decoder
 }  // namespace io_wally

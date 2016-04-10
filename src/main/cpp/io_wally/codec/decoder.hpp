@@ -110,6 +110,11 @@ namespace io_wally
                 return std::distance( begin, end );
             }
 
+            protocol::packet::Type type( ) const
+            {
+                return protocol::packet::type_of( type_and_flags );
+            }
+
            public:
             const uint8_t type_and_flags;
             const const_iterator_t begin;
@@ -543,6 +548,47 @@ namespace io_wally
             virtual std::shared_ptr<protocol::mqtt_packet> decode( const protocol::packet::header& header,
                                                                    InputIterator buf_start,
                                                                    const InputIterator buf_end ) const = 0;
+        };  // packet_body_decoder
+
+        /// \brief Interface for decoders capable of decoding a single type of MQTT packets.
+        ///
+        /// Defines and interface for decoders/decoders that take \c header_flags and a buffer containing an MQTT
+        /// packet's on the wire representation and return a decoded \c mqtt_packet.
+        ///
+        /// Note that the concrete type of \c mqtt_packet to decode is already known when an implementation of this
+        /// interface is called.
+        ///
+        /// Note further that a concrete \c packet_decoder_impl implementation handles exactly one concrete
+        /// \c mqtt_packet type (CONNECT, CONNACK, ...).
+        class packet_decoder_impl
+        {
+           public:
+            /// \brief Parse the supplied buffer into an MQTT packet.
+            ///
+            /// Start decoding at \c buf_start. Parse until \c buf_end. Use \c header to create the parsed
+            /// \c mqtt_packet and return it, transferring ownership to the caller. If decoding fails throw an
+            /// \c error::malformed_mqtt_packet.
+            ///
+            /// \param header               Header of MQTT packet to parse. Contains the type of MQTT packet.
+            /// \attention                  Implementations are asked to throw an assertion error if the the type
+            ///                             of MQTT packet to parse contained in \c header does not match this
+            ///                             implementation.
+            /// \param buf_start            Start of buffer containing the serialized MQTT packet. MUST point to
+            ///                             the start of the packet body, i.e. the variable header (if present) or
+            ///                             the payload.
+            /// \param buf_end              End of buffer containing the serialized MQTT packet.
+            /// \return                     The parsed \c mqtt_packet, i.e. an instance of a concrete subclass of
+            ///                             \c mqtt_packet. Note that the caller assumes ownership.
+            /// \throws error::malformed_mqtt_packet    If encoding is malformed, e.g. remaining length has been
+            ///                                         incorrectly encoded.
+            ///
+            /// \pre        \c buf_start points to the first byte after the fixed header in a buffer representing
+            ///             an \c mqtt_packet's on the wire format.
+            /// \pre        \c buf_end points immediately past the last byte in a buffer representing an
+            ///             \c mqtt_packet's on the wire format.
+            /// \pre        \c header is of the same MQTT Control Packet type as this \c packet_body_decoder
+            ///             expects to decode.
+            virtual std::shared_ptr<protocol::mqtt_packet> decode( const frame& frame ) const = 0;
         };  // packet_body_decoder
 
     }  /// namespace decoder
