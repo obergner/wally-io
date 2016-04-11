@@ -9,6 +9,8 @@
 #include "io_wally/protocol/subscription.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
 #include "io_wally/protocol/suback_packet.hpp"
+#include "io_wally/protocol/unsubscribe_packet.hpp"
+#include "io_wally/protocol/unsuback_packet.hpp"
 #include "io_wally/protocol/publish_packet.hpp"
 #include "io_wally/protocol/publish_ack_packet.hpp"
 #include "io_wally/protocol/puback_packet.hpp"

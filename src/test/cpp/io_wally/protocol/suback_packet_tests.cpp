@@ -1,5 +1,6 @@
 #include "catch.hpp"
 
+#include <cstdint>
 #include <vector>
 
 #include "io_wally/protocol/suback_packet.hpp"
