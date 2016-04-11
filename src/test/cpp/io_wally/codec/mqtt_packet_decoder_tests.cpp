@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <vector>
 
+#include "io_wally/protocol/protocol.hpp"
 #include "io_wally/codec/mqtt_packet_decoder.hpp"
 
 using namespace io_wally;
@@ -157,6 +158,56 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
 
                 CHECK( subscribe_packet.subscriptions( )[2].topic_filter( ) == "/a/b/cdd/#" );
                 CHECK( subscribe_packet.subscriptions( )[2].maximum_qos( ) == protocol::packet::QoS::EXACTLY_ONCE );
+            }
+        }
+    }
+
+    GIVEN( "a well-formed and complete UNSUSBCRIBE packet body containing 3 topic filters" )
+    {
+        const auto type_and_flags = std::uint8_t{( 10 << 4 ) | 2};  // UNSUBSCRIBE
+        // Shameless act of robbery: https://github.com/surgemq/surgemq/blob/master/message/subscribe_test.go#L132
+        const auto buffer = std::vector<std::uint8_t>{
+            0,  // packet ID MSB (0)
+            7,  // packet ID LSB (7)
+            0,  // topic name MSB (0)
+            7,  // topic name LSB (7)
+            's', 'u', 'r', 'g', 'e', 'm', 'q',
+            0,  // topic name MSB (0)
+            8,  // topic name LSB (8)
+            '/', 'a', '/', 'b', '/', 'c', '/', '#',
+            0,   // topic name MSB (0)
+            10,  // topic name LSB (10)
+            '/', 'a', '/', 'b', '/', 'c', 'd', 'd', '/', '#',
+        };
+        const auto frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
+
+        WHEN( "a client passes that frame into mqtt_packet_decoder::decode" )
+        {
+            std::shared_ptr<const protocol::mqtt_packet> result = under_test.decode( frame );
+
+            THEN( "that client should receive a non-null mqtt_packet pointer" )
+            {
+                REQUIRE( result );
+            }
+
+            AND_THEN(
+                "it should be able to cast that result to a 'unsubscribe' instance with all fields correctly set" )
+            {
+                const protocol::mqtt_packet& raw_result = *result;
+                const protocol::unsubscribe& unsubscribe_packet =
+                    static_cast<const protocol::unsubscribe&>( raw_result );
+
+                CHECK( unsubscribe_packet.header( ).type( ) == protocol::packet::Type::UNSUBSCRIBE );
+
+                CHECK( unsubscribe_packet.packet_identifier( ) == 7 );
+
+                CHECK( unsubscribe_packet.topic_filters( ).size( ) == 3 );
+
+                CHECK( unsubscribe_packet.topic_filters( )[0] == "surgemq" );
+
+                CHECK( unsubscribe_packet.topic_filters( )[1] == "/a/b/c/#" );
+
+                CHECK( unsubscribe_packet.topic_filters( )[2] == "/a/b/cdd/#" );
             }
         }
     }

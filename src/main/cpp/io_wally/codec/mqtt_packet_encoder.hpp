@@ -6,6 +6,7 @@
 #include "io_wally/codec/connack_packet_encoder.hpp"
 #include "io_wally/codec/pingresp_packet_encoder.hpp"
 #include "io_wally/codec/suback_packet_encoder.hpp"
+#include "io_wally/codec/unsuback_packet_encoder.hpp"
 #include "io_wally/codec/publish_packet_encoder.hpp"
 #include "io_wally/codec/puback_packet_encoder.hpp"
 #include "io_wally/codec/pubrel_packet_encoder.hpp"
@@ -58,6 +59,8 @@ namespace io_wally
                         return pingresp_encoder_;
                     case protocol::packet::Type::SUBACK:
                         return suback_encoder_;
+                    case protocol::packet::Type::UNSUBACK:
+                        return unsuback_encoder_;
                     case protocol::packet::Type::PUBLISH:
                         return publish_encoder_;
                     case protocol::packet::Type::PUBACK:
@@ -73,7 +76,6 @@ namespace io_wally
                     case protocol::packet::Type::DISCONNECT:
                     case protocol::packet::Type::SUBSCRIBE:
                     case protocol::packet::Type::UNSUBSCRIBE:
-                    case protocol::packet::Type::UNSUBACK:
                     case protocol::packet::Type::RESERVED1:
                     case protocol::packet::Type::RESERVED2:
                     default:
@@ -86,6 +88,7 @@ namespace io_wally
             const connack_packet_encoder<OutputIterator> connack_encoder_{};
             const pingresp_packet_encoder<OutputIterator> pingresp_encoder_{};
             const suback_packet_encoder<OutputIterator> suback_encoder_{};
+            const unsuback_packet_encoder<OutputIterator> unsuback_encoder_{};
             const publish_packet_encoder<OutputIterator> publish_encoder_{};
             const puback_packet_encoder<OutputIterator> puback_encoder_{};
             const pubrel_packet_encoder<OutputIterator> pubrel_encoder_{};

@@ -20,7 +20,7 @@ namespace io_wally
         {
            public:
             unsuback( const uint16_t packet_identifier )
-                : mqtt_ack{packet::Type::SUBACK, 2}, packet_identifier_{packet_identifier}
+                : mqtt_ack{packet::Type::UNSUBACK, 2}, packet_identifier_{packet_identifier}
             {
             }
 

@@ -9,6 +9,7 @@
 #include "io_wally/codec/disconnect_packet_decoder.hpp"
 #include "io_wally/codec/pingreq_packet_decoder.hpp"
 #include "io_wally/codec/subscribe_packet_decoder.hpp"
+#include "io_wally/codec/unsubscribe_packet_decoder.hpp"
 #include "io_wally/codec/publish_packet_decoder.hpp"
 #include "io_wally/codec/puback_packet_decoder.hpp"
 #include "io_wally/codec/pubrec_packet_decoder.hpp"
@@ -63,6 +64,8 @@ namespace io_wally
                         return disconnect_packet_decoder_;
                     case protocol::packet::Type::SUBSCRIBE:
                         return subscribe_packet_decoder_;
+                    case protocol::packet::Type::UNSUBSCRIBE:
+                        return unsubscribe_packet_decoder_;
                     case protocol::packet::Type::PUBLISH:
                         return publish_packet_decoder_;
                     case protocol::packet::Type::PUBACK:
@@ -75,7 +78,6 @@ namespace io_wally
                         return pubrel_packet_decoder_;
                     case protocol::packet::Type::CONNACK:
                     case protocol::packet::Type::SUBACK:
-                    case protocol::packet::Type::UNSUBSCRIBE:
                     case protocol::packet::Type::UNSUBACK:
                     case protocol::packet::Type::PINGRESP:
                     case protocol::packet::Type::RESERVED1:
@@ -93,6 +95,7 @@ namespace io_wally
             const pingreq_packet_decoder_impl pingreq_packet_decoder_{};
             const disconnect_packet_decoder_impl disconnect_packet_decoder_{};
             const subscribe_packet_decoder_impl subscribe_packet_decoder_{};
+            const unsubscribe_packet_decoder_impl unsubscribe_packet_decoder_{};
             const publish_packet_decoder_impl publish_packet_decoder_{};
             const puback_packet_decoder_impl puback_packet_decoder_{};
             const pubrec_packet_decoder_impl pubrec_packet_decoder_{};
