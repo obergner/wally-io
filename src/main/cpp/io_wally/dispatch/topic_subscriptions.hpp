@@ -6,6 +6,7 @@
 #include <tuple>
 #include <vector>
 #include <functional>
+#include <algorithm>
 
 #include <boost/log/common.hpp>
 #include <boost/log/trivial.hpp>
@@ -14,6 +15,8 @@
 #include "io_wally/protocol/subscription.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
 #include "io_wally/protocol/suback_packet.hpp"
+#include "io_wally/protocol/unsubscribe_packet.hpp"
+#include "io_wally/protocol/unsuback_packet.hpp"
 #include "io_wally/protocol/publish_packet.hpp"
 #include "io_wally/dispatch/common.hpp"
 
@@ -47,6 +50,12 @@ namespace io_wally
             ///
             /// \pre \c topic is a well-formed topic string
             bool matches( const std::string& topic ) const;
+
+            /// \brief Test if this \c subscription's topic filter matches one of the \c topic_filters.
+            bool topic_filter_matches_one_of( const std::vector<std::string>& topic_filters ) const
+            {
+                return std::find( topic_filters.begin( ), topic_filters.end( ), topic_filter ) != topic_filters.end( );
+            }
 
            public:
             const std::string topic_filter;
@@ -87,8 +96,18 @@ namespace io_wally
             ///
             /// \param client_id ID of client that wants to subscribe
             /// \param subscribe SUBSCRIBE packet
+            /// \return SUBACK packet
             std::shared_ptr<const protocol::suback> subscribe( const std::string& client_id,
                                                                std::shared_ptr<const protocol::subscribe> subscribe );
+
+            /// \brief Unsubscribe client \c client_id from all topic filters in \c unsubscribe.
+            ///
+            /// \param client_id ID of client that wants to cancel subscriptions
+            /// \param unsubscribe UNSUBSCRIBE packet containing topic filters to cancel
+            /// \return UNSUBACK packet
+            std::shared_ptr<const protocol::unsuback> unsubscribe(
+                const std::string& client_id,
+                std::shared_ptr<const protocol::unsubscribe> unsubscribe );
 
             /// \brief Determine set of clients subscribed to \c topic packet \c publish is published to.
             ///

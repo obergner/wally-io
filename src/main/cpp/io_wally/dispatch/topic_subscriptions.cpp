@@ -45,19 +45,39 @@ namespace io_wally
             const std::string& client_id,
             std::shared_ptr<const protocol::subscribe> subscribe )
         {
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "SUBSRCIBE:  [cltid:" << client_id << "|subscr:" << *subscribe
-                                                 << "]";
-
             for ( auto& subscr : subscribe->subscriptions( ) )
             {
                 subscriptions_.emplace( subscr.topic_filter( ), subscr.maximum_qos( ), client_id );
             }
             auto suback = subscribe->succeed( );
 
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "SUBSRCIBED: [cltid:" << client_id << "|subscr:" << *subscribe
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "SUBSRCRIBED: [cltid:" << client_id << "|subscr:" << *subscribe
                                                  << "] -> " << *suback;
 
             return suback;
+        }
+
+        std::shared_ptr<const protocol::unsuback> topic_subscriptions::unsubscribe(
+            const std::string& client_id,
+            std::shared_ptr<const protocol::unsubscribe> unsubscribe )
+        {
+            for ( auto it = subscriptions_.begin( ); it != subscriptions_.end( ); )
+            {
+                if ( it->topic_filter_matches_one_of( unsubscribe->topic_filters( ) ) )
+                {
+                    it = subscriptions_.erase( it );
+                }
+                else
+                {
+                    ++it;
+                }
+            }
+            auto unsuback = unsubscribe->ack( );
+
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "UNSUBSRCRIBED: [cltid:" << client_id << "|subscr:" << *unsubscribe
+                                                 << "] -> " << *unsuback;
+
+            return unsuback;
         }
 
         const std::vector<resolved_subscriber_t> topic_subscriptions::resolve_subscribers(

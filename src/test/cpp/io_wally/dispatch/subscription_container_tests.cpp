@@ -200,3 +200,39 @@ SCENARIO( "subscription_container#matches", "[dispatch]" )
         }
     }
 }
+
+SCENARIO( "subscription_container#topic_filter_matches_one_of", "[dispatch]" )
+{
+    static const packet::QoS MAX_QOS = packet::QoS::AT_LEAST_ONCE;
+    static const std::string CLIENT_ID = "subscription_container_tests";
+
+    GIVEN( "topic filter \"/test\" and topic filters {\"/a\", \"b\", \"/test\"}" )
+    {
+        auto const topic_filter = "/test";
+        auto const topic_filters = std::vector<std::string>{"/a", "/b", "/test"};
+        auto const under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
+
+        WHEN( "a caller matches topic against topic filters" )
+        {
+            THEN( "it should see the match succeed" )
+            {
+                REQUIRE( under_test.topic_filter_matches_one_of( topic_filters ) == true );
+            }
+        }
+    }
+
+    GIVEN( "topic filter \"/another/topic/#\" and topic filters {\"/a\", \"b\", \"/another/topic/+\"}" )
+    {
+        auto const topic_filter = "/another/topic/#";
+        auto const topic_filters = std::vector<std::string>{"/a", "/b", "/another/topic/+"};
+        auto const under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
+
+        WHEN( "a caller matches topic against topic filters" )
+        {
+            THEN( "it should see the match fail" )
+            {
+                REQUIRE( under_test.topic_filter_matches_one_of( topic_filters ) == false );
+            }
+        }
+    }
+}

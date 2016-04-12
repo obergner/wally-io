@@ -25,6 +25,15 @@ namespace framework
         return std::make_shared<io_wally::protocol::subscribe>( header, pktid, subscriptions );
     }
 
+    std::shared_ptr<io_wally::protocol::unsubscribe> create_unsubscribe_packet(
+        const std::vector<std::string> topic_filters )
+    {
+        auto header = io_wally::protocol::packet::header{0x0A << 4, 20};  // 20 is just some number
+        auto pktid = uint16_t{11};
+
+        return std::make_shared<io_wally::protocol::unsubscribe>( header, pktid, topic_filters );
+    }
+
     io_wally::mqtt_packet_sender::packet_container_t::ptr create_subscribe_container(
         const std::vector<io_wally::protocol::subscription> subscriptions )
     {
