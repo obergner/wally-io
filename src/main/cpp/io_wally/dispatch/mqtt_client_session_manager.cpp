@@ -12,6 +12,8 @@
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
 #include "io_wally/protocol/suback_packet.hpp"
+#include "io_wally/protocol/unsubscribe_packet.hpp"
+#include "io_wally/protocol/unsuback_packet.hpp"
 #include "io_wally/protocol/publish_packet.hpp"
 #include "io_wally/protocol/puback_packet.hpp"
 #include "io_wally/protocol/pubrec_packet.hpp"
@@ -93,6 +95,21 @@ namespace io_wally
                 session->send( suback );
             }
             BOOST_LOG_SEV( logger_, lvl::debug ) << "SUBSCRIBED: [cltid:" << client_id << "|pkt:" << *subscribe << "]";
+        }
+
+        void mqtt_client_session_manager::client_unsubscribed( const std::string& client_id,
+                                                               std::shared_ptr<protocol::unsubscribe> unsubscribe )
+        {
+            auto unsuback = topic_subscriptions_.unsubscribe( client_id, unsubscribe );
+            if ( auto session = sessions_[client_id] )
+            {
+                // TODO: mqtt_client_session exposes an event-oriented interface, i.e. client code (as this code) tells
+                // it
+                // what has happened, not what to do. This "send()" method is the only exception. Can we get rid of it?
+                session->send( unsuback );
+            }
+            BOOST_LOG_SEV( logger_, lvl::debug ) << "UNSUBSCRIBED: [cltid:" << client_id << "|pkt:" << *unsubscribe
+                                                 << "]";
         }
 
         void mqtt_client_session_manager::client_published( const std::string& client_id,

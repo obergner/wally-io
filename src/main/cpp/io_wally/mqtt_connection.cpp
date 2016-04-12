@@ -251,6 +251,7 @@ namespace io_wally
             }
             break;
             case packet::Type::SUBSCRIBE:
+            case packet::Type::UNSUBSCRIBE:
             case packet::Type::PUBLISH:
             case packet::Type::PUBACK:
             case packet::Type::PUBREC:
@@ -265,7 +266,6 @@ namespace io_wally
             case packet::Type::CONNACK:
             case packet::Type::PINGRESP:
             case packet::Type::SUBACK:
-            case packet::Type::UNSUBSCRIBE:
             case packet::Type::UNSUBACK:
             case packet::Type::RESERVED1:
             case packet::Type::RESERVED2:

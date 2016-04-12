@@ -12,6 +12,7 @@
 #include "io_wally/context.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
+#include "io_wally/protocol/unsubscribe_packet.hpp"
 #include "io_wally/protocol/publish_packet.hpp"
 #include "io_wally/protocol/puback_packet.hpp"
 #include "io_wally/protocol/pubrec_packet.hpp"
@@ -79,6 +80,13 @@ namespace io_wally
             /// \param client_id ID of client that sent SUBSCRIBE packet
             /// \param subscribe MQTT SUBSCRIBE packet received from client
             void client_subscribed( const std::string& client_id, std::shared_ptr<protocol::subscribe> subscribe );
+
+            /// \brief Called when a client sent an UNSUBSCRIBE packet.
+            ///
+            /// \param client_id ID of client that sent UNSUBSCRIBE packet
+            /// \param usubscribe MQTT UNSUBSCRIBE packet received from client
+            void client_unsubscribed( const std::string& client_id,
+                                      std::shared_ptr<protocol::unsubscribe> unsubscribe );
 
             /// \brief Called when client sent a PUBLISH packet.
             ///

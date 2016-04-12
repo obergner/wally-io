@@ -15,6 +15,7 @@
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/connect_packet.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
+#include "io_wally/protocol/unsubscribe_packet.hpp"
 #include "io_wally/protocol/puback_packet.hpp"
 #include "io_wally/protocol/pubrec_packet.hpp"
 #include "io_wally/protocol/pubcomp_packet.hpp"
@@ -96,6 +97,11 @@ namespace io_wally
                 {
                     auto subscribe = packet_container->packetAs<protocol::subscribe>( );
                     session_manager_.client_subscribed( packet_container->client_id( ), subscribe );
+                }
+                else if ( packet_container->packet_type( ) == protocol::packet::Type::UNSUBSCRIBE )
+                {
+                    auto unsubscribe = packet_container->packetAs<protocol::unsubscribe>( );
+                    session_manager_.client_unsubscribed( packet_container->client_id( ), unsubscribe );
                 }
                 else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBLISH )
                 {
