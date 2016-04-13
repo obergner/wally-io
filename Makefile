@@ -464,7 +464,11 @@ $(BUILD_UT)/%.o           : $(SRC_DIR_UT)/%.cpp                    | $(BUILDDIRS
 # --------------------------------------------------------------------------------------------------------------------- 
 
 .PHONY                    : itest
-itest                     : itest-compile
+itest                     : itest-cpp
+itest                     : itest-py
+
+.PHONY                    : itest-cpp
+itest-cpp                 : itest-compile
 	@LD_LIBRARY_PATH=$(PAHO_C_LIBS):$(LD_LIBRARY_PATH) $(ASAN_OPTS) ./$(EXEC_IT) --success --durations yes
 
 itest-compile             : paho-c
@@ -478,6 +482,18 @@ $(EXEC_IT)                : $(OBJS_M_SAN) $(OBJS_IT) $(OBJS_IT_FRM) $(EXECOBJ_IT
 
 $(BUILD_IT)/%.o           : $(SRC_DIR_IT)/%.cpp                    | $(BUILDDIRS_IT)
 	$(CXX) $(CPPFLAGS_IT) $(CXXFLAGS_IT) -o $@ -c $<
+
+.PHONY                    : itest-py
+itest-py                  : sanitize
+	@python3 -m unittest discover -s ./src/itest/py/ -p "*_tests.py"
+
+# --------------------------------------------------------------------------------------------------------------------- 
+# Build/run load tests
+# --------------------------------------------------------------------------------------------------------------------- 
+
+.PHONY                    : ltest
+ltest                     : main
+	@python3 ./src/itest/py/simple_load_test.py
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Paho conformance test suit

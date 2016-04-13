@@ -42,21 +42,5 @@ SCENARIO_METHOD( itest_fixture, "mqtt_server MQTT CONNECT tests", "[mqtt_server]
                 REQUIRE( !client.is_mqtt_connected( ) );
             }
         }
-
-        //        WHEN( "a client sends a second CONNECT packet on the same connection to that server" )
-        //        {
-        //            const bool connected_before = client.connect( );
-        //            const int login_before_rc = client.send_connect_packet( "CONNECT_itest" );
-        //
-        //            const int login_after_rc = client.send_connect_packet( "CONNECT_itest" );
-        //
-        //            THEN( "it will fail" )
-        //            {
-        //                REQUIRE( connected_before );
-        //                REQUIRE( login_before_rc == 0 );
-        //
-        //                REQUIRE( login_after_rc != 0 );
-        //            }
-        //        }
     }
 }
