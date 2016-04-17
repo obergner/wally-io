@@ -76,10 +76,32 @@ namespace io_wally
 
             /// \brief Assign quality of service level assigned this PUBLISH packet.
             ///
-            /// \param quality of service level to use for this PUBLISH
-            void qos( const packet::QoS qos )
+            /// \param \c new_qos quality of service level to use for this PUBLISH
+            void qos( const packet::QoS new_qos )
             {
-                type_and_flags_ = ( type_and_flags_ & 0xF9 ) | ( static_cast<uint8_t>( qos ) << 1 );
+                auto const old_qos = qos( );
+                type_and_flags_ = ( type_and_flags_ & 0xF9 ) | ( static_cast<uint8_t>( new_qos ) << 1 );
+                // Adjust remaining length if we change from a QoS that requires a packet identifier to one without or
+                // vice versa.
+                switch ( old_qos )
+                {
+                    case packet::QoS::AT_MOST_ONCE:
+                        if ( ( new_qos == packet::QoS::AT_LEAST_ONCE ) || ( new_qos == packet::QoS::EXACTLY_ONCE ) )
+                        {
+                            remaining_length_ += 2;
+                        }
+                        break;
+                    case packet::QoS::AT_LEAST_ONCE:
+                    case packet::QoS::EXACTLY_ONCE:
+                        if ( new_qos == packet::QoS::AT_MOST_ONCE )
+                        {
+                            remaining_length_ -= 2;
+                        }
+                        break;
+                    case packet::QoS::RESERVED:
+                    default:
+                        assert( false );
+                }
             }
 
             /// \brief Return whether RETAIN flag is set, i.e. message should be retained.

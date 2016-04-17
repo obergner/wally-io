@@ -539,9 +539,7 @@ namespace io_wally
 
            protected:
             uint8_t type_and_flags_;
-
-           private:
-            const uint32_t remaining_length_;
+            uint32_t remaining_length_;
         };
 
         /// \brief Base class for MQTT acks.

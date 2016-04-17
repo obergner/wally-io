@@ -106,7 +106,6 @@ namespace io_wally
                 else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBLISH )
                 {
                     auto publish = packet_container->packetAs<protocol::publish>( );
-
                     session_manager_.client_published( packet_container->client_id( ), publish );
                 }
                 else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBACK )

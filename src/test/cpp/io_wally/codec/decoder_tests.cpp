@@ -392,6 +392,45 @@ SCENARIO( "frame_reader", "[packets]" )
             }
         }
     }
+
+    GIVEN( "a well-formed PUBLISH frame with QoS 1 (suspected bug)" )
+    {
+        const auto remaining_length = std::size_t{0x27};
+        const auto type_and_flags = uint8_t{0x32};
+        auto const received_packet = std::vector<std::uint8_t>{
+            0x32,  // Type and flags
+            0x27,  // Remaining length
+            0x00,  // topic name MSB (0)
+            0x12,  // topic name LSB (18)
+            '/',  't', 'e', 's', 't', '/', 'p', 'u', 'b', 'l', 'i', 's', 'h', '/', 'q', 'o', 's', '1',
+            0x00,  // packet ID MSB (0)
+            0x01,  // packet ID LSB (1)
+            't',  'e', 's', 't', '_', 'p', 'u', 'b', 'l', 'i', 's', 'h', '_', 'q', 'o', 's', '1',
+        };
+
+        WHEN( "a caller calls frame_reader as a functor when frame is completed" )
+        {
+            buffer.insert( std::begin( buffer ), std::begin( received_packet ), std::end( received_packet ) );
+            const auto frame_remainder = under_test( ec_success, 2 + remaining_length );
+
+            THEN( "it should receive 0" )
+            {
+                REQUIRE( frame_remainder == 0 );
+            }
+
+            AND_THEN( "it should receive a correctly decoded frame from get_frame()" )
+            {
+                const auto frame = under_test.get_frame( );
+
+                REQUIRE( frame );
+                REQUIRE( frame->type_and_flags == type_and_flags );
+                REQUIRE( frame->remaining_length( ) == remaining_length );
+                REQUIRE( *frame->begin == 0x00 );
+                REQUIRE( *( frame->begin - 1 ) == 0x27 );
+                REQUIRE( *( frame->end - 1 ) == '1' );
+            }
+        }
+    }
 }
 
 SCENARIO( "parsing a 16 bit unsigned integer", "[packets]" )

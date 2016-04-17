@@ -64,14 +64,6 @@ namespace io_wally
             {
             }
 
-            // frame_reader( const frame_reader& ) = delete;
-
-            // frame_reader( frame_reader&& ) = delete;
-
-            // frame_reader& operator=( const frame_reader& ) = delete;
-
-            // frame_reader& operator=( frame_reader&& ) = delete;
-
             std::size_t operator( )( const boost::system::error_code& error, std::size_t bytes_transferred )
             {
                 assert( bytes_transferred <= buffer_.size( ) );

@@ -115,7 +115,7 @@ class Publisher(object):
 
 
 class BasicPublishSubscribeTests(unittest.TestCase):
-    """ Integration test publishing and subscribing
+    """ Test that publishing and subscribing to a topic basically works.
     """
 
     @classmethod
@@ -142,21 +142,28 @@ class BasicPublishSubscribeTests(unittest.TestCase):
         time.sleep(1)
 
     def test_publish_qos0(self):
-        """ Test
+        """ Test that publishing with QoS 0 (At most once) works
         """
         self.publisher.publish("/test/publish/qos0", "test_publish_qos0", 0)
         msg = self.subscriber.wait_for_message(2)
         self.assertIsNotNone(msg)
         self.assertEqual(msg.payload, b'test_publish_qos0')
 
-    @unittest.skip("msg in received publish packet contains extra null bytes")
     def test_publish_qos1(self):
-        """ Test
+        """ Test that publishing with QoS 1 (At least once) works
         """
         self.publisher.publish("/test/publish/qos1", "test_publish_qos1", 1)
         msg = self.subscriber.wait_for_message(2)
         self.assertIsNotNone(msg)
         self.assertEqual(msg.payload, b'test_publish_qos1')
+
+    def test_publish_qos2(self):
+        """ Test that publishing with QoS 2 (Exactly once) works
+        """
+        self.publisher.publish("/test/publish/qos2", "test_publish_qos2", 2)
+        msg = self.subscriber.wait_for_message(2)
+        self.assertIsNotNone(msg)
+        self.assertEqual(msg.payload, b'test_publish_qos2')
 
 
 if __name__ == '__main__':

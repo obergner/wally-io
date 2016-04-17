@@ -84,7 +84,7 @@ class TCPConnector(object):
             pass
 
 class MQTTConnectTests(unittest.TestCase):
-    """ Integration test connecting to MQTT broker
+    """ Test that connecting to MQTT broker basically works.
     """
 
     @classmethod
@@ -113,7 +113,7 @@ class MQTTConnectTests(unittest.TestCase):
         self.assertEqual(connect_rc, 0)
 
 class TCPConnectTests(unittest.TestCase):
-    """ Integration test connecting to MQTT broker
+    """ Test MQTT broker connec timeout.
     """
 
     @classmethod
@@ -134,7 +134,8 @@ class TCPConnectTests(unittest.TestCase):
         self.tcp_connector.disconnect()
 
     def test_connect_timeout(self):
-        """ Test that new connection is closed after connect timeout
+        """ Test that newly established TCP connection is closed by MQTT broker if
+        it does not receive a CONNECT packet within its configured connect timeout.
         """
         self.tcp_connector.connect()
         time.sleep(3) # Connect timeout is 2 s

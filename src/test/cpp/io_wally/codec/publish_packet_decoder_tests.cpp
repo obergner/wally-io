@@ -276,4 +276,48 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
             }
         }
     }
+
+    GIVEN( "a PUBLISH packet body with packet identifier and a header with QoS 1 (suspected bug)" )
+    {
+        auto const type_and_flags = std::uint8_t{( 3 << 4 ) | 2};  // PUBLISH + DUP 0, QoS 1, RETAIN 0
+        auto const message =
+            std::vector<uint8_t>{'t', 'e', 's', 't', '_', 'p', 'u', 'b', 'l', 'i', 's', 'h', '_', 'q', 'o', 's', '1'};
+        auto const buffer = std::vector<std::uint8_t>{
+            0,   // topic name MSB (0)
+            18,  // topic name LSB (18)
+            '/', 't', 'e', 's', 't', '/', 'p', 'u', 'b', 'l', 'i', 's', 'h', '/', 'q', 'o', 's', '1',
+            0,  // packet ID MSB (0)
+            1,  // packet ID LSB (1)
+            't', 'e', 's', 't', '_', 'p', 'u', 'b', 'l', 'i', 's', 'h', '_', 'q', 'o', 's', '1',
+        };  /// avoids warning
+        auto const frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
+
+        WHEN( "a client passes that array into publish_packet_decoder::decode" )
+        {
+            auto result = under_test.decode( frame );
+
+            THEN( "that client should receive a non-null mqtt_packet pointer" )
+            {
+                REQUIRE( result );
+            }
+
+            AND_THEN( "it should be able to cast that result to a 'publish' instance with all fields correctly set" )
+            {
+                auto const& raw_result = *result;
+                auto const& publish_packet = static_cast<const protocol::publish&>( raw_result );
+
+                CHECK( publish_packet.header( ).type( ) == protocol::packet::Type::PUBLISH );
+
+                CHECK( publish_packet.header( ).flags( ).dup( ) == false );
+                CHECK( publish_packet.header( ).flags( ).qos( ) == protocol::packet::QoS::AT_LEAST_ONCE );
+                CHECK( publish_packet.header( ).flags( ).retain( ) == false );
+
+                CHECK( publish_packet.packet_identifier( ) == 1 );
+
+                CHECK( publish_packet.topic( ) == "/test/publish/qos1" );
+
+                CHECK( publish_packet.application_message( ) == message );
+            }
+        }
+    }
 }

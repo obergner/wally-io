@@ -103,8 +103,10 @@ class Publisher(object):
         """
         (result, mid) = self.client.publish(topic, msg, qos)
         if result != mqtt.MQTT_ERR_SUCCESS:
-            logging.error("Failed to publish message: result = %s", result)
-            raise RuntimeError("Failed to publish message: result = %s" % result)
+            logging.error("Failed to publish message: result = '%s' (%s)",
+                          mqtt.error_string(result), result)
+            raise RuntimeError("Failed to publish message: result = '%s' (%s)" %
+                               (mqtt.error_string(result), result))
         logging.info("[%s] Sent message '%s': mid = %s", self.name, msg, mid)
 
     def __on_publish(self, client, userdata, mid):
@@ -116,7 +118,7 @@ class Publisher(object):
 
 @unittest.skip("disabled")
 class UnsubscribeTests(unittest.TestCase):
-    """ Integration test unsubscribing from topics.
+    """ Test that unsubscribing from topics works.
     """
 
     @classmethod
