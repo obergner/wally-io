@@ -130,8 +130,12 @@ class BasicPublishSubscribeTests(unittest.TestCase):
         pass
 
     def setUp(self):
-        self.subscriber_qos0 = Subscriber("BasicPublishSubscribeTests-Sub", "/test/publish/#", 0)
+        self.subscriber_qos0 = Subscriber("BasicPublishSubscribeTests-Sub0", "/test/publish/#", 0)
         self.subscriber_qos0.start()
+        self.subscriber_qos1 = Subscriber("BasicPublishSubscribeTests-Sub1", "/test/publish/#", 1)
+        self.subscriber_qos1.start()
+        self.subscriber_qos2 = Subscriber("BasicPublishSubscribeTests-Sub2", "/test/publish/#", 2)
+        self.subscriber_qos2.start()
         self.publisher = Publisher("BasicPublishSubscribeTests-Pub")
         self.publisher.start()
         time.sleep(1)
@@ -139,6 +143,8 @@ class BasicPublishSubscribeTests(unittest.TestCase):
     def tearDown(self):
         self.publisher.stop()
         self.subscriber_qos0.stop()
+        self.subscriber_qos1.stop()
+        self.subscriber_qos2.stop()
         time.sleep(1)
 
     def test_publish_qos0_sub_qos0(self):
@@ -148,6 +154,7 @@ class BasicPublishSubscribeTests(unittest.TestCase):
         msg = self.subscriber_qos0.wait_for_message(2)
         self.assertIsNotNone(msg)
         self.assertEqual(msg.payload, b'test_publish_qos0')
+        self.assertEqual(msg.qos, 0)
 
     def test_publish_qos1_sub_qos0(self):
         """ Test publishing with QoS 1 / subscribing with QoS 0
@@ -156,6 +163,7 @@ class BasicPublishSubscribeTests(unittest.TestCase):
         msg = self.subscriber_qos0.wait_for_message(2)
         self.assertIsNotNone(msg)
         self.assertEqual(msg.payload, b'test_publish_qos1')
+        self.assertEqual(msg.qos, 0)
 
     def test_publish_qos2_sub_qos0(self):
         """ Test publishing with QoS 2 / subscribing with QoS 0
@@ -164,6 +172,61 @@ class BasicPublishSubscribeTests(unittest.TestCase):
         msg = self.subscriber_qos0.wait_for_message(2)
         self.assertIsNotNone(msg)
         self.assertEqual(msg.payload, b'test_publish_qos2')
+        self.assertEqual(msg.qos, 0)
+
+    def test_publish_qos0_sub_qos1(self):
+        """ Test publishing with QoS 0 / subscribing with QoS 1
+        """
+        self.publisher.publish("/test/publish/qos0", "test_publish_qos0", 0)
+        msg = self.subscriber_qos1.wait_for_message(2)
+        self.assertIsNotNone(msg)
+        self.assertEqual(msg.payload, b'test_publish_qos0')
+        self.assertEqual(msg.qos, 1)
+
+    def test_publish_qos1_sub_qos1(self):
+        """ Test publishing with QoS 1 / subscribing with QoS 1
+        """
+        self.publisher.publish("/test/publish/qos1", "test_publish_qos1", 1)
+        msg = self.subscriber_qos1.wait_for_message(2)
+        self.assertIsNotNone(msg)
+        self.assertEqual(msg.payload, b'test_publish_qos1')
+        self.assertEqual(msg.qos, 1)
+
+    def test_publish_qos2_sub_qos1(self):
+        """ Test publishing with QoS 2 / subscribing with QoS 1
+        """
+        self.publisher.publish("/test/publish/qos2", "test_publish_qos2", 2)
+        msg = self.subscriber_qos1.wait_for_message(2)
+        self.assertIsNotNone(msg)
+        self.assertEqual(msg.payload, b'test_publish_qos2')
+        self.assertEqual(msg.qos, 1)
+
+    def test_publish_qos0_sub_qos2(self):
+        """ Test publishing with QoS 0 / subscribing with QoS 2
+        """
+        self.publisher.publish("/test/publish/qos0", "test_publish_qos0", 0)
+        msg = self.subscriber_qos2.wait_for_message(2)
+        self.assertIsNotNone(msg)
+        self.assertEqual(msg.payload, b'test_publish_qos0')
+        self.assertEqual(msg.qos, 2)
+
+    def test_publish_qos1_sub_qos2(self):
+        """ Test publishing with QoS 1 / subscribing with QoS 2
+        """
+        self.publisher.publish("/test/publish/qos1", "test_publish_qos1", 1)
+        msg = self.subscriber_qos2.wait_for_message(2)
+        self.assertIsNotNone(msg)
+        self.assertEqual(msg.payload, b'test_publish_qos1')
+        self.assertEqual(msg.qos, 2)
+
+    def test_publish_qos2_sub_qos2(self):
+        """ Test publishing with QoS 2 / subscribing with QoS 2
+        """
+        self.publisher.publish("/test/publish/qos2", "test_publish_qos2", 2)
+        msg = self.subscriber_qos2.wait_for_message(2)
+        self.assertIsNotNone(msg)
+        self.assertEqual(msg.payload, b'test_publish_qos2')
+        self.assertEqual(msg.qos, 2)
 
 
 if __name__ == '__main__':
