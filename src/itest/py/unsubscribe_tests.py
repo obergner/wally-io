@@ -116,7 +116,6 @@ class Publisher(object):
                      self.name, mid, client, userdata)
 
 
-@unittest.skip("disabled")
 class UnsubscribeTests(unittest.TestCase):
     """ Test that unsubscribing from topics works.
     """

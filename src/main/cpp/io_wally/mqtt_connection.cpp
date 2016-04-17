@@ -484,7 +484,7 @@ namespace io_wally
         {
             auto self = shared_from_this( );
             close_on_keep_alive_timeout_.expires_from_now( *keep_alive_ );
-            close_on_connection_timeout_.async_wait( strand_.wrap( [self]( const boost::system::error_code& ec )
+            close_on_keep_alive_timeout_.async_wait( strand_.wrap( [self]( const boost::system::error_code& ec )
                                                                    {
                                                                        self->handle_keep_alive_timeout( ec );
                                                                    } ) );
