@@ -485,7 +485,7 @@ $(BUILD_IT)/%.o           : $(SRC_DIR_IT)/%.cpp                    | $(BUILDDIRS
 
 .PHONY                    : itest-py
 itest-py                  : sanitize
-	@python3 -m unittest discover -s ./src/itest/py/ -p "*_tests.py"
+	@python3 -m unittest discover --verbose --start-directory ./src/itest/py/ --pattern "*_tests.py"
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build/run load tests
@@ -493,7 +493,7 @@ itest-py                  : sanitize
 
 .PHONY                    : ltest
 ltest                     : main
-	@python3 ./src/itest/py/simple_load_test.py
+	@python3 ./src/ltest/py/simple_load_test.py
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Paho conformance test suit

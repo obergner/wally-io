@@ -52,7 +52,7 @@ namespace io_wally
 
         {
             // Use nested scope to guaratuee that lock is released
-            unique_lock<mutex> ul{bind_mutex_};
+            auto ul = unique_lock<mutex>{bind_mutex_};
             bound_.notify_all( );
         }
     }
@@ -116,7 +116,7 @@ namespace io_wally
                                     {
                                         mqtt_connection::ptr session =
                                             mqtt_connection::create( move( self->socket_ ), self->connection_manager_,
-                                                                     self->context_, self->dispatchq_ );
+                                                                     self->context_, self->dispatcher_ );
                                         self->connection_manager_.start( session );
                                     }
 
@@ -147,7 +147,7 @@ namespace io_wally
         connection_manager_.stop_all( );
 
         {
-            unique_lock<mutex>{bind_mutex_};
+            auto ul = unique_lock<mutex>{bind_mutex_};
             connections_closed_ = true;
             conn_closed_.notify_all( );
         }

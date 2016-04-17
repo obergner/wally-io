@@ -51,7 +51,7 @@ namespace io_wally
         static mqtt_connection::ptr create( boost::asio::ip::tcp::socket socket,
                                             mqtt_connection_manager& connection_manager,
                                             const context& context,
-                                            packetq_t& dispatchq );
+                                            boost::asio::queue_sender<packetq_t>& dispatcher );
 
        private:  // static
         static const std::string endpoint_description( const boost::asio::ip::tcp::socket& socket );
@@ -92,7 +92,7 @@ namespace io_wally
         mqtt_connection( boost::asio::ip::tcp::socket socket,
                          mqtt_connection_manager& connection_manager,
                          const context& context,
-                         packetq_t& dispatchq );
+                         boost::asio::queue_sender<packetq_t>& dispatcher );
 
         void do_stop( );
 
@@ -145,10 +145,15 @@ namespace io_wally
         void write_packet_and_close_connection( const protocol::mqtt_packet& packet,
                                                 const std::string& message,
                                                 const dispatch::disconnect_reason reason );
+        // Dealing with connect timeout
+
+        void close_on_connect_timeout( );
 
         // Dealing with keep alive
 
         void close_on_keep_alive_timeout( );
+
+        void handle_keep_alive_timeout( const boost::system::error_code& ec );
 
         // Dealing with protocol violations and network/server failures
 
@@ -173,12 +178,9 @@ namespace io_wally
         mqtt_connection_manager& connection_manager_;
         /// Our context reference, used for configuring ourselves etc
         const context& context_;
-        /// Our dispatcher queue, used for forwarding received protocol packets to dispatcher subsystem
-        /// TODO: Consider removing this reference since all we need is dispatcher_ below.
-        packetq_t& dispatchq_;
         /// Queue sender for dispatching received protocol packets asynchronously (from point of view of connection) to
         /// dispatcher queue.
-        boost::asio::queue_sender<packetq_t> dispatcher_{socket_.get_io_service( ), &dispatchq_};
+        boost::asio::queue_sender<packetq_t>& dispatcher_;
         /// Buffer incoming data
         std::vector<uint8_t> read_buffer_;
         /// Read entire MQTT frame

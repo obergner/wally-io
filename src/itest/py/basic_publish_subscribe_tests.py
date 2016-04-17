@@ -114,9 +114,8 @@ class Publisher(object):
                      self.name, mid, client, userdata)
 
 
-@unittest.skip("disabled")
-class UnsubscribeTests(unittest.TestCase):
-    """ Integration test unsubscribing from topics.
+class BasicPublishSubscribeTests(unittest.TestCase):
+    """ Integration test publishing and subscribing
     """
 
     @classmethod
@@ -131,9 +130,9 @@ class UnsubscribeTests(unittest.TestCase):
         pass
 
     def setUp(self):
-        self.subscriber = Subscriber("subscriber", "/test/unsubscribe", 0)
+        self.subscriber = Subscriber("BasicPublishSubscribeTests-Sub", "/test/publish/#", 0)
         self.subscriber.start()
-        self.publisher = Publisher("publisher")
+        self.publisher = Publisher("BasicPublishSubscribeTests-Pub")
         self.publisher.start()
         time.sleep(1)
 
@@ -142,18 +141,22 @@ class UnsubscribeTests(unittest.TestCase):
         self.subscriber.stop()
         time.sleep(1)
 
-    def test_unsubscribe(self):
-        """ Test unsubscribe
+    def test_publish_qos0(self):
+        """ Test
         """
-        self.publisher.publish("/test/unsubscribe", "Unsubscribe test", 0)
+        self.publisher.publish("/test/publish/qos0", "test_publish_qos0", 0)
         msg = self.subscriber.wait_for_message(2)
         self.assertIsNotNone(msg)
+        self.assertEqual(msg.payload, b'test_publish_qos0')
 
-        self.subscriber.unsubscribe()
-        time.sleep(1)
-        self.publisher.publish("/test/unsubscribe", "Unsubscribe test 2", 0)
+    @unittest.skip("msg in received publish packet contains extra null bytes")
+    def test_publish_qos1(self):
+        """ Test
+        """
+        self.publisher.publish("/test/publish/qos1", "test_publish_qos1", 1)
         msg = self.subscriber.wait_for_message(2)
-        self.assertIsNone(msg)
+        self.assertIsNotNone(msg)
+        self.assertEqual(msg.payload, b'test_publish_qos1')
 
 
 if __name__ == '__main__':

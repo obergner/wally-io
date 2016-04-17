@@ -35,10 +35,10 @@ namespace io_wally
     mqtt_connection::ptr mqtt_connection::create( tcp::socket socket,
                                                   mqtt_connection_manager& connection_manager,
                                                   const context& context,
-                                                  packetq_t& dispatchq )
+                                                  boost::asio::queue_sender<packetq_t>& dispatcher )
     {
         return std::shared_ptr<mqtt_connection>{
-            new mqtt_connection{move( socket ), connection_manager, context, dispatchq}};
+            new mqtt_connection{move( socket ), connection_manager, context, dispatcher}};
     }
 
     // ---------------------------------------------------------------------------------------------------------------
@@ -79,13 +79,13 @@ namespace io_wally
     mqtt_connection::mqtt_connection( tcp::socket socket,
                                       mqtt_connection_manager& connection_manager,
                                       const context& context,
-                                      packetq_t& dispatchq )
+                                      boost::asio::queue_sender<packetq_t>& dispatcher )
         : description_{connection_description( socket )},
           socket_{move( socket )},
           strand_{socket.get_io_service( )},
           connection_manager_{connection_manager},
           context_{context},
-          dispatchq_{dispatchq},
+          dispatcher_{dispatcher},
           read_buffer_( context[context::READ_BUFFER_SIZE].as<const size_t>( ) ),
           write_buffer_( context[context::WRITE_BUFFER_SIZE].as<const size_t>( ) ),
           close_on_connection_timeout_{socket.get_io_service( )},
@@ -97,6 +97,8 @@ namespace io_wally
     void mqtt_connection::start( )
     {
         BOOST_LOG_SEV( logger_, lvl::info ) << "START: " << *this;
+
+        close_on_connect_timeout( );
 
         read_frame( );
     }
@@ -122,6 +124,9 @@ namespace io_wally
 
     void mqtt_connection::do_stop( )
     {
+        close_on_connection_timeout_.cancel( );
+        close_on_keep_alive_timeout_.cancel( );
+
         auto ignored_ec = boost::system::error_code{};
         socket_.shutdown( socket_.shutdown_both, ignored_ec );
         socket_.close( ignored_ec );
@@ -129,15 +134,10 @@ namespace io_wally
         BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPED: " << *this;
     }
 
-    // Reading incoming messages
+    // Deal with connect timeout
 
-    void mqtt_connection::read_frame( )
+    void mqtt_connection::close_on_connect_timeout( )
     {
-        if ( !socket_.is_open( ) )  // Socket was closed
-            return;
-
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< READ: frame [buf_s:" << read_buffer_.size( ) << "] ...";
-
         // Start deadline timer that will close this connection if connect timeout expires without receiving CONNECT
         // request
         auto self = shared_from_this( );
@@ -150,13 +150,23 @@ namespace io_wally
                               {
                                   auto msg = ostringstream{};
                                   msg << "CONNECTION TIMEOUT EXPIRED after ["
-                                      << self->context_[context::CONNECT_TIMEOUT].as<const uint32_t>( )
-                                      << "] ms - connection [" << self->socket_ << "] will be closed";
+                                      << self->context_[context::CONNECT_TIMEOUT].as<const uint32_t>( ) << "] ms";
                                   self->connection_close_requested(
                                       msg.str( ), dispatch::disconnect_reason::protocol_violation, ec, lvl::warning );
                               }
                           } ) );
+    }
 
+    // Reading incoming messages
+
+    void mqtt_connection::read_frame( )
+    {
+        if ( !socket_.is_open( ) )  // Socket was closed
+            return;
+
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< READ: next frame ...";
+
+        auto self = shared_from_this( );
         boost::asio::async_read( socket_, boost::asio::buffer( read_buffer_ ),
                                  [self]( const boost::system::error_code& ec, const size_t bytes_transferred ) -> size_t
                                  {
@@ -169,13 +179,13 @@ namespace io_wally
 
     void mqtt_connection::on_frame_read( const boost::system::error_code& ec, const size_t bytes_transferred )
     {
+        // We received a packet, so let's cancel keep alive timer
+        close_on_keep_alive_timeout_.cancel( );
         if ( ec )
         {
             on_read_failed( ec, bytes_transferred );
             return;
         }
-        // We received a packet, so let's cancel keep alive timer
-        close_on_keep_alive_timeout_.cancel( );
 
         decode_packet( bytes_transferred );
     }
@@ -184,14 +194,11 @@ namespace io_wally
     {
         try
         {
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< Frame read [bt:" << bytes_transferred
-                                                 << "|buf_s:" << read_buffer_.size( ) << "] - decoding packet ...";
-
             const boost::optional<const frame> frame = frame_reader_.get_frame( );
             assert( frame );
             auto parsed_packet = packet_decoder_.decode( *frame );
-            BOOST_LOG_SEV( logger_, lvl::info ) << "<<< DECODED [res:" << *parsed_packet << "|bt:" << bytes_transferred
-                                                << "|buf_s:" << read_buffer_.size( ) << "]";
+            BOOST_LOG_SEV( logger_, lvl::info ) << "<<< DECODED [res:" << *parsed_packet
+                                                << "|bytes:" << bytes_transferred << "]";
 
             frame_reader_.reset( );
             // TODO: Think about better resizing strategy - maybe using a max buffer capacity
@@ -201,9 +208,8 @@ namespace io_wally
         }
         catch ( const error::malformed_mqtt_packet& e )
         {
-            connection_close_requested(
-                "<<< Malformed control packet header - will close this connection: " + string{e.what( )},
-                dispatch::disconnect_reason::protocol_violation );
+            connection_close_requested( "<<< Malformed control packet header: " + string{e.what( )},
+                                        dispatch::disconnect_reason::protocol_violation );
         }
     }
 
@@ -214,10 +220,9 @@ namespace io_wally
         // but Mum always told me to clean up after yourself ...
         if ( ec != boost::asio::error::operation_aborted )  // opration_aborted: regular shutdown sequence
         {
-            BOOST_LOG_SEV( logger_, lvl::warning ) << "<<< NETWORK ERROR (" << ec.message( ) << ") after ["
-                                                   << bytes_transferred
-                                                   << "] bytes transferred: closing connection ...";
-            connection_close_requested( "<<< Network error", dispatch::disconnect_reason::network_or_server_failure, ec,
+            auto msg = ostringstream{};
+            msg << "<<< NETWORK ERROR (" << ec.message( ) << ") after [" << bytes_transferred << "] bytes transferred";
+            connection_close_requested( msg.str( ), dispatch::disconnect_reason::network_or_server_failure, ec,
                                         lvl::error );
         }
     }
@@ -281,10 +286,8 @@ namespace io_wally
         {
             // [MQTT-3.1.0-2]: If receiving a second CONNECT on an already authenticated connection, that
             // connection MUST be closed
-            connection_close_requested(
-                "--- [MQTT-3.1.0-2] Received CONNECT on already authenticated "
-                "connection - connection will be closed",
-                dispatch::disconnect_reason::protocol_violation );
+            connection_close_requested( "--- [MQTT-3.1.0-2] Received CONNECT on already authenticated connection",
+                                        dispatch::disconnect_reason::protocol_violation );
         }
         // TODO: Calling socket_.remote_endpoint() is not safe since we can be disconnected at any time
         else if ( !context_.authentication_service( ).authenticate( socket_.remote_endpoint( ).address( ).to_string( ),
@@ -450,8 +453,7 @@ namespace io_wally
         if ( !socket_.is_open( ) )  // Socket was asynchronously closed
             return;
 
-        BOOST_LOG_SEV( logger_, lvl::debug ) << ">>> SEND: " << packet << " - connection will be closed: " << message
-                                             << " ...";
+        BOOST_LOG_SEV( logger_, lvl::debug ) << ">>> SEND: " << packet << " - " << message << " ...";
         write_buffer_.clear( );
         write_buffer_.resize( packet.header( ).total_length( ) );
         packet_encoder_.encode( packet, write_buffer_.begin( ),
@@ -482,17 +484,33 @@ namespace io_wally
         {
             auto self = shared_from_this( );
             close_on_keep_alive_timeout_.expires_from_now( *keep_alive_ );
-            close_on_connection_timeout_.async_wait( strand_.wrap(
-                [self]( const boost::system::error_code& ec )
-                {
-                    if ( !ec )
-                    {
-                        auto msg = ostringstream{};
-                        msg << "Keep alive timeout expired after [" << ( self->keep_alive_ )->count( ) << "] s";
-                        self->connection_close_requested(
-                            msg.str( ), dispatch::disconnect_reason::keep_alive_timeout_expired, ec, lvl::warning );
-                    }
-                } ) );
+            close_on_connection_timeout_.async_wait( strand_.wrap( [self]( const boost::system::error_code& ec )
+                                                                   {
+                                                                       self->handle_keep_alive_timeout( ec );
+                                                                   } ) );
+        }
+    }
+
+    void mqtt_connection::handle_keep_alive_timeout( const boost::system::error_code& ec )
+    {
+        if ( !ec )
+        {
+            auto msg = ostringstream{};
+            msg << "Keep alive timeout expired after [" << ( keep_alive_ )->count( ) << "] s";
+            connection_close_requested( msg.str( ), dispatch::disconnect_reason::keep_alive_timeout_expired, ec,
+                                        lvl::warning );
+        }
+        else if ( ec == boost::asio::error::operation_aborted )
+        {
+            if ( socket_.is_open( ) )
+            {
+                // Received packet and thus cancelled this timer - start next to keep us in the loop
+                close_on_keep_alive_timeout( );
+            }
+        }
+        else
+        {
+            assert( false );  // We should never get here
         }
     }
 

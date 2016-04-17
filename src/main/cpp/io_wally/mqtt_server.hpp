@@ -104,9 +104,11 @@ namespace io_wally
         boost::asio::ip::tcp::acceptor acceptor_{io_service_};
         /// The next socket to be accepted.
         boost::asio::ip::tcp::socket socket_{io_service_};
+        /// Queue sender for dispatching received protocol packets asynchronously (from point of view of connection) to
+        /// dispatcher queue.
+        boost::asio::queue_sender<mqtt_connection::packetq_t> dispatcher_{io_service_, &dispatchq_};
         /// Our severity-enabled channel logger
         boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
-            boost::log::keywords::channel = "server",
-            boost::log::keywords::severity = boost::log::trivial::trace};
+            boost::log::keywords::channel = "server", boost::log::keywords::severity = boost::log::trivial::trace};
     };
 }  // namespace io_wally
