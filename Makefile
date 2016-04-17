@@ -149,44 +149,7 @@ EXEC_UT                   := $(BUILD_UT)/unit-tests
 # Integration tests
 # --------------------------------------------------------------------------------------------------------------------- 
 
-SRC_DIR_IT                := src/itest/cpp
-
-# Integrationtest framework SRCS
-SRCS_IT_FRM               := $(wildcard $(SRC_DIR_IT)/framework/*.cpp)
-
-# Intgegrationtest objects
-OBJS_IT_FRM               := $(patsubst $(SRC_DIR_IT)/%.cpp, $(BUILD_IT)/%.o, $(SRCS_IT_FRM))
-
-# Integrationtest SRCS
-SRCS_IT                   := $(wildcard $(SRC_DIR_IT)/io_wally/*.cpp)
-
-EXECSOURCE_IT             := $(SRC_DIR_IT)/itests_main.cpp
-
-# Build dir for integrationtests
-BUILD_IT                  := $(BUILD)/itest
-
-# Intgegrationtest objects
-OBJS_IT                   := $(patsubst $(SRC_DIR_IT)/%.cpp, $(BUILD_IT)/%.o, $(SRCS_IT))
-
-EXECOBJ_IT                := $(patsubst $(SRC_DIR_IT)/%.cpp, $(BUILD_IT)/%.o, $(EXECSOURCE_IT))
-
-# Subdirs in build directory need to reflect subdirs in integrationtest directory
-BUILDDIRS_IT              := $(sort $(dir $(OBJS_IT)))
-
-# Main integrationtest executable
-EXEC_IT                   := $(BUILD_IT)/integration-tests
-
-# --------------------------------------------------------------------------------------------------------------------- 
-# Snippets: try stuff, analyse bugs etc.
-# --------------------------------------------------------------------------------------------------------------------- 
-
-# Snippets SRCS
-EXECSOURCE_SNIP           := $(SRC_DIR_IT)/snippets_main.cpp
-
-EXECOBJ_SNIP              := $(patsubst $(SRC_DIR_IT)/%.cpp, $(BUILD_IT)/%.o, $(EXECSOURCE_SNIP))
-
-# Main integrationtest executable
-EXEC_SNIP                 := $(BUILD_IT)/snippets
+SRC_DIR_IT                := src/itest/py
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Tooling
@@ -338,35 +301,6 @@ LDLIBS_UT                 += -fsanitize=leak
 LDLIBS_UT                 += -fsanitize=undefined
 
 # --------------------------------------------------------------------------------------------------------------------- 
-# Compiler configuration: integration tests
-# --------------------------------------------------------------------------------------------------------------------- 
-
-# Integrationtest compiler flags
-CXXFLAGS_IT               := $(CXXFLAGS_M)
-CXXFLAGS_IT               += -O0
-CXXFLAGS_IT               += -g # Needed by g++ to support line numbers in asan reports
-CXXFLAGS_IT               += -I $(SRC_DIR_IT)
-CXXFLAGS_IT               += -I $(PAHO_C_INC)
-CXXFLAGS_IT               += -Wno-missing-field-initializers
-CXXFLAGS_IT               := $(filter-out -Wswitch-default, $(CXXFLAGS_IT))
-CXXFLAGS_IT               := $(filter-out -Wswitch-enum, $(CXXFLAGS_IT))
-CXXFLAGS_IT               += -fsanitize=address
-CXXFLAGS_IT               += -fsanitize=leak
-CXXFLAGS_IT               += -fsanitize=undefined
-CXXFLAGS_IT               += -fno-omit-frame-pointer
-
-# Integrationtest preprocessor flags
-CPPFLAGS_IT               := $(CPPFLAGS_M)
-
-# Integrationtest linker flags
-LDLIBS_IT                 := $(LDLIBS_M)
-LDLIBS_IT                 += -L$(PAHO_C_LIBS)
-LDLIBS_IT                 += -lpaho-mqtt3c
-LDLIBS_IT                 += -fsanitize=address
-LDLIBS_IT                 += -fsanitize=leak 
-LDLIBS_IT                 += -fsanitize=undefined
-
-# --------------------------------------------------------------------------------------------------------------------- 
 # catch.hpp: test library on github
 # --------------------------------------------------------------------------------------------------------------------- 
 
@@ -464,28 +398,8 @@ $(BUILD_UT)/%.o           : $(SRC_DIR_UT)/%.cpp                    | $(BUILDDIRS
 # --------------------------------------------------------------------------------------------------------------------- 
 
 .PHONY                    : itest
-itest                     : itest-cpp
-itest                     : itest-py
-
-.PHONY                    : itest-cpp
-itest-cpp                 : itest-compile
-	@LD_LIBRARY_PATH=$(PAHO_C_LIBS):$(LD_LIBRARY_PATH) $(ASAN_OPTS) ./$(EXEC_IT) --success --durations yes
-
-itest-compile             : paho-c
-itest-compile             : $(EXEC_IT)                             | $(BUILDDIRS_IT)
-
-$(BUILDDIRS_IT)           :
-	@mkdir -p $@
-
-$(EXEC_IT)                : $(OBJS_M_SAN) $(OBJS_IT) $(OBJS_IT_FRM) $(EXECOBJ_IT) | $(BUILDDIRS_IT)
-	$(CXX) $(LDLIBS_IT) -o $@ $^
-
-$(BUILD_IT)/%.o           : $(SRC_DIR_IT)/%.cpp                    | $(BUILDDIRS_IT)
-	$(CXX) $(CPPFLAGS_IT) $(CXXFLAGS_IT) -o $@ -c $<
-
-.PHONY                    : itest-py
-itest-py                  : sanitize
-	@python3 -m unittest discover --verbose --start-directory ./src/itest/py/ --pattern "*_tests.py"
+itest                     : sanitize
+	@python3 -m unittest discover --verbose --start-directory $(SRC_DIR_IT) --pattern "*_tests.py"
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build/run load tests
@@ -502,20 +416,6 @@ ltest                     : main
 .PHONY                    : conformance-tests
 conformance-tests         :
 	@python3 $(PAHO_CONFORM_EXEC)
-
-# --------------------------------------------------------------------------------------------------------------------- 
-# Build snippets: try stuff, analyse bugs etc
-# --------------------------------------------------------------------------------------------------------------------- 
-
-.PHONY                    : snippets 
-snippets                  : snippets-compile
-	@./$(EXEC_SNIP)
-
-.PHONY                    : snippets-compile
-snippets-compile          : $(EXEC_SNIP)                            | $(BUILDDIRS_IT)
-
-$(EXEC_SNIP)              : $(OBJS_M) $(OBJS_IT_FRM) $(EXECOBJ_SNIP)    | $(BUILDDIRS_IT)
-	$(CXX) $(LDLIBS_IT) -o $@ $^
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Clean up the mess
@@ -562,11 +462,6 @@ check-test                : compilation-db
 check-test                : $(SRCS_UT) $(EXECSOURCE_UT)
 	@clang-check -p=$(COMPILATIONDB) $(SRCS_UT) $(EXECSOURCE_UT)
 
-.PHONY                    : check-itest
-check-itest               : compilation-db
-check-itest               : $(SRCS_IT) $(EXECSOURCE_IT)
-	@clang-check -p=$(COMPILATIONDB) $(SRCS_IT) $(EXECSOURCE_IT)
-
 .PHONY                    : check
 check                     : check-main check-test 
 
@@ -590,25 +485,18 @@ format-main               : $(SRCS_M) $(EXECSOURCE_M)
 format-test               : $(SRCS_UT) $(EXECSOURCE_UT)
 	@clang-format -i -style=file $(SRCS_UT) $(EXECSOURCE_UT)
 
-.PHONY                    : format-itest
-format-itest              : $(SRCS_IT) $(EXECSOURCE_IT)
-	@clang-format -i -style=file $(SRCS_IT) $(EXECSOURCE_IT)
-
 .PHONY                    : format
 format                    : format-main
 format                    : format-test
-format                    : format-itest
 
 .PHONY                    : tags
-tags                      : $(SRCS_M) $(EXECSOURCE_M) $(SRCS_UT) $(EXECSOURCE_UT) $(SRCS_IT) $(EXECSOURCE_IT)
-	@ctags -R -f ./.tags $(SRC_DIR_M) $(SRC_DIR_UT) $(SRC_DIR_IT)
+tags                      : $(SRCS_M) $(EXECSOURCE_M) $(SRCS_UT) $(EXECSOURCE_UT)
+	@ctags -R -f ./.tags $(SRC_DIR_M) $(SRC_DIR_UT)
 
 .PHONY                    : upgrade-catch-hpp
 upgrade-catch-hpp         :
 	@mv $(SRC_DIR_UT)/catch.hpp $(SRC_DIR_UT)/catch.hpp.backup; \
-		curl --progress-bar --output $(SRC_DIR_UT)/catch.hpp $(CATCH_DL_URL); \
-		mv $(SRC_DIR_IT)/catch.hpp $(SRC_DIR_IT)/catch.hpp.backup; \
-		curl --progress-bar --output $(SRC_DIR_IT)/catch.hpp $(CATCH_DL_URL)
+		curl --progress-bar --output $(SRC_DIR_UT)/catch.hpp $(CATCH_DL_URL);
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Prepare a commit: run (almost) everything
@@ -645,5 +533,3 @@ run-server-san            : $(EXEC_M_SAN)
 -include                  $(EXECOBJ_M:.o=.d)
 -include                  $(OBJS_UT:.o=.d)
 -include                  $(EXECOBJ_UT:.o=.d)
--include                  $(OBJS_IT:.o=.d)
--include                  $(EXECOBJ_IT:.o=.d)
