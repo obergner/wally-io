@@ -445,7 +445,7 @@ doc-publish               : doc
 compilation-db            : $(COMPILATIONDB)
 
 $(COMPILATIONDB)          : $(SRCS_M) $(EXECSOURCE_M) $(SRCS_UT) $(EXECSOURCE_UT) $(SRCS_IT) $(EXECSOURCE_IT)
-	@bear --cdb $(COMPILATIONDB) $(MAKE) clean main test-compile itest-compile
+	@bear --cdb $(COMPILATIONDB) $(MAKE) clean main test-compile
 
 .PHONY                    : macroexpand
 macroexpand               : $(SRCS_M) $(EXECSOURCE_M)
@@ -531,5 +531,11 @@ run-server-san            : $(EXEC_M_SAN)
 
 -include                  $(OBJS_M:.o=.d)
 -include                  $(EXECOBJ_M:.o=.d)
+-include                  $(OBJS_M_RELEASE:.o=.d)
+-include                  $(EXECOBJ_M_RELEASE:.o=.d)
+-include                  $(OBJS_M_DEBUG:.o=.d)
+-include                  $(EXECOBJ_M_DEBUG:.o=.d)
+-include                  $(OBJS_M_SAN:.o=.d)
+-include                  $(EXECOBJ_M_SAN:.o=.d)
 -include                  $(OBJS_UT:.o=.d)
 -include                  $(EXECOBJ_UT:.o=.d)

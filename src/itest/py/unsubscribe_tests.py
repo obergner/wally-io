@@ -132,9 +132,9 @@ class UnsubscribeTests(unittest.TestCase):
         pass
 
     def setUp(self):
-        self.subscriber = Subscriber("subscriber", "/test/unsubscribe", 0)
+        self.subscriber = Subscriber("UnsubscribeTests-Sub", "/test/unsubscribe", 0)
         self.subscriber.start()
-        self.publisher = Publisher("publisher")
+        self.publisher = Publisher("UnsubscribeTests-Pub")
         self.publisher.start()
         time.sleep(1)
 

@@ -26,7 +26,10 @@ namespace framework
     io_wally::mqtt_packet_sender::packet_container_t::ptr create_subscribe_container(
         const std::vector<io_wally::protocol::subscription> subscriptions );
 
-    std::shared_ptr<io_wally::protocol::publish> create_publish_packet( const std::string& topic, bool retain = false );
+    std::shared_ptr<io_wally::protocol::publish> create_publish_packet( const std::string& topic,
+                                                                        bool retain = false,
+                                                                        const std::vector<std::uint8_t> msg = {
+                                                                            't', 'e', 's', 't'} );
 
     io_wally::mqtt_packet_sender::packet_container_t::ptr create_publish_container( const std::string& topic );
 }  // namespace framework

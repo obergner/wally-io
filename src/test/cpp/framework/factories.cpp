@@ -44,7 +44,9 @@ namespace framework
         return io_wally::mqtt_packet_sender::packet_container_t::contain( "client_mock", sender_ptr, subscribe_ptr );
     }
 
-    std::shared_ptr<io_wally::protocol::publish> create_publish_packet( const std::string& topic, bool retain )
+    std::shared_ptr<io_wally::protocol::publish> create_publish_packet( const std::string& topic,
+                                                                        bool retain,
+                                                                        const std::vector<uint8_t> msg )
     {
         auto flags = std::uint8_t{0x00};
         if ( retain )
@@ -55,7 +57,6 @@ namespace framework
         auto const type_and_flags = std::uint8_t( ( 3 << 4 ) | flags );
         auto const header = io_wally::protocol::packet::header{type_and_flags, 20};
         auto const pktid = std::uint16_t{7};
-        auto const msg = std::vector<uint8_t>{'t', 'e', 's', 't'};
 
         return std::make_shared<io_wally::protocol::publish>( header, topic, pktid, msg );
     }

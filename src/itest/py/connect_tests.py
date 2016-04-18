@@ -207,7 +207,7 @@ class MQTTConnectTests(unittest.TestCase):
         pass
 
     def setUp(self):
-        self.mqtt_connector = MQTTConnector("MQTTConnector")
+        self.mqtt_connector = MQTTConnector("MQTTConnectTests-Conn")
 
     def tearDown(self):
         self.mqtt_connector.disconnect()

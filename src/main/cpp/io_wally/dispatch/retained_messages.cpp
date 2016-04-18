@@ -16,7 +16,14 @@ namespace io_wally
         {
             assert( incoming_publish->retain( ) );
 
-            messages_[incoming_publish->topic( )] = incoming_publish;
+            if ( incoming_publish->application_message( ).size( ) > 0 )
+            {
+                messages_[incoming_publish->topic( )] = incoming_publish;
+            }
+            else
+            {
+                messages_.erase( incoming_publish->topic( ) );
+            }
         }
 
         std::size_t retained_messages::size( ) const

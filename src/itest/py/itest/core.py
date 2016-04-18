@@ -53,7 +53,7 @@ class ServerUnderTest(object):
                 '--conn-timeout', '2000']
         self.__process = subprocess.Popen(args)
         self.__started = True
-        time.sleep(1)
+        time.sleep(2)
         logging.info("Started %s", self.__name)
 
     def is_started(self):
