@@ -60,10 +60,19 @@ namespace io_wally
                 return header( ).flags( ).dup( );
             }
 
-            /// \brief Set DUP flag to mark this packet as a duplicate PUBLISH in a QoS 2 publication.
-            void set_dup( )
+            /// \brief Set/unset DUP flag to mark this packet as a duplicate PUBLISH in a QoS 2 publication.
+            ///
+            /// \param \c dup Whether to mark this packet as a duplicate PUBLISH in a QoS 2 publication
+            void dup( const bool dup )
             {
-                type_and_flags_ |= 0x08;
+                if ( dup )
+                {
+                    type_and_flags_ |= 0x08;
+                }
+                else
+                {
+                    type_and_flags_ &= ~0x08;
+                }
             }
 
             /// \brief Return quality of service assigned this PUBLISH packet.
@@ -110,6 +119,21 @@ namespace io_wally
             bool retain( ) const
             {
                 return header( ).flags( ).retain( );
+            }
+
+            /// \brief Set/unset RETAIN flag, i.e. whether a message should be retained by the the broker.
+            ///
+            /// \param \c retain Whether message should be retained
+            void retain( const bool retain )
+            {
+                if ( retain )
+                {
+                    type_and_flags_ |= 0x01;
+                }
+                else
+                {
+                    type_and_flags_ &= ~0x01;
+                }
             }
 
             /// \brief Return \c topic to publish this message to.

@@ -23,13 +23,58 @@ SCENARIO( "publish", "[packets]" )
 
         auto under_test = publish{hdr, topic, pktid, msg};
 
-        WHEN( "a caller sets DUP flag" )
+        WHEN( "a caller calls dup( true )" )
         {
-            under_test.set_dup( );
+            under_test.dup( true );
 
             THEN( "dup() should return true" )
             {
                 REQUIRE( under_test.dup( ) == true );
+            }
+        }
+
+        WHEN( "a caller calls dup( false )" )
+        {
+            under_test.dup( false );
+
+            THEN( "dup() should return false" )
+            {
+                REQUIRE( under_test.dup( ) == false );
+            }
+        }
+    }
+
+    GIVEN( "a publish with DUP set to true" )
+    {
+        auto const flgs = std::uint8_t{3 << 4 | 0x09};
+        auto const rem_len = std::uint32_t{5};
+        auto const hdr = packet::header{flgs, rem_len};
+
+        auto const topic = "a";
+
+        auto const pktid = std::uint16_t{0xF312};
+
+        auto const msg = std::vector<uint8_t>{0x00, 0x00};
+
+        auto under_test = publish{hdr, topic, pktid, msg};
+
+        WHEN( "a caller calls dup( true )" )
+        {
+            under_test.dup( true );
+
+            THEN( "dup() should return true" )
+            {
+                REQUIRE( under_test.dup( ) == true );
+            }
+        }
+
+        WHEN( "a caller calls dup( false )" )
+        {
+            under_test.dup( false );
+
+            THEN( "dup() should return false" )
+            {
+                REQUIRE( under_test.dup( ) == false );
             }
         }
     }
@@ -186,6 +231,76 @@ SCENARIO( "publish", "[packets]" )
             AND_THEN( "remaining_length() should be decreased by two bytes" )
             {
                 REQUIRE( under_test.header( ).remaining_length( ) == rem_len - 2 );
+            }
+        }
+    }
+
+    GIVEN( "a publish with RETAIN set to false" )
+    {
+        auto const flgs = std::uint8_t{3 << 4 | 0x02};
+        auto const rem_len = std::uint32_t{5};
+        auto const hdr = packet::header{flgs, rem_len};
+
+        auto const topic = "a";
+
+        auto const pktid = std::uint16_t{0xF312};
+
+        auto const msg = std::vector<uint8_t>{0x00, 0x00};
+
+        auto under_test = publish{hdr, topic, pktid, msg};
+
+        WHEN( "a caller calls retain( false )" )
+        {
+            under_test.retain( false );
+
+            THEN( "retain() should return false" )
+            {
+                REQUIRE( under_test.retain( ) == false );
+            }
+        }
+
+        WHEN( "a caller calls retain( true )" )
+        {
+            under_test.retain( true );
+
+            THEN( "retain() should return true" )
+            {
+                REQUIRE( under_test.retain( ) == true );
+            }
+        }
+    }
+
+    GIVEN( "a publish with RETAIN set to true" )
+    {
+        auto const flgs = std::uint8_t{3 << 4 | 0x03};
+        auto const rem_len = std::uint32_t{5};
+        auto const hdr = packet::header{flgs, rem_len};
+
+        auto const topic = "a";
+
+        auto const pktid = std::uint16_t{0xF312};
+
+        auto const msg = std::vector<uint8_t>{0x00, 0x00};
+
+        auto under_test = publish{hdr, topic, pktid, msg};
+
+        WHEN( "a caller calls retain( false )" )
+        {
+            under_test.retain( false );
+
+            THEN( "retain() should return false" )
+            {
+                REQUIRE( under_test.retain( ) == false );
+            }
+        }
+
+        WHEN( "a caller calls retain( true )" )
+        {
+            under_test.retain( true );
+
+            THEN( "retain() should return true" )
+            {
+                REQUIRE( under_test.retain( ) == true );
             }
         }
     }

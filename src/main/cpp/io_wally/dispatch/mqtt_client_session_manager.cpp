@@ -120,6 +120,9 @@ namespace io_wally
             if ( incoming_publish->retain( ) )
             {
                 retained_messages_.retain( incoming_publish );
+                // [MQTT-3.3.1.3] PUBLISH packets forwarded to subscriptions that already existed when they were
+                // published MUST have their retain flag set to 0
+                incoming_publish->retain( false );
                 BOOST_LOG_SEV( logger_, lvl::debug ) << "RETAINED: [topic:" << incoming_publish->topic( )
                                                      << "|size:" << incoming_publish->application_message( ).size( )
                                                      << "]";

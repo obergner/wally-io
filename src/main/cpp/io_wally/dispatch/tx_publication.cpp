@@ -180,7 +180,7 @@ namespace io_wally
             {
                 if ( state_ == state::waiting_for_rec )
                 {
-                    publish_->set_dup( );  // Mark this a duplication publish
+                    publish_->dup( true );  // Mark this a duplication publish
                     sender->send( publish_ );
                 }
                 else  // waiting for pubcomp
