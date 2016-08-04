@@ -3,18 +3,18 @@
 #include <cassert>
 #include <cstdint>
 #include <memory>
-#include <utility>
 #include <tuple>
 #include <unordered_map>
+#include <utility>
 
 #include <boost/asio.hpp>
 
 #include "io_wally/context.hpp"
+#include "io_wally/dispatch/rx_publication.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/publish_packet.hpp"
 #include "io_wally/protocol/pubrel_packet.hpp"
-#include "io_wally/dispatch/rx_publication.hpp"
 
 namespace io_wally
 {

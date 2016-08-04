@@ -1,15 +1,15 @@
 #include "catch.hpp"
 
+#include <cstdint>
+#include <fstream>
 #include <string>
 #include <utility>
-#include <fstream>
-#include <cstdint>
 
 #include <boost/program_options.hpp>
 
-#include "io_wally/defaults.hpp"
-#include "io_wally/context.hpp"
 #include "io_wally/app/options_parser.hpp"
+#include "io_wally/context.hpp"
+#include "io_wally/defaults.hpp"
 
 SCENARIO( "options_parser", "[options]" )
 {
@@ -22,8 +22,9 @@ SCENARIO( "options_parser", "[options]" )
         WHEN( "parsing that command line" )
         {
             const std::pair<const boost::program_options::variables_map,
-                            const boost::program_options::options_description> config_plus_desc =
-                under_test.parse( sizeof( command_line_args ) / sizeof( *command_line_args ), command_line_args );
+                            const boost::program_options::options_description>
+                config_plus_desc =
+                    under_test.parse( sizeof( command_line_args ) / sizeof( *command_line_args ), command_line_args );
 
             THEN( "it should return a variables_map with default options" )
             {
@@ -97,8 +98,9 @@ SCENARIO( "options_parser", "[options]" )
         WHEN( "parsing that command line" )
         {
             const std::pair<const boost::program_options::variables_map,
-                            const boost::program_options::options_description> config_plus_desc =
-                under_test.parse( sizeof( command_line_args ) / sizeof( *command_line_args ), command_line_args );
+                            const boost::program_options::options_description>
+                config_plus_desc =
+                    under_test.parse( sizeof( command_line_args ) / sizeof( *command_line_args ), command_line_args );
 
             THEN( "it should return a variables_map with all command line args correctly parsed" )
             {
@@ -163,8 +165,9 @@ conn-wbuf-size = 8999
         WHEN( "parsing a command line pointing to that configuration file" )
         {
             const std::pair<const boost::program_options::variables_map,
-                            const boost::program_options::options_description> config_plus_desc =
-                under_test.parse( sizeof( command_line_args ) / sizeof( *command_line_args ), command_line_args );
+                            const boost::program_options::options_description>
+                config_plus_desc =
+                    under_test.parse( sizeof( command_line_args ) / sizeof( *command_line_args ), command_line_args );
 
             THEN( "it should return a variables_map with all options populated from configuration file" )
             {

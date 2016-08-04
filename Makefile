@@ -257,6 +257,7 @@ CXXFLAGS_SAN              += -g # Needed by g++ to support line numbers in asan 
 CXXFLAGS_SAN              += -fsanitize=address
 CXXFLAGS_SAN              += -fsanitize=leak
 CXXFLAGS_SAN              += -fsanitize=undefined
+CXXFLAGS_SAN              += -fno-sanitize=vptr # See: https://github.com/scylladb/seastar/issues/78
 CXXFLAGS_SAN              += -fno-omit-frame-pointer
 
 # Sanitizer linker flags
@@ -264,6 +265,7 @@ LDLIBS_SAN                := $(LDLIBS_M)
 LDLIBS_SAN                += -fsanitize=address
 LDLIBS_SAN                += -fsanitize=leak
 LDLIBS_SAN                += -fsanitize=undefined
+LDLIBS_SAN                += -fno-sanitize=vptr # See: https://github.com/scylladb/seastar/issues/78
 
 # Correctly configure Address Sanitizer
 # See: https://www.chromium.org/developers/testing/leaksanitizer
@@ -289,6 +291,7 @@ CXXFLAGS_UT               := $(filter-out -Wswitch-enum, $(CXXFLAGS_UT))
 CXXFLAGS_UT               += -fsanitize=address
 CXXFLAGS_UT               += -fsanitize=leak
 CXXFLAGS_UT               += -fsanitize=undefined
+CXXFLAGS_UT               += -fno-sanitize=vptr # See: https://github.com/scylladb/seastar/issues/78
 CXXFLAGS_UT               += -fno-omit-frame-pointer
 
 # Integrationtest preprocessor flags
@@ -299,6 +302,7 @@ LDLIBS_UT                 := $(LDLIBS_M)
 LDLIBS_UT                 += -fsanitize=address
 LDLIBS_UT                 += -fsanitize=leak
 LDLIBS_UT                 += -fsanitize=undefined
+LDLIBS_UT                 += -fno-sanitize=vptr # See: https://github.com/scylladb/seastar/issues/78
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # catch.hpp: test library on github

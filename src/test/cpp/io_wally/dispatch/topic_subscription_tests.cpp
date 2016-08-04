@@ -2,12 +2,12 @@
 
 #include "framework/factories.hpp"
 
-#include "io_wally/protocol/common.hpp"
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/dispatch/topic_subscriptions.hpp"
+#include "io_wally/protocol/common.hpp"
+#include "io_wally/protocol/publish_packet.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
 #include "io_wally/protocol/unsubscribe_packet.hpp"
-#include "io_wally/protocol/publish_packet.hpp"
 
 using namespace io_wally::protocol;
 

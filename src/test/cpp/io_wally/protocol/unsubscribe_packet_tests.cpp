@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
-#include "io_wally/protocol/unsubscribe_packet.hpp"
 #include "io_wally/protocol/unsuback_packet.hpp"
+#include "io_wally/protocol/unsubscribe_packet.hpp"
 
 using namespace io_wally::protocol;
 

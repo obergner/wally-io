@@ -1,26 +1,26 @@
 #include "io_wally/dispatch/mqtt_client_session_manager.hpp"
 
-#include <string>
-#include <memory>
-#include <map>
 #include <algorithm>
+#include <map>
+#include <memory>
+#include <string>
 
 #include <boost/asio.hpp>
 #include <boost/log/trivial.hpp>
 
 #include "io_wally/context.hpp"
-#include "io_wally/mqtt_packet_sender.hpp"
-#include "io_wally/protocol/subscribe_packet.hpp"
-#include "io_wally/protocol/suback_packet.hpp"
-#include "io_wally/protocol/unsubscribe_packet.hpp"
-#include "io_wally/protocol/unsuback_packet.hpp"
-#include "io_wally/protocol/publish_packet.hpp"
-#include "io_wally/protocol/puback_packet.hpp"
-#include "io_wally/protocol/pubrec_packet.hpp"
-#include "io_wally/protocol/pubcomp_packet.hpp"
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/dispatch/mqtt_client_session.hpp"
 #include "io_wally/dispatch/topic_subscriptions.hpp"
+#include "io_wally/mqtt_packet_sender.hpp"
+#include "io_wally/protocol/puback_packet.hpp"
+#include "io_wally/protocol/pubcomp_packet.hpp"
+#include "io_wally/protocol/publish_packet.hpp"
+#include "io_wally/protocol/pubrec_packet.hpp"
+#include "io_wally/protocol/suback_packet.hpp"
+#include "io_wally/protocol/subscribe_packet.hpp"
+#include "io_wally/protocol/unsuback_packet.hpp"
+#include "io_wally/protocol/unsubscribe_packet.hpp"
 
 namespace io_wally
 {
@@ -200,8 +200,7 @@ namespace io_wally
         {
             auto resolved_subscribers = topic_subscriptions_.resolve_subscribers( incoming_publish );
             for_each( resolved_subscribers.begin( ), resolved_subscribers.end( ),
-                      [this, &incoming_publish]( const resolved_subscriber_t& subscriber )
-                      {
+                      [this, &incoming_publish]( const resolved_subscriber_t& subscriber ) {
                           // TODO: This will default construct (is that possible?) a new session if client_id is not yet
                           // registered.
                           if ( auto session = sessions_[subscriber.first] )

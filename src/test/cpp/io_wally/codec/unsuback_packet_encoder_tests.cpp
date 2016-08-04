@@ -1,10 +1,10 @@
 #include "catch.hpp"
 
-#include <cstdint>
 #include <array>
+#include <cstdint>
 
-#include "io_wally/protocol/unsuback_packet.hpp"
 #include "io_wally/codec/unsuback_packet_encoder.hpp"
+#include "io_wally/protocol/unsuback_packet.hpp"
 
 using namespace io_wally;
 

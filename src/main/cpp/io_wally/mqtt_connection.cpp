@@ -1,9 +1,9 @@
 #include "io_wally/mqtt_connection.hpp"
 
 #include <cassert>
-#include <memory>
 #include <chrono>
 #include <functional>
+#include <memory>
 
 #include <boost/system/error_code.hpp>
 
@@ -112,10 +112,7 @@ namespace io_wally
     {
         BOOST_LOG_SEV( logger_, log_level ) << message;
         auto self = shared_from_this( );
-        strand_.get_io_service( ).dispatch( strand_.wrap( [self]( )
-                                                          {
-                                                              self->connection_manager_.stop( self );
-                                                          } ) );
+        strand_.get_io_service( ).dispatch( strand_.wrap( [self]( ) { self->connection_manager_.stop( self ); } ) );
     }
 
     // ---------------------------------------------------------------------------------------------------------------
@@ -143,18 +140,16 @@ namespace io_wally
         auto self = shared_from_this( );
         auto conn_to = chrono::milliseconds{context_[context::CONNECT_TIMEOUT].as<const uint32_t>( )};
         close_on_connection_timeout_.expires_from_now( conn_to );
-        close_on_connection_timeout_.async_wait(
-            strand_.wrap( [self]( const boost::system::error_code& ec )
-                          {
-                              if ( !ec )
-                              {
-                                  auto msg = ostringstream{};
-                                  msg << "CONNECTION TIMEOUT EXPIRED after ["
-                                      << self->context_[context::CONNECT_TIMEOUT].as<const uint32_t>( ) << "] ms";
-                                  self->connection_close_requested(
-                                      msg.str( ), dispatch::disconnect_reason::protocol_violation, ec, lvl::warning );
-                              }
-                          } ) );
+        close_on_connection_timeout_.async_wait( strand_.wrap( [self]( const boost::system::error_code& ec ) {
+            if ( !ec )
+            {
+                auto msg = ostringstream{};
+                msg << "CONNECTION TIMEOUT EXPIRED after ["
+                    << self->context_[context::CONNECT_TIMEOUT].as<const uint32_t>( ) << "] ms";
+                self->connection_close_requested( msg.str( ), dispatch::disconnect_reason::protocol_violation, ec,
+                                                  lvl::warning );
+            }
+        } ) );
     }
 
     // Reading incoming messages
@@ -167,14 +162,14 @@ namespace io_wally
         BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< READ: next frame ...";
 
         auto self = shared_from_this( );
-        boost::asio::async_read( socket_, boost::asio::buffer( read_buffer_ ),
-                                 [self]( const boost::system::error_code& ec, const size_t bytes_transferred ) -> size_t
-                                 {
-                                     return self->frame_reader_( ec, bytes_transferred );
-                                 },
-                                 strand_.wrap( boost::bind( &mqtt_connection::on_frame_read, shared_from_this( ),
-                                                            boost::asio::placeholders::error,
-                                                            boost::asio::placeholders::bytes_transferred ) ) );
+        boost::asio::async_read(
+            socket_, boost::asio::buffer( read_buffer_ ),
+            [self]( const boost::system::error_code& ec, const size_t bytes_transferred ) -> size_t {
+                return self->frame_reader_( ec, bytes_transferred );
+            },
+            strand_.wrap( boost::bind( &mqtt_connection::on_frame_read, shared_from_this( ),
+                                       boost::asio::placeholders::error,
+                                       boost::asio::placeholders::bytes_transferred ) ) );
     }
 
     void mqtt_connection::on_frame_read( const boost::system::error_code& ec, const size_t bytes_transferred )
@@ -321,10 +316,9 @@ namespace io_wally
                                                               dispatch::disconnect_reason::client_disconnect );
 
         auto self = shared_from_this( );
-        dispatcher_.async_enq( connect_container, strand_.wrap( [self, connect]( const boost::system::error_code& ec )
-                                                                {
-                                                                    self->handle_dispatch_connect_packet( ec, connect );
-                                                                } ) );
+        dispatcher_.async_enq( connect_container, strand_.wrap( [self, connect]( const boost::system::error_code& ec ) {
+            self->handle_dispatch_connect_packet( ec, connect );
+        } ) );
     }
 
     void mqtt_connection::handle_dispatch_connect_packet( const boost::system::error_code& ec,
@@ -361,10 +355,9 @@ namespace io_wally
         auto self = shared_from_this( );
         dispatcher_.async_enq(
             connect_container,
-            strand_.wrap( [self, disconnect, disconnect_reason]( const boost::system::error_code& ec )
-                          {
-                              self->handle_dispatch_disconnect_packet( ec, disconnect, disconnect_reason );
-                          } ) );
+            strand_.wrap( [self, disconnect, disconnect_reason]( const boost::system::error_code& ec ) {
+                self->handle_dispatch_disconnect_packet( ec, disconnect, disconnect_reason );
+            } ) );
     }
 
     void mqtt_connection::handle_dispatch_disconnect_packet( const boost::system::error_code& ec,
@@ -392,10 +385,10 @@ namespace io_wally
         auto subscribe_container = packet_container_t::contain( *client_id_, shared_from_this( ), packet );
 
         auto self = shared_from_this( );
-        dispatcher_.async_enq( subscribe_container, strand_.wrap( [self, packet]( const boost::system::error_code& ec )
-                                                                  {
-                                                                      self->handle_dispatch_packet( ec, packet );
-                                                                  } ) );
+        dispatcher_.async_enq( subscribe_container,
+                               strand_.wrap( [self, packet]( const boost::system::error_code& ec ) {
+                                   self->handle_dispatch_packet( ec, packet );
+                               } ) );
     }
 
     void mqtt_connection::handle_dispatch_packet( const boost::system::error_code& ec,
@@ -431,19 +424,18 @@ namespace io_wally
         auto self = shared_from_this( );
         boost::asio::async_write(
             socket_, boost::asio::buffer( write_buffer_, packet.header( ).total_length( ) ),
-            strand_.wrap( [self]( const boost::system::error_code& ec, size_t /* bytes_written */ )
-                          {
-                              if ( ec )
-                              {
-                                  self->connection_close_requested(
-                                      "Failed to send packet", dispatch::disconnect_reason::network_or_server_failure,
-                                      ec, lvl::error );
-                              }
-                              else
-                              {
-                                  BOOST_LOG_SEV( self->logger_, lvl::debug ) << ">>> SENT";
-                              }
-                          } ) );
+            strand_.wrap( [self]( const boost::system::error_code& ec, size_t /* bytes_written */ ) {
+                if ( ec )
+                {
+                    self->connection_close_requested( "Failed to send packet",
+                                                      dispatch::disconnect_reason::network_or_server_failure, ec,
+                                                      lvl::error );
+                }
+                else
+                {
+                    BOOST_LOG_SEV( self->logger_, lvl::debug ) << ">>> SENT";
+                }
+            } ) );
     }
 
     void mqtt_connection::write_packet_and_close_connection( const protocol::mqtt_packet& packet,
@@ -462,18 +454,16 @@ namespace io_wally
         auto self = shared_from_this( );
         boost::asio::async_write(
             socket_, boost::asio::buffer( write_buffer_.data( ), packet.header( ).total_length( ) ),
-            strand_.wrap( [self, reason]( const boost::system::error_code& ec, size_t /* bytes_written */ )
-                          {
-                              if ( ec )
-                              {
-                                  self->connection_close_requested( ">>> Failed to send packet", reason, ec,
-                                                                    lvl::error );
-                              }
-                              else
-                              {
-                                  self->connection_close_requested( ">>> SENT", reason, ec, lvl::debug );
-                              }
-                          } ) );
+            strand_.wrap( [self, reason]( const boost::system::error_code& ec, size_t /* bytes_written */ ) {
+                if ( ec )
+                {
+                    self->connection_close_requested( ">>> Failed to send packet", reason, ec, lvl::error );
+                }
+                else
+                {
+                    self->connection_close_requested( ">>> SENT", reason, ec, lvl::debug );
+                }
+            } ) );
     }
 
     // Closing this connection
@@ -484,10 +474,8 @@ namespace io_wally
         {
             auto self = shared_from_this( );
             close_on_keep_alive_timeout_.expires_from_now( *keep_alive_ );
-            close_on_keep_alive_timeout_.async_wait( strand_.wrap( [self]( const boost::system::error_code& ec )
-                                                                   {
-                                                                       self->handle_keep_alive_timeout( ec );
-                                                                   } ) );
+            close_on_keep_alive_timeout_.async_wait( strand_.wrap(
+                [self]( const boost::system::error_code& ec ) { self->handle_keep_alive_timeout( ec ); } ) );
         }
     }
 

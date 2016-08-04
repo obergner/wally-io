@@ -1,8 +1,8 @@
 #include "io_wally/dispatch/dispatcher.hpp"
 
 #include <cassert>
-#include <string>
 #include <memory>
+#include <string>
 
 #include <boost/asio.hpp>
 
@@ -11,15 +11,15 @@
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
 
+#include "io_wally/dispatch/common.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/connect_packet.hpp"
+#include "io_wally/protocol/puback_packet.hpp"
+#include "io_wally/protocol/pubcomp_packet.hpp"
+#include "io_wally/protocol/pubrec_packet.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
 #include "io_wally/protocol/unsubscribe_packet.hpp"
-#include "io_wally/protocol/puback_packet.hpp"
-#include "io_wally/protocol/pubrec_packet.hpp"
-#include "io_wally/protocol/pubcomp_packet.hpp"
-#include "io_wally/dispatch/common.hpp"
 
 namespace io_wally
 {
@@ -67,10 +67,9 @@ namespace io_wally
         {
             auto self = shared_from_this( );
             packet_receiver_.async_deq( strand_.wrap( [self](
-                const boost::system::error_code& ec, mqtt_packet_sender::packet_container_t::ptr packet_container )
-                                                      {
-                                                          self->handle_packet_received( ec, packet_container );
-                                                      } ) );
+                const boost::system::error_code& ec, mqtt_packet_sender::packet_container_t::ptr packet_container ) {
+                self->handle_packet_received( ec, packet_container );
+            } ) );
         }
 
         void dispatcher::handle_packet_received( const boost::system::error_code& ec,

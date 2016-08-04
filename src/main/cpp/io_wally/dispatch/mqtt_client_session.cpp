@@ -1,18 +1,18 @@
 #include "io_wally/dispatch/mqtt_client_session.hpp"
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include <boost/log/common.hpp>
 #include <boost/log/trivial.hpp>
 
+#include "io_wally/dispatch/mqtt_client_session_manager.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/protocol/common.hpp"
-#include "io_wally/protocol/publish_packet.hpp"
 #include "io_wally/protocol/puback_packet.hpp"
-#include "io_wally/protocol/pubrec_packet.hpp"
 #include "io_wally/protocol/pubcomp_packet.hpp"
-#include "io_wally/dispatch/mqtt_client_session_manager.hpp"
+#include "io_wally/protocol/publish_packet.hpp"
+#include "io_wally/protocol/pubrec_packet.hpp"
 
 namespace io_wally
 {

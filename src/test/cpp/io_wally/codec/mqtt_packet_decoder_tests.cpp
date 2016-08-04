@@ -3,8 +3,8 @@
 #include <cstdint>
 #include <vector>
 
-#include "io_wally/protocol/protocol.hpp"
 #include "io_wally/codec/mqtt_packet_decoder.hpp"
+#include "io_wally/protocol/protocol.hpp"
 
 using namespace io_wally;
 

@@ -1,21 +1,21 @@
 #include "io_wally/dispatch/tx_publication.hpp"
 
 #include <cassert>
+#include <chrono>
 #include <cstdint>
 #include <memory>
-#include <chrono>
 
 #include <boost/log/trivial.hpp>
 
 #include "io_wally/context.hpp"
+#include "io_wally/dispatch/tx_in_flight_publications.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/protocol/common.hpp"
-#include "io_wally/protocol/publish_packet.hpp"
-#include "io_wally/protocol/publish_ack_packet.hpp"
 #include "io_wally/protocol/puback_packet.hpp"
-#include "io_wally/protocol/pubrel_packet.hpp"
 #include "io_wally/protocol/pubcomp_packet.hpp"
-#include "io_wally/dispatch/tx_in_flight_publications.hpp"
+#include "io_wally/protocol/publish_ack_packet.hpp"
+#include "io_wally/protocol/publish_packet.hpp"
+#include "io_wally/protocol/pubrel_packet.hpp"
 
 namespace io_wally
 {
@@ -97,17 +97,16 @@ namespace io_wally
             auto self_weak = std::weak_ptr<qos1_tx_publication>{shared_from_this( )};
             auto ack_tmo = std::chrono::milliseconds{ack_timeout_ms_};
             retry_on_timeout_.expires_from_now( ack_tmo );
-            retry_on_timeout_.async_wait( strand_.wrap( [self_weak, sender]( const boost::system::error_code& ec )
-                                                        {
-                                                            if ( ec )
-                                                            {
-                                                                return;
-                                                            }
-                                                            if ( auto self = self_weak.lock( ) )
-                                                            {
-                                                                self->ack_timeout_expired( sender );
-                                                            }
-                                                        } ) );
+            retry_on_timeout_.async_wait( strand_.wrap( [self_weak, sender]( const boost::system::error_code& ec ) {
+                if ( ec )
+                {
+                    return;
+                }
+                if ( auto self = self_weak.lock( ) )
+                {
+                    self->ack_timeout_expired( sender );
+                }
+            } ) );
         }
 
         // ------------------------------------------------------------------------------------------------------------
@@ -214,17 +213,16 @@ namespace io_wally
             auto self_weak = std::weak_ptr<qos2_tx_publication>{shared_from_this( )};
             auto ack_tmo = std::chrono::milliseconds{ack_timeout_ms_};
             retry_on_timeout_.expires_from_now( ack_tmo );
-            retry_on_timeout_.async_wait( strand_.wrap( [self_weak, sender]( const boost::system::error_code& ec )
-                                                        {
-                                                            if ( ec )
-                                                            {
-                                                                return;
-                                                            }
-                                                            if ( auto self = self_weak.lock( ) )
-                                                            {
-                                                                self->ack_timeout_expired( sender );
-                                                            }
-                                                        } ) );
+            retry_on_timeout_.async_wait( strand_.wrap( [self_weak, sender]( const boost::system::error_code& ec ) {
+                if ( ec )
+                {
+                    return;
+                }
+                if ( auto self = self_weak.lock( ) )
+                {
+                    self->ack_timeout_expired( sender );
+                }
+            } ) );
         }
     }  // namespace dispatch
 }  // namespace io_wally

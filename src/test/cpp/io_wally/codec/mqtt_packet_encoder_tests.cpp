@@ -1,7 +1,7 @@
 #include "catch.hpp"
 
-#include <cstdint>
 #include <array>
+#include <cstdint>
 
 #include "io_wally/codec/mqtt_packet_encoder.hpp"
 #include "io_wally/protocol/protocol.hpp"
@@ -99,8 +99,31 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
             std::array<std::uint8_t, 25>{{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
         auto expected_result = std::array<std::uint8_t, 25>{{
-            ( 3 << 4 | 0x02 ), 0x17, 0x00, 0x07, 's', 'u', 'r', 'g', 'e', 'm', 'q', 0x00, 0x07, 's', 'e', 'n', 'd', ' ',
-            'm', 'e', ' ', 'h', 'o', 'm', 'e',
+            ( 3 << 4 | 0x02 ),
+            0x17,
+            0x00,
+            0x07,
+            's',
+            'u',
+            'r',
+            'g',
+            'e',
+            'm',
+            'q',
+            0x00,
+            0x07,
+            's',
+            'e',
+            'n',
+            'd',
+            ' ',
+            'm',
+            'e',
+            ' ',
+            'h',
+            'o',
+            'm',
+            'e',
         }};
 
         WHEN( "a client passes that packet into mqtt_packet_encoder::encode" )

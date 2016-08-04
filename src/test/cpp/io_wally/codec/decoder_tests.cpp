@@ -1,16 +1,16 @@
 #include "catch.hpp"
 
-#include <cstdint>
+#include <algorithm>
 #include <array>
+#include <cstdint>
 #include <string>
 #include <tuple>
-#include <algorithm>
 
 #include <boost/system/error_code.hpp>
 
-#include "io_wally/protocol/common.hpp"
-#include "io_wally/error/protocol.hpp"
 #include "io_wally/codec/decoder.hpp"
+#include "io_wally/error/protocol.hpp"
+#include "io_wally/protocol/common.hpp"
 
 using namespace io_wally;
 

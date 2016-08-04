@@ -1,7 +1,7 @@
 #include "catch.hpp"
 
-#include <cstdint>
 #include <array>
+#include <cstdint>
 
 #include "io_wally/codec/connack_packet_encoder.hpp"
 

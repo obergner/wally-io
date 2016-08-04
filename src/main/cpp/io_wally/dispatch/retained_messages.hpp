@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 #include "io_wally/protocol/publish_packet.hpp"
+#include "io_wally/protocol/subscribe_packet.hpp"
 
 namespace io_wally
 {
@@ -13,6 +14,10 @@ namespace io_wally
     {
         class retained_messages final
         {
+           private:  // Static
+            static bool subscribe_matches_topic( std::shared_ptr<protocol::subscribe>& subscribe,
+                                                 const std::string& topic );
+
            public:
             retained_messages( ) = default;
 
@@ -25,6 +30,9 @@ namespace io_wally
             retained_messages& operator=( retained_messages&& ) = delete;
 
             void retain( std::shared_ptr<protocol::publish> incoming_publish );
+
+            std::vector<std::shared_ptr<protocol::publish>> messages_for(
+                const std::shared_ptr<protocol::subscribe> incoming_subscribe ) const;
 
             std::size_t size( ) const;
 

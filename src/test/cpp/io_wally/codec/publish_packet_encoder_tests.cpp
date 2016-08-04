@@ -1,11 +1,11 @@
 #include "catch.hpp"
 
-#include <cstdint>
 #include <array>
+#include <cstdint>
 #include <vector>
 
-#include "io_wally/protocol/publish_packet.hpp"
 #include "io_wally/codec/publish_packet_encoder.hpp"
+#include "io_wally/protocol/publish_packet.hpp"
 
 using namespace io_wally;
 
@@ -24,11 +24,11 @@ SCENARIO( "publish_packet_encoder", "[encoder]" )
         auto publish = protocol::publish{header, topic, packet_identifier, application_message};
 
         auto result =
-            std::array<std::uint8_t, 23>{{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
+            std::array<std::uint8_t, 23>{{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
         auto expected_result = std::array<std::uint8_t, 23>{{
-            0x00, 0x07, 's', 'u', 'r', 'g', 'e', 'm', 'q', 0x00, 0x07, 's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o',
-            'm', 'e',
+            0x00, 0x07, 's', 'u', 'r', 'g', 'e', 'm', 'q', 0x00, 0x07, 's',
+            'e',  'n',  'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm',  'e',
         }};
 
         WHEN( "a client passes that packet into publish_packet_encoder::encode" )

@@ -10,8 +10,7 @@ namespace
 {
     const std::string random_string( size_t length )
     {
-        auto randchar = []( ) -> char
-        {
+        auto randchar = []( ) -> char {
             const char charset[] =
                 "0123456789"
                 "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

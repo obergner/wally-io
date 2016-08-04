@@ -3,8 +3,8 @@
 #include <cstdint>
 #include <vector>
 
-#include "io_wally/error/protocol.hpp"
 #include "io_wally/codec/pingreq_packet_decoder.hpp"
+#include "io_wally/error/protocol.hpp"
 
 using namespace io_wally;
 

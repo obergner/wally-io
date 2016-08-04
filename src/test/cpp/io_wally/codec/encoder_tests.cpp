@@ -1,10 +1,10 @@
 #include "catch.hpp"
 
-#include <cstdint>
 #include <array>
+#include <cstdint>
 
-#include "io_wally/error/protocol.hpp"
 #include "io_wally/codec/encoder.hpp"
+#include "io_wally/error/protocol.hpp"
 
 using namespace io_wally;
 
@@ -239,10 +239,7 @@ SCENARIO( "encoding a UTF-8 string", "[packets]" )
     GIVEN( "a string of maximum allowed length" )
     {
         char value_buf[encoder::MAX_STRING_LENGTH];
-        std::generate( value_buf, value_buf + encoder::MAX_STRING_LENGTH, []( )
-                       {
-                           return 'a';
-                       } );
+        std::generate( value_buf, value_buf + encoder::MAX_STRING_LENGTH, []( ) { return 'a'; } );
         const std::string value( value_buf, encoder::MAX_STRING_LENGTH );
 
         std::array<std::uint8_t, encoder::MAX_STRING_LENGTH + 2> result;
@@ -267,10 +264,7 @@ SCENARIO( "encoding a UTF-8 string", "[packets]" )
     GIVEN( "a string of maximum allowed length + 1" )
     {
         char value_buf[encoder::MAX_STRING_LENGTH + 1];
-        std::generate( value_buf, value_buf + encoder::MAX_STRING_LENGTH + 1, []( )
-                       {
-                           return 'a';
-                       } );
+        std::generate( value_buf, value_buf + encoder::MAX_STRING_LENGTH + 1, []( ) { return 'a'; } );
         const std::string value( value_buf, encoder::MAX_STRING_LENGTH + 1 );
         std::array<std::uint8_t, encoder::MAX_STRING_LENGTH + 3> result;
 

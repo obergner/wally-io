@@ -1,11 +1,11 @@
 #include "catch.hpp"
 
-#include <cstdint>
 #include <array>
+#include <cstdint>
 #include <vector>
 
-#include "io_wally/protocol/suback_packet.hpp"
 #include "io_wally/codec/suback_packet_encoder.hpp"
+#include "io_wally/protocol/suback_packet.hpp"
 
 using namespace io_wally;
 

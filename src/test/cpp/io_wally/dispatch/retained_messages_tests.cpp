@@ -2,9 +2,9 @@
 
 #include "framework/factories.hpp"
 
-#include "io_wally/protocol/common.hpp"
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/dispatch/retained_messages.hpp"
+#include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/publish_packet.hpp"
 
 using namespace io_wally::protocol;
@@ -67,6 +67,33 @@ SCENARIO( "retained_messages#retain", "[dispatch]" )
             THEN( "retained_messages#size() should return 0" )
             {
                 REQUIRE( under_test.size( ) == 0 );
+            }
+        }
+    }
+}
+
+SCENARIO( "retained_messages#messages_for", "[dispatch]" )
+{
+    GIVEN( "a retained_messages instance containing 5 retained messages" )
+    {
+        io_wally::dispatch::retained_messages under_test{};
+
+        under_test.retain( framework::create_publish_packet( "/test/retain1/topic1", true ) );
+        under_test.retain( framework::create_publish_packet( "/test/retain2/topic2", true ) );
+        under_test.retain( framework::create_publish_packet( "/test/retain3/topic3", true ) );
+        under_test.retain( framework::create_publish_packet( "/test/retain4/topic4", true ) );
+        under_test.retain( framework::create_publish_packet( "/test/retain4/topic5", true ) );
+
+        WHEN( "a caller calls messages_for( subscribe ) with a subscribe packet that matches 3 messages" )
+        {
+            auto subscribe = framework::create_subscribe_packet(
+                {{"/test/retain1/topic1", io_wally::protocol::packet::QoS::AT_MOST_ONCE},
+                 {"/test/retain4/+", io_wally::protocol::packet::QoS::EXACTLY_ONCE}} );
+            auto const matches = under_test.messages_for( subscribe );
+
+            THEN( "retained_messages#messages_for() should return all 3 matching messages" )
+            {
+                REQUIRE( matches.size( ) == 3 );
             }
         }
     }

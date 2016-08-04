@@ -5,8 +5,8 @@
 
 #include <boost/optional.hpp>
 
-#include "io_wally/spi/authentication_service_factory.hpp"
 #include "io_wally/impl/accept_all_authentication_service_factory.hpp"
+#include "io_wally/spi/authentication_service_factory.hpp"
 
 using namespace io_wally;
 

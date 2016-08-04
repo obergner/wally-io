@@ -1,16 +1,16 @@
 #include "io_wally/app/application.hpp"
 
-#include <string>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <mutex>
+#include <string>
 
 #include <boost/program_options.hpp>
 
 #include "io_wally/context.hpp"
 
-#include "io_wally/app/logging.hpp"
 #include "io_wally/app/authentication_service_factories.hpp"
+#include "io_wally/app/logging.hpp"
 
 namespace io_wally
 {
@@ -100,10 +100,7 @@ DISCLAIMER:
                 // Nested block: we don't want to hold this lock when calling wait_for_bound() below
                 auto ul = unique_lock<mutex>{startup_mutex_};
 
-                startup_completed_.wait( ul, [this]( )
-                                         {
-                                             return server_.use_count( ) > 0;
-                                         } );
+                startup_completed_.wait( ul, [this]( ) { return server_.use_count( ) > 0; } );
             }
 
             server_->wait_until_bound( );

@@ -1,18 +1,18 @@
 #include "io_wally/dispatch/topic_subscriptions.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <string>
-#include <algorithm>
 #include <vector>
 
 #include <boost/log/trivial.hpp>
 
+#include "io_wally/dispatch/common.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/protocol/common.hpp"
-#include "io_wally/protocol/subscribe_packet.hpp"
-#include "io_wally/protocol/suback_packet.hpp"
 #include "io_wally/protocol/publish_packet.hpp"
-#include "io_wally/dispatch/common.hpp"
+#include "io_wally/protocol/suback_packet.hpp"
+#include "io_wally/protocol/subscribe_packet.hpp"
 
 namespace io_wally
 {
@@ -86,28 +86,25 @@ namespace io_wally
             auto const& topic = publish->topic( );
 
             auto resolved_subscribers = vector<resolved_subscriber_t>{};
-            for_each( subscriptions_.begin( ), subscriptions_.end( ),
-                      [&topic, &resolved_subscribers]( const subscription_container& subscr )
-                      {
-                          if ( !subscr.matches( topic ) )
-                              return;
-                          auto const& seen_subscr = find_if( resolved_subscribers.begin( ), resolved_subscribers.end( ),
-                                                             [&subscr]( const resolved_subscriber_t& res_subscr )
-                                                             {
-                                                                 return res_subscr.first == subscr.client_id;
-                                                             } );
-                          if ( seen_subscr != resolved_subscribers.end( ) )
-                          {
-                              auto const seen_qos = seen_subscr->second;
-                              if ( subscr.maximum_qos > seen_qos )
-                                  seen_subscr->second = subscr.maximum_qos;
-                          }
-                          else
-                          {
-                              resolved_subscribers.emplace_back(
-                                  resolved_subscriber_t{subscr.client_id, subscr.maximum_qos} );
-                          }
-                      } );
+            for_each( subscriptions_.begin( ), subscriptions_.end( ), [&topic, &resolved_subscribers](
+                                                                          const subscription_container& subscr ) {
+                if ( !subscr.matches( topic ) )
+                    return;
+                auto const& seen_subscr = find_if( resolved_subscribers.begin( ), resolved_subscribers.end( ),
+                                                   [&subscr]( const resolved_subscriber_t& res_subscr ) {
+                                                       return res_subscr.first == subscr.client_id;
+                                                   } );
+                if ( seen_subscr != resolved_subscribers.end( ) )
+                {
+                    auto const seen_qos = seen_subscr->second;
+                    if ( subscr.maximum_qos > seen_qos )
+                        seen_subscr->second = subscr.maximum_qos;
+                }
+                else
+                {
+                    resolved_subscribers.emplace_back( resolved_subscriber_t{subscr.client_id, subscr.maximum_qos} );
+                }
+            } );
 
             return resolved_subscribers;
         }

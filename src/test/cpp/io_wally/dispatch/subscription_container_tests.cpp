@@ -1,7 +1,7 @@
 #include "catch.hpp"
 
-#include "io_wally/protocol/common.hpp"
 #include "io_wally/dispatch/topic_subscriptions.hpp"
+#include "io_wally/protocol/common.hpp"
 
 using namespace io_wally::protocol;
 
@@ -9,8 +9,7 @@ namespace
 {
     const std::string random_topic( size_t length )
     {
-        auto randchar = []( ) -> char
-        {
+        auto randchar = []( ) -> char {
             const char charset[] =
                 "0123456789"
                 "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

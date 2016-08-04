@@ -1,9 +1,9 @@
 #include "io_wally/app/logging.hpp"
 
-#include <string>
 #include <algorithm>
-#include <iostream>
 #include <exception>
+#include <iostream>
+#include <string>
 
 #include <boost/program_options.hpp>
 
@@ -12,14 +12,14 @@
 #include <boost/log/trivial.hpp>
 #include <boost/log/utility/exception_handler.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
-#include <boost/log/utility/setup/formatter_parser.hpp>
 #include <boost/log/utility/setup/filter_parser.hpp>
-#include <boost/log/utility/setup/settings.hpp>
+#include <boost/log/utility/setup/formatter_parser.hpp>
 #include <boost/log/utility/setup/from_settings.hpp>
+#include <boost/log/utility/setup/settings.hpp>
 
-#include "io_wally/logging_support.hpp"
 #include "io_wally/context.hpp"
 #include "io_wally/defaults.hpp"
+#include "io_wally/logging_support.hpp"
 
 namespace io_wally
 {
