@@ -30,3 +30,6 @@ function! ClangCheck()
 endfunction
 
 nmap <silent> <F5> :call ClangCheck()<CR><CR>
+
+" Use pylint for checking python code
+let g:syntastic_python_checkers = ["pylint"]

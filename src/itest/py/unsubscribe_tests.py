@@ -1,5 +1,6 @@
 """ Test unsubscribing from topics
 """
+import warnings
 import unittest
 import time
 import logging
@@ -132,6 +133,8 @@ class UnsubscribeTests(unittest.TestCase):
         pass
 
     def setUp(self):
+        warnings.filterwarnings("ignore", category=ResourceWarning)
+
         self.subscriber = Subscriber("UnsubscribeTests-Sub", "/test/unsubscribe", 0)
         self.subscriber.start()
         self.publisher = Publisher("UnsubscribeTests-Pub")
@@ -159,4 +162,3 @@ class UnsubscribeTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

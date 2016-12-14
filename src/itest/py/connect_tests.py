@@ -1,5 +1,6 @@
 """ Test unsubscribing from topics
 """
+import warnings
 import unittest
 import time
 import logging
@@ -178,6 +179,8 @@ class TCPConnectTests(unittest.TestCase):
         pass
 
     def setUp(self):
+        warnings.filterwarnings("ignore", category=ResourceWarning)
+
         self.tcp_connector = TCPConnector()
 
     def tearDown(self):
@@ -223,4 +226,3 @@ class MQTTConnectTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

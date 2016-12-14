@@ -1,5 +1,6 @@
-""" Test unsubscribing from topics
+""" Test publishing retained messages
 """
+import warnings
 import unittest
 import time
 import logging
@@ -130,6 +131,8 @@ class PublishRetainedMessagesTests(unittest.TestCase):
         pass
 
     def setUp(self):
+        warnings.filterwarnings("ignore", category=ResourceWarning)
+
         self.subscriber_qos0 = Subscriber("PublishRetainedMessagesTests-Sub0",
                                           "/test/retained/#", 0)
         self.subscriber_qos0.start()
@@ -150,8 +153,31 @@ class PublishRetainedMessagesTests(unittest.TestCase):
         self.subscriber_qos2.stop()
         time.sleep(1)
 
-    def test_retained_forwared_wo(self):
+    def test_retained_publish_forwarded_without_retained_flag_qos0(self):
         """ Test that a PUBLISH packet with retained flag set is forwarded without retained flag
+            when using QoS 0
+        """
+        self.publisher.publish("/test/retained/qos0", "test_retained_qos0", 0, True)
+        msg = self.subscriber_qos0.wait_for_message(2)
+        self.assertIsNotNone(msg)
+        self.assertEqual(msg.payload, b'test_retained_qos0')
+        self.assertEqual(msg.qos, 0)
+        self.assertEqual(msg.retain, False)
+
+    def test_retained_publish_forwarded_without_retained_flag_qos1(self):
+        """ Test that a PUBLISH packet with retained flag set is forwarded without retained flag
+            when using QoS 1
+        """
+        self.publisher.publish("/test/retained/qos1", "test_retained_qos1", 1, True)
+        msg = self.subscriber_qos1.wait_for_message(2)
+        self.assertIsNotNone(msg)
+        self.assertEqual(msg.payload, b'test_retained_qos1')
+        self.assertEqual(msg.qos, 1)
+        self.assertEqual(msg.retain, False)
+
+    def test_retained_publish_forwarded_without_retained_flag_qos2(self):
+        """ Test that a PUBLISH packet with retained flag set is forwarded without retained flag
+            when using QoS 2
         """
         self.publisher.publish("/test/retained/qos2", "test_retained_qos2", 2, True)
         msg = self.subscriber_qos2.wait_for_message(2)
@@ -163,4 +189,3 @@ class PublishRetainedMessagesTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

@@ -1,5 +1,6 @@
 """ Test unsubscribing from topics
 """
+import warnings
 import unittest
 import time
 import logging
@@ -130,6 +131,8 @@ class BasicPublishSubscribeTests(unittest.TestCase):
         pass
 
     def setUp(self):
+        warnings.filterwarnings("ignore", category=ResourceWarning)
+
         self.subscriber_qos0 = Subscriber("BasicPublishSubscribeTests-Sub0", "/test/publish/#", 0)
         self.subscriber_qos0.start()
         self.subscriber_qos1 = Subscriber("BasicPublishSubscribeTests-Sub1", "/test/publish/#", 1)
@@ -231,4 +234,3 @@ class BasicPublishSubscribeTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
