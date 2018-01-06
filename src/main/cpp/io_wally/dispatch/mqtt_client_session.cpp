@@ -69,8 +69,8 @@ namespace io_wally
                                            const protocol::packet::QoS maximum_qos )
         {
             tx_in_flight_publications_.publish( incoming_publish, maximum_qos );
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "PUBLISHED: " << *incoming_publish << "(maxqos:" << maximum_qos
-                                                 << ")";
+            BOOST_LOG_SEV( logger_, lvl::debug )
+                << "PUBLISHED: " << *incoming_publish << "(maxqos:" << maximum_qos << ")";
         }
 
         void mqtt_client_session::client_sent_publish( std::shared_ptr<protocol::publish> incoming_publish )
@@ -82,8 +82,8 @@ namespace io_wally
             }
             else
             {
-                BOOST_LOG_SEV( logger_, lvl::info ) << "Client re-sent PUBLISH packet " << incoming_publish
-                                                    << " - will be ignored";
+                BOOST_LOG_SEV( logger_, lvl::info )
+                    << "Client re-sent PUBLISH packet " << incoming_publish << " - will be ignored";
             }
         }
 

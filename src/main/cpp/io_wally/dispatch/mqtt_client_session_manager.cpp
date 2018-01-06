@@ -63,9 +63,9 @@ namespace io_wally
                 // mqtt_packet_sender)
                 auto session = mqtt_client_session::create( *this, client_id, connection );
                 sessions_.emplace( client_id, session );
-                BOOST_LOG_SEV( logger_, lvl::info ) << "Session for client [cltid:" << client_id
-                                                    << "|conn:" << *connection_ptr
-                                                    << "] created [total:" << sessions_.size( ) << "]";
+                BOOST_LOG_SEV( logger_, lvl::info )
+                    << "Session for client [cltid:" << client_id << "|conn:" << *connection_ptr
+                    << "] created [total:" << sessions_.size( ) << "]";
             }
             else
             {
@@ -79,8 +79,8 @@ namespace io_wally
                                                                const dispatch::disconnect_reason reason )
         {
             sessions_.erase( client_id );
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "Client disconnected: [cltid:" << client_id << "|rsn:" << reason
-                                                 << "] - session destroyed";
+            BOOST_LOG_SEV( logger_, lvl::debug )
+                << "Client disconnected: [cltid:" << client_id << "|rsn:" << reason << "] - session destroyed";
         }
 
         void mqtt_client_session_manager::client_subscribed( const std::string& client_id,
@@ -108,24 +108,24 @@ namespace io_wally
                 // what has happened, not what to do. This "send()" method is the only exception. Can we get rid of it?
                 session->send( unsuback );
             }
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "UNSUBSCRIBED: [cltid:" << client_id << "|pkt:" << *unsubscribe
-                                                 << "]";
+            BOOST_LOG_SEV( logger_, lvl::debug )
+                << "UNSUBSCRIBED: [cltid:" << client_id << "|pkt:" << *unsubscribe << "]";
         }
 
         void mqtt_client_session_manager::client_published( const std::string& client_id,
                                                             std::shared_ptr<protocol::publish> incoming_publish )
         {
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "RX PUBLISH: [cltid:" << client_id << "|pkt:" << *incoming_publish
-                                                 << "]";
+            BOOST_LOG_SEV( logger_, lvl::debug )
+                << "RX PUBLISH: [cltid:" << client_id << "|pkt:" << *incoming_publish << "]";
             if ( incoming_publish->retain( ) )
             {
                 retained_messages_.retain( incoming_publish );
                 // [MQTT-3.3.1.3] PUBLISH packets forwarded to subscriptions that already existed when they were
                 // published MUST have their retain flag set to 0
                 incoming_publish->retain( false );
-                BOOST_LOG_SEV( logger_, lvl::debug ) << "RETAINED: [topic:" << incoming_publish->topic( )
-                                                     << "|size:" << incoming_publish->application_message( ).size( )
-                                                     << "]";
+                BOOST_LOG_SEV( logger_, lvl::debug )
+                    << "RETAINED: [topic:" << incoming_publish->topic( )
+                    << "|size:" << incoming_publish->application_message( ).size( ) << "]";
             }
             if ( auto session = sessions_[client_id] )
             {

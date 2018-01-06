@@ -192,8 +192,8 @@ namespace io_wally
             const boost::optional<const frame> frame = frame_reader_.get_frame( );
             assert( frame );
             auto parsed_packet = packet_decoder_.decode( *frame );
-            BOOST_LOG_SEV( logger_, lvl::info ) << "<<< DECODED [res:" << *parsed_packet
-                                                << "|bytes:" << bytes_transferred << "]";
+            BOOST_LOG_SEV( logger_, lvl::info )
+                << "<<< DECODED [res:" << *parsed_packet << "|bytes:" << bytes_transferred << "]";
 
             frame_reader_.reset( );
             // TODO: Think about better resizing strategy - maybe using a max buffer capacity
@@ -326,8 +326,8 @@ namespace io_wally
     {
         if ( ec )
         {
-            BOOST_LOG_SEV( logger_, lvl::error ) << "--- DISPATCH FAILED: " << *connect << " [ec:" << ec
-                                                 << "|emsg:" << ec.message( ) << "]";
+            BOOST_LOG_SEV( logger_, lvl::error )
+                << "--- DISPATCH FAILED: " << *connect << " [ec:" << ec << "|emsg:" << ec.message( ) << "]";
             write_packet_and_close_connection( connack{false, connect_return_code::SERVER_UNAVAILABLE},
                                                "--- Dispatching CONNECT failed",
                                                dispatch::disconnect_reason::network_or_server_failure );
@@ -347,8 +347,8 @@ namespace io_wally
     void mqtt_connection::dispatch_disconnect_packet( shared_ptr<protocol::disconnect> disconnect,
                                                       const dispatch::disconnect_reason disconnect_reason )
     {
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *disconnect << "[rsn:" << disconnect_reason
-                                             << "] ...";
+        BOOST_LOG_SEV( logger_, lvl::debug )
+            << "--- DISPATCHING: " << *disconnect << "[rsn:" << disconnect_reason << "] ...";
         auto connect_container =
             packet_container_t::contain( *client_id_, shared_from_this( ), disconnect, disconnect_reason );
 
@@ -366,13 +366,13 @@ namespace io_wally
     {
         if ( ec )
         {
-            BOOST_LOG_SEV( logger_, lvl::error ) << "--- DISPATCH FAILED: " << *disconnect << " [ec:" << ec
-                                                 << "|emsg:" << ec.message( ) << "]";
+            BOOST_LOG_SEV( logger_, lvl::error )
+                << "--- DISPATCH FAILED: " << *disconnect << " [ec:" << ec << "|emsg:" << ec.message( ) << "]";
         }
         else
         {
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *disconnect << " [rsn:" << disconnect_reason
-                                                 << "]";
+            BOOST_LOG_SEV( logger_, lvl::debug )
+                << "--- DISPATCHED: " << *disconnect << " [rsn:" << disconnect_reason << "]";
         }
         auto msg = ostringstream{};
         msg << "--- Connection disconnected: " << disconnect_reason;
@@ -396,8 +396,8 @@ namespace io_wally
     {
         if ( ec )
         {
-            BOOST_LOG_SEV( logger_, lvl::error ) << "--- DISPATCH FAILED: " << *packet << " [ec:" << ec
-                                                 << "|emsg:" << ec.message( ) << "]";
+            BOOST_LOG_SEV( logger_, lvl::error )
+                << "--- DISPATCH FAILED: " << *packet << " [ec:" << ec << "|emsg:" << ec.message( ) << "]";
             connection_close_requested( "[MQTT-4.8.0-2] Dispatching packet failed",
                                         dispatch::disconnect_reason::network_or_server_failure, ec, lvl::error );
         }
@@ -508,8 +508,8 @@ namespace io_wally
                                                       const boost::log::trivial::severity_level log_level )
     {
         auto err_info = ( ec ? " [ec:" + std::to_string( ec.value( ) ) + "|emsg:" + ec.message( ) + "]" : "" );
-        BOOST_LOG_SEV( logger_, log_level ) << "CLOSE REQUESTED (" << reason << "): " << message << err_info
-                                            << " - connection will be closed";
+        BOOST_LOG_SEV( logger_, log_level )
+            << "CLOSE REQUESTED (" << reason << "): " << message << err_info << " - connection will be closed";
         if ( client_id_ )
         {
             // Only "fake" DISCONNECT if we are actually CONNECTed, i.e. we know our client's client_id. Otherwise,

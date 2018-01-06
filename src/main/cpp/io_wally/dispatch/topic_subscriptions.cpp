@@ -51,8 +51,8 @@ namespace io_wally
             }
             auto suback = subscribe->succeed( );
 
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "SUBSRCRIBED: [cltid:" << client_id << "|subscr:" << *subscribe
-                                                 << "] -> " << *suback;
+            BOOST_LOG_SEV( logger_, lvl::debug )
+                << "SUBSRCRIBED: [cltid:" << client_id << "|subscr:" << *subscribe << "] -> " << *suback;
 
             return suback;
         }
@@ -74,8 +74,8 @@ namespace io_wally
             }
             auto unsuback = unsubscribe->ack( );
 
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "UNSUBSRCRIBED: [cltid:" << client_id << "|subscr:" << *unsubscribe
-                                                 << "] -> " << *unsuback;
+            BOOST_LOG_SEV( logger_, lvl::debug )
+                << "UNSUBSRCRIBED: [cltid:" << client_id << "|subscr:" << *unsubscribe << "] -> " << *unsuback;
 
             return unsuback;
         }
