@@ -23,5 +23,6 @@
 target/
 work/
 compile_commands.json
+find_all_symbols_db.yaml
 libs/org.eclipse.paho.mqtt.c/
 build/.tags

@@ -477,9 +477,9 @@ $(BUILD_SCAN)             :
 scan-main                 : $(BUILD_SCAN)
 	@scan-build -o $(BUILD_SCAN) -analyze-headers --status-bugs $(MAKE) clean main
 
-.PHONY                    : modernize
-modernize                 : $(SRCS_M) $(EXECSOURCE_M) $(COMPILATIONDB)
-	@clang-modernize -final-syntax-check -summary -format -style=file -include=src/ -p $(COMPILATIONDB)
+.PHONY                    : tidy
+tidy                      : $(SRCS_M) $(EXECSOURCE_M) $(COMPILATIONDB)
+	@clang-tidy -p $(COMPILATIONDB) -export-fixes=$(BUILD)/clang-tidy-fixes.yaml $(SRCS_M) $(EXECSOURCE_M)
 
 .PHONY                    : format-main
 format-main               : $(SRCS_M) $(EXECSOURCE_M)
