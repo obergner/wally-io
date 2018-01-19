@@ -220,11 +220,13 @@ CPPFLAGS_M                := -DBOOST_ALL_DYN_LINK
 CPPFLAGS_M                += -DBOOST_ASIO_HAS_STD_CHRONO 
 
 # Extra linker flags
-LDLIBS_M                  := -lboost_system
-LDLIBS_M                  += -lboost_thread
+LDLIBS_M                  := -lboost_log_setup
 LDLIBS_M                  += -lboost_log
-LDLIBS_M                  += -lboost_log_setup
 LDLIBS_M                  += -lboost_program_options
+LDLIBS_M                  += -lboost_regex
+LDLIBS_M                  += -lboost_filesystem
+LDLIBS_M                  += -lboost_system
+LDLIBS_M                  += -lboost_thread
 LDLIBS_M                  += -lpthread
 
 # --------------------------------------------------------------------------------------------------------------------- 
@@ -233,6 +235,9 @@ LDLIBS_M                  += -lpthread
 
 CXXFLAGS_REL              := $(CXXFLAGS_M)
 CXXFLAGS_REL              += -O3
+
+# Release build preprocessor flags
+CPPFLAGS_REL              := $(filter-out -DBOOST_ALL_DYN_LINK, $(CPPFLAGS_M))
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Compiler configuration: main executable DEBUG (currently not working since we miss debug info for boost
@@ -245,6 +250,9 @@ CXXFLAGS_DEBUG            += -DBOOST_ASIO_ENABLE_HANDLER_TRACKING
 # Actually, we would like to enable _GLIBCXX_DEBUG, but this is incompatible with Boost Program Options's debug build.
 # See: https://trac.macports.org/ticket/22112
 #CXXFLAGS_DEBUG            += -D_GLIBCXX_DEBUG
+
+# Debug build preprocessor flags
+CPPFLAGS_DEBUG            := $(CPPFLAGS_M)
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Compiler configuration: main executable SANITIZE
@@ -260,6 +268,9 @@ CXXFLAGS_SAN              += -fsanitize=leak
 CXXFLAGS_SAN              += -fsanitize=undefined
 CXXFLAGS_SAN              += -fno-sanitize=vptr # See: https://github.com/scylladb/seastar/issues/78
 CXXFLAGS_SAN              += -fno-omit-frame-pointer
+
+# Sanitize build preprocessor flags
+CPPFLAGS_SAN              := $(CPPFLAGS_M)
 
 # Sanitizer linker flags
 LDLIBS_SAN                := $(LDLIBS_M)
@@ -295,7 +306,7 @@ CXXFLAGS_UT               += -fsanitize=undefined
 CXXFLAGS_UT               += -fno-sanitize=vptr # See: https://github.com/scylladb/seastar/issues/78
 CXXFLAGS_UT               += -fno-omit-frame-pointer
 
-# Integrationtest preprocessor flags
+# Unit test preprocessor flags
 CPPFLAGS_UT               := $(CPPFLAGS_M)
 
 # Test linker flags
@@ -340,10 +351,10 @@ $(BUILDDIRS_M_RELEASE)    :
 	@mkdir -p $@
 
 $(BUILD_M_RELEASE)/%.o    : $(SRC_DIR_M)/%.cpp                     | $(BUILDDIRS_M_RELEASE)
-	$(CXX) $(CPPFLAGS_M) $(CXXFLAGS_REL) -o $@ -c $<
+	$(CXX) $(CPPFLAGS_REL) $(CXXFLAGS_REL) -o $@ -c $<
 
 $(EXEC_M_RELEASE)         : $(OBJS_M_RELEASE) $(EXECOBJ_M_RELEASE) | $(BUILDDIRS_M_RELEASE)
-	$(CXX) $(LDLIBS_M) -o $@ $^
+	$(CXX) -static -o $@ $^ $(LDLIBS_M)
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build main executable DEBUG
@@ -355,7 +366,7 @@ $(BUILDDIRS_M_DEBUG)      :
 	@mkdir -p $@
 
 $(BUILD_M_DEBUG)/%.o      : $(SRC_DIR_M)/%.cpp                     | $(BUILDDIRS_M_DEBUG)
-	$(CXX) $(CPPFLAGS_M) $(CXXFLAGS_DEBUG) -o $@ -c $<
+	$(CXX) $(CPPFLAGS_DEBUG) $(CXXFLAGS_DEBUG) -o $@ -c $<
 
 $(EXEC_M_DEBUG)           : $(OBJS_M_DEBUG) $(EXECOBJ_M_DEBUG)     | $(BUILDDIRS_M_DEBUG)
 	$(CXX) $(LDLIBS_M) -o $@ $^
@@ -370,7 +381,7 @@ $(BUILDDIRS_M_SAN)        :
 	@mkdir -p $@
 
 $(BUILD_M_SAN)/%.o        : $(SRC_DIR_M)/%.cpp                      | $(BUILDDIRS_M_SAN)
-	$(CXX) $(CPPFLAGS_M) $(CXXFLAGS_SAN) -o $@ -c $<
+	$(CXX) $(CPPFLAGS_SAN) $(CXXFLAGS_SAN) -o $@ -c $<
 
 $(EXEC_M_SAN)             : $(OBJS_M_SAN) $(EXECOBJ_M_SAN)          | $(BUILDDIRS_M_SAN)
 	$(CXX) $(LDLIBS_SAN) -o $@ $^
@@ -527,6 +538,11 @@ prepare-commit            : scan-main
 .PHONY                    : run-server
 run-server                : $(EXEC_M)
 	@$(EXEC_M) --log-file .testlog --log-file-level trace --log-console --log-console-level trace --conn-timeout 1000000
+
+# Run server with some convenient default settings, this time using release build
+.PHONY                    : run-server-release
+run-server-release        : $(EXEC_M_RELEASE)
+	@$(EXEC_M_RELEASE) --log-file .testlog --log-file-level trace --log-console --log-console-level trace --conn-timeout 1000000
 
 # Run server with some convenient default settings, this time using a binary instrumented by Clang's sanitizers
 .PHONY                    : run-server-san
