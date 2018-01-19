@@ -254,6 +254,9 @@ CXXFLAGS_DEBUG            += -DBOOST_ASIO_ENABLE_HANDLER_TRACKING
 # Debug build preprocessor flags
 CPPFLAGS_DEBUG            := $(CPPFLAGS_M)
 
+# Debug linker flags
+LDLIBS_DEBUG              := $(LDLIBS_M)
+
 # --------------------------------------------------------------------------------------------------------------------- 
 # Compiler configuration: main executable SANITIZE
 # --------------------------------------------------------------------------------------------------------------------- 
@@ -369,7 +372,7 @@ $(BUILD_M_DEBUG)/%.o      : $(SRC_DIR_M)/%.cpp                     | $(BUILDDIRS
 	$(CXX) $(CPPFLAGS_DEBUG) $(CXXFLAGS_DEBUG) -o $@ -c $<
 
 $(EXEC_M_DEBUG)           : $(OBJS_M_DEBUG) $(EXECOBJ_M_DEBUG)     | $(BUILDDIRS_M_DEBUG)
-	$(CXX) $(LDLIBS_M) -o $@ $^
+	$(CXX) $(LDLIBS_DEBUG) -o $@ $^
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build main executable SANITIZE
