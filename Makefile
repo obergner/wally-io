@@ -193,7 +193,7 @@ CC                        := gcc
 # --------------------------------------------------------------------------------------------------------------------- 
 
 # Standard compiler flags
-CXXFLAGS_M                := -std=c++14
+CXXFLAGS_M                := -std=c++17
 CXXFLAGS_M                += -c # Only compile
 CXXFLAGS_M                += -fdiagnostics-color=auto
 CXXFLAGS_M                += -MMD # automatically generate dependency rules on each run
