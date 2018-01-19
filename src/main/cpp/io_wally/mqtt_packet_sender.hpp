@@ -4,7 +4,7 @@
 #include <ostream>
 #include <memory>
 
-#include <boost/optional.hpp>
+#include <optional>
 #include <boost/asio_queue.hpp>
 #include <boost/log/trivial.hpp>
 
@@ -32,8 +32,8 @@ namespace io_wally
         {
         }
 
-        /// \brief Return ID of connected client, if already authenticated. Otherwise, return \c boost::none.
-        virtual const boost::optional<const std::string>& client_id( ) const = 0;
+        /// \brief Return ID of connected client, if already authenticated. Otherwise, return \c std::nullopt.
+        virtual const std::optional<const std::string>& client_id( ) const = 0;
 
         /// \brief Send an \c mqtt_packet to connected client.
         virtual void send( protocol::mqtt_packet::ptr packet ) = 0;

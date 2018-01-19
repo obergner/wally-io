@@ -189,7 +189,7 @@ namespace io_wally
     {
         try
         {
-            const boost::optional<const frame> frame = frame_reader_.get_frame( );
+            const std::optional<const frame> frame = frame_reader_.get_frame( );
             assert( frame );
             auto parsed_packet = packet_decoder_.decode( *frame );
             BOOST_LOG_SEV( logger_, lvl::info )

@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <memory>
 
-#include <boost/optional.hpp>
+#include <optional>
 #include <boost/system/error_code.hpp>
 
 #include "io_wally/error/protocol.hpp"
@@ -101,23 +101,23 @@ namespace io_wally
                 return remaining;
             }
 
-            boost::optional<const frame> get_frame( ) const
+            std::optional<const frame> get_frame( ) const
             {
                 return frame_;
             }
 
             void reset( )
             {
-                frame_ = boost::none;
+                frame_ = std::nullopt;
             }
 
            private:
-            const boost::optional<std::pair<std::size_t, std::size_t>> decode_remaining_length(
+            const std::optional<std::pair<std::size_t, std::size_t>> decode_remaining_length(
                 std::size_t bytes_transferred ) const
             {
                 if ( bytes_transferred < 2 )
                 {
-                    return boost::none;
+                    return std::nullopt;
                 }
 
                 auto rlen = std::size_t{0};
@@ -136,12 +136,12 @@ namespace io_wally
                     }
                 }
 
-                return boost::none;
+                return std::nullopt;
             }
 
            private:
             std::vector<uint8_t>& buffer_;
-            boost::optional<const frame> frame_ = boost::none;
+            std::optional<const frame> frame_ = std::nullopt;
         };  // class frame_reader
 
         /// \brief Parse a 8 bit wide unsigned int in the supplied buffer into a \c packet::QoS.

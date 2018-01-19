@@ -1,5 +1,6 @@
 #include "io_wally/dispatch/retained_messages.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <memory>
 #include <string>

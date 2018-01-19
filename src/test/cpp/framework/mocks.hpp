@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 
-#include <boost/optional.hpp>
+#include <optional>
 #include <boost/log/trivial.hpp>
 
 #include "io_wally/mqtt_packet_sender.hpp"
@@ -21,8 +21,8 @@ namespace framework
         }
 
        public:
-        /// \brief Return ID of connected client, if already authenticated. Otherwise, return \c boost::none.
-        virtual const boost::optional<const std::string>& client_id( ) const override
+        /// \brief Return ID of connected client, if already authenticated. Otherwise, return \c std::nullopt.
+        virtual const std::optional<const std::string>& client_id( ) const override
         {
             return client_id_;
         }
@@ -47,7 +47,7 @@ namespace framework
         }
 
        private:
-        const boost::optional<const std::string> client_id_{"mock_client"};
+        const std::optional<const std::string> client_id_{"mock_client"};
         const std::string to_string_{"mock_packet_sender"};
     };
 }

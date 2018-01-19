@@ -3,7 +3,7 @@
 #include <functional>
 #include <memory>
 
-#include <boost/optional.hpp>
+#include <optional>
 #include <boost/program_options.hpp>
 
 namespace io_wally
@@ -16,8 +16,8 @@ namespace io_wally
         {
            public:
             virtual bool authenticate( const std::string& client_ip,
-                                       const boost::optional<const std::string>& username,
-                                       const boost::optional<const std::string>& password ) = 0;
+                                       const std::optional<const std::string>& username,
+                                       const std::optional<const std::string>& password ) = 0;
         };
 
         typedef std::function<std::unique_ptr<authentication_service>(

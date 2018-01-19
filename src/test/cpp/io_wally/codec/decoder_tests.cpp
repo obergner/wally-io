@@ -377,7 +377,7 @@ SCENARIO( "frame_reader", "[packets]" )
 
         WHEN( "a caller repeatedly calls frame_reader as a functor" )
         {
-            THEN( "it should receive boost::none from get_frame() while frame is incomplete" )
+            THEN( "it should receive std::nullopt from get_frame() while frame is incomplete" )
             {
                 under_test( ec_success, bytes_transferred );
                 REQUIRE( !under_test.get_frame( ) );

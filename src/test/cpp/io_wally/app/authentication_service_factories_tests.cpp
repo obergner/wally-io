@@ -20,8 +20,8 @@ SCENARIO( "authentication_service_factories", "[authentication]" )
 
                 std::unique_ptr<io_wally::spi::authentication_service> accept_all_auth_srvc = accept_all( config );
 
-                const boost::optional<const std::string> usr = std::string( "usr" );
-                const boost::optional<const std::string> pwd = std::string( "pwd" );
+                const std::optional<const std::string> usr = std::string( "usr" );
+                const std::optional<const std::string> pwd = std::string( "pwd" );
 
                 REQUIRE( accept_all_auth_srvc->authenticate( "", usr, pwd ) );
             }

@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 
-#include <boost/optional.hpp>
+#include <optional>
 
 #include "io_wally/impl/accept_all_authentication_service_factory.hpp"
 #include "io_wally/spi/authentication_service_factory.hpp"
@@ -21,8 +21,8 @@ SCENARIO( "accept_all_authentication_service_factory", "[authentication]" )
 
         WHEN( "a client passes in any credentials" )
         {
-            const boost::optional<const std::string> usr = std::string( "anonymous" );
-            const boost::optional<const std::string> pwd = std::string( "password" );
+            const std::optional<const std::string> usr = std::string( "anonymous" );
+            const std::optional<const std::string> pwd = std::string( "password" );
             const bool authenticated = auth_srvc->authenticate( "", usr, pwd );
 
             THEN( "it should see authentication succeed" )

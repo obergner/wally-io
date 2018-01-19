@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <string>
 
-#include <boost/optional.hpp>
+#include <optional>
 
 #include "io_wally/protocol/connect_packet.hpp"
 
@@ -490,10 +490,10 @@ SCENARIO( "connect", "[packets]" )
         WHEN( "a caller calls accessors for all fields" )
         {
             const std::string client_id_ret = under_test.client_id( );
-            const boost::optional<const std::string> will_topic_ret = under_test.will_topic( );
-            const boost::optional<const std::string> will_message_ret = under_test.will_message( );
-            const boost::optional<const std::string> username_ret = under_test.username( );
-            const boost::optional<const std::string> password_ret = under_test.password( );
+            const std::optional<const std::string> will_topic_ret = under_test.will_topic( );
+            const std::optional<const std::string> will_message_ret = under_test.will_message( );
+            const std::optional<const std::string> username_ret = under_test.username( );
+            const std::optional<const std::string> password_ret = under_test.password( );
 
             THEN( "it should see the values passed in the constructor" )
             {
@@ -525,10 +525,10 @@ SCENARIO( "connect", "[packets]" )
         WHEN( "a caller calls accessors for all fields" )
         {
             const std::string client_id_ret = under_test.client_id( );
-            const boost::optional<const std::string> will_topic_ret = under_test.will_topic( );
-            const boost::optional<const std::string> will_message_ret = under_test.will_message( );
-            const boost::optional<const std::string> username_ret = under_test.username( );
-            const boost::optional<const std::string> password_ret = under_test.password( );
+            const std::optional<const std::string> will_topic_ret = under_test.will_topic( );
+            const std::optional<const std::string> will_message_ret = under_test.will_message( );
+            const std::optional<const std::string> username_ret = under_test.username( );
+            const std::optional<const std::string> password_ret = under_test.password( );
 
             THEN( "it should see the values passed in the constructor" )
             {

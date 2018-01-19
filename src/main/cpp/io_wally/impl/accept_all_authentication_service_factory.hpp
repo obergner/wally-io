@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 
-#include <boost/optional.hpp>
+#include <optional>
 #include <boost/program_options.hpp>
 
 #include "io_wally/spi/authentication_service_factory.hpp"
@@ -21,8 +21,8 @@ namespace io_wally
            public:
             /// \brief Always return \c true.
             bool authenticate( const std::string& /* client_ip */,
-                               const boost::optional<const std::string>& /* username  */,
-                               const boost::optional<const std::string>& /* password */ ) override
+                               const std::optional<const std::string>& /* username  */,
+                               const std::optional<const std::string>& /* password */ ) override
             {
                 return true;
             }

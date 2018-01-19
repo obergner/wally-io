@@ -5,7 +5,7 @@
 #include <string>
 #include <sstream>
 
-#include <boost/optional.hpp>
+#include <optional>
 
 #include "io_wally/protocol/common.hpp"
 
@@ -152,14 +152,14 @@ namespace io_wally
                   con_flags_{con_flags},
                   keep_alive_secs_{keep_alive_secs},
                   client_id_{client_id},
-                  will_topic_{will_topic ? boost::optional<const std::string>( std::string( will_topic ) )
-                                         : boost::optional<const std::string>( )},
-                  will_message_{will_message ? boost::optional<const std::string>( std::string( will_message ) )
-                                             : boost::optional<const std::string>( )},
-                  username_{username ? boost::optional<const std::string>( std::string( username ) )
-                                     : boost::optional<const std::string>( )},
-                  password_{password ? boost::optional<const std::string>( std::string( password ) )
-                                     : boost::optional<const std::string>( )}
+                  will_topic_{will_topic ? std::optional<const std::string>( std::string( will_topic ) )
+                                         : std::optional<const std::string>( )},
+                  will_message_{will_message ? std::optional<const std::string>( std::string( will_message ) )
+                                             : std::optional<const std::string>( )},
+                  username_{username ? std::optional<const std::string>( std::string( username ) )
+                                     : std::optional<const std::string>( )},
+                  password_{password ? std::optional<const std::string>( std::string( password ) )
+                                     : std::optional<const std::string>( )}
             {
                 assert( header.type( ) == packet::Type::CONNECT );
             }
@@ -259,7 +259,7 @@ namespace io_wally
             /// \brief Return last will topic (if present)
             ///
             /// \return Topic this client's last will message should be published to (if present)
-            const boost::optional<const std::string>& will_topic( ) const
+            const std::optional<const std::string>& will_topic( ) const
             {
                 return will_topic_;
             }
@@ -267,7 +267,7 @@ namespace io_wally
             /// \brief Return last will message (if present)
             ///
             /// \return Message to publish in case this remote client "dies", i.e. unexpectedly disconnects (if present)
-            const boost::optional<const std::string>& will_message( ) const
+            const std::optional<const std::string>& will_message( ) const
             {
                 return will_message_;
             }
@@ -275,7 +275,7 @@ namespace io_wally
             /// \brief Return \c username (if present)
             ///
             /// \return Username authenticating remote client (if present)
-            const boost::optional<const std::string>& username( ) const
+            const std::optional<const std::string>& username( ) const
             {
                 return username_;
             }
@@ -283,7 +283,7 @@ namespace io_wally
             /// \brief Return \c password (if present)
             ///
             /// \return Password authenticating remote client (if present)
-            const boost::optional<const std::string>& password( ) const
+            const std::optional<const std::string>& password( ) const
             {
                 return password_;
             }
@@ -311,10 +311,10 @@ namespace io_wally
             const struct connect_flags con_flags_;
             const uint16_t keep_alive_secs_;
             const std::string client_id_;                            // mandatory
-            const boost::optional<const std::string> will_topic_;    // MUST be present iff will flag is set
-            const boost::optional<const std::string> will_message_;  // MUST be present iff will flag is set
-            const boost::optional<const std::string> username_;      // MUST be present iff username flag is set
-            const boost::optional<const std::string> password_;      // MUST be present iff password flag is set
+            const std::optional<const std::string> will_topic_;    // MUST be present iff will flag is set
+            const std::optional<const std::string> will_message_;  // MUST be present iff will flag is set
+            const std::optional<const std::string> username_;      // MUST be present iff username flag is set
+            const std::optional<const std::string> password_;      // MUST be present iff password flag is set
         };                                                           // struct connect
 
     }  // namespace protocol

@@ -9,7 +9,7 @@
 #include <boost/asio.hpp>
 #include <boost/asio/steady_timer.hpp>
 
-#include <boost/optional.hpp>
+#include <optional>
 
 #include <boost/log/common.hpp>
 #include <boost/log/trivial.hpp>
@@ -70,7 +70,7 @@ namespace io_wally
         /// \brief Start this connection, initiating reading incoming data.
         void start( );
 
-        virtual inline const boost::optional<const std::string>& client_id( ) const override
+        virtual inline const std::optional<const std::string>& client_id( ) const override
         {
             return client_id_;
         }
@@ -165,7 +165,7 @@ namespace io_wally
 
        private:
         /// Connected client's client_id. Only assigned once successful authenticated.
-        boost::optional<const std::string> client_id_ = boost::none;
+        std::optional<const std::string> client_id_ = std::nullopt;
         /// This connection's current string represenation, used in log output
         std::string description_;
         /// Encode outgoing packets
@@ -192,7 +192,7 @@ namespace io_wally
         /// Timer, will fire if connection timeout expires without receiving a CONNECT request
         boost::asio::steady_timer close_on_connection_timeout_;
         /// Keep alive duration (seconds)
-        boost::optional<std::chrono::duration<uint16_t>> keep_alive_ = boost::none;
+        std::optional<std::chrono::duration<uint16_t>> keep_alive_ = std::nullopt;
         /// Timer, will fire if keep alive timeout expires without receiving a message
         boost::asio::steady_timer close_on_keep_alive_timeout_;
         /// Our severity-enabled channel logger
