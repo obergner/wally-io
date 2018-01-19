@@ -357,7 +357,7 @@ $(BUILD_M_RELEASE)/%.o    : $(SRC_DIR_M)/%.cpp                     | $(BUILDDIRS
 	$(CXX) $(CPPFLAGS_REL) $(CXXFLAGS_REL) -o $@ -c $<
 
 $(EXEC_M_RELEASE)         : $(OBJS_M_RELEASE) $(EXECOBJ_M_RELEASE) | $(BUILDDIRS_M_RELEASE)
-	$(CXX) -static -o $@ $^ $(LDLIBS_M)
+	$(CXX) -static -static-libstdc++ -o $@ $^ $(LDLIBS_M)
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build main executable DEBUG
