@@ -65,7 +65,7 @@ class ServerUnderTest(object):
         """ Stop WallyIO subprocess
         """
         logging.info("Stopping %s ...", self.__name)
-        self.__process.send_signal(signal.SIGTERM)
+        self.__process.send_signal(signal.SIGKILL)
         self.__started = False
         logging.info("Stopped %s", self.__name)
 
