@@ -159,7 +159,9 @@ conn-wbuf-size = 8999
         }
 
         const char* command_line_args[]{
-            "executable", "--conf-file", conf_file,
+            "executable",
+            "--conf-file",
+            conf_file,
         };
 
         WHEN( "parsing a command line pointing to that configuration file" )

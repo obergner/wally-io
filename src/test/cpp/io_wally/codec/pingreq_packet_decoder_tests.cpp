@@ -41,7 +41,8 @@ SCENARIO( "pingreq_packet_decoder_impl", "[decoder]" )
     {
         const auto type_and_flags = std::uint8_t{12 << 4};  // PINGREQ
         const auto buffer = std::vector<std::uint8_t>{
-            0x00, 0x01,
+            0x00,
+            0x01,
         };
         const auto frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
 

@@ -194,6 +194,7 @@ CC                        := gcc
 
 # Standard compiler flags
 CXXFLAGS_M                := -std=c++14
+CXXFLAGS_M                += -c # Only compile
 CXXFLAGS_M                += -fdiagnostics-color=auto
 CXXFLAGS_M                += -MMD # automatically generate dependency rules on each run
 CXXFLAGS_M                += -I $(SRC_DIR_M)
@@ -323,11 +324,11 @@ main                      : $(EXEC_M)                              | $(BUILDDIRS
 $(BUILDDIRS_M)            :
 	@mkdir -p $@
 
-$(EXEC_M)                 : $(OBJS_M) $(EXECOBJ_M)                 | $(BUILDDIRS_M)
-	$(CXX) $(LDLIBS_M) -o $@ $^
-
 $(BUILD_M)/%.o            : $(SRC_DIR_M)/%.cpp                     | $(BUILDDIRS_M)
 	$(CXX) $(CPPFLAGS_M) $(CXXFLAGS_M) -o $@ -c $<
+
+$(EXEC_M)                 : $(OBJS_M) $(EXECOBJ_M)                 | $(BUILDDIRS_M)
+	$(CXX) $(LDLIBS_M) -o $@ $^
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build main executable RELEASE
@@ -338,11 +339,11 @@ release                   : $(EXEC_M_RELEASE)                      | $(BUILDDIRS
 $(BUILDDIRS_M_RELEASE)    :
 	@mkdir -p $@
 
-$(EXEC_M_RELEASE)         : $(OBJS_M_RELEASE) $(EXECOBJ_M_RELEASE) | $(BUILDDIRS_M_RELEASE)
-	$(CXX) $(LDLIBS_M) -o $@ $^
-
 $(BUILD_M_RELEASE)/%.o    : $(SRC_DIR_M)/%.cpp                     | $(BUILDDIRS_M_RELEASE)
 	$(CXX) $(CPPFLAGS_M) $(CXXFLAGS_REL) -o $@ -c $<
+
+$(EXEC_M_RELEASE)         : $(OBJS_M_RELEASE) $(EXECOBJ_M_RELEASE) | $(BUILDDIRS_M_RELEASE)
+	$(CXX) $(LDLIBS_M) -o $@ $^
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build main executable DEBUG
@@ -353,11 +354,11 @@ debug                     : $(EXEC_M_DEBUG)                        | $(BUILDDIRS
 $(BUILDDIRS_M_DEBUG)      :
 	@mkdir -p $@
 
-$(EXEC_M_DEBUG)           : $(OBJS_M_DEBUG) $(EXECOBJ_M_DEBUG)     | $(BUILDDIRS_M_DEBUG)
-	$(CXX) $(LDLIBS_M) -o $@ $^
-
 $(BUILD_M_DEBUG)/%.o      : $(SRC_DIR_M)/%.cpp                     | $(BUILDDIRS_M_DEBUG)
 	$(CXX) $(CPPFLAGS_M) $(CXXFLAGS_DEBUG) -o $@ -c $<
+
+$(EXEC_M_DEBUG)           : $(OBJS_M_DEBUG) $(EXECOBJ_M_DEBUG)     | $(BUILDDIRS_M_DEBUG)
+	$(CXX) $(LDLIBS_M) -o $@ $^
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build main executable SANITIZE
@@ -368,11 +369,11 @@ sanitize                  : $(EXEC_M_SAN)                           | $(BUILDDIR
 $(BUILDDIRS_M_SAN)        :
 	@mkdir -p $@
 
-$(EXEC_M_SAN)             : $(OBJS_M_SAN) $(EXECOBJ_M_SAN)          | $(BUILDDIRS_M_SAN)
-	$(CXX) $(LDLIBS_SAN) -o $@ $^
-
 $(BUILD_M_SAN)/%.o        : $(SRC_DIR_M)/%.cpp                      | $(BUILDDIRS_M_SAN)
 	$(CXX) $(CPPFLAGS_M) $(CXXFLAGS_SAN) -o $@ -c $<
+
+$(EXEC_M_SAN)             : $(OBJS_M_SAN) $(EXECOBJ_M_SAN)          | $(BUILDDIRS_M_SAN)
+	$(CXX) $(LDLIBS_SAN) -o $@ $^
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build/run unit tests
@@ -391,11 +392,11 @@ test-compile              : $(EXEC_UT)                             | $(BUILDDIRS
 $(BUILDDIRS_UT)           :
 	@mkdir -p $@
 
-$(EXEC_UT)                : $(OBJS_M_SAN) $(OBJS_UT) $(OBJS_UT_FRM) $(EXECOBJ_UT) | $(BUILDDIRS_UT)
-	$(CXX) $(LDLIBS_UT) -o $@ $^
-
 $(BUILD_UT)/%.o           : $(SRC_DIR_UT)/%.cpp                    | $(BUILDDIRS_UT)
 	$(CXX) $(CPPFLAGS_UT) $(CXXFLAGS_UT) -o $@ -c $<
+
+$(EXEC_UT)                : $(OBJS_M_SAN) $(OBJS_UT) $(OBJS_UT_FRM) $(EXECOBJ_UT) | $(BUILDDIRS_UT)
+	$(CXX) $(LDLIBS_UT) -o $@ $^
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build/run integration tests
@@ -448,7 +449,7 @@ doc-publish               : doc
 
 compilation-db            : $(COMPILATIONDB)
 
-$(COMPILATIONDB)          : $(SRCS_M) $(EXECSOURCE_M) $(SRCS_UT) $(EXECSOURCE_UT) $(SRCS_IT) $(EXECSOURCE_IT)
+$(COMPILATIONDB)          : $(SRCS_M) $(EXECSOURCE_M) $(SRCS_UT) $(EXECSOURCE_UT)
 	@bear --cdb $(COMPILATIONDB) $(MAKE) clean main test-compile
 
 .PHONY                    : macroexpand
@@ -459,15 +460,18 @@ macroexpand               : $(SRCS_M) $(EXECSOURCE_M)
 .PHONY                    : check-main
 check-main                : compilation-db
 check-main                : $(SRCS_M) $(EXECSOURCE_M)
-	@clang-check -p=$(COMPILATIONDB) $(SRCS_M) $(EXECSOURCE_M)
+	clang-check -p=$(COMPILATIONDB) $(SRCS_M) $(EXECSOURCE_M)
+	@rm *.d
 
 .PHONY                    : check-test
 check-test                : compilation-db
 check-test                : $(SRCS_UT) $(EXECSOURCE_UT)
-	@clang-check -p=$(COMPILATIONDB) $(SRCS_UT) $(EXECSOURCE_UT)
+	clang-check -p=$(COMPILATIONDB) $(SRCS_UT) $(EXECSOURCE_UT)
+	@rm *.d
 
 .PHONY                    : check
-check                     : check-main check-test 
+check                     : check-main
+check                     : check-test 
 
 # Running scan-build
 $(BUILD_SCAN)             :
@@ -475,19 +479,19 @@ $(BUILD_SCAN)             :
 
 .PHONY                    : scan-main
 scan-main                 : $(BUILD_SCAN)
-	@scan-build -o $(BUILD_SCAN) -analyze-headers --status-bugs $(MAKE) clean main
+	scan-build -o $(BUILD_SCAN) -analyze-headers --status-bugs $(MAKE) clean main
 
 .PHONY                    : tidy
 tidy                      : $(SRCS_M) $(EXECSOURCE_M) $(COMPILATIONDB)
-	@clang-tidy -p $(COMPILATIONDB) -export-fixes=$(BUILD)/clang-tidy-fixes.yaml $(SRCS_M) $(EXECSOURCE_M)
+	clang-tidy -p $(COMPILATIONDB) -export-fixes=$(BUILD)/clang-tidy-fixes.yaml $(SRCS_M) $(EXECSOURCE_M)
 
 .PHONY                    : format-main
 format-main               : $(SRCS_M) $(EXECSOURCE_M)
-	@clang-format -i -style=file $(SRCS_M) $(EXECSOURCE_M)
+	clang-format -i -style=file $(SRCS_M) $(EXECSOURCE_M)
 
 .PHONY                    : format-test
 format-test               : $(SRCS_UT) $(EXECSOURCE_UT)
-	@clang-format -i -style=file $(SRCS_UT) $(EXECSOURCE_UT)
+	clang-format -i -style=file $(SRCS_UT) $(EXECSOURCE_UT)
 
 .PHONY                    : format
 format                    : format-main
@@ -495,7 +499,7 @@ format                    : format-test
 
 .PHONY                    : tags
 tags                      : $(SRCS_M) $(EXECSOURCE_M) $(SRCS_UT) $(EXECSOURCE_UT)
-	@ctags -R -f ./.tags $(SRC_DIR_M) $(SRC_DIR_UT)
+	ctags -R -f ./.tags $(SRC_DIR_M) $(SRC_DIR_UT)
 
 .PHONY                    : upgrade-catch-hpp
 upgrade-catch-hpp         :

@@ -66,10 +66,11 @@ namespace io_wally
         void dispatcher::do_receive_packet( )
         {
             auto self = shared_from_this( );
-            packet_receiver_.async_deq( strand_.wrap( [self](
-                const boost::system::error_code& ec, mqtt_packet_sender::packet_container_t::ptr packet_container ) {
-                self->handle_packet_received( ec, packet_container );
-            } ) );
+            packet_receiver_.async_deq(
+                strand_.wrap( [self]( const boost::system::error_code& ec,
+                                      mqtt_packet_sender::packet_container_t::ptr packet_container ) {
+                    self->handle_packet_received( ec, packet_container );
+                } ) );
         }
 
         void dispatcher::handle_packet_received( const boost::system::error_code& ec,
