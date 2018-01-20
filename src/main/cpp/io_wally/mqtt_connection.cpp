@@ -6,10 +6,10 @@
 #include <memory>
 #include <system_error>
 
+#include <asio.hpp>
+
 #include <boost/log/common.hpp>
 #include <boost/log/trivial.hpp>
-
-#include <asio.hpp>
 
 #include "io_wally/error/protocol.hpp"
 #include "io_wally/logging_support.hpp"
