@@ -4,8 +4,8 @@
 #include <memory>
 #include <chrono>
 
-#include <boost/asio.hpp>
-#include <boost/asio/steady_timer.hpp>
+#include "asio.hpp"
+#include "asio/steady_timer.hpp"
 
 #include "io_wally/context.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
@@ -53,8 +53,8 @@ namespace io_wally
             rx_in_flight_publications& parent_;
             const std::uint32_t pubrel_timeout_ms_;
             const std::size_t max_retries_;
-            boost::asio::io_service::strand strand_;
-            boost::asio::steady_timer retry_on_timeout_;
+            ::asio::io_service::strand strand_;
+            ::asio::steady_timer retry_on_timeout_;
             const std::uint16_t publish_id_;
             std::uint16_t retry_count_{0};
         };  // class rx_publication

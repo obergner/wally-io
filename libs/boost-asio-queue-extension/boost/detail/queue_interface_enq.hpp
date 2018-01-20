@@ -5,7 +5,7 @@
 #define QUEUE_INTERFACE_ENQ_H__
 #include "queue_empty_base.hpp"
 #include <utility>
-#include <boost/system/error_code.hpp>
+#include <system_error>
 
 namespace boost
 {
@@ -25,10 +25,10 @@ namespace boost
                     }
 
                     // enq functions
-                    virtual bool enq( T t, boost::system::error_code& ec ) = 0;
-                    virtual bool timed_enq( T t, std::size_t ms, boost::system::error_code& ec ) = 0;
-                    virtual bool wait_enq( boost::system::error_code& ec ) = 0;
-                    virtual bool timed_wait_enq( std::size_t ms, boost::system::error_code& ec ) = 0;
+                    virtual bool enq( T t, std::error_code& ec ) = 0;
+                    virtual bool timed_enq( T t, std::size_t ms, std::error_code& ec ) = 0;
+                    virtual bool wait_enq( std::error_code& ec ) = 0;
+                    virtual bool timed_wait_enq( std::size_t ms, std::error_code& ec ) = 0;
                     virtual void disable_enq( bool disable ) = 0;
                 };
             }

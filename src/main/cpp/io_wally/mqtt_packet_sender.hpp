@@ -1,12 +1,12 @@
 #pragma once
 
-#include <string>
-#include <ostream>
 #include <memory>
+#include <ostream>
+#include <string>
 
-#include <optional>
 #include <boost/asio_queue.hpp>
 #include <boost/log/trivial.hpp>
+#include <optional>
 
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/protocol/common.hpp"

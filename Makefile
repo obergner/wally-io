@@ -219,9 +219,9 @@ CXXFLAGS_M                += -Wswitch-enum
 
 # Standard preprocessor flags
 CPPFLAGS_M                := -DBOOST_ALL_DYN_LINK
-# Needed for clang:
-# http://stackoverflow.com/questions/27552028/who-is-failing-boost-clang-or-gcc-issue-with-stdchrono-used-with-boostas
-CPPFLAGS_M                += -DBOOST_ASIO_HAS_STD_CHRONO 
+CPPFLAGS_M                += -DASIO_STANDALONE
+# Needed for clang?
+CPPFLAGS_M                += -DASIO_HAS_STD_CHRONO
 
 # Extra linker flags
 LDLIBS_M                  := -lboost_log_setup
@@ -253,7 +253,7 @@ LDLIBS_REL                := $(LDLIBS_M)
 
 CXXFLAGS_DEBUG            := $(CXXFLAGS_M)
 CXXFLAGS_DEBUG            += -O0 -g
-CXXFLAGS_DEBUG            += -DBOOST_ASIO_ENABLE_HANDLER_TRACKING
+CXXFLAGS_DEBUG            += -DASIO_ENABLE_HANDLER_TRACKING
 # Actually, we would like to enable _GLIBCXX_DEBUG, but this is incompatible with Boost Program Options's debug build.
 # See: https://trac.macports.org/ticket/22112
 #CXXFLAGS_DEBUG            += -D_GLIBCXX_DEBUG

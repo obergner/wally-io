@@ -3,8 +3,8 @@
 
 #ifndef __QUEUE_LISTENER_H__
 #define __QUEUE_LISTENER_H__
-#include <boost/asio.hpp>
-#include <boost/system/error_code.hpp>
+#include "asio.hpp"
+#include <system_error>
 #include <cstddef>
 #include <thread>
 namespace boost
@@ -19,12 +19,12 @@ namespace boost
 
         // --- IO Object (used by client) -----------------------------
         template <typename Service, typename Queue>
-        class basic_queue_listener : public boost::asio::basic_io_object<Service>
+        class basic_queue_listener : public ::asio::basic_io_object<Service>
         {
            public:
             // ctor
-            explicit basic_queue_listener( boost::asio::io_service& io_service, Queue* q )
-                : boost::asio::basic_io_object<Service>( io_service ), q_( q )
+            explicit basic_queue_listener( ::asio::io_service& io_service, Queue* q )
+                : ::asio::basic_io_object<Service>( io_service ), q_( q )
             {
             }
             // async deq operation
@@ -52,7 +52,7 @@ namespace boost
                 this->service.timed_async_wait_deq( this->implementation, q_, handler, ms );
             }
             // sync deq operation (blocking)
-            std::pair<bool, typename Queue::value_type> sync_deq( boost::system::error_code& ec )
+            std::pair<bool, typename Queue::value_type> sync_deq( std::error_code& ec )
             {
                 return this->service.sync_deq( this->implementation, q_, ec );
             }
@@ -67,15 +67,15 @@ namespace boost
         // --- service class -----------------------------
         // (for one io_service, only one object created)
         template <typename Impl>
-        class basic_queue_listener_service : public boost::asio::io_service::service
+        class basic_queue_listener_service : public ::asio::io_service::service
         {
            public:
             // required to have id of service
-            static boost::asio::io_service::id id;
+            static ::asio::io_service::id id;
 
             // ctor
-            explicit basic_queue_listener_service( boost::asio::io_service& io_service )
-                : boost::asio::io_service::service( io_service )
+            explicit basic_queue_listener_service( ::asio::io_service& io_service )
+                : ::asio::io_service::service( io_service )
             {
             }
             // dtor
@@ -127,7 +127,7 @@ namespace boost
             template <typename Queue>
             std::pair<bool, typename Queue::value_type> sync_deq( implementation_type& impl,
                                                                   Queue* q,
-                                                                  boost::system::error_code& ec )
+                                                                  std::error_code& ec )
             {
                 return impl->sync_deq( q, ec );
             }
@@ -140,15 +140,15 @@ namespace boost
         };
         // definition of id of service (required)
         template <typename Impl>
-        boost::asio::io_service::id basic_queue_listener_service<Impl>::id;
+        ::asio::io_service::id basic_queue_listener_service<Impl>::id;
 
         // --- implementation -----------------------------
         class queue_listener_impl
         {
            public:
             // ctor (set up work queue for io_service so we don't bail out when executing run())
-            queue_listener_impl( boost::asio::io_service& post_io_service )
-                : impl_work_( new boost::asio::io_service::work( impl_io_service_ ) ),
+            queue_listener_impl( ::asio::io_service& post_io_service )
+                : impl_work_( new ::asio::io_service::work( impl_io_service_ ) ),
                   impl_thread_( [&]( )
                                 {
                                     impl_io_service_.run( );
@@ -195,7 +195,7 @@ namespace boost
             }
             // dequeue message (blocking deq)
             template <typename Queue>
-            std::pair<bool, typename Queue::value_type> sync_deq( Queue* q, boost::system::error_code& ec )
+            std::pair<bool, typename Queue::value_type> sync_deq( Queue* q, std::error_code& ec )
             {
                 return q->deq( ec );
             }
@@ -208,7 +208,7 @@ namespace boost
                public:
                 // ctor
                 deq_operation( std::shared_ptr<queue_listener_impl> impl,
-                               boost::asio::io_service& io_service,
+                               ::asio::io_service& io_service,
                                Queue* q,
                                Handler handler )
                     : wimpl_( impl ),
@@ -222,7 +222,7 @@ namespace boost
                 }
                 // ctor - timed
                 deq_operation( std::shared_ptr<queue_listener_impl> impl,
-                               boost::asio::io_service& io_service,
+                               ::asio::io_service& io_service,
                                Queue* q,
                                Handler handler,
                                std::size_t ms )
@@ -242,7 +242,7 @@ namespace boost
                     std::shared_ptr<queue_listener_impl> impl{wimpl_.lock( )};
 
                     // if valid, go ahead and do blocking call on queue, otherwise post aborted message
-                    boost::system::error_code ec;
+                    std::error_code ec;
                     std::pair<bool, typename Queue::value_type> ret;
                     if ( impl )
                     {
@@ -250,19 +250,19 @@ namespace boost
                             ret = q_->timed_deq( ms_, ec );
                         else
                             ret = q_->deq( ec );
-                        this->io_service_.post( boost::asio::detail::bind_handler( handler_, ec, ret.second ) );
+                        this->io_service_.post( ::asio::detail::bind_handler( handler_, ec, ret.second ) );
                     }
                     else
                     {
                         this->io_service_.post(
-                            boost::asio::detail::bind_handler( handler_, ec, typename Queue::value_type( ) ) );
+                            ::asio::detail::bind_handler( handler_, ec, typename Queue::value_type( ) ) );
                     }
                 }
 
                private:
                 std::weak_ptr<queue_listener_impl> wimpl_;
-                boost::asio::io_service& io_service_;
-                boost::asio::io_service::work work_;
+                ::asio::io_service& io_service_;
+                ::asio::io_service::work work_;
                 Queue* q_;
                 Handler handler_;
                 bool is_timed_;
@@ -275,7 +275,7 @@ namespace boost
                public:
                 // ctor
                 wait_deq_operation( std::shared_ptr<queue_listener_impl> impl,
-                                    boost::asio::io_service& io_service,
+                                    ::asio::io_service& io_service,
                                     Queue* q,
                                     Handler handler )
                     : wimpl_( impl ),
@@ -289,7 +289,7 @@ namespace boost
                 }
                 // ctor - timed
                 wait_deq_operation( std::shared_ptr<queue_listener_impl> impl,
-                                    boost::asio::io_service& io_service,
+                                    ::asio::io_service& io_service,
                                     Queue* q,
                                     Handler handler,
                                     std::size_t ms )
@@ -309,35 +309,35 @@ namespace boost
                     std::shared_ptr<queue_listener_impl> impl{wimpl_.lock( )};
 
                     // if valid, go ahead and do (potentially) blocking call on queue, otherwise post aborted message
-                    boost::system::error_code ec;
+                    std::error_code ec;
                     if ( impl )
                     {
                         if ( is_timed_ )
                             q_->timed_wait_deq( ms_, ec );
                         else
                             q_->wait_deq( ec );
-                        this->io_service_.post( boost::asio::detail::bind_handler( handler_, ec ) );
+                        this->io_service_.post( ::asio::detail::bind_handler( handler_, ec ) );
                     }
                     else
                     {
-                        this->io_service_.post( boost::asio::detail::bind_handler( handler_, ec ) );
+                        this->io_service_.post( ::asio::detail::bind_handler( handler_, ec ) );
                     }
                 }
 
                private:
                 std::weak_ptr<queue_listener_impl> wimpl_;
-                boost::asio::io_service& io_service_;
-                boost::asio::io_service::work work_;
+                ::asio::io_service& io_service_;
+                ::asio::io_service::work work_;
                 Queue* q_;
                 Handler handler_;
                 bool is_timed_;
                 std::size_t ms_;
             };
             // private data
-            boost::asio::io_service impl_io_service_;
-            std::unique_ptr<boost::asio::io_service::work> impl_work_;
+            ::asio::io_service impl_io_service_;
+            std::unique_ptr<::asio::io_service::work> impl_work_;
             std::thread impl_thread_;
-            boost::asio::io_service& post_io_service_;
+            ::asio::io_service& post_io_service_;
         };
     }
 }

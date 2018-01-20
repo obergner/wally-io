@@ -1,15 +1,16 @@
 #pragma once
 
+#include <cmath>
 #include <cstdint>
 #include <cstring>
-#include <cmath>
+#include <memory>
+#include <stdexcept>
 #include <string>
 #include <tuple>
-#include <stdexcept>
-#include <memory>
+#include <vector>
 
 #include <optional>
-#include <boost/system/error_code.hpp>
+#include <system_error>
 
 #include "io_wally/error/protocol.hpp"
 #include "io_wally/protocol/common.hpp"
@@ -64,7 +65,7 @@ namespace io_wally
             {
             }
 
-            std::size_t operator( )( const boost::system::error_code& error, std::size_t bytes_transferred )
+            std::size_t operator( )( const std::error_code& error, std::size_t bytes_transferred )
             {
                 assert( bytes_transferred <= buffer_.size( ) );
                 if ( error )

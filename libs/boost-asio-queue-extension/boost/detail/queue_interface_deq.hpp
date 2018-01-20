@@ -5,7 +5,7 @@
 #define QUEUE_INTERFACE_DEQ_H__
 #include "queue_empty_base.hpp"
 #include <utility>
-#include <boost/system/error_code.hpp>
+#include <system_error>
 
 namespace boost
 {
@@ -25,10 +25,10 @@ namespace boost
                     }
 
                     // deq functions
-                    virtual std::pair<bool, T> deq( boost::system::error_code& ec ) = 0;
-                    virtual std::pair<bool, T> timed_deq( std::size_t ms, boost::system::error_code& ec ) = 0;
-                    virtual bool wait_deq( boost::system::error_code& ec ) = 0;
-                    virtual bool timed_wait_deq( std::size_t ms, boost::system::error_code& ec ) = 0;
+                    virtual std::pair<bool, T> deq( std::error_code& ec ) = 0;
+                    virtual std::pair<bool, T> timed_deq( std::size_t ms, std::error_code& ec ) = 0;
+                    virtual bool wait_deq( std::error_code& ec ) = 0;
+                    virtual bool timed_wait_deq( std::size_t ms, std::error_code& ec ) = 0;
                     virtual void disable_deq( bool disable ) = 0;
                 };
             }

@@ -3,9 +3,9 @@
 #include <string>
 #include <memory>
 
-#include <boost/system/error_code.hpp>
+#include <system_error>
 
-#include <boost/asio.hpp>
+#include "asio.hpp"
 
 #include "boost/asio_queue.hpp"
 
@@ -65,15 +65,15 @@ namespace io_wally
            private:
             void do_receive_packet( );
 
-            void handle_packet_received( const boost::system::error_code& ec,
+            void handle_packet_received( const std::error_code& ec,
                                          mqtt_packet_sender::packet_container_t::ptr packet_container );
 
            private:
             const context& context_;
             mqtt_packet_sender::packetq_t& dispatchq_;
             concurrency::io_service_pool dispatcher_pool_{"dispatcher", 1};
-            boost::asio::io_service& io_service_{dispatcher_pool_.io_service( )};
-            boost::asio::io_service::strand strand_{io_service_};
+            ::asio::io_service& io_service_{dispatcher_pool_.io_service( )};
+            ::asio::io_service::strand strand_{io_service_};
             boost::asio::queue_listener<mqtt_packet_sender::packetq_t> packet_receiver_{io_service_, &dispatchq_};
             mqtt_client_session_manager session_manager_{context_, io_service_};
             /// Our severity-enabled channel logger

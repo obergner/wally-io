@@ -87,7 +87,7 @@ namespace io_wally
             auto self_weak = std::weak_ptr<rx_publication>{shared_from_this( )};
             auto ack_tmo = std::chrono::milliseconds{pubrel_timeout_ms_};
             retry_on_timeout_.expires_from_now( ack_tmo );
-            retry_on_timeout_.async_wait( strand_.wrap( [self_weak, sender]( const boost::system::error_code& ec ) {
+            retry_on_timeout_.async_wait( strand_.wrap( [self_weak, sender]( const std::error_code& ec ) {
                 if ( ec )
                 {
                     return;

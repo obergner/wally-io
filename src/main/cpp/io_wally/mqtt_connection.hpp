@@ -1,13 +1,13 @@
 #pragma once
 
-#include <vector>
-#include <memory>
 #include <chrono>
+#include <memory>
+#include <vector>
 
-#include <boost/system/error_code.hpp>
+#include <system_error>
 
-#include <boost/asio.hpp>
-#include <boost/asio/steady_timer.hpp>
+#include "asio.hpp"
+#include "asio/steady_timer.hpp"
 
 #include <optional>
 
@@ -16,9 +16,9 @@
 
 #include <boost/asio_queue.hpp>
 
-#include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/context.hpp"
 #include "io_wally/logging_support.hpp"
+#include "io_wally/mqtt_packet_sender.hpp"
 
 #include "io_wally/protocol/protocol.hpp"
 
@@ -48,15 +48,15 @@ namespace io_wally
         using buf_iter = std::vector<uint8_t>::iterator;
 
         /// Factory method for \c mqtt_connections.
-        static mqtt_connection::ptr create( boost::asio::ip::tcp::socket socket,
-                                            mqtt_connection_manager& connection_manager,
-                                            const context& context,
-                                            boost::asio::queue_sender<packetq_t>& dispatcher );
+        static mqtt_connection::ptr create(::asio::ip::tcp::socket socket,
+                                           mqtt_connection_manager& connection_manager,
+                                           const context& context,
+                                           boost::asio::queue_sender<packetq_t>& dispatcher );
 
        private:  // static
-        static const std::string endpoint_description( const boost::asio::ip::tcp::socket& socket );
+        static const std::string endpoint_description( const ::asio::ip::tcp::socket& socket );
 
-        static const std::string connection_description( const boost::asio::ip::tcp::socket& socket,
+        static const std::string connection_description( const ::asio::ip::tcp::socket& socket,
                                                          const std::string& client_id = "ANON" );
 
        public:
@@ -89,10 +89,10 @@ namespace io_wally
 
        private:
         /// Hide constructor since we MUST be created by static factory method 'create' above
-        mqtt_connection( boost::asio::ip::tcp::socket socket,
-                         mqtt_connection_manager& connection_manager,
-                         const context& context,
-                         boost::asio::queue_sender<packetq_t>& dispatcher );
+        mqtt_connection(::asio::ip::tcp::socket socket,
+                        mqtt_connection_manager& connection_manager,
+                        const context& context,
+                        boost::asio::queue_sender<packetq_t>& dispatcher );
 
         void do_stop( );
 
@@ -100,11 +100,11 @@ namespace io_wally
 
         void read_frame( );
 
-        void on_frame_read( const boost::system::error_code& ec, const size_t bytes_transferred );
+        void on_frame_read( const std::error_code& ec, const size_t bytes_transferred );
 
         void decode_packet( const size_t bytes_transferred );
 
-        void on_read_failed( const boost::system::error_code& ec, const size_t bytes_transferred );
+        void on_read_failed( const std::error_code& ec, const size_t bytes_transferred );
 
         // Processing decoded packets
 
@@ -116,8 +116,7 @@ namespace io_wally
 
         void dispatch_connect_packet( std::shared_ptr<protocol::connect> connect );
 
-        void handle_dispatch_connect_packet( const boost::system::error_code& ec,
-                                             std::shared_ptr<protocol::connect> connect );
+        void handle_dispatch_connect_packet( const std::error_code& ec, std::shared_ptr<protocol::connect> connect );
 
         // Dealing with DISCONNECT packets
 
@@ -127,7 +126,7 @@ namespace io_wally
             std::shared_ptr<protocol::disconnect> disconnect,
             const dispatch::disconnect_reason disconnect_reason = dispatch::disconnect_reason::client_disconnect );
 
-        void handle_dispatch_disconnect_packet( const boost::system::error_code& ec,
+        void handle_dispatch_disconnect_packet( const std::error_code& ec,
                                                 std::shared_ptr<protocol::disconnect> disconnect,
                                                 const dispatch::disconnect_reason disconnect_reason );
 
@@ -135,8 +134,7 @@ namespace io_wally
 
         void dispatch_packet( std::shared_ptr<protocol::mqtt_packet> packet );
 
-        void handle_dispatch_packet( const boost::system::error_code& ec,
-                                     std::shared_ptr<protocol::mqtt_packet> packet );
+        void handle_dispatch_packet( const std::error_code& ec, std::shared_ptr<protocol::mqtt_packet> packet );
 
         // Sending MQTT packets
 
@@ -153,14 +151,14 @@ namespace io_wally
 
         void close_on_keep_alive_timeout( );
 
-        void handle_keep_alive_timeout( const boost::system::error_code& ec );
+        void handle_keep_alive_timeout( const std::error_code& ec );
 
         // Dealing with protocol violations and network/server failures
 
         void connection_close_requested(
             const std::string& message,
             const dispatch::disconnect_reason reason,
-            const boost::system::error_code& ec = boost::system::errc::make_error_code( boost::system::errc::success ),
+            const std::error_code& ec = std::error_code{},
             const boost::log::trivial::severity_level log_level = boost::log::trivial::error );
 
        private:
@@ -171,9 +169,9 @@ namespace io_wally
         /// Encode outgoing packets
         const encoder::mqtt_packet_encoder<buf_iter> packet_encoder_{};
         /// The client socket this connection is connected to
-        boost::asio::ip::tcp::socket socket_;
+        ::asio::ip::tcp::socket socket_;
         /// Strand used to serialize access to socket and timer
-        boost::asio::io_service::strand strand_;
+        ::asio::io_service::strand strand_;
         /// Our connection manager, responsible for managing our lifecycle
         mqtt_connection_manager& connection_manager_;
         /// Our context reference, used for configuring ourselves etc
@@ -190,11 +188,11 @@ namespace io_wally
         /// Buffer outgoing data
         std::vector<uint8_t> write_buffer_;
         /// Timer, will fire if connection timeout expires without receiving a CONNECT request
-        boost::asio::steady_timer close_on_connection_timeout_;
+        ::asio::steady_timer close_on_connection_timeout_;
         /// Keep alive duration (seconds)
         std::optional<std::chrono::duration<uint16_t>> keep_alive_ = std::nullopt;
         /// Timer, will fire if keep alive timeout expires without receiving a message
-        boost::asio::steady_timer close_on_keep_alive_timeout_;
+        ::asio::steady_timer close_on_keep_alive_timeout_;
         /// Our severity-enabled channel logger
         boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
             boost::log::keywords::channel = mqtt_connection::endpoint_description( socket_ ),

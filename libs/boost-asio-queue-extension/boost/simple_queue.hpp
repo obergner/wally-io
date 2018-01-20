@@ -10,8 +10,8 @@
 #include <condition_variable>
 #include <chrono>
 #include <memory>
-#include <boost/system/error_code.hpp>
-#include <boost/asio/error.hpp>
+#include <system_error>
+#include "asio/error.hpp"
 namespace boost
 {
     namespace asio
@@ -61,7 +61,7 @@ namespace boost
             ~simple_queue( ) = default;
 
             // put a message into queue
-            bool enq( T t, boost::system::error_code& ec )
+            bool enq( T t, std::error_code& ec )
             {
                 std::unique_lock<std::mutex> lock( *mtx_ );
                 cond_->wait( lock,
@@ -71,16 +71,16 @@ namespace boost
                 } );
                 if ( !enq_enabled_ )
                 {
-                    ec = boost::asio::error::operation_aborted;
+                    ec = ::asio::error::operation_aborted;
                     return false;
                 }
                 q_.push( t );
                 cond_->notify_all( );
-                ec = boost::system::error_code( );
+                ec = std::error_code( );
                 return true;
             }
             // put a message into queue - timeout if waiting too long
-            bool timed_enq( T t, std::size_t ms, boost::system::error_code& ec )
+            bool timed_enq( T t, std::size_t ms, std::error_code& ec )
             {
                 std::unique_lock<std::mutex> lock( *mtx_ );
                 bool tmo = !cond_->wait_for( lock,
@@ -91,21 +91,21 @@ namespace boost
                 } );
                 if ( tmo )
                 {
-                    ec = boost::asio::error::timed_out;
+                    ec = ::asio::error::timed_out;
                     return false;
                 }
                 if ( !enq_enabled_ )
                 {
-                    ec = boost::asio::error::operation_aborted;
+                    ec = ::asio::error::operation_aborted;
                     return false;
                 }
                 q_.push( t );
                 cond_->notify_all( );
-                ec = boost::system::error_code( );
+                ec = std::error_code( );
                 return true;
             }
             // wait until we can put a message in queue
-            bool wait_enq( boost::system::error_code& ec )
+            bool wait_enq( std::error_code& ec )
             {
                 std::unique_lock<std::mutex> lock( *mtx_ );
                 cond_->wait( lock,
@@ -115,15 +115,15 @@ namespace boost
                 } );
                 if ( !enq_enabled_ )
                 {
-                    ec = boost::asio::error::operation_aborted;
+                    ec = ::asio::error::operation_aborted;
                     return false;
                 }
                 cond_->notify_all( );
-                ec = boost::system::error_code( );
+                ec = std::error_code( );
                 return true;
             }
             // wait until we can put a message in queue - timeout if waiting too long
-            bool timed_wait_enq( std::size_t ms, boost::system::error_code& ec )
+            bool timed_wait_enq( std::size_t ms, std::error_code& ec )
             {
                 std::unique_lock<std::mutex> lock( *mtx_ );
                 bool tmo = !cond_->wait_for( lock,
@@ -134,20 +134,20 @@ namespace boost
                 } );
                 if ( tmo )
                 {
-                    ec = boost::asio::error::timed_out;
+                    ec = ::asio::error::timed_out;
                     return false;
                 }
                 if ( !enq_enabled_ )
                 {
-                    ec = boost::asio::error::operation_aborted;
+                    ec = ::asio::error::operation_aborted;
                     return false;
                 }
                 cond_->notify_all( );
-                ec = boost::system::error_code( );
+                ec = std::error_code( );
                 return true;
             }
             // dequeue a message (return.first == false if deq() was disabled)
-            std::pair<bool, T> deq( boost::system::error_code& ec )
+            std::pair<bool, T> deq( std::error_code& ec )
             {
                 std::unique_lock<std::mutex> lock( *mtx_ );
                 cond_->wait( lock,
@@ -159,18 +159,18 @@ namespace boost
                 // if deq is disabled or timeout
                 if ( !deq_enabled_ )
                 {
-                    ec = boost::asio::error::operation_aborted;
+                    ec = ::asio::error::operation_aborted;
                     return std::make_pair( false, T{} );
                 }
                 // check if we have a message
                 std::pair<bool, T> ret{std::make_pair( true, q_.front( ) )};
                 q_.pop( );
                 cond_->notify_all( );
-                ec = boost::system::error_code( );
+                ec = std::error_code( );
                 return ret;
             }
             // dequeue a message (return.first == false if deq() was disabled) - timeout if waiting too long
-            std::pair<bool, T> timed_deq( std::size_t ms, boost::system::error_code& ec )
+            std::pair<bool, T> timed_deq( std::size_t ms, std::error_code& ec )
             {
                 std::unique_lock<std::mutex> lock( *mtx_ );
                 bool tmo = !cond_->wait_for( lock,
@@ -183,23 +183,23 @@ namespace boost
                 // if deq is disabled or queue is empty return or timeout
                 if ( tmo )
                 {
-                    ec = boost::asio::error::timed_out;
+                    ec = ::asio::error::timed_out;
                     return std::make_pair( false, T{} );
                 }
                 if ( !deq_enabled_ )
                 {
-                    ec = boost::asio::error::operation_aborted;
+                    ec = ::asio::error::operation_aborted;
                     return std::make_pair( false, T{} );
                 }
                 // check if we have a message
                 std::pair<bool, T> ret{std::make_pair( true, q_.front( ) )};
                 q_.pop( );
                 cond_->notify_all( );
-                ec = boost::system::error_code( );
+                ec = std::error_code( );
                 return ret;
             }
             // wait until we can retrieve a message from queue
-            bool wait_deq( boost::system::error_code& ec )
+            bool wait_deq( std::error_code& ec )
             {
                 std::unique_lock<std::mutex> lock( *mtx_ );
                 cond_->wait( lock,
@@ -209,15 +209,15 @@ namespace boost
                 } );
                 if ( !deq_enabled_ )
                 {
-                    ec = boost::asio::error::operation_aborted;
+                    ec = ::asio::error::operation_aborted;
                     return false;
                 }
                 cond_->notify_all( );
-                ec = boost::system::error_code( );
+                ec = std::error_code( );
                 return true;
             }
             // wait until we can retrieve a message from queue -  timeout if waiting too long
-            bool timed_wait_deq( std::size_t ms, boost::system::error_code& ec )
+            bool timed_wait_deq( std::size_t ms, std::error_code& ec )
             {
                 std::unique_lock<std::mutex> lock( *mtx_ );
                 bool tmo = !cond_->wait_for( lock,
@@ -228,16 +228,16 @@ namespace boost
                 } );
                 if ( tmo )
                 {
-                    ec = boost::asio::error::timed_out;
+                    ec = ::asio::error::timed_out;
                     return false;
                 }
                 if ( !deq_enabled_ )
                 {
-                    ec = boost::asio::error::operation_aborted;
+                    ec = ::asio::error::operation_aborted;
                     return false;
                 }
                 cond_->notify_all( );
-                ec = boost::system::error_code( );
+                ec = std::error_code( );
                 return true;
             }
             // cancel deq operations (will also release blocking threads)

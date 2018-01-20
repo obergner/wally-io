@@ -36,12 +36,12 @@ namespace io_wally
 
         auto address = context_[io_wally::context::SERVER_ADDRESS].as<const string>( );
         auto port = context_[io_wally::context::SERVER_PORT].as<const int>( );
-        boost::asio::ip::tcp::resolver resolver{io_service_};
-        const boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve( {address, to_string( port )} );
+        ::asio::ip::tcp::resolver resolver{io_service_};
+        const ::asio::ip::tcp::endpoint endpoint = *resolver.resolve( {address, to_string( port )} );
 
         acceptor_.open( endpoint.protocol( ) );
         // Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
-        acceptor_.set_option( boost::asio::ip::tcp::acceptor::reuse_address( true ) );
+        acceptor_.set_option(::asio::ip::tcp::acceptor::reuse_address( true ) );
         acceptor_.bind( endpoint );
         acceptor_.listen( );
 
@@ -94,7 +94,7 @@ namespace io_wally
     void mqtt_server::do_accept( )
     {
         auto self = shared_from_this( );
-        acceptor_.async_accept( socket_, [self]( const boost::system::error_code& ec ) {
+        acceptor_.async_accept( socket_, [self]( const std::error_code& ec ) {
             BOOST_LOG_SEV( self->logger_, lvl::debug ) << "ACCEPTED: " << self->socket_;
             // Check whether the mqtt_server was stopped by a signal before this
             // completion handler had a chance to run.
@@ -117,7 +117,7 @@ namespace io_wally
     {
         // See: http://www.boost.org/doc/libs/1_59_0/doc/html/boost_asio/reference/basic_signal_set/async_wait.html
         auto self = shared_from_this( );
-        termination_signals_.async_wait( [self]( const boost::system::error_code& ec, int signo ) {
+        termination_signals_.async_wait( [self]( const std::error_code& ec, int signo ) {
             // Signal set was cancelled. Should not happen since termination_signals_
             // is private to this class and we sure don't want to cancel it, by golly!
             assert( !ec );

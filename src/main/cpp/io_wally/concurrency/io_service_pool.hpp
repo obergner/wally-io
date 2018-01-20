@@ -9,7 +9,7 @@
 #include <mutex>
 #include <condition_variable>
 
-#include <boost/asio.hpp>
+#include "asio.hpp"
 
 #include <boost/log/common.hpp>
 #include <boost/log/trivial.hpp>
@@ -20,10 +20,10 @@ namespace io_wally
     ///
     /// Contains
     ///
-    ///  - \c io_service_pool  A pool of \c boost::asio::io_service instances, each executing in a dedicated thread
+    ///  - \c io_service_pool  A pool of \c ::asio::io_service instances, each executing in a dedicated thread
     namespace concurrency
     {
-        /// \brief Pool of \c boost::asio::io_service objects, each executing in a dedicated thread.
+        /// \brief Pool of \c ::asio::io_service objects, each executing in a dedicated thread.
         ///
         /// \see http://www.boost.org/doc/libs/1_53_0/doc/html/boost_asio/example/http/server2/io_service_pool.cpp
         class io_service_pool final
@@ -38,8 +38,8 @@ namespace io_wally
                 assert( pool_size > 0 );
                 for ( std::size_t i = 0; i < pool_size; ++i )
                 {
-                    auto io_service = std::make_shared<boost::asio::io_service>( );
-                    auto work = std::make_shared<boost::asio::io_service::work>( *io_service );
+                    auto io_service = std::make_shared<::asio::io_service>( );
+                    auto work = std::make_shared<::asio::io_service::work>( *io_service );
                     io_services_.push_back( io_service );
                     work_.push_back( work );
                 }
@@ -63,7 +63,7 @@ namespace io_wally
                     // see:
                     // http://stackoverflow.com/questions/28794203/why-does-boostasioio-service-not-compile-with-stdbind
                     auto th = std::make_shared<std::thread>( std::bind(
-                        static_cast<std::size_t (boost::asio::io_service::*)( )>( &boost::asio::io_service::run ),
+                        static_cast<std::size_t (::asio::io_service::*)( )>( &::asio::io_service::run ),
                         io_services_[i] ) );
                     threads_.push_back( th );
                 }
@@ -99,7 +99,7 @@ namespace io_wally
             /// \brief Get next available \c io_service object in pool.
             ///
             /// \return Next \c io_service object in this pool
-            boost::asio::io_service& io_service( )
+            ::asio::io_service& io_service( )
             {
                 auto next = next_io_service_++;
                 // TODO: This is just an ill-fated attempt to show off! Get rid of it!
@@ -130,8 +130,8 @@ namespace io_wally
             }
 
            private:  // static
-            using io_service_ptr = std::shared_ptr<boost::asio::io_service>;
-            using work_ptr = std::shared_ptr<boost::asio::io_service::work>;
+            using io_service_ptr = std::shared_ptr<::asio::io_service>;
+            using work_ptr = std::shared_ptr<::asio::io_service::work>;
             using thread_ptr = std::shared_ptr<std::thread>;
 
            private:

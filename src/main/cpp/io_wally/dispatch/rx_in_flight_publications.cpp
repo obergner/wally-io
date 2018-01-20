@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <utility>
 
-#include <boost/asio.hpp>
+#include "asio.hpp"
 
 #include "io_wally/context.hpp"
 #include "io_wally/dispatch/rx_publication.hpp"
@@ -25,7 +25,7 @@ namespace io_wally
         // ------------------------------------------------------------------------------------------------------------
 
         rx_in_flight_publications::rx_in_flight_publications( const io_wally::context& context,
-                                                              boost::asio::io_service& io_service,
+                                                              ::asio::io_service& io_service,
                                                               std::weak_ptr<mqtt_packet_sender> sender )
             : context_{context}, io_service_{io_service}, sender_{sender}
         {
@@ -36,7 +36,7 @@ namespace io_wally
             return context_;
         }
 
-        boost::asio::io_service& rx_in_flight_publications::io_service( ) const
+        ::asio::io_service& rx_in_flight_publications::io_service( ) const
         {
             return io_service_;
         }

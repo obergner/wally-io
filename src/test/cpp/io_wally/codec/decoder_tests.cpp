@@ -6,7 +6,7 @@
 #include <string>
 #include <tuple>
 
-#include <boost/system/error_code.hpp>
+#include <system_error>
 
 #include "io_wally/codec/decoder.hpp"
 #include "io_wally/error/protocol.hpp"
@@ -18,7 +18,7 @@ SCENARIO( "frame_reader", "[packets]" )
 {
     auto buffer = std::vector<uint8_t>( 512 );
     auto under_test = decoder::frame_reader{buffer};
-    const auto ec_success = boost::system::errc::make_error_code( boost::system::errc::success );
+    const auto ec_success = std::error_code{};
 
     GIVEN( "a well-formed packet header of length two encoding a remaining length of 0" )
     {
@@ -354,7 +354,7 @@ SCENARIO( "frame_reader", "[packets]" )
     GIVEN( "a partial packet header of eventual length 4" )
     {
         const auto serialized_header = std::array<uint8_t, 2>{{0x07 << 4, 0xFF}};
-        const auto ec_success = boost::system::errc::make_error_code( boost::system::errc::success );
+        const auto ec_success = std::error_code{};
         const auto actual_remaining_length = 127 * 128 * 128 + 127 * 128 + 127;
 
         buffer.insert( std::begin( buffer ), std::begin( serialized_header ), std::end( serialized_header ) );
