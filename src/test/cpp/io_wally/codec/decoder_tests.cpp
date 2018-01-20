@@ -310,7 +310,6 @@ SCENARIO( "frame_reader", "[packets]" )
         WHEN( "a caller repeatedly calls frame_reader as a functor while buffer is being filled" )
         {
             const auto step_size = std::size_t{100000};  // Large step size so that test runs faster
-            const auto frame_remainder = under_test( ec_success, serialized_header.size( ) );
 
             auto bytes_transferred = serialized_header.size( );
 

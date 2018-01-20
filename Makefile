@@ -12,9 +12,12 @@ include ./libs/libs.mk
 # Common definitions
 # --------------------------------------------------------------------------------------------------------------------- 
 
+# http://stackoverflow.com/questions/18136918/how-to-get-current-directory-of-your-makefile
+DIR                      := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+
 # Top level build directory
 # see: http://blog.kompiler.org/post/6/2011-09-18/Separate_build_and_source_directories_in_Makefiles/
-BUILD                    := target
+BUILD                    := $(DIR)/target
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Main executable: sources
@@ -23,7 +26,7 @@ BUILD                    := target
 #
 # SOURCES
 #
-SRC_DIR_M                := src/main/cpp
+SRC_DIR_M                := $(DIR)/src/main/cpp
 
 SRCS_M                   := $(wildcard $(SRC_DIR_M)/io_wally/*.cpp)
 SRCS_M                   += $(wildcard $(SRC_DIR_M)/io_wally/protocol/*.cpp)
@@ -58,18 +61,18 @@ EXEC_M                   := $(BUILD_M)/wally-iod
 # ***********************************************************************
 
 # Build dir for SRCS
-BUILD_M_RELEASE          := $(BUILD)/release
+BUILD_M_REL              := $(BUILD)/release
 
 # Objects
-OBJS_M_RELEASE           := $(patsubst $(SRC_DIR_M)/%.cpp, $(BUILD_M_RELEASE)/%.o, $(SRCS_M))
+OBJS_M_REL               := $(patsubst $(SRC_DIR_M)/%.cpp, $(BUILD_M_REL)/%.o, $(SRCS_M))
 
-EXECOBJ_M_RELEASE        := $(patsubst $(SRC_DIR_M)/%.cpp, $(BUILD_M_RELEASE)/%.o, $(EXECSOURCE_M))
+EXECOBJ_M_REL            := $(patsubst $(SRC_DIR_M)/%.cpp, $(BUILD_M_REL)/%.o, $(EXECSOURCE_M))
 
 # Subdirs in build directory need to reflect subdirs in src directory
-BUILDDIRS_M_RELEASE      := $(sort $(dir $(OBJS_M_RELEASE)))
+BUILDDIRS_M_REL          := $(sort $(dir $(OBJS_M_REL)))
 
 # Main executable
-EXEC_M_RELEASE           := $(BUILD_M_RELEASE)/wally-iod
+EXEC_M_REL               := $(BUILD_M_REL)/wally-iod
 
 # ***********************************************************************
 # OBJECTS: debug
@@ -112,7 +115,7 @@ EXEC_M_SAN               := $(BUILD_M_SAN)/wally-iod
 # --------------------------------------------------------------------------------------------------------------------- 
 
 # Test SRCS
-SRC_DIR_UT                := src/test/cpp
+SRC_DIR_UT                := $(DIR)/src/test/cpp
 
 # Test framework SRCS
 SRCS_UT_FRM               := $(wildcard $(SRC_DIR_UT)/framework/*.cpp)
@@ -149,7 +152,7 @@ EXEC_UT                   := $(BUILD_UT)/unit-tests
 # Integration tests
 # --------------------------------------------------------------------------------------------------------------------- 
 
-SRC_DIR_IT                := src/itest/py
+SRC_DIR_IT                := $(DIR)/src/itest/py
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Tooling
@@ -162,10 +165,10 @@ BUILD_SCAN                := $(BUILD)/scan
 BUILD_DOC                 := $(BUILD)/doc
 
 # Clang's compilation database needed for some of its tooling
-COMPILATIONDB             := compile_commands.json
+COMPILATIONDB             := $(DIR)/compile_commands.json
 
 # Third-party tools, mainly used for testing
-TOOLSDIR                  := tools
+TOOLSDIR                  := $(DIR)/tools
 
 # Paho conformance test suite
 PAHO_CONFORM_DIR          := $(TOOLSDIR)/paho
@@ -198,7 +201,8 @@ CXXFLAGS_M                += -c # Only compile
 CXXFLAGS_M                += -fdiagnostics-color=auto
 CXXFLAGS_M                += -MMD # automatically generate dependency rules on each run
 CXXFLAGS_M                += -I $(SRC_DIR_M)
-CXXFLAGS_M                += -I $(BA_QUEUE_EXT_DIR)
+CXXFLAGS_M                += -I $(ASIO_EXT_INC)
+CXXFLAGS_M                += -I $(BA_QUEUE_EXT_INC)
 CXXFLAGS_M                += -Werror
 CXXFLAGS_M                += -Wall
 CXXFLAGS_M                += -Wextra
@@ -238,6 +242,9 @@ CXXFLAGS_REL              += -O3
 
 # Release build preprocessor flags
 CPPFLAGS_REL              := $(filter-out -DBOOST_ALL_DYN_LINK, $(CPPFLAGS_M))
+
+# Release linker flags
+LDLIBS_REL                := $(LDLIBS_M)
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Compiler configuration: main executable DEBUG (currently not working since we miss debug info for boost
@@ -345,19 +352,19 @@ $(EXEC_M)                 : $(OBJS_M) $(EXECOBJ_M)                 | $(BUILDDIRS
 	$(CXX) $(LDLIBS_M) -o $@ $^
 
 # --------------------------------------------------------------------------------------------------------------------- 
-# Build main executable RELEASE
+# Build main executable REL
 # --------------------------------------------------------------------------------------------------------------------- 
 
-release                   : $(EXEC_M_RELEASE)                      | $(BUILDDIRS_M_RELEASE)
+release                   : $(EXEC_M_REL)                          | $(BUILDDIRS_M_REL)
 
-$(BUILDDIRS_M_RELEASE)    :
+$(BUILDDIRS_M_REL)        :
 	@mkdir -p $@
 
-$(BUILD_M_RELEASE)/%.o    : $(SRC_DIR_M)/%.cpp                     | $(BUILDDIRS_M_RELEASE)
+$(BUILD_M_REL)/%.o        : $(SRC_DIR_M)/%.cpp                     | $(BUILDDIRS_M_REL)
 	$(CXX) $(CPPFLAGS_REL) $(CXXFLAGS_REL) -o $@ -c $<
 
-$(EXEC_M_RELEASE)         : $(OBJS_M_RELEASE) $(EXECOBJ_M_RELEASE) | $(BUILDDIRS_M_RELEASE)
-	$(CXX) -static -static-libstdc++ -o $@ $^ $(LDLIBS_M)
+$(EXEC_M_REL)             : $(OBJS_M_REL) $(EXECOBJ_M_REL)         | $(BUILDDIRS_M_REL)
+	$(CXX) -static -static-libstdc++ -o $@ $^ $(LDLIBS_REL)
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build main executable DEBUG
@@ -395,11 +402,11 @@ $(EXEC_M_SAN)             : $(OBJS_M_SAN) $(EXECOBJ_M_SAN)          | $(BUILDDIR
 
 .PHONY                    : test
 test                      : test-compile
-	@./$(EXEC_UT)
+	@$(EXEC_UT)
 
 .PHONY                    : test-success
 test-success              : test-compile
-	@./$(EXEC_UT) --success --durations yes
+	@$(EXEC_UT) --success --durations yes
 
 test-compile              : $(EXEC_UT)                             | $(BUILDDIRS_UT)
 
@@ -475,13 +482,11 @@ macroexpand               : $(SRCS_M) $(EXECSOURCE_M)
 check-main                : compilation-db
 check-main                : $(SRCS_M) $(EXECSOURCE_M)
 	clang-check -p=$(COMPILATIONDB) $(SRCS_M) $(EXECSOURCE_M)
-	@rm *.d
 
 .PHONY                    : check-test
 check-test                : compilation-db
 check-test                : $(SRCS_UT) $(EXECSOURCE_UT)
 	clang-check -p=$(COMPILATIONDB) $(SRCS_UT) $(EXECSOURCE_UT)
-	@rm *.d
 
 .PHONY                    : check
 check                     : check-main
@@ -497,7 +502,11 @@ scan-main                 : $(BUILD_SCAN)
 
 .PHONY                    : tidy
 tidy                      : $(SRCS_M) $(EXECSOURCE_M) $(COMPILATIONDB)
-	clang-tidy -p $(COMPILATIONDB) -export-fixes=$(BUILD)/clang-tidy-fixes.yaml $(SRCS_M) $(EXECSOURCE_M)
+	clang-tidy -p=$(COMPILATIONDB) \
+		-config= \
+		-export-fixes=$(BUILD)/clang-tidy-fixes.yaml \
+		$(SRCS_M) $(EXECSOURCE_M) \
+		$(SRCS_UT) $(EXECSOURCE_UT)
 
 .PHONY                    : format-main
 format-main               : $(SRCS_M) $(EXECSOURCE_M)
@@ -544,8 +553,8 @@ run-server                : $(EXEC_M)
 
 # Run server with some convenient default settings, this time using release build
 .PHONY                    : run-server-release
-run-server-release        : $(EXEC_M_RELEASE)
-	@$(EXEC_M_RELEASE) --log-file .testlog --log-file-level trace --log-console --log-console-level trace --conn-timeout 1000000
+run-server-release        : $(EXEC_M_REL)
+	@$(EXEC_M_REL) --log-file .testlog --log-file-level trace --log-console --log-console-level trace --conn-timeout 1000000
 
 # Run server with some convenient default settings, this time using a binary instrumented by Clang's sanitizers
 .PHONY                    : run-server-san
@@ -558,8 +567,8 @@ run-server-san            : $(EXEC_M_SAN)
 
 -include                  $(OBJS_M:.o=.d)
 -include                  $(EXECOBJ_M:.o=.d)
--include                  $(OBJS_M_RELEASE:.o=.d)
--include                  $(EXECOBJ_M_RELEASE:.o=.d)
+-include                  $(OBJS_M_REL:.o=.d)
+-include                  $(EXECOBJ_M_REL:.o=.d)
 -include                  $(OBJS_M_DEBUG:.o=.d)
 -include                  $(EXECOBJ_M_DEBUG:.o=.d)
 -include                  $(OBJS_M_SAN:.o=.d)
