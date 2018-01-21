@@ -7,11 +7,7 @@
 
 #include <boost/program_options.hpp>
 
-#include <boost/asio_queue.hpp>
-
 #include "io_wally/app/options_parser.hpp"
-#include "io_wally/dispatch/common.hpp"
-#include "io_wally/dispatch/dispatcher.hpp"
 #include "io_wally/mqtt_connection.hpp"
 #include "io_wally/mqtt_server.hpp"
 
@@ -71,8 +67,6 @@ namespace io_wally
             std::mutex startup_mutex_{};
             std::condition_variable startup_completed_{};
             const options_parser options_parser_{};
-            mqtt_connection::packetq_t dispatchq_{1000000};  // Let's start small ...
-            dispatch::dispatcher::ptr dispatcher_{};
             /// std::shared_ptr "owning" THE reference to out mqtt_server instance.
             ///
             /// NOTE:

@@ -7,11 +7,8 @@
 
 #include <asio.hpp>
 
-#include <boost/asio_queue.hpp>
-
 #include <boost/log/trivial.hpp>
 
-#include "io_wally/concurrency/io_service_pool.hpp"
 #include "io_wally/context.hpp"
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/dispatch/mqtt_client_session_manager.hpp"
@@ -38,11 +35,12 @@ namespace io_wally
            public:  // static
             using ptr = std::shared_ptr<dispatcher>;
 
-            /// \brief Factory method: create new \c dispatcher instance a return a \c shared_ptr to it.
+            /// \brief Factory method: create new \c dispatcher instance and return a \c shared_ptr to it.
             ///
-            /// \param dispatchq Queue to receive dispatched MQTT packets from
+            /// \param context Context containing our configuration
+            /// \param io_service Asio io_service instance to be passed on to \c mqtt_client_session_manager
             /// \return \c shared_ptr to new \c dispatcher instance
-            static dispatcher::ptr create( const context& context, mqtt_packet_sender::packetq_t& dispatchq );
+            static dispatcher::ptr create( const context& context, ::asio::io_service& io_service );
 
            public:
             /// \brief Create new \c dispatcher instance.
@@ -50,32 +48,20 @@ namespace io_wally
             /// WARNING: Except for maybe in unit test scenarios, client code should not use this constructor directly.
             /// Instead, it should use \c dispatcher::create.
             ///
-            /// \param dispatchq Queue to receive dispatched MQTT packets from
-            dispatcher( const context& context, mqtt_packet_sender::packetq_t& dispatchq );
+            /// \param context Context containing our configuration
+            /// \param io_service Asio io_service instance to be passed on to \c mqtt_client_session_manager
+            dispatcher( const context& context, ::asio::io_service& io_service );
 
-            /// \brief Run this \c dispatcher instance, starting its internal \c concurrency::io_service_pool to pull
-            /// newly received MQTT packets from its dispatcher queue for further processing.
-            void run( );
+            void handle_packet_received( mqtt_packet_sender::packet_container_t::ptr packet_container );
 
-            /// \brief Stop this \c dispatcher instance, stopping its internal \c concurrency::io_service_pool.
+            /// \brief Stop this \c dispatcher instance, closing all \c mqtt_client_sessions
             ///
             /// \param message Optional message to log when stopping
+            /// TODO: Consider using RAII for this, i.e. move to destructor
             void stop( const std::string& message = "" );
 
            private:
-            void do_receive_packet( );
-
-            void handle_packet_received( const std::error_code& ec,
-                                         mqtt_packet_sender::packet_container_t::ptr packet_container );
-
-           private:
-            const context& context_;
-            mqtt_packet_sender::packetq_t& dispatchq_;
-            concurrency::io_service_pool dispatcher_pool_{"dispatcher", 1};
-            ::asio::io_service& io_service_{dispatcher_pool_.io_service( )};
-            ::asio::io_service::strand strand_{io_service_};
-            boost::asio::queue_listener<mqtt_packet_sender::packetq_t> packet_receiver_{io_service_, &dispatchq_};
-            mqtt_client_session_manager session_manager_{context_, io_service_};
+            mqtt_client_session_manager session_manager_;
             /// Our severity-enabled channel logger
             boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
                 boost::log::keywords::channel = "dispatcher",

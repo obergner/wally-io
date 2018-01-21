@@ -62,10 +62,7 @@ DISCLAIMER:
 
                 auto ctx = context( move( config ), move( auth_service ) );
 
-                dispatcher_ = dispatch::dispatcher::create( ctx, dispatchq_ );
-                dispatcher_->run( );
-
-                server_ = mqtt_server::create( move( ctx ), dispatchq_ );
+                server_ = mqtt_server::create( move( ctx ) );
                 {
                     // Nested scope to reliable release lock before we call server_.run(), which will block "forever".
                     auto ul = unique_lock<mutex>{startup_mutex_};
@@ -75,7 +72,6 @@ DISCLAIMER:
                 server_->run( );
 
                 server_->wait_until_connections_closed( );
-                dispatcher_->stop( "Server received shutdown signal" );
 
                 server_->stop( "Server has completed shutdown sequence" );
 
@@ -110,7 +106,6 @@ DISCLAIMER:
         {
             server_->close_connections( message );
             server_->wait_until_connections_closed( );
-            dispatcher_->stop( message );
             server_->stop( message );
             server_->wait_until_stopped( );
         }

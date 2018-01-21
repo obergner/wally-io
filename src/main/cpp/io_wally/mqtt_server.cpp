@@ -17,13 +17,12 @@ namespace io_wally
     // Public
     // ---------------------------------------------------------------------------------------------------------------
 
-    mqtt_server::ptr mqtt_server::create( context context, mqtt_connection::packetq_t& dispatchq )
+    mqtt_server::ptr mqtt_server::create( context context )
     {
-        return ptr( new mqtt_server( move( context ), dispatchq ) );
+        return ptr( new mqtt_server( move( context ) ) );
     }
 
-    mqtt_server::mqtt_server( io_wally::context context, mqtt_connection::packetq_t& dispatchq )
-        : context_{move( context )}, dispatchq_{dispatchq}
+    mqtt_server::mqtt_server( io_wally::context context ) : context_{move( context )}
     {
         return;
     }

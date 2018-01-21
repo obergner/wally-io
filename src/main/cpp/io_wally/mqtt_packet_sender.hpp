@@ -4,7 +4,6 @@
 #include <ostream>
 #include <string>
 
-#include <boost/asio_queue.hpp>
 #include <boost/log/trivial.hpp>
 #include <optional>
 
@@ -23,9 +22,6 @@ namespace io_wally
 
         /// A container for protocol packets
         using packet_container_t = dispatch::packet_container<mqtt_packet_sender>;
-
-        /// Queue of protocol packet containers
-        using packetq_t = boost::asio::simple_queue<packet_container_t::ptr>;
 
        public:
         virtual ~mqtt_packet_sender( )

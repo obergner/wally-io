@@ -45,13 +45,3 @@ ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/ssl/old/*.hpp
 ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/ssl/old/detail/*.hpp)
 ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/windows/*.hpp)
 
-# -------------------------------------------------------------------------------- 
-# Boost Asio Queue Extension by Hans Ewetz
-# -------------------------------------------------------------------------------- 
-
-BA_QUEUE_EXT_DIR                := $(CWD)/boost-asio-queue-extension
-BA_QUEUE_EXT_INC                := $(BA_QUEUE_EXT_DIR)
-
-BA_QUEUE_EXT_SRCS               := $(wildcard $(BA_QUEUE_EXT_INC)/boost/*.hpp)
-BA_QUEUE_EXT_SRCS               += $(wildcard $(BA_QUEUE_EXT_INC)/boost/detail/*.hpp)
-

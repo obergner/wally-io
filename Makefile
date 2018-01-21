@@ -202,7 +202,6 @@ CXXFLAGS_M                += -fdiagnostics-color=auto
 CXXFLAGS_M                += -MMD # automatically generate dependency rules on each run
 CXXFLAGS_M                += -I $(SRC_DIR_M)
 CXXFLAGS_M                += -I $(ASIO_EXT_INC)
-CXXFLAGS_M                += -I $(BA_QUEUE_EXT_INC)
 CXXFLAGS_M                += -Werror
 CXXFLAGS_M                += -Wall
 CXXFLAGS_M                += -Wextra
@@ -517,8 +516,8 @@ format-test               : $(SRCS_UT) $(EXECSOURCE_UT)
 	clang-format -i -style=file $(SRCS_UT) $(EXECSOURCE_UT)
 
 .PHONY                    : format-libs
-format-libs               : $(ASIO_EXT_SRCS) $(BA_QUEUE_EXT_SRCS)
-	clang-format -i -style=file $(ASIO_EXT_SRCS) $(BA_QUEUE_EXT_SRCS)
+format-libs               : $(ASIO_EXT_SRCS)
+	clang-format -i -style=file $(ASIO_EXT_SRCS)
 
 .PHONY                    : format
 format                    : format-main

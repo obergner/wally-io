@@ -15,6 +15,8 @@
 #include "io_wally/logging_support.hpp"
 #include "io_wally/mqtt_connection_manager.hpp"
 
+#include "io_wally/dispatch/dispatcher.hpp"
+
 namespace io_wally
 {
     using ::asio::ip::tcp;
@@ -32,7 +34,7 @@ namespace io_wally
     mqtt_connection::ptr mqtt_connection::create( tcp::socket socket,
                                                   mqtt_connection_manager& connection_manager,
                                                   const context& context,
-                                                  boost::asio::queue_sender<packetq_t>& dispatcher )
+                                                  dispatch::dispatcher& dispatcher )
     {
         return std::shared_ptr<mqtt_connection>{
             new mqtt_connection{move( socket ), connection_manager, context, dispatcher}};
@@ -69,14 +71,10 @@ namespace io_wally
         }
     }
 
-    // ---------------------------------------------------------------------------------------------------------------
-    // Public
-    // ---------------------------------------------------------------------------------------------------------------
-
     mqtt_connection::mqtt_connection( tcp::socket socket,
                                       mqtt_connection_manager& connection_manager,
                                       const context& context,
-                                      boost::asio::queue_sender<packetq_t>& dispatcher )
+                                      dispatch::dispatcher& dispatcher )
         : description_{connection_description( socket )},
           socket_{move( socket )},
           strand_{socket.get_io_service( )},
@@ -90,6 +88,10 @@ namespace io_wally
     {
         return;
     }
+
+    // ---------------------------------------------------------------------------------------------------------------
+    // Public
+    // ---------------------------------------------------------------------------------------------------------------
 
     void mqtt_connection::start( )
     {
@@ -309,29 +311,9 @@ namespace io_wally
         BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *connect << " ...";
         auto connect_container = packet_container_t::contain( connect->client_id( ), shared_from_this( ), connect,
                                                               dispatch::disconnect_reason::client_disconnect );
-
-        auto self = shared_from_this( );
-        dispatcher_.async_enq( connect_container, strand_.wrap( [self, connect]( const std::error_code& ec ) {
-            self->handle_dispatch_connect_packet( ec, connect );
-        } ) );
-    }
-
-    void mqtt_connection::handle_dispatch_connect_packet( const std::error_code& ec,
-                                                          shared_ptr<protocol::connect> connect )
-    {
-        if ( ec )
-        {
-            BOOST_LOG_SEV( logger_, lvl::error )
-                << "--- DISPATCH FAILED: " << *connect << " [ec:" << ec << "|emsg:" << ec.message( ) << "]";
-            write_packet_and_close_connection( connack{false, connect_return_code::SERVER_UNAVAILABLE},
-                                               "--- Dispatching CONNECT failed",
-                                               dispatch::disconnect_reason::network_or_server_failure );
-        }
-        else
-        {
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *connect;
-            write_packet( connack{false, connect_return_code::CONNECTION_ACCEPTED} );
-        }
+        dispatcher_.handle_packet_received( connect_container );
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *connect;
+        write_packet( connack{false, connect_return_code::CONNECTION_ACCEPTED} );
     }
 
     void mqtt_connection::process_disconnect_packet( shared_ptr<protocol::disconnect> disconnect )
@@ -344,30 +326,12 @@ namespace io_wally
     {
         BOOST_LOG_SEV( logger_, lvl::debug )
             << "--- DISPATCHING: " << *disconnect << "[rsn:" << disconnect_reason << "] ...";
-        auto connect_container =
+        auto disconnect_container =
             packet_container_t::contain( *client_id_, shared_from_this( ), disconnect, disconnect_reason );
+        dispatcher_.handle_packet_received( disconnect_container );
+        BOOST_LOG_SEV( logger_, lvl::debug )
+            << "--- DISPATCHED: " << *disconnect << " [rsn:" << disconnect_reason << "]";
 
-        auto self = shared_from_this( );
-        dispatcher_.async_enq( connect_container,
-                               strand_.wrap( [self, disconnect, disconnect_reason]( const std::error_code& ec ) {
-                                   self->handle_dispatch_disconnect_packet( ec, disconnect, disconnect_reason );
-                               } ) );
-    }
-
-    void mqtt_connection::handle_dispatch_disconnect_packet( const std::error_code& ec,
-                                                             shared_ptr<protocol::disconnect> disconnect,
-                                                             const dispatch::disconnect_reason disconnect_reason )
-    {
-        if ( ec )
-        {
-            BOOST_LOG_SEV( logger_, lvl::error )
-                << "--- DISPATCH FAILED: " << *disconnect << " [ec:" << ec << "|emsg:" << ec.message( ) << "]";
-        }
-        else
-        {
-            BOOST_LOG_SEV( logger_, lvl::debug )
-                << "--- DISPATCHED: " << *disconnect << " [rsn:" << disconnect_reason << "]";
-        }
         auto msg = ostringstream{};
         msg << "--- Connection disconnected: " << disconnect_reason;
         stop( msg.str( ), lvl::info );
@@ -377,26 +341,8 @@ namespace io_wally
     {
         BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *packet << " ...";
         auto subscribe_container = packet_container_t::contain( *client_id_, shared_from_this( ), packet );
-
-        auto self = shared_from_this( );
-        dispatcher_.async_enq( subscribe_container, strand_.wrap( [self, packet]( const std::error_code& ec ) {
-            self->handle_dispatch_packet( ec, packet );
-        } ) );
-    }
-
-    void mqtt_connection::handle_dispatch_packet( const std::error_code& ec, shared_ptr<protocol::mqtt_packet> packet )
-    {
-        if ( ec )
-        {
-            BOOST_LOG_SEV( logger_, lvl::error )
-                << "--- DISPATCH FAILED: " << *packet << " [ec:" << ec << "|emsg:" << ec.message( ) << "]";
-            connection_close_requested( "[MQTT-4.8.0-2] Dispatching packet failed",
-                                        dispatch::disconnect_reason::network_or_server_failure, ec, lvl::error );
-        }
-        else
-        {
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *packet;
-        }
+        dispatcher_.handle_packet_received( subscribe_container );
+        BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *packet;
     }
 
     // Sending messages

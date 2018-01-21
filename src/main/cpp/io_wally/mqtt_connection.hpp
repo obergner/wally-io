@@ -14,8 +14,6 @@
 #include <boost/log/common.hpp>
 #include <boost/log/trivial.hpp>
 
-#include <boost/asio_queue.hpp>
-
 #include "io_wally/context.hpp"
 #include "io_wally/logging_support.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
@@ -29,6 +27,7 @@
 #include "io_wally/spi/authentication_service_factory.hpp"
 
 #include "io_wally/dispatch/common.hpp"
+#include "io_wally/dispatch/dispatcher.hpp"
 
 namespace io_wally
 {
@@ -51,7 +50,7 @@ namespace io_wally
         static mqtt_connection::ptr create(::asio::ip::tcp::socket socket,
                                            mqtt_connection_manager& connection_manager,
                                            const context& context,
-                                           boost::asio::queue_sender<packetq_t>& dispatcher );
+                                           dispatch::dispatcher& dispatcher );
 
        private:  // static
         static const std::string endpoint_description( const ::asio::ip::tcp::socket& socket );
@@ -92,7 +91,7 @@ namespace io_wally
         mqtt_connection(::asio::ip::tcp::socket socket,
                         mqtt_connection_manager& connection_manager,
                         const context& context,
-                        boost::asio::queue_sender<packetq_t>& dispatcher );
+                        dispatch::dispatcher& dispatcher );
 
         void do_stop( );
 
@@ -116,8 +115,6 @@ namespace io_wally
 
         void dispatch_connect_packet( std::shared_ptr<protocol::connect> connect );
 
-        void handle_dispatch_connect_packet( const std::error_code& ec, std::shared_ptr<protocol::connect> connect );
-
         // Dealing with DISCONNECT packets
 
         void process_disconnect_packet( std::shared_ptr<protocol::disconnect> disconnect );
@@ -126,15 +123,9 @@ namespace io_wally
             std::shared_ptr<protocol::disconnect> disconnect,
             const dispatch::disconnect_reason disconnect_reason = dispatch::disconnect_reason::client_disconnect );
 
-        void handle_dispatch_disconnect_packet( const std::error_code& ec,
-                                                std::shared_ptr<protocol::disconnect> disconnect,
-                                                const dispatch::disconnect_reason disconnect_reason );
-
         // Dealing with non-connection managing packets
 
         void dispatch_packet( std::shared_ptr<protocol::mqtt_packet> packet );
-
-        void handle_dispatch_packet( const std::error_code& ec, std::shared_ptr<protocol::mqtt_packet> packet );
 
         // Sending MQTT packets
 
@@ -176,9 +167,8 @@ namespace io_wally
         mqtt_connection_manager& connection_manager_;
         /// Our context reference, used for configuring ourselves etc
         const context& context_;
-        /// Queue sender for dispatching received protocol packets asynchronously (from point of view of connection) to
-        /// dispatcher queue.
-        boost::asio::queue_sender<packetq_t>& dispatcher_;
+        /// dispatcher for publishing messages
+        dispatch::dispatcher& dispatcher_;
         /// Buffer incoming data
         std::vector<uint8_t> read_buffer_;
         /// Read entire MQTT frame

@@ -11,11 +11,9 @@
 #include <boost/log/common.hpp>
 #include <boost/log/trivial.hpp>
 
-#include <boost/asio_queue.hpp>
-
 #include "io_wally/concurrency/io_service_pool.hpp"
 #include "io_wally/context.hpp"
-#include "io_wally/dispatch/common.hpp"
+#include "io_wally/dispatch/dispatcher.hpp"
 #include "io_wally/logging_support.hpp"
 #include "io_wally/mqtt_connection.hpp"
 #include "io_wally/mqtt_connection_manager.hpp"
@@ -41,7 +39,7 @@ namespace io_wally
         using ptr = std::shared_ptr<mqtt_server>;
 
         /// Factory method for \c mqtt_servers.
-        static mqtt_server::ptr create( context, mqtt_connection::packetq_t& dispatchq );
+        static mqtt_server::ptr create( context );
 
        public:
         /// \brief \c mqtt_server instances cannot be copied
@@ -70,7 +68,7 @@ namespace io_wally
 
        private:
         /// Construct the mqtt_server to listen on the specified TCP address and port.
-        explicit mqtt_server( context context, mqtt_connection::packetq_t& dispatchq );
+        explicit mqtt_server( context context );
 
         /// Perform an asynchronous accept operation.
         void do_accept( );
@@ -82,31 +80,28 @@ namespace io_wally
         void do_close_connections( const std::string& message = "" );
 
        private:
+        /// Context object
+        const context context_;
         std::mutex bind_mutex_{};
         /// Signal when we are bound to our server socket
         std::condition_variable bound_{};
         /// Signal when all client connections have been closed
         bool connections_closed_{false};
         std::condition_variable conn_closed_{};
-        /// Context object
-        const context context_;
-        /// Dispatcher queue: dispatch received packets to dispatcher subsystem
-        mqtt_connection::packetq_t& dispatchq_;
         /// Our session manager that manages all connections
         mqtt_connection_manager connection_manager_{};
         /// Pool of io_service objects used for all things networking (just one io_service object for now)
         concurrency::io_service_pool network_service_pool_{"network", 1};
         /// The io_service used to perform asynchronous operations.
         ::asio::io_service& io_service_{network_service_pool_.io_service( )};
+        /// Dispatcher: dispatch received packets to dispatcher subsystem
+        dispatch::dispatcher dispatcher_{context_, io_service_};
         /// The signal_set is used to register for process termination notifications
         ::asio::signal_set termination_signals_{io_service_, SIGINT, SIGTERM, SIGQUIT};
         /// Acceptor used to listen for incoming connections.
         ::asio::ip::tcp::acceptor acceptor_{io_service_};
         /// The next socket to be accepted.
         ::asio::ip::tcp::socket socket_{io_service_};
-        /// Queue sender for dispatching received protocol packets asynchronously (from point of view of connection) to
-        /// dispatcher queue.
-        boost::asio::queue_sender<mqtt_connection::packetq_t> dispatcher_{io_service_, &dispatchq_};
         /// Our severity-enabled channel logger
         boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
             boost::log::keywords::channel = "server", boost::log::keywords::severity = boost::log::trivial::trace};
