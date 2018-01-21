@@ -11,24 +11,26 @@
 #ifndef ASIO_DETAIL_WIN_IOCP_THREAD_INFO_HPP
 #define ASIO_DETAIL_WIN_IOCP_THREAD_INFO_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/thread_info_base.hpp"
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-struct win_iocp_thread_info : public thread_info_base
+namespace asio
 {
-};
+    namespace detail
+    {
 
-} // namespace detail
-} // namespace asio
+        struct win_iocp_thread_info : public thread_info_base
+        {
+        };
+
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // ASIO_DETAIL_WIN_IOCP_THREAD_INFO_HPP
+#endif  // ASIO_DETAIL_WIN_IOCP_THREAD_INFO_HPP

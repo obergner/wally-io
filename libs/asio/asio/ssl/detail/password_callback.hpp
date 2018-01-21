@@ -11,62 +11,62 @@
 #ifndef ASIO_SSL_DETAIL_PASSWORD_CALLBACK_HPP
 #define ASIO_SSL_DETAIL_PASSWORD_CALLBACK_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if !defined(ASIO_ENABLE_OLD_SSL)
-# include <cstddef>
-# include <string>
-# include "asio/ssl/context_base.hpp"
-#endif // !defined(ASIO_ENABLE_OLD_SSL)
+#if !defined( ASIO_ENABLE_OLD_SSL )
+#include "asio/ssl/context_base.hpp"
+#include <cstddef>
+#include <string>
+#endif  // !defined(ASIO_ENABLE_OLD_SSL)
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace ssl {
-namespace detail {
-
-#if !defined(ASIO_ENABLE_OLD_SSL)
-
-class password_callback_base
+namespace asio
 {
-public:
-  virtual ~password_callback_base()
-  {
-  }
+    namespace ssl
+    {
+        namespace detail
+        {
 
-  virtual std::string call(std::size_t size,
-      context_base::password_purpose purpose) = 0;
-};
+#if !defined( ASIO_ENABLE_OLD_SSL )
 
-template <typename PasswordCallback>
-class password_callback : public password_callback_base
-{
-public:
-  explicit password_callback(PasswordCallback callback)
-    : callback_(callback)
-  {
-  }
+            class password_callback_base
+            {
+               public:
+                virtual ~password_callback_base( )
+                {
+                }
 
-  virtual std::string call(std::size_t size,
-      context_base::password_purpose purpose)
-  {
-    return callback_(size, purpose);
-  }
+                virtual std::string call( std::size_t size, context_base::password_purpose purpose ) = 0;
+            };
 
-private:
-  PasswordCallback callback_;
-};
+            template <typename PasswordCallback>
+            class password_callback : public password_callback_base
+            {
+               public:
+                explicit password_callback( PasswordCallback callback ) : callback_( callback )
+                {
+                }
 
-#endif // !defined(ASIO_ENABLE_OLD_SSL)
+                virtual std::string call( std::size_t size, context_base::password_purpose purpose )
+                {
+                    return callback_( size, purpose );
+                }
 
-} // namespace detail
-} // namespace ssl
-} // namespace asio
+               private:
+                PasswordCallback callback_;
+            };
+
+#endif  // !defined(ASIO_ENABLE_OLD_SSL)
+
+        }  // namespace detail
+    }      // namespace ssl
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // ASIO_SSL_DETAIL_PASSWORD_CALLBACK_HPP
+#endif  // ASIO_SSL_DETAIL_PASSWORD_CALLBACK_HPP

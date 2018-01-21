@@ -11,57 +11,57 @@
 #ifndef ASIO_DETAIL_NULL_REACTOR_HPP
 #define ASIO_DETAIL_NULL_REACTOR_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if defined(ASIO_WINDOWS_RUNTIME)
+#if defined( ASIO_WINDOWS_RUNTIME )
 
 #include "asio/io_service.hpp"
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-class null_reactor
-  : public asio::detail::service_base<null_reactor>
+namespace asio
 {
-public:
-  // Constructor.
-  null_reactor(asio::io_service& io_service)
-    : asio::detail::service_base<null_reactor>(io_service)
-  {
-  }
+    namespace detail
+    {
 
-  // Destructor.
-  ~null_reactor()
-  {
-  }
+        class null_reactor : public asio::detail::service_base<null_reactor>
+        {
+           public:
+            // Constructor.
+            null_reactor( asio::io_service& io_service ) : asio::detail::service_base<null_reactor>( io_service )
+            {
+            }
 
-  // Destroy all user-defined handler objects owned by the service.
-  void shutdown_service()
-  {
-  }
+            // Destructor.
+            ~null_reactor( )
+            {
+            }
 
-  // No-op because should never be called.
-  void run(bool /*block*/, op_queue<operation>& /*ops*/)
-  {
-  }
+            // Destroy all user-defined handler objects owned by the service.
+            void shutdown_service( )
+            {
+            }
 
-  // No-op.
-  void interrupt()
-  {
-  }
-};
+            // No-op because should never be called.
+            void run( bool /*block*/, op_queue<operation>& /*ops*/ )
+            {
+            }
 
-} // namespace detail
-} // namespace asio
+            // No-op.
+            void interrupt( )
+            {
+            }
+        };
+
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // defined(ASIO_WINDOWS_RUNTIME)
+#endif  // defined(ASIO_WINDOWS_RUNTIME)
 
-#endif // ASIO_DETAIL_NULL_REACTOR_HPP
+#endif  // ASIO_DETAIL_NULL_REACTOR_HPP

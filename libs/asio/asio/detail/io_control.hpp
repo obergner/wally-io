@@ -11,124 +11,123 @@
 #ifndef ASIO_DETAIL_IO_CONTROL_HPP
 #define ASIO_DETAIL_IO_CONTROL_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
-#include <cstddef>
 #include "asio/detail/socket_types.hpp"
+#include <cstddef>
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-namespace io_control {
-
-// IO control command for non-blocking I/O.
-class non_blocking_io
+namespace asio
 {
-public:
-  // Default constructor.
-  non_blocking_io()
-    : value_(0)
-  {
-  }
+    namespace detail
+    {
+        namespace io_control
+        {
 
-  // Construct with a specific command value.
-  non_blocking_io(bool value)
-    : value_(value ? 1 : 0)
-  {
-  }
+            // IO control command for non-blocking I/O.
+            class non_blocking_io
+            {
+               public:
+                // Default constructor.
+                non_blocking_io( ) : value_( 0 )
+                {
+                }
 
-  // Get the name of the IO control command.
-  int name() const
-  {
-    return static_cast<int>(ASIO_OS_DEF(FIONBIO));
-  }
+                // Construct with a specific command value.
+                non_blocking_io( bool value ) : value_( value ? 1 : 0 )
+                {
+                }
 
-  // Set the value of the I/O control command.
-  void set(bool value)
-  {
-    value_ = value ? 1 : 0;
-  }
+                // Get the name of the IO control command.
+                int name( ) const
+                {
+                    return static_cast<int>( ASIO_OS_DEF( FIONBIO ) );
+                }
 
-  // Get the current value of the I/O control command.
-  bool get() const
-  {
-    return value_ != 0;
-  }
+                // Set the value of the I/O control command.
+                void set( bool value )
+                {
+                    value_ = value ? 1 : 0;
+                }
 
-  // Get the address of the command data.
-  detail::ioctl_arg_type* data()
-  {
-    return &value_;
-  }
+                // Get the current value of the I/O control command.
+                bool get( ) const
+                {
+                    return value_ != 0;
+                }
 
-  // Get the address of the command data.
-  const detail::ioctl_arg_type* data() const
-  {
-    return &value_;
-  }
+                // Get the address of the command data.
+                detail::ioctl_arg_type* data( )
+                {
+                    return &value_;
+                }
 
-private:
-  detail::ioctl_arg_type value_;
-};
+                // Get the address of the command data.
+                const detail::ioctl_arg_type* data( ) const
+                {
+                    return &value_;
+                }
 
-// I/O control command for getting number of bytes available.
-class bytes_readable
-{
-public:
-  // Default constructor.
-  bytes_readable()
-    : value_(0)
-  {
-  }
+               private:
+                detail::ioctl_arg_type value_;
+            };
 
-  // Construct with a specific command value.
-  bytes_readable(std::size_t value)
-    : value_(static_cast<detail::ioctl_arg_type>(value))
-  {
-  }
+            // I/O control command for getting number of bytes available.
+            class bytes_readable
+            {
+               public:
+                // Default constructor.
+                bytes_readable( ) : value_( 0 )
+                {
+                }
 
-  // Get the name of the IO control command.
-  int name() const
-  {
-    return static_cast<int>(ASIO_OS_DEF(FIONREAD));
-  }
+                // Construct with a specific command value.
+                bytes_readable( std::size_t value ) : value_( static_cast<detail::ioctl_arg_type>( value ) )
+                {
+                }
 
-  // Set the value of the I/O control command.
-  void set(std::size_t value)
-  {
-    value_ = static_cast<detail::ioctl_arg_type>(value);
-  }
+                // Get the name of the IO control command.
+                int name( ) const
+                {
+                    return static_cast<int>( ASIO_OS_DEF( FIONREAD ) );
+                }
 
-  // Get the current value of the I/O control command.
-  std::size_t get() const
-  {
-    return static_cast<std::size_t>(value_);
-  }
+                // Set the value of the I/O control command.
+                void set( std::size_t value )
+                {
+                    value_ = static_cast<detail::ioctl_arg_type>( value );
+                }
 
-  // Get the address of the command data.
-  detail::ioctl_arg_type* data()
-  {
-    return &value_;
-  }
+                // Get the current value of the I/O control command.
+                std::size_t get( ) const
+                {
+                    return static_cast<std::size_t>( value_ );
+                }
 
-  // Get the address of the command data.
-  const detail::ioctl_arg_type* data() const
-  {
-    return &value_;
-  }
+                // Get the address of the command data.
+                detail::ioctl_arg_type* data( )
+                {
+                    return &value_;
+                }
 
-private:
-  detail::ioctl_arg_type value_;
-};
+                // Get the address of the command data.
+                const detail::ioctl_arg_type* data( ) const
+                {
+                    return &value_;
+                }
 
-} // namespace io_control
-} // namespace detail
-} // namespace asio
+               private:
+                detail::ioctl_arg_type value_;
+            };
+
+        }  // namespace io_control
+    }      // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // ASIO_DETAIL_IO_CONTROL_HPP
+#endif  // ASIO_DETAIL_IO_CONTROL_HPP

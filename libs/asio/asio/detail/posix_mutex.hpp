@@ -11,66 +11,67 @@
 #ifndef ASIO_DETAIL_POSIX_MUTEX_HPP
 #define ASIO_DETAIL_POSIX_MUTEX_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if defined(ASIO_HAS_PTHREADS)
+#if defined( ASIO_HAS_PTHREADS )
 
-#include <pthread.h>
 #include "asio/detail/noncopyable.hpp"
 #include "asio/detail/scoped_lock.hpp"
+#include <pthread.h>
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-class posix_event;
-
-class posix_mutex
-  : private noncopyable
+namespace asio
 {
-public:
-  typedef asio::detail::scoped_lock<posix_mutex> scoped_lock;
+    namespace detail
+    {
 
-  // Constructor.
-  ASIO_DECL posix_mutex();
+        class posix_event;
 
-  // Destructor.
-  ~posix_mutex()
-  {
-    ::pthread_mutex_destroy(&mutex_); // Ignore EBUSY.
-  }
+        class posix_mutex : private noncopyable
+        {
+           public:
+            typedef asio::detail::scoped_lock<posix_mutex> scoped_lock;
 
-  // Lock the mutex.
-  void lock()
-  {
-    (void)::pthread_mutex_lock(&mutex_); // Ignore EINVAL.
-  }
+            // Constructor.
+            ASIO_DECL posix_mutex( );
 
-  // Unlock the mutex.
-  void unlock()
-  {
-    (void)::pthread_mutex_unlock(&mutex_); // Ignore EINVAL.
-  }
+            // Destructor.
+            ~posix_mutex( )
+            {
+                ::pthread_mutex_destroy( &mutex_ );  // Ignore EBUSY.
+            }
 
-private:
-  friend class posix_event;
-  ::pthread_mutex_t mutex_;
-};
+            // Lock the mutex.
+            void lock( )
+            {
+                (void)::pthread_mutex_lock( &mutex_ );  // Ignore EINVAL.
+            }
 
-} // namespace detail
-} // namespace asio
+            // Unlock the mutex.
+            void unlock( )
+            {
+                (void)::pthread_mutex_unlock( &mutex_ );  // Ignore EINVAL.
+            }
+
+           private:
+            friend class posix_event;
+            ::pthread_mutex_t mutex_;
+        };
+
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#if defined(ASIO_HEADER_ONLY)
-# include "asio/detail/impl/posix_mutex.ipp"
-#endif // defined(ASIO_HEADER_ONLY)
+#if defined( ASIO_HEADER_ONLY )
+#include "asio/detail/impl/posix_mutex.ipp"
+#endif  // defined(ASIO_HEADER_ONLY)
 
-#endif // defined(ASIO_HAS_PTHREADS)
+#endif  // defined(ASIO_HAS_PTHREADS)
 
-#endif // ASIO_DETAIL_POSIX_MUTEX_HPP
+#endif  // ASIO_DETAIL_POSIX_MUTEX_HPP

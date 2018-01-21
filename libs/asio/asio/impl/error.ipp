@@ -11,118 +11,123 @@
 #ifndef ASIO_IMPL_ERROR_IPP
 #define ASIO_IMPL_ERROR_IPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
-#include <string>
 #include "asio/error.hpp"
+#include <string>
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace error {
-
-#if !defined(ASIO_WINDOWS) && !defined(__CYGWIN__)
-
-namespace detail {
-
-class netdb_category : public asio::error_category
+namespace asio
 {
-public:
-  const char* name() const ASIO_ERROR_CATEGORY_NOEXCEPT
-  {
-    return "asio.netdb";
-  }
+    namespace error
+    {
 
-  std::string message(int value) const
-  {
-    if (value == error::host_not_found)
-      return "Host not found (authoritative)";
-    if (value == error::host_not_found_try_again)
-      return "Host not found (non-authoritative), try again later";
-    if (value == error::no_data)
-      return "The query is valid, but it does not have associated data";
-    if (value == error::no_recovery)
-      return "A non-recoverable error occurred during database lookup";
-    return "asio.netdb error";
-  }
-};
+#if !defined( ASIO_WINDOWS ) && !defined( __CYGWIN__ )
 
-} // namespace detail
+        namespace detail
+        {
 
-const asio::error_category& get_netdb_category()
-{
-  static detail::netdb_category instance;
-  return instance;
-}
+            class netdb_category : public asio::error_category
+            {
+               public:
+                const char* name( ) const ASIO_ERROR_CATEGORY_NOEXCEPT
+                {
+                    return "asio.netdb";
+                }
 
-namespace detail {
+                std::string message( int value ) const
+                {
+                    if ( value == error::host_not_found )
+                        return "Host not found (authoritative)";
+                    if ( value == error::host_not_found_try_again )
+                        return "Host not found (non-authoritative), try again later";
+                    if ( value == error::no_data )
+                        return "The query is valid, but it does not have associated data";
+                    if ( value == error::no_recovery )
+                        return "A non-recoverable error occurred during database lookup";
+                    return "asio.netdb error";
+                }
+            };
 
-class addrinfo_category : public asio::error_category
-{
-public:
-  const char* name() const ASIO_ERROR_CATEGORY_NOEXCEPT
-  {
-    return "asio.addrinfo";
-  }
+        }  // namespace detail
 
-  std::string message(int value) const
-  {
-    if (value == error::service_not_found)
-      return "Service not found";
-    if (value == error::socket_type_not_supported)
-      return "Socket type not supported";
-    return "asio.addrinfo error";
-  }
-};
+        const asio::error_category& get_netdb_category( )
+        {
+            static detail::netdb_category instance;
+            return instance;
+        }
 
-} // namespace detail
+        namespace detail
+        {
 
-const asio::error_category& get_addrinfo_category()
-{
-  static detail::addrinfo_category instance;
-  return instance;
-}
+            class addrinfo_category : public asio::error_category
+            {
+               public:
+                const char* name( ) const ASIO_ERROR_CATEGORY_NOEXCEPT
+                {
+                    return "asio.addrinfo";
+                }
 
-#endif // !defined(ASIO_WINDOWS) && !defined(__CYGWIN__)
+                std::string message( int value ) const
+                {
+                    if ( value == error::service_not_found )
+                        return "Service not found";
+                    if ( value == error::socket_type_not_supported )
+                        return "Socket type not supported";
+                    return "asio.addrinfo error";
+                }
+            };
 
-namespace detail {
+        }  // namespace detail
 
-class misc_category : public asio::error_category
-{
-public:
-  const char* name() const ASIO_ERROR_CATEGORY_NOEXCEPT
-  {
-    return "asio.misc";
-  }
+        const asio::error_category& get_addrinfo_category( )
+        {
+            static detail::addrinfo_category instance;
+            return instance;
+        }
 
-  std::string message(int value) const
-  {
-    if (value == error::already_open)
-      return "Already open";
-    if (value == error::eof)
-      return "End of file";
-    if (value == error::not_found)
-      return "Element not found";
-    if (value == error::fd_set_failure)
-      return "The descriptor does not fit into the select call's fd_set";
-    return "asio.misc error";
-  }
-};
+#endif  // !defined(ASIO_WINDOWS) && !defined(__CYGWIN__)
 
-} // namespace detail
+        namespace detail
+        {
 
-const asio::error_category& get_misc_category()
-{
-  static detail::misc_category instance;
-  return instance;
-}
+            class misc_category : public asio::error_category
+            {
+               public:
+                const char* name( ) const ASIO_ERROR_CATEGORY_NOEXCEPT
+                {
+                    return "asio.misc";
+                }
 
-} // namespace error
-} // namespace asio
+                std::string message( int value ) const
+                {
+                    if ( value == error::already_open )
+                        return "Already open";
+                    if ( value == error::eof )
+                        return "End of file";
+                    if ( value == error::not_found )
+                        return "Element not found";
+                    if ( value == error::fd_set_failure )
+                        return "The descriptor does not fit into the select call's fd_set";
+                    return "asio.misc error";
+                }
+            };
+
+        }  // namespace detail
+
+        const asio::error_category& get_misc_category( )
+        {
+            static detail::misc_category instance;
+            return instance;
+        }
+
+    }  // namespace error
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // ASIO_IMPL_ERROR_IPP
+#endif  // ASIO_IMPL_ERROR_IPP

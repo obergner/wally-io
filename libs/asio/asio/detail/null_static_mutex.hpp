@@ -11,50 +11,55 @@
 #ifndef ASIO_DETAIL_NULL_STATIC_MUTEX_HPP
 #define ASIO_DETAIL_NULL_STATIC_MUTEX_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if !defined(ASIO_HAS_THREADS)
+#if !defined( ASIO_HAS_THREADS )
 
 #include "asio/detail/scoped_lock.hpp"
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-struct null_static_mutex
+namespace asio
 {
-  typedef asio::detail::scoped_lock<null_static_mutex> scoped_lock;
+    namespace detail
+    {
 
-  // Initialise the mutex.
-  void init()
-  {
-  }
+        struct null_static_mutex
+        {
+            typedef asio::detail::scoped_lock<null_static_mutex> scoped_lock;
 
-  // Lock the mutex.
-  void lock()
-  {
-  }
+            // Initialise the mutex.
+            void init( )
+            {
+            }
 
-  // Unlock the mutex.
-  void unlock()
-  {
-  }
+            // Lock the mutex.
+            void lock( )
+            {
+            }
 
-  int unused_;
-};
+            // Unlock the mutex.
+            void unlock( )
+            {
+            }
 
-#define ASIO_NULL_STATIC_MUTEX_INIT { 0 }
+            int unused_;
+        };
 
-} // namespace detail
-} // namespace asio
+#define ASIO_NULL_STATIC_MUTEX_INIT \
+    {                               \
+        0                           \
+    }
+
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // !defined(ASIO_HAS_THREADS)
+#endif  // !defined(ASIO_HAS_THREADS)
 
-#endif // ASIO_DETAIL_NULL_STATIC_MUTEX_HPP
+#endif  // ASIO_DETAIL_NULL_STATIC_MUTEX_HPP

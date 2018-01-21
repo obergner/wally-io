@@ -11,83 +11,85 @@
 #ifndef ASIO_DETAIL_TIMER_QUEUE_PTIME_HPP
 #define ASIO_DETAIL_TIMER_QUEUE_PTIME_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/time_traits.hpp"
 #include "asio/detail/timer_queue.hpp"
+#include "asio/time_traits.hpp"
 
 #include "asio/detail/push_options.hpp"
 
-#if defined(ASIO_HAS_BOOST_DATE_TIME)
+#if defined( ASIO_HAS_BOOST_DATE_TIME )
 
-namespace asio {
-namespace detail {
-
-struct forwarding_posix_time_traits : time_traits<boost::posix_time::ptime> {};
-
-// Template specialisation for the commonly used instantation.
-template <>
-class timer_queue<time_traits<boost::posix_time::ptime> >
-  : public timer_queue_base
+namespace asio
 {
-public:
-  // The time type.
-  typedef boost::posix_time::ptime time_type;
+    namespace detail
+    {
 
-  // The duration type.
-  typedef boost::posix_time::time_duration duration_type;
+        struct forwarding_posix_time_traits : time_traits<boost::posix_time::ptime>
+        {
+        };
 
-  // Per-timer data.
-  typedef timer_queue<forwarding_posix_time_traits>::per_timer_data
-    per_timer_data;
+        // Template specialisation for the commonly used instantation.
+        template <>
+        class timer_queue<time_traits<boost::posix_time::ptime>> : public timer_queue_base
+        {
+           public:
+            // The time type.
+            typedef boost::posix_time::ptime time_type;
 
-  // Constructor.
-  ASIO_DECL timer_queue();
+            // The duration type.
+            typedef boost::posix_time::time_duration duration_type;
 
-  // Destructor.
-  ASIO_DECL virtual ~timer_queue();
+            // Per-timer data.
+            typedef timer_queue<forwarding_posix_time_traits>::per_timer_data per_timer_data;
 
-  // Add a new timer to the queue. Returns true if this is the timer that is
-  // earliest in the queue, in which case the reactor's event demultiplexing
-  // function call may need to be interrupted and restarted.
-  ASIO_DECL bool enqueue_timer(const time_type& time,
-      per_timer_data& timer, wait_op* op);
+            // Constructor.
+            ASIO_DECL timer_queue( );
 
-  // Whether there are no timers in the queue.
-  ASIO_DECL virtual bool empty() const;
+            // Destructor.
+            ASIO_DECL virtual ~timer_queue( );
 
-  // Get the time for the timer that is earliest in the queue.
-  ASIO_DECL virtual long wait_duration_msec(long max_duration) const;
+            // Add a new timer to the queue. Returns true if this is the timer that is
+            // earliest in the queue, in which case the reactor's event demultiplexing
+            // function call may need to be interrupted and restarted.
+            ASIO_DECL bool enqueue_timer( const time_type& time, per_timer_data& timer, wait_op* op );
 
-  // Get the time for the timer that is earliest in the queue.
-  ASIO_DECL virtual long wait_duration_usec(long max_duration) const;
+            // Whether there are no timers in the queue.
+            ASIO_DECL virtual bool empty( ) const;
 
-  // Dequeue all timers not later than the current time.
-  ASIO_DECL virtual void get_ready_timers(op_queue<operation>& ops);
+            // Get the time for the timer that is earliest in the queue.
+            ASIO_DECL virtual long wait_duration_msec( long max_duration ) const;
 
-  // Dequeue all timers.
-  ASIO_DECL virtual void get_all_timers(op_queue<operation>& ops);
+            // Get the time for the timer that is earliest in the queue.
+            ASIO_DECL virtual long wait_duration_usec( long max_duration ) const;
 
-  // Cancel and dequeue operations for the given timer.
-  ASIO_DECL std::size_t cancel_timer(
-      per_timer_data& timer, op_queue<operation>& ops,
-      std::size_t max_cancelled = (std::numeric_limits<std::size_t>::max)());
+            // Dequeue all timers not later than the current time.
+            ASIO_DECL virtual void get_ready_timers( op_queue<operation>& ops );
 
-private:
-  timer_queue<forwarding_posix_time_traits> impl_;
-};
+            // Dequeue all timers.
+            ASIO_DECL virtual void get_all_timers( op_queue<operation>& ops );
 
-} // namespace detail
-} // namespace asio
+            // Cancel and dequeue operations for the given timer.
+            ASIO_DECL std::size_t cancel_timer(
+                per_timer_data& timer,
+                op_queue<operation>& ops,
+                std::size_t max_cancelled = ( std::numeric_limits<std::size_t>::max )( ) );
 
-#endif // defined(ASIO_HAS_BOOST_DATE_TIME)
+           private:
+            timer_queue<forwarding_posix_time_traits> impl_;
+        };
+
+    }  // namespace detail
+}  // namespace asio
+
+#endif  // defined(ASIO_HAS_BOOST_DATE_TIME)
 
 #include "asio/detail/pop_options.hpp"
 
-#if defined(ASIO_HEADER_ONLY)
-# include "asio/detail/impl/timer_queue_ptime.ipp"
-#endif // defined(ASIO_HEADER_ONLY)
+#if defined( ASIO_HEADER_ONLY )
+#include "asio/detail/impl/timer_queue_ptime.ipp"
+#endif  // defined(ASIO_HEADER_ONLY)
 
-#endif // ASIO_DETAIL_TIMER_QUEUE_PTIME_HPP
+#endif  // ASIO_DETAIL_TIMER_QUEUE_PTIME_HPP

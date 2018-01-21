@@ -11,78 +11,79 @@
 #ifndef ASIO_DETAIL_NULL_EVENT_HPP
 #define ASIO_DETAIL_NULL_EVENT_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if !defined(ASIO_HAS_THREADS)
+#if !defined( ASIO_HAS_THREADS )
 
 #include "asio/detail/noncopyable.hpp"
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-class null_event
-  : private noncopyable
+namespace asio
 {
-public:
-  // Constructor.
-  null_event()
-  {
-  }
+    namespace detail
+    {
 
-  // Destructor.
-  ~null_event()
-  {
-  }
+        class null_event : private noncopyable
+        {
+           public:
+            // Constructor.
+            null_event( )
+            {
+            }
 
-  // Signal the event. (Retained for backward compatibility.)
-  template <typename Lock>
-  void signal(Lock&)
-  {
-  }
+            // Destructor.
+            ~null_event( )
+            {
+            }
 
-  // Signal all waiters.
-  template <typename Lock>
-  void signal_all(Lock&)
-  {
-  }
+            // Signal the event. (Retained for backward compatibility.)
+            template <typename Lock>
+            void signal( Lock& )
+            {
+            }
 
-  // Unlock the mutex and signal one waiter.
-  template <typename Lock>
-  void unlock_and_signal_one(Lock&)
-  {
-  }
+            // Signal all waiters.
+            template <typename Lock>
+            void signal_all( Lock& )
+            {
+            }
 
-  // If there's a waiter, unlock the mutex and signal it.
-  template <typename Lock>
-  bool maybe_unlock_and_signal_one(Lock&)
-  {
-    return false;
-  }
+            // Unlock the mutex and signal one waiter.
+            template <typename Lock>
+            void unlock_and_signal_one( Lock& )
+            {
+            }
 
-  // Reset the event.
-  template <typename Lock>
-  void clear(Lock&)
-  {
-  }
+            // If there's a waiter, unlock the mutex and signal it.
+            template <typename Lock>
+            bool maybe_unlock_and_signal_one( Lock& )
+            {
+                return false;
+            }
 
-  // Wait for the event to become signalled.
-  template <typename Lock>
-  void wait(Lock&)
-  {
-  }
-};
+            // Reset the event.
+            template <typename Lock>
+            void clear( Lock& )
+            {
+            }
 
-} // namespace detail
-} // namespace asio
+            // Wait for the event to become signalled.
+            template <typename Lock>
+            void wait( Lock& )
+            {
+            }
+        };
+
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // !defined(ASIO_HAS_THREADS)
+#endif  // !defined(ASIO_HAS_THREADS)
 
-#endif // ASIO_DETAIL_NULL_EVENT_HPP
+#endif  // ASIO_DETAIL_NULL_EVENT_HPP

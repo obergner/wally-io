@@ -11,71 +11,72 @@
 #ifndef ASIO_DETAIL_STD_STATIC_MUTEX_HPP
 #define ASIO_DETAIL_STD_STATIC_MUTEX_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if defined(ASIO_HAS_STD_MUTEX_AND_CONDVAR)
+#if defined( ASIO_HAS_STD_MUTEX_AND_CONDVAR )
 
-#include <mutex>
 #include "asio/detail/noncopyable.hpp"
 #include "asio/detail/scoped_lock.hpp"
+#include <mutex>
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-class std_event;
-
-class std_static_mutex
-  : private noncopyable
+namespace asio
 {
-public:
-  typedef asio::detail::scoped_lock<std_static_mutex> scoped_lock;
+    namespace detail
+    {
 
-  // Constructor.
-  std_static_mutex(int)
-  {
-  }
+        class std_event;
 
-  // Destructor.
-  ~std_static_mutex()
-  {
-  }
+        class std_static_mutex : private noncopyable
+        {
+           public:
+            typedef asio::detail::scoped_lock<std_static_mutex> scoped_lock;
 
-  // Initialise the mutex.
-  void init()
-  {
-    // Nothing to do.
-  }
+            // Constructor.
+            std_static_mutex( int )
+            {
+            }
 
-  // Lock the mutex.
-  void lock()
-  {
-    mutex_.lock();
-  }
+            // Destructor.
+            ~std_static_mutex( )
+            {
+            }
 
-  // Unlock the mutex.
-  void unlock()
-  {
-    mutex_.unlock();
-  }
+            // Initialise the mutex.
+            void init( )
+            {
+                // Nothing to do.
+            }
 
-private:
-  friend class std_event;
-  std::mutex mutex_;
-};
+            // Lock the mutex.
+            void lock( )
+            {
+                mutex_.lock( );
+            }
+
+            // Unlock the mutex.
+            void unlock( )
+            {
+                mutex_.unlock( );
+            }
+
+           private:
+            friend class std_event;
+            std::mutex mutex_;
+        };
 
 #define ASIO_STD_STATIC_MUTEX_INIT 0
 
-} // namespace detail
-} // namespace asio
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // defined(ASIO_HAS_STD_MUTEX_AND_CONDVAR)
+#endif  // defined(ASIO_HAS_STD_MUTEX_AND_CONDVAR)
 
-#endif // ASIO_DETAIL_STD_STATIC_MUTEX_HPP
+#endif  // ASIO_DETAIL_STD_STATIC_MUTEX_HPP

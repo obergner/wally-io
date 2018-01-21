@@ -11,25 +11,26 @@
 #ifndef ASIO_DETAIL_REGEX_FWD_HPP
 #define ASIO_DETAIL_REGEX_FWD_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#if defined(ASIO_HAS_BOOST_REGEX)
+#if defined( ASIO_HAS_BOOST_REGEX )
 
-#include <boost/regex_fwd.hpp>
 #include <boost/regex/v4/match_flags.hpp>
+#include <boost/regex_fwd.hpp>
 
-namespace boost {
+namespace boost
+{
 
-template <class BidiIterator>
-struct sub_match;
+    template <class BidiIterator>
+    struct sub_match;
 
-template <class BidiIterator, class Allocator>
-class match_results;
+    template <class BidiIterator, class Allocator>
+    class match_results;
 
-} // namespace boost
+}  // namespace boost
 
-#endif // defined(ASIO_HAS_BOOST_REGEX)
+#endif  // defined(ASIO_HAS_BOOST_REGEX)
 
-#endif // ASIO_DETAIL_REGEX_FWD_HPP
+#endif  // ASIO_DETAIL_REGEX_FWD_HPP

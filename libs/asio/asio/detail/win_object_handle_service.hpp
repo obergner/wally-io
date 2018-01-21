@@ -12,13 +12,13 @@
 #ifndef ASIO_DETAIL_WIN_OBJECT_HANDLE_SERVICE_HPP
 #define ASIO_DETAIL_WIN_OBJECT_HANDLE_SERVICE_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if defined(ASIO_HAS_WINDOWS_OBJECT_HANDLE)
+#if defined( ASIO_HAS_WINDOWS_OBJECT_HANDLE )
 
 #include "asio/detail/addressof.hpp"
 #include "asio/detail/handler_alloc_helpers.hpp"
@@ -28,156 +28,151 @@
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-class win_object_handle_service
+namespace asio
 {
-public:
-  // The native type of an object handle.
-  typedef HANDLE native_handle_type;
-
-  // The implementation type of the object handle.
-  class implementation_type
-  {
-   public:
-    // Default constructor.
-    implementation_type()
-      : handle_(INVALID_HANDLE_VALUE),
-        wait_handle_(INVALID_HANDLE_VALUE),
-        owner_(0),
-        next_(0),
-        prev_(0)
+    namespace detail
     {
-    }
 
-  private:
-    // Only this service will have access to the internal values.
-    friend class win_object_handle_service;
+        class win_object_handle_service
+        {
+           public:
+            // The native type of an object handle.
+            typedef HANDLE native_handle_type;
 
-    // The native object handle representation. May be accessed or modified
-    // without locking the mutex.
-    native_handle_type handle_;
+            // The implementation type of the object handle.
+            class implementation_type
+            {
+               public:
+                // Default constructor.
+                implementation_type( )
+                    : handle_( INVALID_HANDLE_VALUE ),
+                      wait_handle_( INVALID_HANDLE_VALUE ),
+                      owner_( 0 ),
+                      next_( 0 ),
+                      prev_( 0 )
+                {
+                }
 
-    // The handle used to unregister the wait operation. The mutex must be
-    // locked when accessing or modifying this member.
-    HANDLE wait_handle_;
+               private:
+                // Only this service will have access to the internal values.
+                friend class win_object_handle_service;
 
-    // The operations waiting on the object handle. If there is a registered
-    // wait then the mutex must be locked when accessing or modifying this
-    // member
-    op_queue<wait_op> op_queue_;
+                // The native object handle representation. May be accessed or modified
+                // without locking the mutex.
+                native_handle_type handle_;
 
-    // The service instance that owns the object handle implementation.
-    win_object_handle_service* owner_;
+                // The handle used to unregister the wait operation. The mutex must be
+                // locked when accessing or modifying this member.
+                HANDLE wait_handle_;
 
-    // Pointers to adjacent handle implementations in linked list. The mutex
-    // must be locked when accessing or modifying these members.
-    implementation_type* next_;
-    implementation_type* prev_;
-  };
+                // The operations waiting on the object handle. If there is a registered
+                // wait then the mutex must be locked when accessing or modifying this
+                // member
+                op_queue<wait_op> op_queue_;
 
-  // Constructor.
-  ASIO_DECL win_object_handle_service(
-      asio::io_service& io_service);
+                // The service instance that owns the object handle implementation.
+                win_object_handle_service* owner_;
 
-  // Destroy all user-defined handler objects owned by the service.
-  ASIO_DECL void shutdown_service();
+                // Pointers to adjacent handle implementations in linked list. The mutex
+                // must be locked when accessing or modifying these members.
+                implementation_type* next_;
+                implementation_type* prev_;
+            };
 
-  // Construct a new handle implementation.
-  ASIO_DECL void construct(implementation_type& impl);
+            // Constructor.
+            ASIO_DECL win_object_handle_service( asio::io_service& io_service );
 
-  // Move-construct a new handle implementation.
-  ASIO_DECL void move_construct(implementation_type& impl,
-      implementation_type& other_impl);
+            // Destroy all user-defined handler objects owned by the service.
+            ASIO_DECL void shutdown_service( );
 
-  // Move-assign from another handle implementation.
-  ASIO_DECL void move_assign(implementation_type& impl,
-      win_object_handle_service& other_service,
-      implementation_type& other_impl);
+            // Construct a new handle implementation.
+            ASIO_DECL void construct( implementation_type& impl );
 
-  // Destroy a handle implementation.
-  ASIO_DECL void destroy(implementation_type& impl);
+            // Move-construct a new handle implementation.
+            ASIO_DECL void move_construct( implementation_type& impl, implementation_type& other_impl );
 
-  // Assign a native handle to a handle implementation.
-  ASIO_DECL asio::error_code assign(implementation_type& impl,
-      const native_handle_type& handle, asio::error_code& ec);
+            // Move-assign from another handle implementation.
+            ASIO_DECL void move_assign( implementation_type& impl,
+                                        win_object_handle_service& other_service,
+                                        implementation_type& other_impl );
 
-  // Determine whether the handle is open.
-  bool is_open(const implementation_type& impl) const
-  {
-    return impl.handle_ != INVALID_HANDLE_VALUE && impl.handle_ != 0;
-  }
+            // Destroy a handle implementation.
+            ASIO_DECL void destroy( implementation_type& impl );
 
-  // Destroy a handle implementation.
-  ASIO_DECL asio::error_code close(implementation_type& impl,
-      asio::error_code& ec);
+            // Assign a native handle to a handle implementation.
+            ASIO_DECL asio::error_code assign( implementation_type& impl,
+                                               const native_handle_type& handle,
+                                               asio::error_code& ec );
 
-  // Get the native handle representation.
-  native_handle_type native_handle(const implementation_type& impl) const
-  {
-    return impl.handle_;
-  }
+            // Determine whether the handle is open.
+            bool is_open( const implementation_type& impl ) const
+            {
+                return impl.handle_ != INVALID_HANDLE_VALUE && impl.handle_ != 0;
+            }
 
-  // Cancel all operations associated with the handle.
-  ASIO_DECL asio::error_code cancel(implementation_type& impl,
-      asio::error_code& ec);
+            // Destroy a handle implementation.
+            ASIO_DECL asio::error_code close( implementation_type& impl, asio::error_code& ec );
 
-  // Perform a synchronous wait for the object to enter a signalled state.
-  ASIO_DECL void wait(implementation_type& impl,
-      asio::error_code& ec);
+            // Get the native handle representation.
+            native_handle_type native_handle( const implementation_type& impl ) const
+            {
+                return impl.handle_;
+            }
 
-  /// Start an asynchronous wait.
-  template <typename Handler>
-  void async_wait(implementation_type& impl, Handler& handler)
-  {
-    // Allocate and construct an operation to wrap the handler.
-    typedef wait_handler<Handler> op;
-    typename op::ptr p = { asio::detail::addressof(handler),
-      asio_handler_alloc_helpers::allocate(
-        sizeof(op), handler), 0 };
-    p.p = new (p.v) op(handler);
+            // Cancel all operations associated with the handle.
+            ASIO_DECL asio::error_code cancel( implementation_type& impl, asio::error_code& ec );
 
-    ASIO_HANDLER_CREATION((p.p, "object_handle", &impl, "async_wait"));
+            // Perform a synchronous wait for the object to enter a signalled state.
+            ASIO_DECL void wait( implementation_type& impl, asio::error_code& ec );
 
-    start_wait_op(impl, p.p);
-    p.v = p.p = 0;
-  }
+            /// Start an asynchronous wait.
+            template <typename Handler>
+            void async_wait( implementation_type& impl, Handler& handler )
+            {
+                // Allocate and construct an operation to wrap the handler.
+                typedef wait_handler<Handler> op;
+                typename op::ptr p = {asio::detail::addressof( handler ),
+                                      asio_handler_alloc_helpers::allocate( sizeof( op ), handler ), 0};
+                p.p = new ( p.v ) op( handler );
 
-private:
-  // Helper function to start an asynchronous wait operation.
-  ASIO_DECL void start_wait_op(implementation_type& impl, wait_op* op);
+                ASIO_HANDLER_CREATION( ( p.p, "object_handle", &impl, "async_wait" ) );
 
-  // Helper function to register a wait operation.
-  ASIO_DECL void register_wait_callback(
-      implementation_type& impl, mutex::scoped_lock& lock);
+                start_wait_op( impl, p.p );
+                p.v = p.p = 0;
+            }
 
-  // Callback function invoked when the registered wait completes.
-  static ASIO_DECL VOID CALLBACK wait_callback(
-      PVOID param, BOOLEAN timeout);
+           private:
+            // Helper function to start an asynchronous wait operation.
+            ASIO_DECL void start_wait_op( implementation_type& impl, wait_op* op );
 
-  // The io_service implementation used to post completions.
-  io_service_impl& io_service_;
+            // Helper function to register a wait operation.
+            ASIO_DECL void register_wait_callback( implementation_type& impl, mutex::scoped_lock& lock );
 
-  // Mutex to protect access to internal state.
-  mutex mutex_;
+            // Callback function invoked when the registered wait completes.
+            static ASIO_DECL VOID CALLBACK wait_callback( PVOID param, BOOLEAN timeout );
 
-  // The head of a linked list of all implementations.
-  implementation_type* impl_list_;
+            // The io_service implementation used to post completions.
+            io_service_impl& io_service_;
 
-  // Flag to indicate that the dispatcher has been shut down.
-  bool shutdown_;
-};
+            // Mutex to protect access to internal state.
+            mutex mutex_;
 
-} // namespace detail
-} // namespace asio
+            // The head of a linked list of all implementations.
+            implementation_type* impl_list_;
+
+            // Flag to indicate that the dispatcher has been shut down.
+            bool shutdown_;
+        };
+
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#if defined(ASIO_HEADER_ONLY)
-# include "asio/detail/impl/win_object_handle_service.ipp"
-#endif // defined(ASIO_HEADER_ONLY)
+#if defined( ASIO_HEADER_ONLY )
+#include "asio/detail/impl/win_object_handle_service.ipp"
+#endif  // defined(ASIO_HEADER_ONLY)
 
-#endif // defined(ASIO_HAS_WINDOWS_OBJECT_HANDLE)
+#endif  // defined(ASIO_HAS_WINDOWS_OBJECT_HANDLE)
 
-#endif // ASIO_DETAIL_WIN_OBJECT_HANDLE_SERVICE_HPP
+#endif  // ASIO_DETAIL_WIN_OBJECT_HANDLE_SERVICE_HPP

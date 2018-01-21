@@ -11,121 +11,114 @@
 #ifndef ASIO_SYSTEM_ERROR_HPP
 #define ASIO_SYSTEM_ERROR_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if defined(ASIO_HAS_STD_SYSTEM_ERROR)
-# include <system_error>
-#else // defined(ASIO_HAS_STD_SYSTEM_ERROR)
-# include <cerrno>
-# include <exception>
-# include <string>
-# include "asio/error_code.hpp"
-# include "asio/detail/scoped_ptr.hpp"
-#endif // defined(ASIO_HAS_STD_SYSTEM_ERROR)
+#if defined( ASIO_HAS_STD_SYSTEM_ERROR )
+#include <system_error>
+#else  // defined(ASIO_HAS_STD_SYSTEM_ERROR)
+#include "asio/detail/scoped_ptr.hpp"
+#include "asio/error_code.hpp"
+#include <cerrno>
+#include <exception>
+#include <string>
+#endif  // defined(ASIO_HAS_STD_SYSTEM_ERROR)
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-
-#if defined(ASIO_HAS_STD_SYSTEM_ERROR)
-
-typedef std::system_error system_error;
-
-#else // defined(ASIO_HAS_STD_SYSTEM_ERROR)
-
-/// The system_error class is used to represent system conditions that
-/// prevent the library from operating correctly.
-class system_error
-  : public std::exception
+namespace asio
 {
-public:
-  /// Construct with an error code.
-  system_error(const error_code& ec)
-    : code_(ec),
-      context_()
-  {
-  }
 
-  /// Construct with an error code and context.
-  system_error(const error_code& ec, const std::string& context)
-    : code_(ec),
-      context_(context)
-  {
-  }
+#if defined( ASIO_HAS_STD_SYSTEM_ERROR )
 
-  /// Copy constructor.
-  system_error(const system_error& other)
-    : std::exception(other),
-      code_(other.code_),
-      context_(other.context_),
-      what_()
-  {
-  }
+    typedef std::system_error system_error;
 
-  /// Destructor.
-  virtual ~system_error() throw ()
-  {
-  }
+#else  // defined(ASIO_HAS_STD_SYSTEM_ERROR)
 
-  /// Assignment operator.
-  system_error& operator=(const system_error& e)
-  {
-    context_ = e.context_;
-    code_ = e.code_;
-    what_.reset();
-    return *this;
-  }
-
-  /// Get a string representation of the exception.
-  virtual const char* what() const throw ()
-  {
-#if !defined(ASIO_NO_EXCEPTIONS)
-    try
-#endif // !defined(ASIO_NO_EXCEPTIONS)
+    /// The system_error class is used to represent system conditions that
+    /// prevent the library from operating correctly.
+    class system_error : public std::exception
     {
-      if (!what_.get())
-      {
-        std::string tmp(context_);
-        if (tmp.length())
-          tmp += ": ";
-        tmp += code_.message();
-        what_.reset(new std::string(tmp));
-      }
-      return what_->c_str();
-    }
-#if !defined(ASIO_NO_EXCEPTIONS)
-    catch (std::exception&)
-    {
-      return "system_error";
-    }
-#endif // !defined(ASIO_NO_EXCEPTIONS)
-  }
+       public:
+        /// Construct with an error code.
+        system_error( const error_code& ec ) : code_( ec ), context_( )
+        {
+        }
 
-  /// Get the error code associated with the exception.
-  error_code code() const
-  {
-    return code_;
-  }
+        /// Construct with an error code and context.
+        system_error( const error_code& ec, const std::string& context ) : code_( ec ), context_( context )
+        {
+        }
 
-private:
-  // The code associated with the error.
-  error_code code_;
+        /// Copy constructor.
+        system_error( const system_error& other )
+            : std::exception( other ), code_( other.code_ ), context_( other.context_ ), what_( )
+        {
+        }
 
-  // The context associated with the error.
-  std::string context_;
+        /// Destructor.
+        virtual ~system_error( ) throw( )
+        {
+        }
 
-  // The string representation of the error.
-  mutable asio::detail::scoped_ptr<std::string> what_;
-};
+        /// Assignment operator.
+        system_error& operator=( const system_error& e )
+        {
+            context_ = e.context_;
+            code_ = e.code_;
+            what_.reset( );
+            return *this;
+        }
 
-#endif // defined(ASIO_HAS_STD_SYSTEM_ERROR)
+        /// Get a string representation of the exception.
+        virtual const char* what( ) const throw( )
+        {
+#if !defined( ASIO_NO_EXCEPTIONS )
+            try
+#endif  // !defined(ASIO_NO_EXCEPTIONS)
+            {
+                if ( !what_.get( ) )
+                {
+                    std::string tmp( context_ );
+                    if ( tmp.length( ) )
+                        tmp += ": ";
+                    tmp += code_.message( );
+                    what_.reset( new std::string( tmp ) );
+                }
+                return what_->c_str( );
+            }
+#if !defined( ASIO_NO_EXCEPTIONS )
+            catch ( std::exception& )
+            {
+                return "system_error";
+            }
+#endif  // !defined(ASIO_NO_EXCEPTIONS)
+        }
 
-} // namespace asio
+        /// Get the error code associated with the exception.
+        error_code code( ) const
+        {
+            return code_;
+        }
+
+       private:
+        // The code associated with the error.
+        error_code code_;
+
+        // The context associated with the error.
+        std::string context_;
+
+        // The string representation of the error.
+        mutable asio::detail::scoped_ptr<std::string> what_;
+    };
+
+#endif  // defined(ASIO_HAS_STD_SYSTEM_ERROR)
+
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // ASIO_SYSTEM_ERROR_HPP
+#endif  // ASIO_SYSTEM_ERROR_HPP

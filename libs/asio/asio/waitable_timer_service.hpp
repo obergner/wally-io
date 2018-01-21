@@ -11,158 +11,149 @@
 #ifndef ASIO_WAITABLE_TIMER_SERVICE_HPP
 #define ASIO_WAITABLE_TIMER_SERVICE_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
-#include <cstddef>
 #include "asio/async_result.hpp"
 #include "asio/detail/chrono_time_traits.hpp"
+#include "asio/detail/config.hpp"
 #include "asio/detail/deadline_timer_service.hpp"
 #include "asio/io_service.hpp"
 #include "asio/wait_traits.hpp"
+#include <cstddef>
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-
-/// Default service implementation for a timer.
-template <typename Clock,
-    typename WaitTraits = asio::wait_traits<Clock> >
-class waitable_timer_service
-#if defined(GENERATING_DOCUMENTATION)
-  : public asio::io_service::service
-#else
-  : public asio::detail::service_base<
-      waitable_timer_service<Clock, WaitTraits> >
-#endif
+namespace asio
 {
-public:
-#if defined(GENERATING_DOCUMENTATION)
-  /// The unique service identifier.
-  static asio::io_service::id id;
-#endif
 
-  /// The clock type.
-  typedef Clock clock_type;
-
-  /// The duration type of the clock.
-  typedef typename clock_type::duration duration;
-
-  /// The time point type of the clock.
-  typedef typename clock_type::time_point time_point;
-
-  /// The wait traits type.
-  typedef WaitTraits traits_type;
-
-private:
-  // The type of the platform-specific implementation.
-  typedef detail::deadline_timer_service<
-    detail::chrono_time_traits<Clock, WaitTraits> > service_impl_type;
-
-public:
-  /// The implementation type of the waitable timer.
-#if defined(GENERATING_DOCUMENTATION)
-  typedef implementation_defined implementation_type;
+    /// Default service implementation for a timer.
+    template <typename Clock, typename WaitTraits = asio::wait_traits<Clock>>
+    class waitable_timer_service
+#if defined( GENERATING_DOCUMENTATION )
+        : public asio::io_service::service
 #else
-  typedef typename service_impl_type::implementation_type implementation_type;
+        : public asio::detail::service_base<waitable_timer_service<Clock, WaitTraits>>
+#endif
+    {
+       public:
+#if defined( GENERATING_DOCUMENTATION )
+        /// The unique service identifier.
+        static asio::io_service::id id;
 #endif
 
-  /// Construct a new timer service for the specified io_service.
-  explicit waitable_timer_service(asio::io_service& io_service)
-    : asio::detail::service_base<
-        waitable_timer_service<Clock, WaitTraits> >(io_service),
-      service_impl_(io_service)
-  {
-  }
+        /// The clock type.
+        typedef Clock clock_type;
 
-  /// Construct a new timer implementation.
-  void construct(implementation_type& impl)
-  {
-    service_impl_.construct(impl);
-  }
+        /// The duration type of the clock.
+        typedef typename clock_type::duration duration;
 
-  /// Destroy a timer implementation.
-  void destroy(implementation_type& impl)
-  {
-    service_impl_.destroy(impl);
-  }
+        /// The time point type of the clock.
+        typedef typename clock_type::time_point time_point;
 
-  /// Cancel any asynchronous wait operations associated with the timer.
-  std::size_t cancel(implementation_type& impl, asio::error_code& ec)
-  {
-    return service_impl_.cancel(impl, ec);
-  }
+        /// The wait traits type.
+        typedef WaitTraits traits_type;
 
-  /// Cancels one asynchronous wait operation associated with the timer.
-  std::size_t cancel_one(implementation_type& impl,
-      asio::error_code& ec)
-  {
-    return service_impl_.cancel_one(impl, ec);
-  }
+       private:
+        // The type of the platform-specific implementation.
+        typedef detail::deadline_timer_service<detail::chrono_time_traits<Clock, WaitTraits>> service_impl_type;
 
-  /// Get the expiry time for the timer as an absolute time.
-  time_point expires_at(const implementation_type& impl) const
-  {
-    return service_impl_.expires_at(impl);
-  }
+       public:
+        /// The implementation type of the waitable timer.
+#if defined( GENERATING_DOCUMENTATION )
+        typedef implementation_defined implementation_type;
+#else
+        typedef typename service_impl_type::implementation_type implementation_type;
+#endif
 
-  /// Set the expiry time for the timer as an absolute time.
-  std::size_t expires_at(implementation_type& impl,
-      const time_point& expiry_time, asio::error_code& ec)
-  {
-    return service_impl_.expires_at(impl, expiry_time, ec);
-  }
+        /// Construct a new timer service for the specified io_service.
+        explicit waitable_timer_service( asio::io_service& io_service )
+            : asio::detail::service_base<waitable_timer_service<Clock, WaitTraits>>( io_service ),
+              service_impl_( io_service )
+        {
+        }
 
-  /// Get the expiry time for the timer relative to now.
-  duration expires_from_now(const implementation_type& impl) const
-  {
-    return service_impl_.expires_from_now(impl);
-  }
+        /// Construct a new timer implementation.
+        void construct( implementation_type& impl )
+        {
+            service_impl_.construct( impl );
+        }
 
-  /// Set the expiry time for the timer relative to now.
-  std::size_t expires_from_now(implementation_type& impl,
-      const duration& expiry_time, asio::error_code& ec)
-  {
-    return service_impl_.expires_from_now(impl, expiry_time, ec);
-  }
+        /// Destroy a timer implementation.
+        void destroy( implementation_type& impl )
+        {
+            service_impl_.destroy( impl );
+        }
 
-  // Perform a blocking wait on the timer.
-  void wait(implementation_type& impl, asio::error_code& ec)
-  {
-    service_impl_.wait(impl, ec);
-  }
+        /// Cancel any asynchronous wait operations associated with the timer.
+        std::size_t cancel( implementation_type& impl, asio::error_code& ec )
+        {
+            return service_impl_.cancel( impl, ec );
+        }
 
-  // Start an asynchronous wait on the timer.
-  template <typename WaitHandler>
-  ASIO_INITFN_RESULT_TYPE(WaitHandler,
-      void (asio::error_code))
-  async_wait(implementation_type& impl,
-      ASIO_MOVE_ARG(WaitHandler) handler)
-  {
-    detail::async_result_init<
-      WaitHandler, void (asio::error_code)> init(
-        ASIO_MOVE_CAST(WaitHandler)(handler));
+        /// Cancels one asynchronous wait operation associated with the timer.
+        std::size_t cancel_one( implementation_type& impl, asio::error_code& ec )
+        {
+            return service_impl_.cancel_one( impl, ec );
+        }
 
-    service_impl_.async_wait(impl, init.handler);
+        /// Get the expiry time for the timer as an absolute time.
+        time_point expires_at( const implementation_type& impl ) const
+        {
+            return service_impl_.expires_at( impl );
+        }
 
-    return init.result.get();
-  }
+        /// Set the expiry time for the timer as an absolute time.
+        std::size_t expires_at( implementation_type& impl, const time_point& expiry_time, asio::error_code& ec )
+        {
+            return service_impl_.expires_at( impl, expiry_time, ec );
+        }
 
-private:
-  // Destroy all user-defined handler objects owned by the service.
-  void shutdown_service()
-  {
-    service_impl_.shutdown_service();
-  }
+        /// Get the expiry time for the timer relative to now.
+        duration expires_from_now( const implementation_type& impl ) const
+        {
+            return service_impl_.expires_from_now( impl );
+        }
 
-  // The platform-specific implementation.
-  service_impl_type service_impl_;
-};
+        /// Set the expiry time for the timer relative to now.
+        std::size_t expires_from_now( implementation_type& impl, const duration& expiry_time, asio::error_code& ec )
+        {
+            return service_impl_.expires_from_now( impl, expiry_time, ec );
+        }
 
-} // namespace asio
+        // Perform a blocking wait on the timer.
+        void wait( implementation_type& impl, asio::error_code& ec )
+        {
+            service_impl_.wait( impl, ec );
+        }
+
+        // Start an asynchronous wait on the timer.
+        template <typename WaitHandler>
+        ASIO_INITFN_RESULT_TYPE( WaitHandler, void( asio::error_code ) )
+        async_wait( implementation_type& impl, ASIO_MOVE_ARG( WaitHandler ) handler )
+        {
+            detail::async_result_init<WaitHandler, void( asio::error_code )> init(
+                ASIO_MOVE_CAST( WaitHandler )( handler ) );
+
+            service_impl_.async_wait( impl, init.handler );
+
+            return init.result.get( );
+        }
+
+       private:
+        // Destroy all user-defined handler objects owned by the service.
+        void shutdown_service( )
+        {
+            service_impl_.shutdown_service( );
+        }
+
+        // The platform-specific implementation.
+        service_impl_type service_impl_;
+    };
+
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // ASIO_WAITABLE_TIMER_SERVICE_HPP
+#endif  // ASIO_WAITABLE_TIMER_SERVICE_HPP

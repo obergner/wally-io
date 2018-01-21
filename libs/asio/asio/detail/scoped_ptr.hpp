@@ -11,69 +11,70 @@
 #ifndef ASIO_DETAIL_SCOPED_PTR_HPP
 #define ASIO_DETAIL_SCOPED_PTR_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-template <typename T>
-class scoped_ptr
+namespace asio
 {
-public:
-  // Constructor.
-  explicit scoped_ptr(T* p = 0)
-    : p_(p)
-  {
-  }
+    namespace detail
+    {
 
-  // Destructor.
-  ~scoped_ptr()
-  {
-    delete p_;
-  }
+        template <typename T>
+        class scoped_ptr
+        {
+           public:
+            // Constructor.
+            explicit scoped_ptr( T* p = 0 ) : p_( p )
+            {
+            }
 
-  // Access.
-  T* get()
-  {
-    return p_;
-  }
+            // Destructor.
+            ~scoped_ptr( )
+            {
+                delete p_;
+            }
 
-  // Access.
-  T* operator->()
-  {
-    return p_;
-  }
+            // Access.
+            T* get( )
+            {
+                return p_;
+            }
 
-  // Dereference.
-  T& operator*()
-  {
-    return *p_;
-  }
+            // Access.
+            T* operator->( )
+            {
+                return p_;
+            }
 
-  // Reset pointer.
-  void reset(T* p = 0)
-  {
-    delete p_;
-    p_ = p;
-  }
+            // Dereference.
+            T& operator*( )
+            {
+                return *p_;
+            }
 
-private:
-  // Disallow copying and assignment.
-  scoped_ptr(const scoped_ptr&);
-  scoped_ptr& operator=(const scoped_ptr&);
+            // Reset pointer.
+            void reset( T* p = 0 )
+            {
+                delete p_;
+                p_ = p;
+            }
 
-  T* p_;
-};
+           private:
+            // Disallow copying and assignment.
+            scoped_ptr( const scoped_ptr& );
+            scoped_ptr& operator=( const scoped_ptr& );
 
-} // namespace detail
-} // namespace asio
+            T* p_;
+        };
+
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // ASIO_DETAIL_SCOPED_PTR_HPP
+#endif  // ASIO_DETAIL_SCOPED_PTR_HPP

@@ -3,8 +3,8 @@
 
 #ifndef QUEUE_INTERFACE_BASE_H__
 #define QUEUE_INTERFACE_BASE_H__
-#include "queue_interface_enq.hpp"
 #include "queue_interface_deq.hpp"
+#include "queue_interface_enq.hpp"
 namespace boost
 {
     namespace asio

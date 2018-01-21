@@ -11,23 +11,24 @@
 #ifndef ASIO_STREAMBUF_HPP
 #define ASIO_STREAMBUF_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if !defined(ASIO_NO_IOSTREAM)
+#if !defined( ASIO_NO_IOSTREAM )
 
 #include "asio/basic_streambuf.hpp"
 
-namespace asio {
+namespace asio
+{
 
-/// Typedef for the typical usage of basic_streambuf.
-typedef basic_streambuf<> streambuf;
+    /// Typedef for the typical usage of basic_streambuf.
+    typedef basic_streambuf<> streambuf;
 
-} // namespace asio
+}  // namespace asio
 
-#endif // !defined(ASIO_NO_IOSTREAM)
+#endif  // !defined(ASIO_NO_IOSTREAM)
 
-#endif // ASIO_STREAMBUF_HPP
+#endif  // ASIO_STREAMBUF_HPP

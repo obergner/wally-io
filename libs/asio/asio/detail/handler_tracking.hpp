@@ -11,149 +11,146 @@
 #ifndef ASIO_DETAIL_HANDLER_TRACKING_HPP
 #define ASIO_DETAIL_HANDLER_TRACKING_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if defined(ASIO_ENABLE_HANDLER_TRACKING)
-# include "asio/error_code.hpp"
-# include "asio/detail/cstdint.hpp"
-# include "asio/detail/static_mutex.hpp"
-# include "asio/detail/tss_ptr.hpp"
-#endif // defined(ASIO_ENABLE_HANDLER_TRACKING)
+#if defined( ASIO_ENABLE_HANDLER_TRACKING )
+#include "asio/detail/cstdint.hpp"
+#include "asio/detail/static_mutex.hpp"
+#include "asio/detail/tss_ptr.hpp"
+#include "asio/error_code.hpp"
+#endif  // defined(ASIO_ENABLE_HANDLER_TRACKING)
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-#if defined(ASIO_ENABLE_HANDLER_TRACKING)
-
-class handler_tracking
+namespace asio
 {
-public:
-  class completion;
+    namespace detail
+    {
 
-  // Base class for objects containing tracked handlers.
-  class tracked_handler
-  {
-  private:
-    // Only the handler_tracking class will have access to the id.
-    friend class handler_tracking;
-    friend class completion;
-    uint64_t id_;
+#if defined( ASIO_ENABLE_HANDLER_TRACKING )
 
-  protected:
-    // Constructor initialises with no id.
-    tracked_handler() : id_(0) {}
+        class handler_tracking
+        {
+           public:
+            class completion;
 
-    // Prevent deletion through this type.
-    ~tracked_handler() {}
-  };
+            // Base class for objects containing tracked handlers.
+            class tracked_handler
+            {
+               private:
+                // Only the handler_tracking class will have access to the id.
+                friend class handler_tracking;
+                friend class completion;
+                uint64_t id_;
 
-  // Initialise the tracking system.
-  ASIO_DECL static void init();
+               protected:
+                // Constructor initialises with no id.
+                tracked_handler( ) : id_( 0 )
+                {
+                }
 
-  // Record the creation of a tracked handler.
-  ASIO_DECL static void creation(tracked_handler* h,
-      const char* object_type, void* object, const char* op_name);
+                // Prevent deletion through this type.
+                ~tracked_handler( )
+                {
+                }
+            };
 
-  class completion
-  {
-  public:
-    // Constructor records that handler is to be invoked with no arguments.
-    ASIO_DECL explicit completion(tracked_handler* h);
+            // Initialise the tracking system.
+            ASIO_DECL static void init( );
 
-    // Destructor records only when an exception is thrown from the handler, or
-    // if the memory is being freed without the handler having been invoked.
-    ASIO_DECL ~completion();
+            // Record the creation of a tracked handler.
+            ASIO_DECL static void creation( tracked_handler* h,
+                                            const char* object_type,
+                                            void* object,
+                                            const char* op_name );
 
-    // Records that handler is to be invoked with no arguments.
-    ASIO_DECL void invocation_begin();
+            class completion
+            {
+               public:
+                // Constructor records that handler is to be invoked with no arguments.
+                ASIO_DECL explicit completion( tracked_handler* h );
 
-    // Records that handler is to be invoked with one arguments.
-    ASIO_DECL void invocation_begin(const asio::error_code& ec);
+                // Destructor records only when an exception is thrown from the handler, or
+                // if the memory is being freed without the handler having been invoked.
+                ASIO_DECL ~completion( );
 
-    // Constructor records that handler is to be invoked with two arguments.
-    ASIO_DECL void invocation_begin(
-        const asio::error_code& ec, std::size_t bytes_transferred);
+                // Records that handler is to be invoked with no arguments.
+                ASIO_DECL void invocation_begin( );
 
-    // Constructor records that handler is to be invoked with two arguments.
-    ASIO_DECL void invocation_begin(
-        const asio::error_code& ec, int signal_number);
+                // Records that handler is to be invoked with one arguments.
+                ASIO_DECL void invocation_begin( const asio::error_code& ec );
 
-    // Constructor records that handler is to be invoked with two arguments.
-    ASIO_DECL void invocation_begin(
-        const asio::error_code& ec, const char* arg);
+                // Constructor records that handler is to be invoked with two arguments.
+                ASIO_DECL void invocation_begin( const asio::error_code& ec, std::size_t bytes_transferred );
 
-    // Record that handler invocation has ended.
-    ASIO_DECL void invocation_end();
+                // Constructor records that handler is to be invoked with two arguments.
+                ASIO_DECL void invocation_begin( const asio::error_code& ec, int signal_number );
 
-  private:
-    friend class handler_tracking;
-    uint64_t id_;
-    bool invoked_;
-    completion* next_;
-  };
+                // Constructor records that handler is to be invoked with two arguments.
+                ASIO_DECL void invocation_begin( const asio::error_code& ec, const char* arg );
 
-  // Record an operation that affects pending handlers.
-  ASIO_DECL static void operation(const char* object_type,
-      void* object, const char* op_name);
+                // Record that handler invocation has ended.
+                ASIO_DECL void invocation_end( );
 
-  // Write a line of output.
-  ASIO_DECL static void write_line(const char* format, ...);
+               private:
+                friend class handler_tracking;
+                uint64_t id_;
+                bool invoked_;
+                completion* next_;
+            };
 
-private:
-  struct tracking_state;
-  ASIO_DECL static tracking_state* get_state();
-};
+            // Record an operation that affects pending handlers.
+            ASIO_DECL static void operation( const char* object_type, void* object, const char* op_name );
 
-# define ASIO_INHERIT_TRACKED_HANDLER \
+            // Write a line of output.
+            ASIO_DECL static void write_line( const char* format, ... );
+
+           private:
+            struct tracking_state;
+            ASIO_DECL static tracking_state* get_state( );
+        };
+
+#define ASIO_INHERIT_TRACKED_HANDLER \
   : public asio::detail::handler_tracking::tracked_handler
 
-# define ASIO_ALSO_INHERIT_TRACKED_HANDLER \
-  , public asio::detail::handler_tracking::tracked_handler
+#define ASIO_ALSO_INHERIT_TRACKED_HANDLER , public asio::detail::handler_tracking::tracked_handler
 
-# define ASIO_HANDLER_TRACKING_INIT \
-  asio::detail::handler_tracking::init()
+#define ASIO_HANDLER_TRACKING_INIT asio::detail::handler_tracking::init( )
 
-# define ASIO_HANDLER_CREATION(args) \
-  asio::detail::handler_tracking::creation args
+#define ASIO_HANDLER_CREATION( args ) asio::detail::handler_tracking::creation args
 
-# define ASIO_HANDLER_COMPLETION(args) \
-  asio::detail::handler_tracking::completion tracked_completion args
+#define ASIO_HANDLER_COMPLETION( args ) asio::detail::handler_tracking::completion tracked_completion args
 
-# define ASIO_HANDLER_INVOCATION_BEGIN(args) \
-  tracked_completion.invocation_begin args
+#define ASIO_HANDLER_INVOCATION_BEGIN( args ) tracked_completion.invocation_begin args
 
-# define ASIO_HANDLER_INVOCATION_END \
-  tracked_completion.invocation_end()
+#define ASIO_HANDLER_INVOCATION_END tracked_completion.invocation_end( )
 
-# define ASIO_HANDLER_OPERATION(args) \
-  asio::detail::handler_tracking::operation args
+#define ASIO_HANDLER_OPERATION( args ) asio::detail::handler_tracking::operation args
 
-#else // defined(ASIO_ENABLE_HANDLER_TRACKING)
+#else  // defined(ASIO_ENABLE_HANDLER_TRACKING)
 
-# define ASIO_INHERIT_TRACKED_HANDLER
-# define ASIO_ALSO_INHERIT_TRACKED_HANDLER
-# define ASIO_HANDLER_TRACKING_INIT (void)0
-# define ASIO_HANDLER_CREATION(args) (void)0
-# define ASIO_HANDLER_COMPLETION(args) (void)0
-# define ASIO_HANDLER_INVOCATION_BEGIN(args) (void)0
-# define ASIO_HANDLER_INVOCATION_END (void)0
-# define ASIO_HANDLER_OPERATION(args) (void)0
+#define ASIO_INHERIT_TRACKED_HANDLER
+#define ASIO_ALSO_INHERIT_TRACKED_HANDLER
+#define ASIO_HANDLER_TRACKING_INIT (void)0
+#define ASIO_HANDLER_CREATION( args ) (void)0
+#define ASIO_HANDLER_COMPLETION( args ) (void)0
+#define ASIO_HANDLER_INVOCATION_BEGIN( args ) (void)0
+#define ASIO_HANDLER_INVOCATION_END (void)0
+#define ASIO_HANDLER_OPERATION( args ) (void)0
 
-#endif // defined(ASIO_ENABLE_HANDLER_TRACKING)
+#endif  // defined(ASIO_ENABLE_HANDLER_TRACKING)
 
-} // namespace detail
-} // namespace asio
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#if defined(ASIO_HEADER_ONLY)
-# include "asio/detail/impl/handler_tracking.ipp"
-#endif // defined(ASIO_HEADER_ONLY)
+#if defined( ASIO_HEADER_ONLY )
+#include "asio/detail/impl/handler_tracking.ipp"
+#endif  // defined(ASIO_HEADER_ONLY)
 
-#endif // ASIO_DETAIL_HANDLER_TRACKING_HPP
+#endif  // ASIO_DETAIL_HANDLER_TRACKING_HPP

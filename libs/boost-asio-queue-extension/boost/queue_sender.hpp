@@ -4,8 +4,8 @@
 #ifndef __QUEUE_SENDER_H__
 #define __QUEUE_SENDER_H__
 #include "asio.hpp"
-#include <system_error>
 #include <cstddef>
+#include <system_error>
 #include <thread>
 namespace boost
 {
@@ -23,7 +23,7 @@ namespace boost
         {
            public:
             // ctor
-            explicit basic_queue_sender( ::asio::io_service& io_service, Queue* q )
+            explicit basic_queue_sender(::asio::io_service& io_service, Queue* q )
                 : ::asio::basic_io_object<Service>( io_service ), q_( q )
             {
             }
@@ -74,7 +74,7 @@ namespace boost
             static ::asio::io_service::id id;
 
             // ctor
-            explicit basic_queue_sender_service( ::asio::io_service& io_service )
+            explicit basic_queue_sender_service(::asio::io_service& io_service )
                 : ::asio::io_service::service( io_service )
             {
             }
@@ -129,10 +129,7 @@ namespace boost
             }
             // sync enq operation (blocking)
             template <typename Queue>
-            void sync_enq( implementation_type& impl,
-                           Queue* q,
-                           typename Queue::value_type val,
-                           std::error_code& ec )
+            void sync_enq( implementation_type& impl, Queue* q, typename Queue::value_type val, std::error_code& ec )
             {
                 impl->sync_enq( q, val, ec );
             }
@@ -152,12 +149,9 @@ namespace boost
         {
            public:
             // ctor (set up work queue for io_service so we don't bail out when executing run())
-            queue_sender_impl( ::asio::io_service& post_io_service )
+            queue_sender_impl(::asio::io_service& post_io_service )
                 : impl_work_( new ::asio::io_service::work( impl_io_service_ ) ),
-                  impl_thread_( [&]( )
-                                {
-                                    impl_io_service_.run( );
-                                } ),
+                  impl_thread_( [&]( ) { impl_io_service_.run( ); } ),
                   post_io_service_( post_io_service )
             {
             }
@@ -265,7 +259,7 @@ namespace boost
                             q_->timed_enq( val_, ms_, ec );
                         else
                             q_->enq( val_, ec );
-                        this->io_service_.post( ::asio::detail::bind_handler( handler_, ec ) );
+                        this->io_service_.post(::asio::detail::bind_handler( handler_, ec ) );
                     }
                     else
                     {
@@ -332,11 +326,11 @@ namespace boost
                             q_->timed_wait_enq( ms_, ec );
                         else
                             q_->wait_enq( ec );
-                        this->io_service_.post( ::asio::detail::bind_handler( handler_, ec ) );
+                        this->io_service_.post(::asio::detail::bind_handler( handler_, ec ) );
                     }
                     else
                     {
-                        this->io_service_.post( ::asio::detail::bind_handler( handler_, ec ) );
+                        this->io_service_.post(::asio::detail::bind_handler( handler_, ec ) );
                     }
                 }
 

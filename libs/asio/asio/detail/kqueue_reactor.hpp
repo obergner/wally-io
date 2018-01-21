@@ -12,18 +12,14 @@
 #ifndef ASIO_DETAIL_KQUEUE_REACTOR_HPP
 #define ASIO_DETAIL_KQUEUE_REACTOR_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if defined(ASIO_HAS_KQUEUE)
+#if defined( ASIO_HAS_KQUEUE )
 
-#include <cstddef>
-#include <sys/types.h>
-#include <sys/event.h>
-#include <sys/time.h>
 #include "asio/detail/limits.hpp"
 #include "asio/detail/mutex.hpp"
 #include "asio/detail/object_pool.hpp"
@@ -36,185 +32,199 @@
 #include "asio/detail/wait_op.hpp"
 #include "asio/error.hpp"
 #include "asio/io_service.hpp"
+#include <cstddef>
+#include <sys/event.h>
+#include <sys/time.h>
+#include <sys/types.h>
 
 // Older versions of Mac OS X may not define EV_OOBAND.
-#if !defined(EV_OOBAND)
-# define EV_OOBAND EV_FLAG1
-#endif // !defined(EV_OOBAND)
+#if !defined( EV_OOBAND )
+#define EV_OOBAND EV_FLAG1
+#endif  // !defined(EV_OOBAND)
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-class kqueue_reactor
-  : public asio::detail::service_base<kqueue_reactor>
+namespace asio
 {
-public:
-  enum op_types { read_op = 0, write_op = 1,
-    connect_op = 1, except_op = 2, max_ops = 3 };
+    namespace detail
+    {
 
-  // Per-descriptor queues.
-  struct descriptor_state
-  {
-    friend class kqueue_reactor;
-    friend class object_pool_access;
+        class kqueue_reactor : public asio::detail::service_base<kqueue_reactor>
+        {
+           public:
+            enum op_types
+            {
+                read_op = 0,
+                write_op = 1,
+                connect_op = 1,
+                except_op = 2,
+                max_ops = 3
+            };
 
-    descriptor_state* next_;
-    descriptor_state* prev_;
+            // Per-descriptor queues.
+            struct descriptor_state
+            {
+                friend class kqueue_reactor;
+                friend class object_pool_access;
 
-    mutex mutex_;
-    int descriptor_;
-    int num_kevents_; // 1 == read only, 2 == read and write
-    op_queue<reactor_op> op_queue_[max_ops];
-    bool shutdown_;
-  };
+                descriptor_state* next_;
+                descriptor_state* prev_;
 
-  // Per-descriptor data.
-  typedef descriptor_state* per_descriptor_data;
+                mutex mutex_;
+                int descriptor_;
+                int num_kevents_;  // 1 == read only, 2 == read and write
+                op_queue<reactor_op> op_queue_[max_ops];
+                bool shutdown_;
+            };
 
-  // Constructor.
-  ASIO_DECL kqueue_reactor(asio::io_service& io_service);
+            // Per-descriptor data.
+            typedef descriptor_state* per_descriptor_data;
 
-  // Destructor.
-  ASIO_DECL ~kqueue_reactor();
+            // Constructor.
+            ASIO_DECL kqueue_reactor( asio::io_service& io_service );
 
-  // Destroy all user-defined handler objects owned by the service.
-  ASIO_DECL void shutdown_service();
+            // Destructor.
+            ASIO_DECL ~kqueue_reactor( );
 
-  // Recreate internal descriptors following a fork.
-  ASIO_DECL void fork_service(
-      asio::io_service::fork_event fork_ev);
+            // Destroy all user-defined handler objects owned by the service.
+            ASIO_DECL void shutdown_service( );
 
-  // Initialise the task.
-  ASIO_DECL void init_task();
+            // Recreate internal descriptors following a fork.
+            ASIO_DECL void fork_service( asio::io_service::fork_event fork_ev );
 
-  // Register a socket with the reactor. Returns 0 on success, system error
-  // code on failure.
-  ASIO_DECL int register_descriptor(socket_type descriptor,
-      per_descriptor_data& descriptor_data);
+            // Initialise the task.
+            ASIO_DECL void init_task( );
 
-  // Register a descriptor with an associated single operation. Returns 0 on
-  // success, system error code on failure.
-  ASIO_DECL int register_internal_descriptor(
-      int op_type, socket_type descriptor,
-      per_descriptor_data& descriptor_data, reactor_op* op);
+            // Register a socket with the reactor. Returns 0 on success, system error
+            // code on failure.
+            ASIO_DECL int register_descriptor( socket_type descriptor, per_descriptor_data& descriptor_data );
 
-  // Move descriptor registration from one descriptor_data object to another.
-  ASIO_DECL void move_descriptor(socket_type descriptor,
-      per_descriptor_data& target_descriptor_data,
-      per_descriptor_data& source_descriptor_data);
+            // Register a descriptor with an associated single operation. Returns 0 on
+            // success, system error code on failure.
+            ASIO_DECL int register_internal_descriptor( int op_type,
+                                                        socket_type descriptor,
+                                                        per_descriptor_data& descriptor_data,
+                                                        reactor_op* op );
 
-  // Post a reactor operation for immediate completion.
-  void post_immediate_completion(reactor_op* op, bool is_continuation)
-  {
-    io_service_.post_immediate_completion(op, is_continuation);
-  }
+            // Move descriptor registration from one descriptor_data object to another.
+            ASIO_DECL void move_descriptor( socket_type descriptor,
+                                            per_descriptor_data& target_descriptor_data,
+                                            per_descriptor_data& source_descriptor_data );
 
-  // Start a new operation. The reactor operation will be performed when the
-  // given descriptor is flagged as ready, or an error has occurred.
-  ASIO_DECL void start_op(int op_type, socket_type descriptor,
-      per_descriptor_data& descriptor_data, reactor_op* op,
-      bool is_continuation, bool allow_speculative);
+            // Post a reactor operation for immediate completion.
+            void post_immediate_completion( reactor_op* op, bool is_continuation )
+            {
+                io_service_.post_immediate_completion( op, is_continuation );
+            }
 
-  // Cancel all operations associated with the given descriptor. The
-  // handlers associated with the descriptor will be invoked with the
-  // operation_aborted error.
-  ASIO_DECL void cancel_ops(socket_type descriptor,
-      per_descriptor_data& descriptor_data);
+            // Start a new operation. The reactor operation will be performed when the
+            // given descriptor is flagged as ready, or an error has occurred.
+            ASIO_DECL void start_op( int op_type,
+                                     socket_type descriptor,
+                                     per_descriptor_data& descriptor_data,
+                                     reactor_op* op,
+                                     bool is_continuation,
+                                     bool allow_speculative );
 
-  // Cancel any operations that are running against the descriptor and remove
-  // its registration from the reactor.
-  ASIO_DECL void deregister_descriptor(socket_type descriptor,
-      per_descriptor_data& descriptor_data, bool closing);
+            // Cancel all operations associated with the given descriptor. The
+            // handlers associated with the descriptor will be invoked with the
+            // operation_aborted error.
+            ASIO_DECL void cancel_ops( socket_type descriptor, per_descriptor_data& descriptor_data );
 
-  // Remote the descriptor's registration from the reactor.
-  ASIO_DECL void deregister_internal_descriptor(
-      socket_type descriptor, per_descriptor_data& descriptor_data);
+            // Cancel any operations that are running against the descriptor and remove
+            // its registration from the reactor.
+            ASIO_DECL void deregister_descriptor( socket_type descriptor,
+                                                  per_descriptor_data& descriptor_data,
+                                                  bool closing );
 
-  // Add a new timer queue to the reactor.
-  template <typename Time_Traits>
-  void add_timer_queue(timer_queue<Time_Traits>& queue);
+            // Remote the descriptor's registration from the reactor.
+            ASIO_DECL void deregister_internal_descriptor( socket_type descriptor,
+                                                           per_descriptor_data& descriptor_data );
 
-  // Remove a timer queue from the reactor.
-  template <typename Time_Traits>
-  void remove_timer_queue(timer_queue<Time_Traits>& queue);
+            // Add a new timer queue to the reactor.
+            template <typename Time_Traits>
+            void add_timer_queue( timer_queue<Time_Traits>& queue );
 
-  // Schedule a new operation in the given timer queue to expire at the
-  // specified absolute time.
-  template <typename Time_Traits>
-  void schedule_timer(timer_queue<Time_Traits>& queue,
-      const typename Time_Traits::time_type& time,
-      typename timer_queue<Time_Traits>::per_timer_data& timer, wait_op* op);
+            // Remove a timer queue from the reactor.
+            template <typename Time_Traits>
+            void remove_timer_queue( timer_queue<Time_Traits>& queue );
 
-  // Cancel the timer operations associated with the given token. Returns the
-  // number of operations that have been posted or dispatched.
-  template <typename Time_Traits>
-  std::size_t cancel_timer(timer_queue<Time_Traits>& queue,
-      typename timer_queue<Time_Traits>::per_timer_data& timer,
-      std::size_t max_cancelled = (std::numeric_limits<std::size_t>::max)());
+            // Schedule a new operation in the given timer queue to expire at the
+            // specified absolute time.
+            template <typename Time_Traits>
+            void schedule_timer( timer_queue<Time_Traits>& queue,
+                                 const typename Time_Traits::time_type& time,
+                                 typename timer_queue<Time_Traits>::per_timer_data& timer,
+                                 wait_op* op );
 
-  // Run the kqueue loop.
-  ASIO_DECL void run(bool block, op_queue<operation>& ops);
+            // Cancel the timer operations associated with the given token. Returns the
+            // number of operations that have been posted or dispatched.
+            template <typename Time_Traits>
+            std::size_t cancel_timer( timer_queue<Time_Traits>& queue,
+                                      typename timer_queue<Time_Traits>::per_timer_data& timer,
+                                      std::size_t max_cancelled = ( std::numeric_limits<std::size_t>::max )( ) );
 
-  // Interrupt the kqueue loop.
-  ASIO_DECL void interrupt();
+            // Run the kqueue loop.
+            ASIO_DECL void run( bool block, op_queue<operation>& ops );
 
-private:
-  // Create the kqueue file descriptor. Throws an exception if the descriptor
-  // cannot be created.
-  ASIO_DECL static int do_kqueue_create();
+            // Interrupt the kqueue loop.
+            ASIO_DECL void interrupt( );
 
-  // Allocate a new descriptor state object.
-  ASIO_DECL descriptor_state* allocate_descriptor_state();
+           private:
+            // Create the kqueue file descriptor. Throws an exception if the descriptor
+            // cannot be created.
+            ASIO_DECL static int do_kqueue_create( );
 
-  // Free an existing descriptor state object.
-  ASIO_DECL void free_descriptor_state(descriptor_state* s);
+            // Allocate a new descriptor state object.
+            ASIO_DECL descriptor_state* allocate_descriptor_state( );
 
-  // Helper function to add a new timer queue.
-  ASIO_DECL void do_add_timer_queue(timer_queue_base& queue);
+            // Free an existing descriptor state object.
+            ASIO_DECL void free_descriptor_state( descriptor_state* s );
 
-  // Helper function to remove a timer queue.
-  ASIO_DECL void do_remove_timer_queue(timer_queue_base& queue);
+            // Helper function to add a new timer queue.
+            ASIO_DECL void do_add_timer_queue( timer_queue_base& queue );
 
-  // Get the timeout value for the kevent call.
-  ASIO_DECL timespec* get_timeout(timespec& ts);
+            // Helper function to remove a timer queue.
+            ASIO_DECL void do_remove_timer_queue( timer_queue_base& queue );
 
-  // The io_service implementation used to post completions.
-  io_service_impl& io_service_;
+            // Get the timeout value for the kevent call.
+            ASIO_DECL timespec* get_timeout( timespec& ts );
 
-  // Mutex to protect access to internal data.
-  mutex mutex_;
+            // The io_service implementation used to post completions.
+            io_service_impl& io_service_;
 
-  // The kqueue file descriptor.
-  int kqueue_fd_;
+            // Mutex to protect access to internal data.
+            mutex mutex_;
 
-  // The interrupter is used to break a blocking kevent call.
-  select_interrupter interrupter_;
+            // The kqueue file descriptor.
+            int kqueue_fd_;
 
-  // The timer queues.
-  timer_queue_set timer_queues_;
+            // The interrupter is used to break a blocking kevent call.
+            select_interrupter interrupter_;
 
-  // Whether the service has been shut down.
-  bool shutdown_;
+            // The timer queues.
+            timer_queue_set timer_queues_;
 
-  // Mutex to protect access to the registered descriptors.
-  mutex registered_descriptors_mutex_;
+            // Whether the service has been shut down.
+            bool shutdown_;
 
-  // Keep track of all registered descriptors.
-  object_pool<descriptor_state> registered_descriptors_;
-};
+            // Mutex to protect access to the registered descriptors.
+            mutex registered_descriptors_mutex_;
 
-} // namespace detail
-} // namespace asio
+            // Keep track of all registered descriptors.
+            object_pool<descriptor_state> registered_descriptors_;
+        };
+
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
 #include "asio/detail/impl/kqueue_reactor.hpp"
-#if defined(ASIO_HEADER_ONLY)
-# include "asio/detail/impl/kqueue_reactor.ipp"
-#endif // defined(ASIO_HEADER_ONLY)
+#if defined( ASIO_HEADER_ONLY )
+#include "asio/detail/impl/kqueue_reactor.ipp"
+#endif  // defined(ASIO_HEADER_ONLY)
 
-#endif // defined(ASIO_HAS_KQUEUE)
+#endif  // defined(ASIO_HAS_KQUEUE)
 
-#endif // ASIO_DETAIL_KQUEUE_REACTOR_HPP
+#endif  // ASIO_DETAIL_KQUEUE_REACTOR_HPP

@@ -11,112 +11,110 @@
 #ifndef ASIO_GENERIC_SEQ_PACKET_PROTOCOL_HPP
 #define ASIO_GENERIC_SEQ_PACKET_PROTOCOL_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#include <typeinfo>
 #include "asio/basic_seq_packet_socket.hpp"
 #include "asio/detail/socket_types.hpp"
 #include "asio/detail/throw_exception.hpp"
 #include "asio/generic/basic_endpoint.hpp"
+#include <typeinfo>
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace generic {
-
-/// Encapsulates the flags needed for a generic sequenced packet socket.
-/**
- * The asio::generic::seq_packet_protocol class contains flags necessary
- * for seq_packet-oriented sockets of any address family and protocol.
- *
- * @par Examples
- * Constructing using a native address family and socket protocol:
- * @code seq_packet_protocol p(AF_INET, IPPROTO_SCTP); @endcode
- *
- * @par Thread Safety
- * @e Distinct @e objects: Safe.@n
- * @e Shared @e objects: Safe.
- *
- * @par Concepts:
- * Protocol.
- */
-class seq_packet_protocol
+namespace asio
 {
-public:
-  /// Construct a protocol object for a specific address family and protocol.
-  seq_packet_protocol(int address_family, int socket_protocol)
-    : family_(address_family),
-      protocol_(socket_protocol)
-  {
-  }
-
-  /// Construct a generic protocol object from a specific protocol.
-  /**
-   * @throws @c bad_cast Thrown if the source protocol is not based around
-   * sequenced packets.
-   */
-  template <typename Protocol>
-  seq_packet_protocol(const Protocol& source_protocol)
-    : family_(source_protocol.family()),
-      protocol_(source_protocol.protocol())
-  {
-    if (source_protocol.type() != type())
+    namespace generic
     {
-      std::bad_cast ex;
-      asio::detail::throw_exception(ex);
-    }
-  }
 
-  /// Obtain an identifier for the type of the protocol.
-  int type() const
-  {
-    return ASIO_OS_DEF(SOCK_SEQPACKET);
-  }
+        /// Encapsulates the flags needed for a generic sequenced packet socket.
+        /**
+         * The asio::generic::seq_packet_protocol class contains flags necessary
+         * for seq_packet-oriented sockets of any address family and protocol.
+         *
+         * @par Examples
+         * Constructing using a native address family and socket protocol:
+         * @code seq_packet_protocol p(AF_INET, IPPROTO_SCTP); @endcode
+         *
+         * @par Thread Safety
+         * @e Distinct @e objects: Safe.@n
+         * @e Shared @e objects: Safe.
+         *
+         * @par Concepts:
+         * Protocol.
+         */
+        class seq_packet_protocol
+        {
+           public:
+            /// Construct a protocol object for a specific address family and protocol.
+            seq_packet_protocol( int address_family, int socket_protocol )
+                : family_( address_family ), protocol_( socket_protocol )
+            {
+            }
 
-  /// Obtain an identifier for the protocol.
-  int protocol() const
-  {
-    return protocol_;
-  }
+            /// Construct a generic protocol object from a specific protocol.
+            /**
+             * @throws @c bad_cast Thrown if the source protocol is not based around
+             * sequenced packets.
+             */
+            template <typename Protocol>
+            seq_packet_protocol( const Protocol& source_protocol )
+                : family_( source_protocol.family( ) ), protocol_( source_protocol.protocol( ) )
+            {
+                if ( source_protocol.type( ) != type( ) )
+                {
+                    std::bad_cast ex;
+                    asio::detail::throw_exception( ex );
+                }
+            }
 
-  /// Obtain an identifier for the protocol family.
-  int family() const
-  {
-    return family_;
-  }
+            /// Obtain an identifier for the type of the protocol.
+            int type( ) const
+            {
+                return ASIO_OS_DEF( SOCK_SEQPACKET );
+            }
 
-  /// Compare two protocols for equality.
-  friend bool operator==(const seq_packet_protocol& p1,
-      const seq_packet_protocol& p2)
-  {
-    return p1.family_ == p2.family_ && p1.protocol_ == p2.protocol_;
-  }
+            /// Obtain an identifier for the protocol.
+            int protocol( ) const
+            {
+                return protocol_;
+            }
 
-  /// Compare two protocols for inequality.
-  friend bool operator!=(const seq_packet_protocol& p1,
-      const seq_packet_protocol& p2)
-  {
-    return !(p1 == p2);
-  }
+            /// Obtain an identifier for the protocol family.
+            int family( ) const
+            {
+                return family_;
+            }
 
-  /// The type of an endpoint.
-  typedef basic_endpoint<seq_packet_protocol> endpoint;
+            /// Compare two protocols for equality.
+            friend bool operator==( const seq_packet_protocol& p1, const seq_packet_protocol& p2 )
+            {
+                return p1.family_ == p2.family_ && p1.protocol_ == p2.protocol_;
+            }
 
-  /// The generic socket type.
-  typedef basic_seq_packet_socket<seq_packet_protocol> socket;
+            /// Compare two protocols for inequality.
+            friend bool operator!=( const seq_packet_protocol& p1, const seq_packet_protocol& p2 )
+            {
+                return !( p1 == p2 );
+            }
 
-private:
-  int family_;
-  int protocol_;
-};
+            /// The type of an endpoint.
+            typedef basic_endpoint<seq_packet_protocol> endpoint;
 
-} // namespace generic
-} // namespace asio
+            /// The generic socket type.
+            typedef basic_seq_packet_socket<seq_packet_protocol> socket;
+
+           private:
+            int family_;
+            int protocol_;
+        };
+
+    }  // namespace generic
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // ASIO_GENERIC_SEQ_PACKET_PROTOCOL_HPP
+#endif  // ASIO_GENERIC_SEQ_PACKET_PROTOCOL_HPP

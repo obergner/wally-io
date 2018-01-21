@@ -11,178 +11,176 @@
 #ifndef ASIO_ERROR_CODE_HPP
 #define ASIO_ERROR_CODE_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if defined(ASIO_HAS_STD_SYSTEM_ERROR)
-# include <system_error>
-#else // defined(ASIO_HAS_STD_SYSTEM_ERROR)
-# include <string>
-# include "asio/detail/noncopyable.hpp"
-# if !defined(ASIO_NO_IOSTREAM)
-#  include <iosfwd>
-# endif // !defined(ASIO_NO_IOSTREAM)
-#endif // defined(ASIO_HAS_STD_SYSTEM_ERROR)
+#if defined( ASIO_HAS_STD_SYSTEM_ERROR )
+#include <system_error>
+#else  // defined(ASIO_HAS_STD_SYSTEM_ERROR)
+#include "asio/detail/noncopyable.hpp"
+#include <string>
+#if !defined( ASIO_NO_IOSTREAM )
+#include <iosfwd>
+#endif  // !defined(ASIO_NO_IOSTREAM)
+#endif  // defined(ASIO_HAS_STD_SYSTEM_ERROR)
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-
-#if defined(ASIO_HAS_STD_SYSTEM_ERROR)
-
-typedef std::error_category error_category;
-
-#else // defined(ASIO_HAS_STD_SYSTEM_ERROR)
-
-/// Base class for all error categories.
-class error_category : private noncopyable
+namespace asio
 {
-public:
-  /// Destructor.
-  virtual ~error_category()
-  {
-  }
 
-  /// Returns a string naming the error gategory.
-  virtual const char* name() const = 0;
+#if defined( ASIO_HAS_STD_SYSTEM_ERROR )
 
-  /// Returns a string describing the error denoted by @c value.
-  virtual std::string message(int value) const = 0;
+    typedef std::error_category error_category;
 
-  /// Equality operator to compare two error categories.
-  bool operator==(const error_category& rhs) const
-  {
-    return this == &rhs;
-  }
+#else  // defined(ASIO_HAS_STD_SYSTEM_ERROR)
 
-  /// Inequality operator to compare two error categories.
-  bool operator!=(const error_category& rhs) const
-  {
-    return !(*this == rhs);
-  }
-};
+    /// Base class for all error categories.
+    class error_category : private noncopyable
+    {
+       public:
+        /// Destructor.
+        virtual ~error_category( )
+        {
+        }
 
-#endif // defined(ASIO_HAS_STD_SYSTEM_ERROR)
+        /// Returns a string naming the error gategory.
+        virtual const char* name( ) const = 0;
 
-/// Returns the error category used for the system errors produced by asio.
-extern ASIO_DECL const error_category& system_category();
+        /// Returns a string describing the error denoted by @c value.
+        virtual std::string message( int value ) const = 0;
 
-#if defined(ASIO_HAS_STD_SYSTEM_ERROR)
+        /// Equality operator to compare two error categories.
+        bool operator==( const error_category& rhs ) const
+        {
+            return this == &rhs;
+        }
 
-typedef std::error_code error_code;
+        /// Inequality operator to compare two error categories.
+        bool operator!=( const error_category& rhs ) const
+        {
+            return !( *this == rhs );
+        }
+    };
 
-#else // defined(ASIO_HAS_STD_SYSTEM_ERROR)
+#endif  // defined(ASIO_HAS_STD_SYSTEM_ERROR)
 
-/// Class to represent an error code value.
-class error_code
-{
-public:
-  /// Default constructor.
-  error_code()
-    : value_(0),
-      category_(&system_category())
-  {
-  }
+    /// Returns the error category used for the system errors produced by asio.
+    extern ASIO_DECL const error_category& system_category( );
 
-  /// Construct with specific error code and category.
-  error_code(int v, const error_category& c)
-    : value_(v),
-      category_(&c)
-  {
-  }
+#if defined( ASIO_HAS_STD_SYSTEM_ERROR )
 
-  /// Construct from an error code enum.
-  template <typename ErrorEnum>
-  error_code(ErrorEnum e)
-  {
-    *this = make_error_code(e);
-  }
+    typedef std::error_code error_code;
 
-  /// Get the error value.
-  int value() const
-  {
-    return value_;
-  }
+#else  // defined(ASIO_HAS_STD_SYSTEM_ERROR)
 
-  /// Get the error category.
-  const error_category& category() const
-  {
-    return *category_;
-  }
+    /// Class to represent an error code value.
+    class error_code
+    {
+       public:
+        /// Default constructor.
+        error_code( ) : value_( 0 ), category_( &system_category( ) )
+        {
+        }
 
-  /// Get the message associated with the error.
-  std::string message() const
-  {
-    return category_->message(value_);
-  }
+        /// Construct with specific error code and category.
+        error_code( int v, const error_category& c ) : value_( v ), category_( &c )
+        {
+        }
 
-  struct unspecified_bool_type_t
-  {
-  };
+        /// Construct from an error code enum.
+        template <typename ErrorEnum>
+        error_code( ErrorEnum e )
+        {
+            *this = make_error_code( e );
+        }
 
-  typedef void (*unspecified_bool_type)(unspecified_bool_type_t);
+        /// Get the error value.
+        int value( ) const
+        {
+            return value_;
+        }
 
-  static void unspecified_bool_true(unspecified_bool_type_t) {}
+        /// Get the error category.
+        const error_category& category( ) const
+        {
+            return *category_;
+        }
 
-  /// Operator returns non-null if there is a non-success error code.
-  operator unspecified_bool_type() const
-  {
-    if (value_ == 0)
-      return 0;
-    else
-      return &error_code::unspecified_bool_true;
-  }
+        /// Get the message associated with the error.
+        std::string message( ) const
+        {
+            return category_->message( value_ );
+        }
 
-  /// Operator to test if the error represents success.
-  bool operator!() const
-  {
-    return value_ == 0;
-  }
+        struct unspecified_bool_type_t
+        {
+        };
 
-  /// Equality operator to compare two error objects.
-  friend bool operator==(const error_code& e1, const error_code& e2)
-  {
-    return e1.value_ == e2.value_ && e1.category_ == e2.category_;
-  }
+        typedef void ( *unspecified_bool_type )( unspecified_bool_type_t );
 
-  /// Inequality operator to compare two error objects.
-  friend bool operator!=(const error_code& e1, const error_code& e2)
-  {
-    return e1.value_ != e2.value_ || e1.category_ != e2.category_;
-  }
+        static void unspecified_bool_true( unspecified_bool_type_t )
+        {
+        }
 
-private:
-  // The value associated with the error code.
-  int value_;
+        /// Operator returns non-null if there is a non-success error code.
+        operator unspecified_bool_type( ) const
+        {
+            if ( value_ == 0 )
+                return 0;
+            else
+                return &error_code::unspecified_bool_true;
+        }
 
-  // The category associated with the error code.
-  const error_category* category_;
-};
+        /// Operator to test if the error represents success.
+        bool operator!( ) const
+        {
+            return value_ == 0;
+        }
 
-# if !defined(ASIO_NO_IOSTREAM)
+        /// Equality operator to compare two error objects.
+        friend bool operator==( const error_code& e1, const error_code& e2 )
+        {
+            return e1.value_ == e2.value_ && e1.category_ == e2.category_;
+        }
 
-/// Output an error code.
-template <typename Elem, typename Traits>
-std::basic_ostream<Elem, Traits>& operator<<(
-    std::basic_ostream<Elem, Traits>& os, const error_code& ec)
-{
-  os << ec.category().name() << ':' << ec.value();
-  return os;
-}
+        /// Inequality operator to compare two error objects.
+        friend bool operator!=( const error_code& e1, const error_code& e2 )
+        {
+            return e1.value_ != e2.value_ || e1.category_ != e2.category_;
+        }
 
-# endif // !defined(ASIO_NO_IOSTREAM)
+       private:
+        // The value associated with the error code.
+        int value_;
 
-#endif // defined(ASIO_HAS_STD_SYSTEM_ERROR)
+        // The category associated with the error code.
+        const error_category* category_;
+    };
 
-} // namespace asio
+#if !defined( ASIO_NO_IOSTREAM )
+
+    /// Output an error code.
+    template <typename Elem, typename Traits>
+    std::basic_ostream<Elem, Traits>& operator<<( std::basic_ostream<Elem, Traits>& os, const error_code& ec )
+    {
+        os << ec.category( ).name( ) << ':' << ec.value( );
+        return os;
+    }
+
+#endif  // !defined(ASIO_NO_IOSTREAM)
+
+#endif  // defined(ASIO_HAS_STD_SYSTEM_ERROR)
+
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#if defined(ASIO_HEADER_ONLY)
-# include "asio/impl/error_code.ipp"
-#endif // defined(ASIO_HEADER_ONLY)
+#if defined( ASIO_HEADER_ONLY )
+#include "asio/impl/error_code.ipp"
+#endif  // defined(ASIO_HEADER_ONLY)
 
-#endif // ASIO_ERROR_CODE_HPP
+#endif  // ASIO_ERROR_CODE_HPP

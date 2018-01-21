@@ -11,46 +11,48 @@
 #ifndef ASIO_DETAIL_THREAD_HPP
 #define ASIO_DETAIL_THREAD_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if !defined(ASIO_HAS_THREADS)
-# include "asio/detail/null_thread.hpp"
-#elif defined(ASIO_WINDOWS)
-# if defined(ASIO_WINDOWS_APP) || defined(UNDER_CE)
-#  include "asio/detail/winapi_thread.hpp"
-# else
-#  include "asio/detail/win_thread.hpp"
-# endif
-#elif defined(ASIO_HAS_PTHREADS)
-# include "asio/detail/posix_thread.hpp"
-#elif defined(ASIO_HAS_STD_THREAD)
-# include "asio/detail/std_thread.hpp"
+#if !defined( ASIO_HAS_THREADS )
+#include "asio/detail/null_thread.hpp"
+#elif defined( ASIO_WINDOWS )
+#if defined( ASIO_WINDOWS_APP ) || defined( UNDER_CE )
+#include "asio/detail/winapi_thread.hpp"
 #else
-# error Only Windows, POSIX and std::thread are supported!
+#include "asio/detail/win_thread.hpp"
+#endif
+#elif defined( ASIO_HAS_PTHREADS )
+#include "asio/detail/posix_thread.hpp"
+#elif defined( ASIO_HAS_STD_THREAD )
+#include "asio/detail/std_thread.hpp"
+#else
+#error Only Windows, POSIX and std::thread are supported!
 #endif
 
-namespace asio {
-namespace detail {
+namespace asio
+{
+    namespace detail
+    {
 
-#if !defined(ASIO_HAS_THREADS)
-typedef null_thread thread;
-#elif defined(ASIO_WINDOWS)
-# if defined(ASIO_WINDOWS_APP) || defined(UNDER_CE)
-typedef winapi_thread thread;
-# else
-typedef win_thread thread;
-# endif
-#elif defined(ASIO_HAS_PTHREADS)
-typedef posix_thread thread;
-#elif defined(ASIO_HAS_STD_THREAD)
-typedef std_thread thread;
+#if !defined( ASIO_HAS_THREADS )
+        typedef null_thread thread;
+#elif defined( ASIO_WINDOWS )
+#if defined( ASIO_WINDOWS_APP ) || defined( UNDER_CE )
+        typedef winapi_thread thread;
+#else
+        typedef win_thread thread;
+#endif
+#elif defined( ASIO_HAS_PTHREADS )
+        typedef posix_thread thread;
+#elif defined( ASIO_HAS_STD_THREAD )
+        typedef std_thread thread;
 #endif
 
-} // namespace detail
-} // namespace asio
+    }  // namespace detail
+}  // namespace asio
 
-#endif // ASIO_DETAIL_THREAD_HPP
+#endif  // ASIO_DETAIL_THREAD_HPP

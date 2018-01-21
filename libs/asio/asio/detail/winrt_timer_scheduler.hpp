@@ -11,15 +11,14 @@
 #ifndef ASIO_DETAIL_WINRT_TIMER_SCHEDULER_HPP
 #define ASIO_DETAIL_WINRT_TIMER_SCHEDULER_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if defined(ASIO_WINDOWS_RUNTIME)
+#if defined( ASIO_WINDOWS_RUNTIME )
 
-#include <cstddef>
 #include "asio/detail/event.hpp"
 #include "asio/detail/limits.hpp"
 #include "asio/detail/mutex.hpp"
@@ -29,103 +28,105 @@
 #include "asio/detail/timer_queue_set.hpp"
 #include "asio/detail/wait_op.hpp"
 #include "asio/io_service.hpp"
+#include <cstddef>
 
-#if defined(ASIO_HAS_IOCP)
-# include "asio/detail/thread.hpp"
-#endif // defined(ASIO_HAS_IOCP)
+#if defined( ASIO_HAS_IOCP )
+#include "asio/detail/thread.hpp"
+#endif  // defined(ASIO_HAS_IOCP)
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-class winrt_timer_scheduler
-  : public asio::detail::service_base<winrt_timer_scheduler>
+namespace asio
 {
-public:
-  // Constructor.
-  ASIO_DECL winrt_timer_scheduler(asio::io_service& io_service);
+    namespace detail
+    {
 
-  // Destructor.
-  ASIO_DECL ~winrt_timer_scheduler();
+        class winrt_timer_scheduler : public asio::detail::service_base<winrt_timer_scheduler>
+        {
+           public:
+            // Constructor.
+            ASIO_DECL winrt_timer_scheduler( asio::io_service& io_service );
 
-  // Destroy all user-defined handler objects owned by the service.
-  ASIO_DECL void shutdown_service();
+            // Destructor.
+            ASIO_DECL ~winrt_timer_scheduler( );
 
-  // Recreate internal descriptors following a fork.
-  ASIO_DECL void fork_service(
-      asio::io_service::fork_event fork_ev);
+            // Destroy all user-defined handler objects owned by the service.
+            ASIO_DECL void shutdown_service( );
 
-  // Initialise the task. No effect as this class uses its own thread.
-  ASIO_DECL void init_task();
+            // Recreate internal descriptors following a fork.
+            ASIO_DECL void fork_service( asio::io_service::fork_event fork_ev );
 
-  // Add a new timer queue to the reactor.
-  template <typename Time_Traits>
-  void add_timer_queue(timer_queue<Time_Traits>& queue);
+            // Initialise the task. No effect as this class uses its own thread.
+            ASIO_DECL void init_task( );
 
-  // Remove a timer queue from the reactor.
-  template <typename Time_Traits>
-  void remove_timer_queue(timer_queue<Time_Traits>& queue);
+            // Add a new timer queue to the reactor.
+            template <typename Time_Traits>
+            void add_timer_queue( timer_queue<Time_Traits>& queue );
 
-  // Schedule a new operation in the given timer queue to expire at the
-  // specified absolute time.
-  template <typename Time_Traits>
-  void schedule_timer(timer_queue<Time_Traits>& queue,
-      const typename Time_Traits::time_type& time,
-      typename timer_queue<Time_Traits>::per_timer_data& timer, wait_op* op);
+            // Remove a timer queue from the reactor.
+            template <typename Time_Traits>
+            void remove_timer_queue( timer_queue<Time_Traits>& queue );
 
-  // Cancel the timer operations associated with the given token. Returns the
-  // number of operations that have been posted or dispatched.
-  template <typename Time_Traits>
-  std::size_t cancel_timer(timer_queue<Time_Traits>& queue,
-      typename timer_queue<Time_Traits>::per_timer_data& timer,
-      std::size_t max_cancelled = (std::numeric_limits<std::size_t>::max)());
+            // Schedule a new operation in the given timer queue to expire at the
+            // specified absolute time.
+            template <typename Time_Traits>
+            void schedule_timer( timer_queue<Time_Traits>& queue,
+                                 const typename Time_Traits::time_type& time,
+                                 typename timer_queue<Time_Traits>::per_timer_data& timer,
+                                 wait_op* op );
 
-private:
-  // Run the select loop in the thread.
-  ASIO_DECL void run_thread();
+            // Cancel the timer operations associated with the given token. Returns the
+            // number of operations that have been posted or dispatched.
+            template <typename Time_Traits>
+            std::size_t cancel_timer( timer_queue<Time_Traits>& queue,
+                                      typename timer_queue<Time_Traits>::per_timer_data& timer,
+                                      std::size_t max_cancelled = ( std::numeric_limits<std::size_t>::max )( ) );
 
-  // Entry point for the select loop thread.
-  ASIO_DECL static void call_run_thread(winrt_timer_scheduler* reactor);
+           private:
+            // Run the select loop in the thread.
+            ASIO_DECL void run_thread( );
 
-  // Helper function to add a new timer queue.
-  ASIO_DECL void do_add_timer_queue(timer_queue_base& queue);
+            // Entry point for the select loop thread.
+            ASIO_DECL static void call_run_thread( winrt_timer_scheduler* reactor );
 
-  // Helper function to remove a timer queue.
-  ASIO_DECL void do_remove_timer_queue(timer_queue_base& queue);
+            // Helper function to add a new timer queue.
+            ASIO_DECL void do_add_timer_queue( timer_queue_base& queue );
 
-  // The io_service implementation used to post completions.
-  io_service_impl& io_service_;
+            // Helper function to remove a timer queue.
+            ASIO_DECL void do_remove_timer_queue( timer_queue_base& queue );
 
-  // Mutex used to protect internal variables.
-  asio::detail::mutex mutex_;
+            // The io_service implementation used to post completions.
+            io_service_impl& io_service_;
 
-  // Event used to wake up background thread.
-  asio::detail::event event_;
+            // Mutex used to protect internal variables.
+            asio::detail::mutex mutex_;
 
-  // The timer queues.
-  timer_queue_set timer_queues_;
+            // Event used to wake up background thread.
+            asio::detail::event event_;
 
-  // The background thread that is waiting for timers to expire.
-  asio::detail::thread* thread_;
+            // The timer queues.
+            timer_queue_set timer_queues_;
 
-  // Does the background thread need to stop.
-  bool stop_thread_;
+            // The background thread that is waiting for timers to expire.
+            asio::detail::thread* thread_;
 
-  // Whether the service has been shut down.
-  bool shutdown_;
-};
+            // Does the background thread need to stop.
+            bool stop_thread_;
 
-} // namespace detail
-} // namespace asio
+            // Whether the service has been shut down.
+            bool shutdown_;
+        };
+
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
 #include "asio/detail/impl/winrt_timer_scheduler.hpp"
-#if defined(ASIO_HEADER_ONLY)
-# include "asio/detail/impl/winrt_timer_scheduler.ipp"
-#endif // defined(ASIO_HEADER_ONLY)
+#if defined( ASIO_HEADER_ONLY )
+#include "asio/detail/impl/winrt_timer_scheduler.ipp"
+#endif  // defined(ASIO_HEADER_ONLY)
 
-#endif // defined(ASIO_WINDOWS_RUNTIME)
+#endif  // defined(ASIO_WINDOWS_RUNTIME)
 
-#endif // ASIO_DETAIL_WINRT_TIMER_SCHEDULER_HPP
+#endif  // ASIO_DETAIL_WINRT_TIMER_SCHEDULER_HPP

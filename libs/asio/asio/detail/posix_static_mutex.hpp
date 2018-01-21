@@ -11,54 +11,59 @@
 #ifndef ASIO_DETAIL_POSIX_STATIC_MUTEX_HPP
 #define ASIO_DETAIL_POSIX_STATIC_MUTEX_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if defined(ASIO_HAS_PTHREADS)
+#if defined( ASIO_HAS_PTHREADS )
 
-#include <pthread.h>
 #include "asio/detail/scoped_lock.hpp"
+#include <pthread.h>
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-struct posix_static_mutex
+namespace asio
 {
-  typedef asio::detail::scoped_lock<posix_static_mutex> scoped_lock;
+    namespace detail
+    {
 
-  // Initialise the mutex.
-  void init()
-  {
-    // Nothing to do.
-  }
+        struct posix_static_mutex
+        {
+            typedef asio::detail::scoped_lock<posix_static_mutex> scoped_lock;
 
-  // Lock the mutex.
-  void lock()
-  {
-    (void)::pthread_mutex_lock(&mutex_); // Ignore EINVAL.
-  }
+            // Initialise the mutex.
+            void init( )
+            {
+                // Nothing to do.
+            }
 
-  // Unlock the mutex.
-  void unlock()
-  {
-    (void)::pthread_mutex_unlock(&mutex_); // Ignore EINVAL.
-  }
+            // Lock the mutex.
+            void lock( )
+            {
+                (void)::pthread_mutex_lock( &mutex_ );  // Ignore EINVAL.
+            }
 
-  ::pthread_mutex_t mutex_;
-};
+            // Unlock the mutex.
+            void unlock( )
+            {
+                (void)::pthread_mutex_unlock( &mutex_ );  // Ignore EINVAL.
+            }
 
-#define ASIO_POSIX_STATIC_MUTEX_INIT { PTHREAD_MUTEX_INITIALIZER }
+            ::pthread_mutex_t mutex_;
+        };
 
-} // namespace detail
-} // namespace asio
+#define ASIO_POSIX_STATIC_MUTEX_INIT \
+    {                                \
+        PTHREAD_MUTEX_INITIALIZER    \
+    }
+
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // defined(ASIO_HAS_PTHREADS)
+#endif  // defined(ASIO_HAS_PTHREADS)
 
-#endif // ASIO_DETAIL_POSIX_STATIC_MUTEX_HPP
+#endif  // ASIO_DETAIL_POSIX_STATIC_MUTEX_HPP

@@ -4,8 +4,8 @@
 #ifndef __QUEUE_LISTENER_H__
 #define __QUEUE_LISTENER_H__
 #include "asio.hpp"
-#include <system_error>
 #include <cstddef>
+#include <system_error>
 #include <thread>
 namespace boost
 {
@@ -23,7 +23,7 @@ namespace boost
         {
            public:
             // ctor
-            explicit basic_queue_listener( ::asio::io_service& io_service, Queue* q )
+            explicit basic_queue_listener(::asio::io_service& io_service, Queue* q )
                 : ::asio::basic_io_object<Service>( io_service ), q_( q )
             {
             }
@@ -74,7 +74,7 @@ namespace boost
             static ::asio::io_service::id id;
 
             // ctor
-            explicit basic_queue_listener_service( ::asio::io_service& io_service )
+            explicit basic_queue_listener_service(::asio::io_service& io_service )
                 : ::asio::io_service::service( io_service )
             {
             }
@@ -147,12 +147,9 @@ namespace boost
         {
            public:
             // ctor (set up work queue for io_service so we don't bail out when executing run())
-            queue_listener_impl( ::asio::io_service& post_io_service )
+            queue_listener_impl(::asio::io_service& post_io_service )
                 : impl_work_( new ::asio::io_service::work( impl_io_service_ ) ),
-                  impl_thread_( [&]( )
-                                {
-                                    impl_io_service_.run( );
-                                } ),
+                  impl_thread_( [&]( ) { impl_io_service_.run( ); } ),
                   post_io_service_( post_io_service )
             {
             }
@@ -250,7 +247,7 @@ namespace boost
                             ret = q_->timed_deq( ms_, ec );
                         else
                             ret = q_->deq( ec );
-                        this->io_service_.post( ::asio::detail::bind_handler( handler_, ec, ret.second ) );
+                        this->io_service_.post(::asio::detail::bind_handler( handler_, ec, ret.second ) );
                     }
                     else
                     {
@@ -316,11 +313,11 @@ namespace boost
                             q_->timed_wait_deq( ms_, ec );
                         else
                             q_->wait_deq( ec );
-                        this->io_service_.post( ::asio::detail::bind_handler( handler_, ec ) );
+                        this->io_service_.post(::asio::detail::bind_handler( handler_, ec ) );
                     }
                     else
                     {
-                        this->io_service_.post( ::asio::detail::bind_handler( handler_, ec ) );
+                        this->io_service_.post(::asio::detail::bind_handler( handler_, ec ) );
                     }
                 }
 

@@ -11,51 +11,50 @@
 #ifndef ASIO_DETAIL_REACTOR_OP_HPP
 #define ASIO_DETAIL_REACTOR_OP_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 #include "asio/detail/operation.hpp"
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-class reactor_op
-  : public operation
+namespace asio
 {
-public:
-  // The error code to be passed to the completion handler.
-  asio::error_code ec_;
+    namespace detail
+    {
 
-  // The number of bytes transferred, to be passed to the completion handler.
-  std::size_t bytes_transferred_;
+        class reactor_op : public operation
+        {
+           public:
+            // The error code to be passed to the completion handler.
+            asio::error_code ec_;
 
-  // Perform the operation. Returns true if it is finished.
-  bool perform()
-  {
-    return perform_func_(this);
-  }
+            // The number of bytes transferred, to be passed to the completion handler.
+            std::size_t bytes_transferred_;
 
-protected:
-  typedef bool (*perform_func_type)(reactor_op*);
+            // Perform the operation. Returns true if it is finished.
+            bool perform( )
+            {
+                return perform_func_( this );
+            }
 
-  reactor_op(perform_func_type perform_func, func_type complete_func)
-    : operation(complete_func),
-      bytes_transferred_(0),
-      perform_func_(perform_func)
-  {
-  }
+           protected:
+            typedef bool ( *perform_func_type )( reactor_op* );
 
-private:
-  perform_func_type perform_func_;
-};
+            reactor_op( perform_func_type perform_func, func_type complete_func )
+                : operation( complete_func ), bytes_transferred_( 0 ), perform_func_( perform_func )
+            {
+            }
 
-} // namespace detail
-} // namespace asio
+           private:
+            perform_func_type perform_func_;
+        };
+
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // ASIO_DETAIL_REACTOR_OP_HPP
+#endif  // ASIO_DETAIL_REACTOR_OP_HPP

@@ -3,15 +3,15 @@
 
 #ifndef __SIMPLE_QUEUE_H__
 #define __SIMPLE_QUEUE_H__
-#include "detail/queue_empty_base.hpp"
-#include <utility>
-#include <queue>
-#include <mutex>
-#include <condition_variable>
-#include <chrono>
-#include <memory>
-#include <system_error>
 #include "asio/error.hpp"
+#include "detail/queue_empty_base.hpp"
+#include <chrono>
+#include <condition_variable>
+#include <memory>
+#include <mutex>
+#include <queue>
+#include <system_error>
+#include <utility>
 namespace boost
 {
     namespace asio
@@ -64,11 +64,7 @@ namespace boost
             bool enq( T t, std::error_code& ec )
             {
                 std::unique_lock<std::mutex> lock( *mtx_ );
-                cond_->wait( lock,
-                             [&]( )
-                             {
-                    return !enq_enabled_ || q_.size( ) < maxsize_;
-                } );
+                cond_->wait( lock, [&]( ) { return !enq_enabled_ || q_.size( ) < maxsize_; } );
                 if ( !enq_enabled_ )
                 {
                     ec = ::asio::error::operation_aborted;
@@ -83,12 +79,8 @@ namespace boost
             bool timed_enq( T t, std::size_t ms, std::error_code& ec )
             {
                 std::unique_lock<std::mutex> lock( *mtx_ );
-                bool tmo = !cond_->wait_for( lock,
-                                             std::chrono::milliseconds( ms ),
-                                             [&]( )
-                                             {
-                    return !enq_enabled_ || q_.size( ) < maxsize_;
-                } );
+                bool tmo = !cond_->wait_for( lock, std::chrono::milliseconds( ms ),
+                                             [&]( ) { return !enq_enabled_ || q_.size( ) < maxsize_; } );
                 if ( tmo )
                 {
                     ec = ::asio::error::timed_out;
@@ -108,11 +100,7 @@ namespace boost
             bool wait_enq( std::error_code& ec )
             {
                 std::unique_lock<std::mutex> lock( *mtx_ );
-                cond_->wait( lock,
-                             [&]( )
-                             {
-                    return !enq_enabled_ || q_.size( ) < maxsize_;
-                } );
+                cond_->wait( lock, [&]( ) { return !enq_enabled_ || q_.size( ) < maxsize_; } );
                 if ( !enq_enabled_ )
                 {
                     ec = ::asio::error::operation_aborted;
@@ -126,12 +114,8 @@ namespace boost
             bool timed_wait_enq( std::size_t ms, std::error_code& ec )
             {
                 std::unique_lock<std::mutex> lock( *mtx_ );
-                bool tmo = !cond_->wait_for( lock,
-                                             std::chrono::milliseconds( ms ),
-                                             [&]( )
-                                             {
-                    return !enq_enabled_ || q_.size( ) < maxsize_;
-                } );
+                bool tmo = !cond_->wait_for( lock, std::chrono::milliseconds( ms ),
+                                             [&]( ) { return !enq_enabled_ || q_.size( ) < maxsize_; } );
                 if ( tmo )
                 {
                     ec = ::asio::error::timed_out;
@@ -150,11 +134,7 @@ namespace boost
             std::pair<bool, T> deq( std::error_code& ec )
             {
                 std::unique_lock<std::mutex> lock( *mtx_ );
-                cond_->wait( lock,
-                             [&]( )
-                             {
-                    return !deq_enabled_ || !q_.empty( );
-                } );
+                cond_->wait( lock, [&]( ) { return !deq_enabled_ || !q_.empty( ); } );
 
                 // if deq is disabled or timeout
                 if ( !deq_enabled_ )
@@ -173,12 +153,8 @@ namespace boost
             std::pair<bool, T> timed_deq( std::size_t ms, std::error_code& ec )
             {
                 std::unique_lock<std::mutex> lock( *mtx_ );
-                bool tmo = !cond_->wait_for( lock,
-                                             std::chrono::milliseconds( ms ),
-                                             [&]( )
-                                             {
-                    return !deq_enabled_ || !q_.empty( );
-                } );
+                bool tmo = !cond_->wait_for( lock, std::chrono::milliseconds( ms ),
+                                             [&]( ) { return !deq_enabled_ || !q_.empty( ); } );
 
                 // if deq is disabled or queue is empty return or timeout
                 if ( tmo )
@@ -202,11 +178,7 @@ namespace boost
             bool wait_deq( std::error_code& ec )
             {
                 std::unique_lock<std::mutex> lock( *mtx_ );
-                cond_->wait( lock,
-                             [&]( )
-                             {
-                    return !deq_enabled_ || q_.size( ) > 0;
-                } );
+                cond_->wait( lock, [&]( ) { return !deq_enabled_ || q_.size( ) > 0; } );
                 if ( !deq_enabled_ )
                 {
                     ec = ::asio::error::operation_aborted;
@@ -220,12 +192,8 @@ namespace boost
             bool timed_wait_deq( std::size_t ms, std::error_code& ec )
             {
                 std::unique_lock<std::mutex> lock( *mtx_ );
-                bool tmo = !cond_->wait_for( lock,
-                                             std::chrono::milliseconds( ms ),
-                                             [&]( )
-                                             {
-                    return !deq_enabled_ || q_.size( ) > 0;
-                } );
+                bool tmo = !cond_->wait_for( lock, std::chrono::milliseconds( ms ),
+                                             [&]( ) { return !deq_enabled_ || q_.size( ) > 0; } );
                 if ( tmo )
                 {
                     ec = ::asio::error::timed_out;

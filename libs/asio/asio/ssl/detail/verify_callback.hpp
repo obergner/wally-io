@@ -11,58 +11,60 @@
 #ifndef ASIO_SSL_DETAIL_VERIFY_CALLBACK_HPP
 #define ASIO_SSL_DETAIL_VERIFY_CALLBACK_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if !defined(ASIO_ENABLE_OLD_SSL)
-# include "asio/ssl/verify_context.hpp"
-#endif // !defined(ASIO_ENABLE_OLD_SSL)
+#if !defined( ASIO_ENABLE_OLD_SSL )
+#include "asio/ssl/verify_context.hpp"
+#endif  // !defined(ASIO_ENABLE_OLD_SSL)
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace ssl {
-namespace detail {
-
-#if !defined(ASIO_ENABLE_OLD_SSL)
-
-class verify_callback_base
+namespace asio
 {
-public:
-  virtual ~verify_callback_base()
-  {
-  }
+    namespace ssl
+    {
+        namespace detail
+        {
 
-  virtual bool call(bool preverified, verify_context& ctx) = 0;
-};
+#if !defined( ASIO_ENABLE_OLD_SSL )
 
-template <typename VerifyCallback>
-class verify_callback : public verify_callback_base
-{
-public:
-  explicit verify_callback(VerifyCallback callback)
-    : callback_(callback)
-  {
-  }
+            class verify_callback_base
+            {
+               public:
+                virtual ~verify_callback_base( )
+                {
+                }
 
-  virtual bool call(bool preverified, verify_context& ctx)
-  {
-    return callback_(preverified, ctx);
-  }
+                virtual bool call( bool preverified, verify_context& ctx ) = 0;
+            };
 
-private:
-  VerifyCallback callback_;
-};
+            template <typename VerifyCallback>
+            class verify_callback : public verify_callback_base
+            {
+               public:
+                explicit verify_callback( VerifyCallback callback ) : callback_( callback )
+                {
+                }
 
-#endif // !defined(ASIO_ENABLE_OLD_SSL)
+                virtual bool call( bool preverified, verify_context& ctx )
+                {
+                    return callback_( preverified, ctx );
+                }
 
-} // namespace detail
-} // namespace ssl
-} // namespace asio
+               private:
+                VerifyCallback callback_;
+            };
+
+#endif  // !defined(ASIO_ENABLE_OLD_SSL)
+
+        }  // namespace detail
+    }      // namespace ssl
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // ASIO_SSL_DETAIL_VERIFY_CALLBACK_HPP
+#endif  // ASIO_SSL_DETAIL_VERIFY_CALLBACK_HPP

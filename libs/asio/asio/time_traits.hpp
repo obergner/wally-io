@@ -11,76 +11,75 @@
 #ifndef ASIO_TIME_TRAITS_HPP
 #define ASIO_TIME_TRAITS_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/socket_types.hpp" // Must come before posix_time.
+#include "asio/detail/socket_types.hpp"  // Must come before posix_time.
 
-#if defined(ASIO_HAS_BOOST_DATE_TIME) \
-  || defined(GENERATING_DOCUMENTATION)
+#if defined( ASIO_HAS_BOOST_DATE_TIME ) || defined( GENERATING_DOCUMENTATION )
 
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-
-/// Time traits suitable for use with the deadline timer.
-template <typename Time>
-struct time_traits;
-
-/// Time traits specialised for posix_time.
-template <>
-struct time_traits<boost::posix_time::ptime>
+namespace asio
 {
-  /// The time type.
-  typedef boost::posix_time::ptime time_type;
 
-  /// The duration type.
-  typedef boost::posix_time::time_duration duration_type;
+    /// Time traits suitable for use with the deadline timer.
+    template <typename Time>
+    struct time_traits;
 
-  /// Get the current time.
-  static time_type now()
-  {
-#if defined(BOOST_DATE_TIME_HAS_HIGH_PRECISION_CLOCK)
-    return boost::posix_time::microsec_clock::universal_time();
-#else // defined(BOOST_DATE_TIME_HAS_HIGH_PRECISION_CLOCK)
-    return boost::posix_time::second_clock::universal_time();
-#endif // defined(BOOST_DATE_TIME_HAS_HIGH_PRECISION_CLOCK)
-  }
+    /// Time traits specialised for posix_time.
+    template <>
+    struct time_traits<boost::posix_time::ptime>
+    {
+        /// The time type.
+        typedef boost::posix_time::ptime time_type;
 
-  /// Add a duration to a time.
-  static time_type add(const time_type& t, const duration_type& d)
-  {
-    return t + d;
-  }
+        /// The duration type.
+        typedef boost::posix_time::time_duration duration_type;
 
-  /// Subtract one time from another.
-  static duration_type subtract(const time_type& t1, const time_type& t2)
-  {
-    return t1 - t2;
-  }
+        /// Get the current time.
+        static time_type now( )
+        {
+#if defined( BOOST_DATE_TIME_HAS_HIGH_PRECISION_CLOCK )
+            return boost::posix_time::microsec_clock::universal_time( );
+#else   // defined(BOOST_DATE_TIME_HAS_HIGH_PRECISION_CLOCK)
+            return boost::posix_time::second_clock::universal_time( );
+#endif  // defined(BOOST_DATE_TIME_HAS_HIGH_PRECISION_CLOCK)
+        }
 
-  /// Test whether one time is less than another.
-  static bool less_than(const time_type& t1, const time_type& t2)
-  {
-    return t1 < t2;
-  }
+        /// Add a duration to a time.
+        static time_type add( const time_type& t, const duration_type& d )
+        {
+            return t + d;
+        }
 
-  /// Convert to POSIX duration type.
-  static boost::posix_time::time_duration to_posix_duration(
-      const duration_type& d)
-  {
-    return d;
-  }
-};
+        /// Subtract one time from another.
+        static duration_type subtract( const time_type& t1, const time_type& t2 )
+        {
+            return t1 - t2;
+        }
 
-} // namespace asio
+        /// Test whether one time is less than another.
+        static bool less_than( const time_type& t1, const time_type& t2 )
+        {
+            return t1 < t2;
+        }
+
+        /// Convert to POSIX duration type.
+        static boost::posix_time::time_duration to_posix_duration( const duration_type& d )
+        {
+            return d;
+        }
+    };
+
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // defined(ASIO_HAS_BOOST_DATE_TIME)
-       // || defined(GENERATING_DOCUMENTATION)
+#endif  // defined(ASIO_HAS_BOOST_DATE_TIME)
+        // || defined(GENERATING_DOCUMENTATION)
 
-#endif // ASIO_TIME_TRAITS_HPP
+#endif  // ASIO_TIME_TRAITS_HPP

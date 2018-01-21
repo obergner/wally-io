@@ -4,8 +4,8 @@
 #ifndef QUEUE_INTERFACE_DEQ_H__
 #define QUEUE_INTERFACE_DEQ_H__
 #include "queue_empty_base.hpp"
-#include <utility>
 #include <system_error>
+#include <utility>
 
 namespace boost
 {

@@ -11,63 +11,63 @@
 #ifndef ASIO_SSL_VERIFY_CONTEXT_HPP
 #define ASIO_SSL_VERIFY_CONTEXT_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if !defined(ASIO_ENABLE_OLD_SSL)
-# include "asio/detail/noncopyable.hpp"
-# include "asio/ssl/detail/openssl_types.hpp"
-#endif // !defined(ASIO_ENABLE_OLD_SSL)
+#if !defined( ASIO_ENABLE_OLD_SSL )
+#include "asio/detail/noncopyable.hpp"
+#include "asio/ssl/detail/openssl_types.hpp"
+#endif  // !defined(ASIO_ENABLE_OLD_SSL)
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace ssl {
-
-#if !defined(ASIO_ENABLE_OLD_SSL)
-
-/// A simple wrapper around the X509_STORE_CTX type, used during verification of
-/// a peer certificate.
-/**
- * @note The verify_context does not own the underlying X509_STORE_CTX object.
- */
-class verify_context
-  : private noncopyable
+namespace asio
 {
-public:
-  /// The native handle type of the verification context.
-  typedef X509_STORE_CTX* native_handle_type;
+    namespace ssl
+    {
 
-  /// Constructor.
-  explicit verify_context(native_handle_type handle)
-    : handle_(handle)
-  {
-  }
+#if !defined( ASIO_ENABLE_OLD_SSL )
 
-  /// Get the underlying implementation in the native type.
-  /**
-   * This function may be used to obtain the underlying implementation of the
-   * context. This is intended to allow access to context functionality that is
-   * not otherwise provided.
-   */
-  native_handle_type native_handle()
-  {
-    return handle_;
-  }
+        /// A simple wrapper around the X509_STORE_CTX type, used during verification of
+        /// a peer certificate.
+        /**
+         * @note The verify_context does not own the underlying X509_STORE_CTX object.
+         */
+        class verify_context : private noncopyable
+        {
+           public:
+            /// The native handle type of the verification context.
+            typedef X509_STORE_CTX* native_handle_type;
 
-private:
-  // The underlying native implementation.
-  native_handle_type handle_;
-};
+            /// Constructor.
+            explicit verify_context( native_handle_type handle ) : handle_( handle )
+            {
+            }
 
-#endif // defined(ASIO_ENABLE_OLD_SSL)
+            /// Get the underlying implementation in the native type.
+            /**
+             * This function may be used to obtain the underlying implementation of the
+             * context. This is intended to allow access to context functionality that is
+             * not otherwise provided.
+             */
+            native_handle_type native_handle( )
+            {
+                return handle_;
+            }
 
-} // namespace ssl
-} // namespace asio
+           private:
+            // The underlying native implementation.
+            native_handle_type handle_;
+        };
+
+#endif  // defined(ASIO_ENABLE_OLD_SSL)
+
+    }  // namespace ssl
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // ASIO_SSL_VERIFY_CONTEXT_HPP
+#endif  // ASIO_SSL_VERIFY_CONTEXT_HPP

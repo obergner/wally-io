@@ -11,166 +11,164 @@
 #ifndef ASIO_DETAIL_STD_EVENT_HPP
 #define ASIO_DETAIL_STD_EVENT_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if defined(ASIO_HAS_STD_MUTEX_AND_CONDVAR)
+#if defined( ASIO_HAS_STD_MUTEX_AND_CONDVAR )
 
-#include <chrono>
-#include <condition_variable>
 #include "asio/detail/assert.hpp"
 #include "asio/detail/noncopyable.hpp"
+#include <chrono>
+#include <condition_variable>
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-class std_event
-  : private noncopyable
+namespace asio
 {
-public:
-  // Constructor.
-  std_event()
-    : state_(0)
-  {
-  }
-
-  // Destructor.
-  ~std_event()
-  {
-  }
-
-  // Signal the event. (Retained for backward compatibility.)
-  template <typename Lock>
-  void signal(Lock& lock)
-  {
-    this->signal_all(lock);
-  }
-
-  // Signal all waiters.
-  template <typename Lock>
-  void signal_all(Lock& lock)
-  {
-    ASIO_ASSERT(lock.locked());
-    (void)lock;
-    state_ |= 1;
-    cond_.notify_all();
-  }
-
-  // Unlock the mutex and signal one waiter.
-  template <typename Lock>
-  void unlock_and_signal_one(Lock& lock)
-  {
-    ASIO_ASSERT(lock.locked());
-    state_ |= 1;
-    bool have_waiters = (state_ > 1);
-    lock.unlock();
-    if (have_waiters)
-      cond_.notify_one();
-  }
-
-  // If there's a waiter, unlock the mutex and signal it.
-  template <typename Lock>
-  bool maybe_unlock_and_signal_one(Lock& lock)
-  {
-    ASIO_ASSERT(lock.locked());
-    state_ |= 1;
-    if (state_ > 1)
+    namespace detail
     {
-      lock.unlock();
-      cond_.notify_one();
-      return true;
-    }
-    return false;
-  }
 
-  // Reset the event.
-  template <typename Lock>
-  void clear(Lock& lock)
-  {
-    ASIO_ASSERT(lock.locked());
-    (void)lock;
-    state_ &= ~std::size_t(1);
-  }
+        class std_event : private noncopyable
+        {
+           public:
+            // Constructor.
+            std_event( ) : state_( 0 )
+            {
+            }
 
-  // Wait for the event to become signalled.
-  template <typename Lock>
-  void wait(Lock& lock)
-  {
-    ASIO_ASSERT(lock.locked());
-    unique_lock_adapter u_lock(lock);
-    while ((state_ & 1) == 0)
-    {
-      waiter w(state_);
-      cond_.wait(u_lock.unique_lock_);
-    }
-  }
+            // Destructor.
+            ~std_event( )
+            {
+            }
 
-  // Timed wait for the event to become signalled.
-  template <typename Lock>
-  bool wait_for_usec(Lock& lock, long usec)
-  {
-    ASIO_ASSERT(lock.locked());
-    unique_lock_adapter u_lock(lock);
-    if ((state_ & 1) == 0)
-    {
-      waiter w(state_);
-      cond_.wait_for(u_lock.unique_lock_, std::chrono::microseconds(usec));
-    }
-    return (state_ & 1) != 0;
-  }
+            // Signal the event. (Retained for backward compatibility.)
+            template <typename Lock>
+            void signal( Lock& lock )
+            {
+                this->signal_all( lock );
+            }
 
-private:
-  // Helper class to temporarily adapt a scoped_lock into a unique_lock so that
-  // it can be passed to std::condition_variable::wait().
-  struct unique_lock_adapter
-  {
-    template <typename Lock>
-    explicit unique_lock_adapter(Lock& lock)
-      : unique_lock_(lock.mutex().mutex_, std::adopt_lock)
-    {
-    }
+            // Signal all waiters.
+            template <typename Lock>
+            void signal_all( Lock& lock )
+            {
+                ASIO_ASSERT( lock.locked( ) );
+                (void)lock;
+                state_ |= 1;
+                cond_.notify_all( );
+            }
 
-    ~unique_lock_adapter()
-    {
-      unique_lock_.release();
-    }
+            // Unlock the mutex and signal one waiter.
+            template <typename Lock>
+            void unlock_and_signal_one( Lock& lock )
+            {
+                ASIO_ASSERT( lock.locked( ) );
+                state_ |= 1;
+                bool have_waiters = ( state_ > 1 );
+                lock.unlock( );
+                if ( have_waiters )
+                    cond_.notify_one( );
+            }
 
-    std::unique_lock<std::mutex> unique_lock_;
-  };
+            // If there's a waiter, unlock the mutex and signal it.
+            template <typename Lock>
+            bool maybe_unlock_and_signal_one( Lock& lock )
+            {
+                ASIO_ASSERT( lock.locked( ) );
+                state_ |= 1;
+                if ( state_ > 1 )
+                {
+                    lock.unlock( );
+                    cond_.notify_one( );
+                    return true;
+                }
+                return false;
+            }
 
-  // Helper to increment and decrement the state to track outstanding waiters.
-  class waiter
-  {
-  public:
-    explicit waiter(std::size_t& state)
-      : state_(state)
-    {
-      state_ += 2;
-    }
+            // Reset the event.
+            template <typename Lock>
+            void clear( Lock& lock )
+            {
+                ASIO_ASSERT( lock.locked( ) );
+                (void)lock;
+                state_ &= ~std::size_t( 1 );
+            }
 
-    ~waiter()
-    {
-      state_ -= 2;
-    }
+            // Wait for the event to become signalled.
+            template <typename Lock>
+            void wait( Lock& lock )
+            {
+                ASIO_ASSERT( lock.locked( ) );
+                unique_lock_adapter u_lock( lock );
+                while ( ( state_ & 1 ) == 0 )
+                {
+                    waiter w( state_ );
+                    cond_.wait( u_lock.unique_lock_ );
+                }
+            }
 
-  private:
-    std::size_t& state_;
-  };
+            // Timed wait for the event to become signalled.
+            template <typename Lock>
+            bool wait_for_usec( Lock& lock, long usec )
+            {
+                ASIO_ASSERT( lock.locked( ) );
+                unique_lock_adapter u_lock( lock );
+                if ( ( state_ & 1 ) == 0 )
+                {
+                    waiter w( state_ );
+                    cond_.wait_for( u_lock.unique_lock_, std::chrono::microseconds( usec ) );
+                }
+                return ( state_ & 1 ) != 0;
+            }
 
-  std::condition_variable cond_;
-  std::size_t state_;
-};
+           private:
+            // Helper class to temporarily adapt a scoped_lock into a unique_lock so that
+            // it can be passed to std::condition_variable::wait().
+            struct unique_lock_adapter
+            {
+                template <typename Lock>
+                explicit unique_lock_adapter( Lock& lock ) : unique_lock_( lock.mutex( ).mutex_, std::adopt_lock )
+                {
+                }
 
-} // namespace detail
-} // namespace asio
+                ~unique_lock_adapter( )
+                {
+                    unique_lock_.release( );
+                }
+
+                std::unique_lock<std::mutex> unique_lock_;
+            };
+
+            // Helper to increment and decrement the state to track outstanding waiters.
+            class waiter
+            {
+               public:
+                explicit waiter( std::size_t& state ) : state_( state )
+                {
+                    state_ += 2;
+                }
+
+                ~waiter( )
+                {
+                    state_ -= 2;
+                }
+
+               private:
+                std::size_t& state_;
+            };
+
+            std::condition_variable cond_;
+            std::size_t state_;
+        };
+
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // defined(ASIO_HAS_STD_MUTEX_AND_CONDVAR)
+#endif  // defined(ASIO_HAS_STD_MUTEX_AND_CONDVAR)
 
-#endif // ASIO_DETAIL_STD_EVENT_HPP
+#endif  // ASIO_DETAIL_STD_EVENT_HPP

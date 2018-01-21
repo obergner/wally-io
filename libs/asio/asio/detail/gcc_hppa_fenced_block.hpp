@@ -11,56 +11,63 @@
 #ifndef ASIO_DETAIL_GCC_HPPA_FENCED_BLOCK_HPP
 #define ASIO_DETAIL_GCC_HPPA_FENCED_BLOCK_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if defined(__GNUC__) && (defined(__hppa) || defined(__hppa__))
+#if defined( __GNUC__ ) && ( defined( __hppa ) || defined( __hppa__ ) )
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-class gcc_hppa_fenced_block
-  : private noncopyable
+namespace asio
 {
-public:
-  enum half_t { half };
-  enum full_t { full };
+    namespace detail
+    {
 
-  // Constructor for a half fenced block.
-  explicit gcc_hppa_fenced_block(half_t)
-  {
-  }
+        class gcc_hppa_fenced_block : private noncopyable
+        {
+           public:
+            enum half_t
+            {
+                half
+            };
+            enum full_t
+            {
+                full
+            };
 
-  // Constructor for a full fenced block.
-  explicit gcc_hppa_fenced_block(full_t)
-  {
-    barrier();
-  }
+            // Constructor for a half fenced block.
+            explicit gcc_hppa_fenced_block( half_t )
+            {
+            }
 
-  // Destructor.
-  ~gcc_hppa_fenced_block()
-  {
-    barrier();
-  }
+            // Constructor for a full fenced block.
+            explicit gcc_hppa_fenced_block( full_t )
+            {
+                barrier( );
+            }
 
-private:
-  static void barrier()
-  {
-    // This is just a placeholder and almost certainly not sufficient.
-    __asm__ __volatile__ ("" : : : "memory");
-  }
-};
+            // Destructor.
+            ~gcc_hppa_fenced_block( )
+            {
+                barrier( );
+            }
 
-} // namespace detail
-} // namespace asio
+           private:
+            static void barrier( )
+            {
+                // This is just a placeholder and almost certainly not sufficient.
+                __asm__ __volatile__( "" : : : "memory" );
+            }
+        };
+
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // defined(__GNUC__) && (defined(__hppa) || defined(__hppa__))
+#endif  // defined(__GNUC__) && (defined(__hppa) || defined(__hppa__))
 
-#endif // ASIO_DETAIL_GCC_HPPA_FENCED_BLOCK_HPP
+#endif  // ASIO_DETAIL_GCC_HPPA_FENCED_BLOCK_HPP

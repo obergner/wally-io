@@ -11,112 +11,110 @@
 #ifndef ASIO_DETAIL_WINAPI_THREAD_HPP
 #define ASIO_DETAIL_WINAPI_THREAD_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if defined(ASIO_WINDOWS)
-#if defined(ASIO_WINDOWS_APP) || defined(UNDER_CE)
+#if defined( ASIO_WINDOWS )
+#if defined( ASIO_WINDOWS_APP ) || defined( UNDER_CE )
 
-#include <memory>
 #include "asio/detail/noncopyable.hpp"
 #include "asio/detail/socket_types.hpp"
 #include "asio/detail/throw_error.hpp"
 #include "asio/error.hpp"
+#include <memory>
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-DWORD WINAPI winapi_thread_function(LPVOID arg);
-
-class winapi_thread
-  : private noncopyable
+namespace asio
 {
-public:
-  // Constructor.
-  template <typename Function>
-  winapi_thread(Function f, unsigned int = 0)
-  {
-    std::auto_ptr<func_base> arg(new func<Function>(f));
-    DWORD thread_id = 0;
-    thread_ = ::CreateThread(0, 0, winapi_thread_function,
-        arg.get(), 0, &thread_id);
-    if (!thread_)
+    namespace detail
     {
-      DWORD last_error = ::GetLastError();
-      asio::error_code ec(last_error,
-          asio::error::get_system_category());
-      asio::detail::throw_error(ec, "thread");
-    }
-    arg.release();
-  }
 
-  // Destructor.
-  ~winapi_thread()
-  {
-    ::CloseHandle(thread_);
-  }
+        DWORD WINAPI winapi_thread_function( LPVOID arg );
 
-  // Wait for the thread to exit.
-  void join()
-  {
-#if defined(ASIO_WINDOWS_APP)
-    ::WaitForSingleObjectEx(thread_, INFINITE, false);
-#else // defined(ASIO_WINDOWS_APP)
-    ::WaitForSingleObject(thread_, INFINITE);
-#endif // defined(ASIO_WINDOWS_APP)
-  }
+        class winapi_thread : private noncopyable
+        {
+           public:
+            // Constructor.
+            template <typename Function>
+            winapi_thread( Function f, unsigned int = 0 )
+            {
+                std::auto_ptr<func_base> arg( new func<Function>( f ) );
+                DWORD thread_id = 0;
+                thread_ = ::CreateThread( 0, 0, winapi_thread_function, arg.get( ), 0, &thread_id );
+                if ( !thread_ )
+                {
+                    DWORD last_error = ::GetLastError( );
+                    asio::error_code ec( last_error, asio::error::get_system_category( ) );
+                    asio::detail::throw_error( ec, "thread" );
+                }
+                arg.release( );
+            }
 
-private:
-  friend DWORD WINAPI winapi_thread_function(LPVOID arg);
+            // Destructor.
+            ~winapi_thread( )
+            {
+                ::CloseHandle( thread_ );
+            }
 
-  class func_base
-  {
-  public:
-    virtual ~func_base() {}
-    virtual void run() = 0;
-  };
+            // Wait for the thread to exit.
+            void join( )
+            {
+#if defined( ASIO_WINDOWS_APP )
+                ::WaitForSingleObjectEx( thread_, INFINITE, false );
+#else   // defined(ASIO_WINDOWS_APP)
+                ::WaitForSingleObject( thread_, INFINITE );
+#endif  // defined(ASIO_WINDOWS_APP)
+            }
 
-  template <typename Function>
-  class func
-    : public func_base
-  {
-  public:
-    func(Function f)
-      : f_(f)
-    {
-    }
+           private:
+            friend DWORD WINAPI winapi_thread_function( LPVOID arg );
 
-    virtual void run()
-    {
-      f_();
-    }
+            class func_base
+            {
+               public:
+                virtual ~func_base( )
+                {
+                }
+                virtual void run( ) = 0;
+            };
 
-  private:
-    Function f_;
-  };
+            template <typename Function>
+            class func : public func_base
+            {
+               public:
+                func( Function f ) : f_( f )
+                {
+                }
 
-  ::HANDLE thread_;
-};
+                virtual void run( )
+                {
+                    f_( );
+                }
 
-inline DWORD WINAPI winapi_thread_function(LPVOID arg)
-{
-  std::auto_ptr<winapi_thread::func_base> func(
-      static_cast<winapi_thread::func_base*>(arg));
-  func->run();
-  return 0;
-}
+               private:
+                Function f_;
+            };
 
-} // namespace detail
-} // namespace asio
+            ::HANDLE thread_;
+        };
+
+        inline DWORD WINAPI winapi_thread_function( LPVOID arg )
+        {
+            std::auto_ptr<winapi_thread::func_base> func( static_cast<winapi_thread::func_base*>( arg ) );
+            func->run( );
+            return 0;
+        }
+
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // defined(ASIO_WINDOWS_APP) || defined(UNDER_CE)
-#endif // defined(ASIO_WINDOWS)
+#endif  // defined(ASIO_WINDOWS_APP) || defined(UNDER_CE)
+#endif  // defined(ASIO_WINDOWS)
 
-#endif // ASIO_DETAIL_WINAPI_THREAD_HPP
+#endif  // ASIO_DETAIL_WINAPI_THREAD_HPP

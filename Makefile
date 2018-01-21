@@ -516,9 +516,14 @@ format-main               : $(SRCS_M) $(EXECSOURCE_M)
 format-test               : $(SRCS_UT) $(EXECSOURCE_UT)
 	clang-format -i -style=file $(SRCS_UT) $(EXECSOURCE_UT)
 
+.PHONY                    : format-libs
+format-libs               : $(ASIO_EXT_SRCS) $(BA_QUEUE_EXT_SRCS)
+	clang-format -i -style=file $(ASIO_EXT_SRCS) $(BA_QUEUE_EXT_SRCS)
+
 .PHONY                    : format
 format                    : format-main
 format                    : format-test
+format                    : format-libs
 
 .PHONY                    : tags
 tags                      : $(SRCS_M) $(EXECSOURCE_M) $(SRCS_UT) $(EXECSOURCE_UT)

@@ -11,248 +11,232 @@
 #ifndef ASIO_BUFFERED_STREAM_HPP
 #define ASIO_BUFFERED_STREAM_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include "asio/detail/config.hpp"
-#include <cstddef>
 #include "asio/async_result.hpp"
 #include "asio/buffered_read_stream.hpp"
-#include "asio/buffered_write_stream.hpp"
 #include "asio/buffered_stream_fwd.hpp"
+#include "asio/buffered_write_stream.hpp"
+#include "asio/detail/config.hpp"
 #include "asio/detail/noncopyable.hpp"
 #include "asio/error.hpp"
 #include "asio/io_service.hpp"
+#include <cstddef>
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-
-/// Adds buffering to the read- and write-related operations of a stream.
-/**
- * The buffered_stream class template can be used to add buffering to the
- * synchronous and asynchronous read and write operations of a stream.
- *
- * @par Thread Safety
- * @e Distinct @e objects: Safe.@n
- * @e Shared @e objects: Unsafe.
- *
- * @par Concepts:
- * AsyncReadStream, AsyncWriteStream, Stream, SyncReadStream, SyncWriteStream.
- */
-template <typename Stream>
-class buffered_stream
-  : private noncopyable
+namespace asio
 {
-public:
-  /// The type of the next layer.
-  typedef typename remove_reference<Stream>::type next_layer_type;
 
-  /// The type of the lowest layer.
-  typedef typename next_layer_type::lowest_layer_type lowest_layer_type;
+    /// Adds buffering to the read- and write-related operations of a stream.
+    /**
+     * The buffered_stream class template can be used to add buffering to the
+     * synchronous and asynchronous read and write operations of a stream.
+     *
+     * @par Thread Safety
+     * @e Distinct @e objects: Safe.@n
+     * @e Shared @e objects: Unsafe.
+     *
+     * @par Concepts:
+     * AsyncReadStream, AsyncWriteStream, Stream, SyncReadStream, SyncWriteStream.
+     */
+    template <typename Stream>
+    class buffered_stream : private noncopyable
+    {
+       public:
+        /// The type of the next layer.
+        typedef typename remove_reference<Stream>::type next_layer_type;
 
-  /// Construct, passing the specified argument to initialise the next layer.
-  template <typename Arg>
-  explicit buffered_stream(Arg& a)
-    : inner_stream_impl_(a),
-      stream_impl_(inner_stream_impl_)
-  {
-  }
+        /// The type of the lowest layer.
+        typedef typename next_layer_type::lowest_layer_type lowest_layer_type;
 
-  /// Construct, passing the specified argument to initialise the next layer.
-  template <typename Arg>
-  explicit buffered_stream(Arg& a, std::size_t read_buffer_size,
-      std::size_t write_buffer_size)
-    : inner_stream_impl_(a, write_buffer_size),
-      stream_impl_(inner_stream_impl_, read_buffer_size)
-  {
-  }
+        /// Construct, passing the specified argument to initialise the next layer.
+        template <typename Arg>
+        explicit buffered_stream( Arg& a ) : inner_stream_impl_( a ), stream_impl_( inner_stream_impl_ )
+        {
+        }
 
-  /// Get a reference to the next layer.
-  next_layer_type& next_layer()
-  {
-    return stream_impl_.next_layer().next_layer();
-  }
+        /// Construct, passing the specified argument to initialise the next layer.
+        template <typename Arg>
+        explicit buffered_stream( Arg& a, std::size_t read_buffer_size, std::size_t write_buffer_size )
+            : inner_stream_impl_( a, write_buffer_size ), stream_impl_( inner_stream_impl_, read_buffer_size )
+        {
+        }
 
-  /// Get a reference to the lowest layer.
-  lowest_layer_type& lowest_layer()
-  {
-    return stream_impl_.lowest_layer();
-  }
+        /// Get a reference to the next layer.
+        next_layer_type& next_layer( )
+        {
+            return stream_impl_.next_layer( ).next_layer( );
+        }
 
-  /// Get a const reference to the lowest layer.
-  const lowest_layer_type& lowest_layer() const
-  {
-    return stream_impl_.lowest_layer();
-  }
+        /// Get a reference to the lowest layer.
+        lowest_layer_type& lowest_layer( )
+        {
+            return stream_impl_.lowest_layer( );
+        }
 
-  /// Get the io_service associated with the object.
-  asio::io_service& get_io_service()
-  {
-    return stream_impl_.get_io_service();
-  }
+        /// Get a const reference to the lowest layer.
+        const lowest_layer_type& lowest_layer( ) const
+        {
+            return stream_impl_.lowest_layer( );
+        }
 
-  /// Close the stream.
-  void close()
-  {
-    stream_impl_.close();
-  }
+        /// Get the io_service associated with the object.
+        asio::io_service& get_io_service( )
+        {
+            return stream_impl_.get_io_service( );
+        }
 
-  /// Close the stream.
-  asio::error_code close(asio::error_code& ec)
-  {
-    return stream_impl_.close(ec);
-  }
+        /// Close the stream.
+        void close( )
+        {
+            stream_impl_.close( );
+        }
 
-  /// Flush all data from the buffer to the next layer. Returns the number of
-  /// bytes written to the next layer on the last write operation. Throws an
-  /// exception on failure.
-  std::size_t flush()
-  {
-    return stream_impl_.next_layer().flush();
-  }
+        /// Close the stream.
+        asio::error_code close( asio::error_code& ec )
+        {
+            return stream_impl_.close( ec );
+        }
 
-  /// Flush all data from the buffer to the next layer. Returns the number of
-  /// bytes written to the next layer on the last write operation, or 0 if an
-  /// error occurred.
-  std::size_t flush(asio::error_code& ec)
-  {
-    return stream_impl_.next_layer().flush(ec);
-  }
+        /// Flush all data from the buffer to the next layer. Returns the number of
+        /// bytes written to the next layer on the last write operation. Throws an
+        /// exception on failure.
+        std::size_t flush( )
+        {
+            return stream_impl_.next_layer( ).flush( );
+        }
 
-  /// Start an asynchronous flush.
-  template <typename WriteHandler>
-  ASIO_INITFN_RESULT_TYPE(WriteHandler,
-      void (asio::error_code, std::size_t))
-  async_flush(ASIO_MOVE_ARG(WriteHandler) handler)
-  {
-    return stream_impl_.next_layer().async_flush(
-        ASIO_MOVE_CAST(WriteHandler)(handler));
-  }
+        /// Flush all data from the buffer to the next layer. Returns the number of
+        /// bytes written to the next layer on the last write operation, or 0 if an
+        /// error occurred.
+        std::size_t flush( asio::error_code& ec )
+        {
+            return stream_impl_.next_layer( ).flush( ec );
+        }
 
-  /// Write the given data to the stream. Returns the number of bytes written.
-  /// Throws an exception on failure.
-  template <typename ConstBufferSequence>
-  std::size_t write_some(const ConstBufferSequence& buffers)
-  {
-    return stream_impl_.write_some(buffers);
-  }
+        /// Start an asynchronous flush.
+        template <typename WriteHandler>
+        ASIO_INITFN_RESULT_TYPE( WriteHandler, void( asio::error_code, std::size_t ) )
+        async_flush( ASIO_MOVE_ARG( WriteHandler ) handler )
+        {
+            return stream_impl_.next_layer( ).async_flush( ASIO_MOVE_CAST( WriteHandler )( handler ) );
+        }
 
-  /// Write the given data to the stream. Returns the number of bytes written,
-  /// or 0 if an error occurred.
-  template <typename ConstBufferSequence>
-  std::size_t write_some(const ConstBufferSequence& buffers,
-      asio::error_code& ec)
-  {
-    return stream_impl_.write_some(buffers, ec);
-  }
+        /// Write the given data to the stream. Returns the number of bytes written.
+        /// Throws an exception on failure.
+        template <typename ConstBufferSequence>
+        std::size_t write_some( const ConstBufferSequence& buffers )
+        {
+            return stream_impl_.write_some( buffers );
+        }
 
-  /// Start an asynchronous write. The data being written must be valid for the
-  /// lifetime of the asynchronous operation.
-  template <typename ConstBufferSequence, typename WriteHandler>
-  ASIO_INITFN_RESULT_TYPE(WriteHandler,
-      void (asio::error_code, std::size_t))
-  async_write_some(const ConstBufferSequence& buffers,
-      ASIO_MOVE_ARG(WriteHandler) handler)
-  {
-    return stream_impl_.async_write_some(buffers,
-        ASIO_MOVE_CAST(WriteHandler)(handler));
-  }
+        /// Write the given data to the stream. Returns the number of bytes written,
+        /// or 0 if an error occurred.
+        template <typename ConstBufferSequence>
+        std::size_t write_some( const ConstBufferSequence& buffers, asio::error_code& ec )
+        {
+            return stream_impl_.write_some( buffers, ec );
+        }
 
-  /// Fill the buffer with some data. Returns the number of bytes placed in the
-  /// buffer as a result of the operation. Throws an exception on failure.
-  std::size_t fill()
-  {
-    return stream_impl_.fill();
-  }
+        /// Start an asynchronous write. The data being written must be valid for the
+        /// lifetime of the asynchronous operation.
+        template <typename ConstBufferSequence, typename WriteHandler>
+        ASIO_INITFN_RESULT_TYPE( WriteHandler, void( asio::error_code, std::size_t ) )
+        async_write_some( const ConstBufferSequence& buffers, ASIO_MOVE_ARG( WriteHandler ) handler )
+        {
+            return stream_impl_.async_write_some( buffers, ASIO_MOVE_CAST( WriteHandler )( handler ) );
+        }
 
-  /// Fill the buffer with some data. Returns the number of bytes placed in the
-  /// buffer as a result of the operation, or 0 if an error occurred.
-  std::size_t fill(asio::error_code& ec)
-  {
-    return stream_impl_.fill(ec);
-  }
+        /// Fill the buffer with some data. Returns the number of bytes placed in the
+        /// buffer as a result of the operation. Throws an exception on failure.
+        std::size_t fill( )
+        {
+            return stream_impl_.fill( );
+        }
 
-  /// Start an asynchronous fill.
-  template <typename ReadHandler>
-  ASIO_INITFN_RESULT_TYPE(ReadHandler,
-      void (asio::error_code, std::size_t))
-  async_fill(ASIO_MOVE_ARG(ReadHandler) handler)
-  {
-    return stream_impl_.async_fill(ASIO_MOVE_CAST(ReadHandler)(handler));
-  }
+        /// Fill the buffer with some data. Returns the number of bytes placed in the
+        /// buffer as a result of the operation, or 0 if an error occurred.
+        std::size_t fill( asio::error_code& ec )
+        {
+            return stream_impl_.fill( ec );
+        }
 
-  /// Read some data from the stream. Returns the number of bytes read. Throws
-  /// an exception on failure.
-  template <typename MutableBufferSequence>
-  std::size_t read_some(const MutableBufferSequence& buffers)
-  {
-    return stream_impl_.read_some(buffers);
-  }
+        /// Start an asynchronous fill.
+        template <typename ReadHandler>
+        ASIO_INITFN_RESULT_TYPE( ReadHandler, void( asio::error_code, std::size_t ) )
+        async_fill( ASIO_MOVE_ARG( ReadHandler ) handler )
+        {
+            return stream_impl_.async_fill( ASIO_MOVE_CAST( ReadHandler )( handler ) );
+        }
 
-  /// Read some data from the stream. Returns the number of bytes read or 0 if
-  /// an error occurred.
-  template <typename MutableBufferSequence>
-  std::size_t read_some(const MutableBufferSequence& buffers,
-      asio::error_code& ec)
-  {
-    return stream_impl_.read_some(buffers, ec);
-  }
+        /// Read some data from the stream. Returns the number of bytes read. Throws
+        /// an exception on failure.
+        template <typename MutableBufferSequence>
+        std::size_t read_some( const MutableBufferSequence& buffers )
+        {
+            return stream_impl_.read_some( buffers );
+        }
 
-  /// Start an asynchronous read. The buffer into which the data will be read
-  /// must be valid for the lifetime of the asynchronous operation.
-  template <typename MutableBufferSequence, typename ReadHandler>
-  ASIO_INITFN_RESULT_TYPE(ReadHandler,
-      void (asio::error_code, std::size_t))
-  async_read_some(const MutableBufferSequence& buffers,
-      ASIO_MOVE_ARG(ReadHandler) handler)
-  {
-    return stream_impl_.async_read_some(buffers,
-        ASIO_MOVE_CAST(ReadHandler)(handler));
-  }
+        /// Read some data from the stream. Returns the number of bytes read or 0 if
+        /// an error occurred.
+        template <typename MutableBufferSequence>
+        std::size_t read_some( const MutableBufferSequence& buffers, asio::error_code& ec )
+        {
+            return stream_impl_.read_some( buffers, ec );
+        }
 
-  /// Peek at the incoming data on the stream. Returns the number of bytes read.
-  /// Throws an exception on failure.
-  template <typename MutableBufferSequence>
-  std::size_t peek(const MutableBufferSequence& buffers)
-  {
-    return stream_impl_.peek(buffers);
-  }
+        /// Start an asynchronous read. The buffer into which the data will be read
+        /// must be valid for the lifetime of the asynchronous operation.
+        template <typename MutableBufferSequence, typename ReadHandler>
+        ASIO_INITFN_RESULT_TYPE( ReadHandler, void( asio::error_code, std::size_t ) )
+        async_read_some( const MutableBufferSequence& buffers, ASIO_MOVE_ARG( ReadHandler ) handler )
+        {
+            return stream_impl_.async_read_some( buffers, ASIO_MOVE_CAST( ReadHandler )( handler ) );
+        }
 
-  /// Peek at the incoming data on the stream. Returns the number of bytes read,
-  /// or 0 if an error occurred.
-  template <typename MutableBufferSequence>
-  std::size_t peek(const MutableBufferSequence& buffers,
-      asio::error_code& ec)
-  {
-    return stream_impl_.peek(buffers, ec);
-  }
+        /// Peek at the incoming data on the stream. Returns the number of bytes read.
+        /// Throws an exception on failure.
+        template <typename MutableBufferSequence>
+        std::size_t peek( const MutableBufferSequence& buffers )
+        {
+            return stream_impl_.peek( buffers );
+        }
 
-  /// Determine the amount of data that may be read without blocking.
-  std::size_t in_avail()
-  {
-    return stream_impl_.in_avail();
-  }
+        /// Peek at the incoming data on the stream. Returns the number of bytes read,
+        /// or 0 if an error occurred.
+        template <typename MutableBufferSequence>
+        std::size_t peek( const MutableBufferSequence& buffers, asio::error_code& ec )
+        {
+            return stream_impl_.peek( buffers, ec );
+        }
 
-  /// Determine the amount of data that may be read without blocking.
-  std::size_t in_avail(asio::error_code& ec)
-  {
-    return stream_impl_.in_avail(ec);
-  }
+        /// Determine the amount of data that may be read without blocking.
+        std::size_t in_avail( )
+        {
+            return stream_impl_.in_avail( );
+        }
 
-private:
-  // The buffered write stream.
-  typedef buffered_write_stream<Stream> write_stream_type;
-  write_stream_type inner_stream_impl_;
+        /// Determine the amount of data that may be read without blocking.
+        std::size_t in_avail( asio::error_code& ec )
+        {
+            return stream_impl_.in_avail( ec );
+        }
 
-  // The buffered read stream.
-  typedef buffered_read_stream<write_stream_type&> read_stream_type;
-  read_stream_type stream_impl_;
-};
+       private:
+        // The buffered write stream.
+        typedef buffered_write_stream<Stream> write_stream_type;
+        write_stream_type inner_stream_impl_;
 
-} // namespace asio
+        // The buffered read stream.
+        typedef buffered_read_stream<write_stream_type&> read_stream_type;
+        read_stream_type stream_impl_;
+    };
+
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // ASIO_BUFFERED_STREAM_HPP
+#endif  // ASIO_BUFFERED_STREAM_HPP

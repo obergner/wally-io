@@ -16,6 +16,35 @@ CWD                             := $(shell dirname $(realpath $(lastword $(MAKEF
 ASIO_EXT_DIR                    := $(CWD)/asio
 ASIO_EXT_INC                    := $(ASIO_EXT_DIR)
 
+ASIO_EXT_SRCS                   := $(wildcard $(ASIO_EXT_INC)/asio.hpp)
+ASIO_EXT_SRCS                   := $(wildcard $(ASIO_EXT_INC)/asio/*.hpp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/detail/*.hpp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/detail/impl/*.hpp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/detail/impl/*.ipp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/generic/*.hpp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/generic/detail/*.hpp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/generic/detail/impl/*.ipp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/impl/*.hpp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/impl/*.ipp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/impl/*.cpp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/ip/*.hpp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/ip/detail/*.hpp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/ip/detail/impl/*.hpp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/ip/detail/impl/*.ipp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/ip/impl/*.ipp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/local/*.hpp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/local/detail/*.hpp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/local/detail/impl/*.ipp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/posix/*.hpp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/ssl/*.hpp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/ssl/detail/*.hpp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/ssl/detail/impl/*.ipp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/ssl/impl/*.hpp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/ssl/impl/*.ipp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/ssl/old/*.hpp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/ssl/old/detail/*.hpp)
+ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/windows/*.hpp)
+
 # -------------------------------------------------------------------------------- 
 # Boost Asio Queue Extension by Hans Ewetz
 # -------------------------------------------------------------------------------- 
@@ -23,7 +52,6 @@ ASIO_EXT_INC                    := $(ASIO_EXT_DIR)
 BA_QUEUE_EXT_DIR                := $(CWD)/boost-asio-queue-extension
 BA_QUEUE_EXT_INC                := $(BA_QUEUE_EXT_DIR)
 
-#######################################################################################################################
-# Rules
-#######################################################################################################################
+BA_QUEUE_EXT_SRCS               := $(wildcard $(BA_QUEUE_EXT_INC)/boost/*.hpp)
+BA_QUEUE_EXT_SRCS               += $(wildcard $(BA_QUEUE_EXT_INC)/boost/detail/*.hpp)
 

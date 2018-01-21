@@ -11,108 +11,105 @@
 #ifndef ASIO_DETAIL_IMPL_BUFFER_SEQUENCE_ADAPTER_IPP
 #define ASIO_DETAIL_IMPL_BUFFER_SEQUENCE_ADAPTER_IPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if defined(ASIO_WINDOWS_RUNTIME)
+#if defined( ASIO_WINDOWS_RUNTIME )
 
+#include "asio/detail/buffer_sequence_adapter.hpp"
 #include <robuffer.h>
 #include <windows.storage.streams.h>
 #include <wrl/implements.h>
-#include "asio/detail/buffer_sequence_adapter.hpp"
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-class winrt_buffer_impl :
-  public Microsoft::WRL::RuntimeClass<
-    Microsoft::WRL::RuntimeClassFlags<
-      Microsoft::WRL::RuntimeClassType::WinRtClassicComMix>,
-    ABI::Windows::Storage::Streams::IBuffer,
-    Windows::Storage::Streams::IBufferByteAccess>
+namespace asio
 {
-public:
-  explicit winrt_buffer_impl(const asio::const_buffer& b)
-  {
-    bytes_ = const_cast<byte*>(asio::buffer_cast<const byte*>(b));
-    length_ = asio::buffer_size(b);
-    capacity_ = asio::buffer_size(b);
-  }
+    namespace detail
+    {
 
-  explicit winrt_buffer_impl(const asio::mutable_buffer& b)
-  {
-    bytes_ = const_cast<byte*>(asio::buffer_cast<const byte*>(b));
-    length_ = 0;
-    capacity_ = asio::buffer_size(b);
-  }
+        class winrt_buffer_impl
+            : public Microsoft::WRL::RuntimeClass<
+                  Microsoft::WRL::RuntimeClassFlags<Microsoft::WRL::RuntimeClassType::WinRtClassicComMix>,
+                  ABI::Windows::Storage::Streams::IBuffer,
+                  Windows::Storage::Streams::IBufferByteAccess>
+        {
+           public:
+            explicit winrt_buffer_impl( const asio::const_buffer& b )
+            {
+                bytes_ = const_cast<byte*>( asio::buffer_cast<const byte*>( b ) );
+                length_ = asio::buffer_size( b );
+                capacity_ = asio::buffer_size( b );
+            }
 
-  ~winrt_buffer_impl()
-  {
-  }
+            explicit winrt_buffer_impl( const asio::mutable_buffer& b )
+            {
+                bytes_ = const_cast<byte*>( asio::buffer_cast<const byte*>( b ) );
+                length_ = 0;
+                capacity_ = asio::buffer_size( b );
+            }
 
-  STDMETHODIMP Buffer(byte** value)
-  {
-    *value = bytes_;
-    return S_OK;
-  }
+            ~winrt_buffer_impl( )
+            {
+            }
 
-  STDMETHODIMP get_Capacity(UINT32* value)
-  {
-    *value = capacity_;
-    return S_OK;
-  }
+            STDMETHODIMP Buffer( byte** value )
+            {
+                *value = bytes_;
+                return S_OK;
+            }
 
-  STDMETHODIMP get_Length(UINT32 *value)
-  {
-    *value = length_;
-    return S_OK;
-  }
+            STDMETHODIMP get_Capacity( UINT32* value )
+            {
+                *value = capacity_;
+                return S_OK;
+            }
 
-  STDMETHODIMP put_Length(UINT32 value)
-  {
-    if (value > capacity_)
-      return E_INVALIDARG;
-    length_ = value;
-    return S_OK;
-  }
+            STDMETHODIMP get_Length( UINT32* value )
+            {
+                *value = length_;
+                return S_OK;
+            }
 
-private:
-  byte* bytes_;
-  UINT32 length_;
-  UINT32 capacity_;
-};
+            STDMETHODIMP put_Length( UINT32 value )
+            {
+                if ( value > capacity_ )
+                    return E_INVALIDARG;
+                length_ = value;
+                return S_OK;
+            }
 
-void buffer_sequence_adapter_base::init_native_buffer(
-    buffer_sequence_adapter_base::native_buffer_type& buf,
-    const asio::mutable_buffer& buffer)
-{
-  std::memset(&buf, 0, sizeof(native_buffer_type));
-  Microsoft::WRL::ComPtr<IInspectable> insp
-    = Microsoft::WRL::Make<winrt_buffer_impl>(buffer);
-  buf = reinterpret_cast<Windows::Storage::Streams::IBuffer^>(insp.Get());
-}
+           private:
+            byte* bytes_;
+            UINT32 length_;
+            UINT32 capacity_;
+        };
 
-void buffer_sequence_adapter_base::init_native_buffer(
-    buffer_sequence_adapter_base::native_buffer_type& buf,
-    const asio::const_buffer& buffer)
-{
-  std::memset(&buf, 0, sizeof(native_buffer_type));
-  Microsoft::WRL::ComPtr<IInspectable> insp
-    = Microsoft::WRL::Make<winrt_buffer_impl>(buffer);
-  Platform::Object^ buf_obj = reinterpret_cast<Platform::Object^>(insp.Get());
-  buf = reinterpret_cast<Windows::Storage::Streams::IBuffer^>(insp.Get());
-}
+        void buffer_sequence_adapter_base::init_native_buffer( buffer_sequence_adapter_base::native_buffer_type& buf,
+                                                               const asio::mutable_buffer& buffer )
+        {
+            std::memset( &buf, 0, sizeof( native_buffer_type ) );
+            Microsoft::WRL::ComPtr<IInspectable> insp = Microsoft::WRL::Make<winrt_buffer_impl>( buffer );
+            buf = reinterpret_cast<Windows::Storage::Streams::IBuffer ^>( insp.Get( ) );
+        }
 
-} // namespace detail
-} // namespace asio
+        void buffer_sequence_adapter_base::init_native_buffer( buffer_sequence_adapter_base::native_buffer_type& buf,
+                                                               const asio::const_buffer& buffer )
+        {
+            std::memset( &buf, 0, sizeof( native_buffer_type ) );
+            Microsoft::WRL::ComPtr<IInspectable> insp = Microsoft::WRL::Make<winrt_buffer_impl>( buffer );
+            Platform::Object ^ buf_obj = reinterpret_cast<Platform::Object ^>( insp.Get( ) );
+            buf = reinterpret_cast<Windows::Storage::Streams::IBuffer ^>( insp.Get( ) );
+        }
+
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // defined(ASIO_WINDOWS_RUNTIME)
+#endif  // defined(ASIO_WINDOWS_RUNTIME)
 
-#endif // ASIO_DETAIL_IMPL_BUFFER_SEQUENCE_ADAPTER_IPP
+#endif  // ASIO_DETAIL_IMPL_BUFFER_SEQUENCE_ADAPTER_IPP

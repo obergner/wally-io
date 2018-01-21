@@ -11,13 +11,13 @@
 #ifndef ASIO_DETAIL_WIN_EVENT_HPP
 #define ASIO_DETAIL_WIN_EVENT_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if defined(ASIO_WINDOWS)
+#if defined( ASIO_WINDOWS )
 
 #include "asio/detail/assert.hpp"
 #include "asio/detail/noncopyable.hpp"
@@ -25,106 +25,107 @@
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-class win_event
-  : private noncopyable
+namespace asio
 {
-public:
-  // Constructor.
-  ASIO_DECL win_event();
-
-  // Destructor.
-  ASIO_DECL ~win_event();
-
-  // Signal the event. (Retained for backward compatibility.)
-  template <typename Lock>
-  void signal(Lock& lock)
-  {
-    this->signal_all(lock);
-  }
-
-  // Signal all waiters.
-  template <typename Lock>
-  void signal_all(Lock& lock)
-  {
-    ASIO_ASSERT(lock.locked());
-    (void)lock;
-    state_ |= 1;
-    ::SetEvent(events_[0]);
-  }
-
-  // Unlock the mutex and signal one waiter.
-  template <typename Lock>
-  void unlock_and_signal_one(Lock& lock)
-  {
-    ASIO_ASSERT(lock.locked());
-    state_ |= 1;
-    bool have_waiters = (state_ > 1);
-    lock.unlock();
-    if (have_waiters)
-      ::SetEvent(events_[1]);
-  }
-
-  // If there's a waiter, unlock the mutex and signal it.
-  template <typename Lock>
-  bool maybe_unlock_and_signal_one(Lock& lock)
-  {
-    ASIO_ASSERT(lock.locked());
-    state_ |= 1;
-    if (state_ > 1)
+    namespace detail
     {
-      lock.unlock();
-      ::SetEvent(events_[1]);
-      return true;
-    }
-    return false;
-  }
 
-  // Reset the event.
-  template <typename Lock>
-  void clear(Lock& lock)
-  {
-    ASIO_ASSERT(lock.locked());
-    (void)lock;
-    ::ResetEvent(events_[0]);
-    state_ &= ~std::size_t(1);
-  }
+        class win_event : private noncopyable
+        {
+           public:
+            // Constructor.
+            ASIO_DECL win_event( );
 
-  // Wait for the event to become signalled.
-  template <typename Lock>
-  void wait(Lock& lock)
-  {
-    ASIO_ASSERT(lock.locked());
-    while ((state_ & 1) == 0)
-    {
-      state_ += 2;
-      lock.unlock();
-#if defined(ASIO_WINDOWS_APP)
-      ::WaitForMultipleObjectsEx(2, events_, false, INFINITE, false);
-#else // defined(ASIO_WINDOWS_APP)
-      ::WaitForMultipleObjects(2, events_, false, INFINITE);
-#endif // defined(ASIO_WINDOWS_APP)
-      lock.lock();
-      state_ -= 2;
-    }
-  }
+            // Destructor.
+            ASIO_DECL ~win_event( );
 
-private:
-  HANDLE events_[2];
-  std::size_t state_;
-};
+            // Signal the event. (Retained for backward compatibility.)
+            template <typename Lock>
+            void signal( Lock& lock )
+            {
+                this->signal_all( lock );
+            }
 
-} // namespace detail
-} // namespace asio
+            // Signal all waiters.
+            template <typename Lock>
+            void signal_all( Lock& lock )
+            {
+                ASIO_ASSERT( lock.locked( ) );
+                (void)lock;
+                state_ |= 1;
+                ::SetEvent( events_[0] );
+            }
+
+            // Unlock the mutex and signal one waiter.
+            template <typename Lock>
+            void unlock_and_signal_one( Lock& lock )
+            {
+                ASIO_ASSERT( lock.locked( ) );
+                state_ |= 1;
+                bool have_waiters = ( state_ > 1 );
+                lock.unlock( );
+                if ( have_waiters )
+                    ::SetEvent( events_[1] );
+            }
+
+            // If there's a waiter, unlock the mutex and signal it.
+            template <typename Lock>
+            bool maybe_unlock_and_signal_one( Lock& lock )
+            {
+                ASIO_ASSERT( lock.locked( ) );
+                state_ |= 1;
+                if ( state_ > 1 )
+                {
+                    lock.unlock( );
+                    ::SetEvent( events_[1] );
+                    return true;
+                }
+                return false;
+            }
+
+            // Reset the event.
+            template <typename Lock>
+            void clear( Lock& lock )
+            {
+                ASIO_ASSERT( lock.locked( ) );
+                (void)lock;
+                ::ResetEvent( events_[0] );
+                state_ &= ~std::size_t( 1 );
+            }
+
+            // Wait for the event to become signalled.
+            template <typename Lock>
+            void wait( Lock& lock )
+            {
+                ASIO_ASSERT( lock.locked( ) );
+                while ( ( state_ & 1 ) == 0 )
+                {
+                    state_ += 2;
+                    lock.unlock( );
+#if defined( ASIO_WINDOWS_APP )
+                    ::WaitForMultipleObjectsEx( 2, events_, false, INFINITE, false );
+#else   // defined(ASIO_WINDOWS_APP)
+                    ::WaitForMultipleObjects( 2, events_, false, INFINITE );
+#endif  // defined(ASIO_WINDOWS_APP)
+                    lock.lock( );
+                    state_ -= 2;
+                }
+            }
+
+           private:
+            HANDLE events_[2];
+            std::size_t state_;
+        };
+
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#if defined(ASIO_HEADER_ONLY)
-# include "asio/detail/impl/win_event.ipp"
-#endif // defined(ASIO_HEADER_ONLY)
+#if defined( ASIO_HEADER_ONLY )
+#include "asio/detail/impl/win_event.ipp"
+#endif  // defined(ASIO_HEADER_ONLY)
 
-#endif // defined(ASIO_WINDOWS)
+#endif  // defined(ASIO_WINDOWS)
 
-#endif // ASIO_DETAIL_WIN_EVENT_HPP
+#endif  // ASIO_DETAIL_WIN_EVENT_HPP

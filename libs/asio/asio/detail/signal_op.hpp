@@ -11,39 +11,38 @@
 #ifndef ASIO_DETAIL_SIGNAL_OP_HPP
 #define ASIO_DETAIL_SIGNAL_OP_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 #include "asio/detail/operation.hpp"
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-class signal_op
-  : public operation
+namespace asio
 {
-public:
-  // The error code to be passed to the completion handler.
-  asio::error_code ec_;
+    namespace detail
+    {
 
-  // The signal number to be passed to the completion handler.
-  int signal_number_;
+        class signal_op : public operation
+        {
+           public:
+            // The error code to be passed to the completion handler.
+            asio::error_code ec_;
 
-protected:
-  signal_op(func_type func)
-    : operation(func),
-      signal_number_(0)
-  {
-  }
-};
+            // The signal number to be passed to the completion handler.
+            int signal_number_;
 
-} // namespace detail
-} // namespace asio
+           protected:
+            signal_op( func_type func ) : operation( func ), signal_number_( 0 )
+            {
+            }
+        };
+
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#endif // ASIO_DETAIL_SIGNAL_OP_HPP
+#endif  // ASIO_DETAIL_SIGNAL_OP_HPP

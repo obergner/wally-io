@@ -11,9 +11,9 @@
 #ifndef ASIO_SSL_HPP
 #define ASIO_SSL_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/ssl/basic_context.hpp"
 #include "asio/ssl/context.hpp"
@@ -27,4 +27,4 @@
 #include "asio/ssl/verify_context.hpp"
 #include "asio/ssl/verify_mode.hpp"
 
-#endif // ASIO_SSL_HPP
+#endif  // ASIO_SSL_HPP

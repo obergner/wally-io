@@ -11,56 +11,58 @@
 #ifndef ASIO_DETAIL_TIMER_QUEUE_SET_HPP
 #define ASIO_DETAIL_TIMER_QUEUE_SET_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 #include "asio/detail/timer_queue_base.hpp"
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-class timer_queue_set
+namespace asio
 {
-public:
-  // Constructor.
-  ASIO_DECL timer_queue_set();
+    namespace detail
+    {
 
-  // Add a timer queue to the set.
-  ASIO_DECL void insert(timer_queue_base* q);
+        class timer_queue_set
+        {
+           public:
+            // Constructor.
+            ASIO_DECL timer_queue_set( );
 
-  // Remove a timer queue from the set.
-  ASIO_DECL void erase(timer_queue_base* q);
+            // Add a timer queue to the set.
+            ASIO_DECL void insert( timer_queue_base* q );
 
-  // Determine whether all queues are empty.
-  ASIO_DECL bool all_empty() const;
+            // Remove a timer queue from the set.
+            ASIO_DECL void erase( timer_queue_base* q );
 
-  // Get the wait duration in milliseconds.
-  ASIO_DECL long wait_duration_msec(long max_duration) const;
+            // Determine whether all queues are empty.
+            ASIO_DECL bool all_empty( ) const;
 
-  // Get the wait duration in microseconds.
-  ASIO_DECL long wait_duration_usec(long max_duration) const;
+            // Get the wait duration in milliseconds.
+            ASIO_DECL long wait_duration_msec( long max_duration ) const;
 
-  // Dequeue all ready timers.
-  ASIO_DECL void get_ready_timers(op_queue<operation>& ops);
+            // Get the wait duration in microseconds.
+            ASIO_DECL long wait_duration_usec( long max_duration ) const;
 
-  // Dequeue all timers.
-  ASIO_DECL void get_all_timers(op_queue<operation>& ops);
+            // Dequeue all ready timers.
+            ASIO_DECL void get_ready_timers( op_queue<operation>& ops );
 
-private:
-  timer_queue_base* first_;
-};
+            // Dequeue all timers.
+            ASIO_DECL void get_all_timers( op_queue<operation>& ops );
 
-} // namespace detail
-} // namespace asio
+           private:
+            timer_queue_base* first_;
+        };
+
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#if defined(ASIO_HEADER_ONLY)
-# include "asio/detail/impl/timer_queue_set.ipp"
-#endif // defined(ASIO_HEADER_ONLY)
+#if defined( ASIO_HEADER_ONLY )
+#include "asio/detail/impl/timer_queue_set.ipp"
+#endif  // defined(ASIO_HEADER_ONLY)
 
-#endif // ASIO_DETAIL_TIMER_QUEUE_SET_HPP
+#endif  // ASIO_DETAIL_TIMER_QUEUE_SET_HPP

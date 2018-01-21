@@ -11,95 +11,97 @@
 #ifndef ASIO_DETAIL_POSIX_THREAD_HPP
 #define ASIO_DETAIL_POSIX_THREAD_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
-#endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1200 )
+#pragma once
+#endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include "asio/detail/config.hpp"
 
-#if defined(ASIO_HAS_PTHREADS)
+#if defined( ASIO_HAS_PTHREADS )
 
-#include <pthread.h>
 #include "asio/detail/noncopyable.hpp"
+#include <pthread.h>
 
 #include "asio/detail/push_options.hpp"
 
-namespace asio {
-namespace detail {
-
-extern "C"
+namespace asio
 {
-  ASIO_DECL void* asio_detail_posix_thread_function(void* arg);
-}
-
-class posix_thread
-  : private noncopyable
-{
-public:
-  // Constructor.
-  template <typename Function>
-  posix_thread(Function f, unsigned int = 0)
-    : joined_(false)
-  {
-    start_thread(new func<Function>(f));
-  }
-
-  // Destructor.
-  ASIO_DECL ~posix_thread();
-
-  // Wait for the thread to exit.
-  ASIO_DECL void join();
-
-private:
-  friend void* asio_detail_posix_thread_function(void* arg);
-
-  class func_base
-  {
-  public:
-    virtual ~func_base() {}
-    virtual void run() = 0;
-  };
-
-  struct auto_func_base_ptr
-  {
-    func_base* ptr;
-    ~auto_func_base_ptr() { delete ptr; }
-  };
-
-  template <typename Function>
-  class func
-    : public func_base
-  {
-  public:
-    func(Function f)
-      : f_(f)
+    namespace detail
     {
-    }
 
-    virtual void run()
-    {
-      f_();
-    }
+        extern "C" {
+        ASIO_DECL void* asio_detail_posix_thread_function( void* arg );
+        }
 
-  private:
-    Function f_;
-  };
+        class posix_thread : private noncopyable
+        {
+           public:
+            // Constructor.
+            template <typename Function>
+            posix_thread( Function f, unsigned int = 0 ) : joined_( false )
+            {
+                start_thread( new func<Function>( f ) );
+            }
 
-  ASIO_DECL void start_thread(func_base* arg);
+            // Destructor.
+            ASIO_DECL ~posix_thread( );
 
-  ::pthread_t thread_;
-  bool joined_;
-};
+            // Wait for the thread to exit.
+            ASIO_DECL void join( );
 
-} // namespace detail
-} // namespace asio
+           private:
+            friend void* asio_detail_posix_thread_function( void* arg );
+
+            class func_base
+            {
+               public:
+                virtual ~func_base( )
+                {
+                }
+                virtual void run( ) = 0;
+            };
+
+            struct auto_func_base_ptr
+            {
+                func_base* ptr;
+                ~auto_func_base_ptr( )
+                {
+                    delete ptr;
+                }
+            };
+
+            template <typename Function>
+            class func : public func_base
+            {
+               public:
+                func( Function f ) : f_( f )
+                {
+                }
+
+                virtual void run( )
+                {
+                    f_( );
+                }
+
+               private:
+                Function f_;
+            };
+
+            ASIO_DECL void start_thread( func_base* arg );
+
+            ::pthread_t thread_;
+            bool joined_;
+        };
+
+    }  // namespace detail
+}  // namespace asio
 
 #include "asio/detail/pop_options.hpp"
 
-#if defined(ASIO_HEADER_ONLY)
-# include "asio/detail/impl/posix_thread.ipp"
-#endif // defined(ASIO_HEADER_ONLY)
+#if defined( ASIO_HEADER_ONLY )
+#include "asio/detail/impl/posix_thread.ipp"
+#endif  // defined(ASIO_HEADER_ONLY)
 
-#endif // defined(ASIO_HAS_PTHREADS)
+#endif  // defined(ASIO_HAS_PTHREADS)
 
-#endif // ASIO_DETAIL_POSIX_THREAD_HPP
+#endif  // ASIO_DETAIL_POSIX_THREAD_HPP
