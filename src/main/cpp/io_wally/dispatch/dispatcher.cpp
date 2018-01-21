@@ -29,11 +29,6 @@ namespace io_wally
         // Public
         // ------------------------------------------------------------------------------------------------------------
 
-        dispatcher::ptr dispatcher::create( const context& context, ::asio::io_service& io_service )
-        {
-            return std::make_shared<dispatcher>( context, io_service );
-        }
-
         dispatcher::dispatcher( const context& context, ::asio::io_service& io_service )
             : session_manager_{context, io_service}
         {

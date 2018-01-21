@@ -33,25 +33,13 @@ namespace io_wally
         class dispatcher final : public std::enable_shared_from_this<dispatcher>
         {
            public:  // static
-            using ptr = std::shared_ptr<dispatcher>;
-
-            /// \brief Factory method: create new \c dispatcher instance and return a \c shared_ptr to it.
-            ///
-            /// \param context Context containing our configuration
-            /// \param io_service Asio io_service instance to be passed on to \c mqtt_client_session_manager
-            /// \return \c shared_ptr to new \c dispatcher instance
-            static dispatcher::ptr create( const context& context, ::asio::io_service& io_service );
-
-           public:
             /// \brief Create new \c dispatcher instance.
-            ///
-            /// WARNING: Except for maybe in unit test scenarios, client code should not use this constructor directly.
-            /// Instead, it should use \c dispatcher::create.
             ///
             /// \param context Context containing our configuration
             /// \param io_service Asio io_service instance to be passed on to \c mqtt_client_session_manager
             dispatcher( const context& context, ::asio::io_service& io_service );
 
+           public:
             void handle_packet_received( mqtt_packet_sender::packet_container_t::ptr packet_container );
 
             /// \brief Stop this \c dispatcher instance, closing all \c mqtt_client_sessions
