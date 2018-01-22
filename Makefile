@@ -329,7 +329,7 @@ LDLIBS_UT                 += -fno-sanitize=vptr # See: https://github.com/scylla
 # catch.hpp: test library on github
 # --------------------------------------------------------------------------------------------------------------------- 
 
-CATCH_DL_URL              := https://raw.githubusercontent.com/philsquared/Catch/master/single_include/catch.hpp
+CATCH_DL_URL              := https://raw.githubusercontent.com/catchorg/Catch2/master/single_include/catch.hpp
 
 #######################################################################################################################
 # Rules

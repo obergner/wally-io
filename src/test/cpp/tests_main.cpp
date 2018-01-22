@@ -3,7 +3,7 @@
 
 #include <boost/log/core.hpp>
 
-int main( int argc, char const** argv )
+int main( int argc, char** argv )
 {
     // Disable all logging during unit tests
     boost::log::core::get( )->set_logging_enabled( false );
