@@ -31,6 +31,7 @@ namespace io_wally
         dispatcher::dispatcher( const context& context, ::asio::io_service& io_service )
             : session_manager_{context, io_service}
         {
+            logger_ = context.logger_factory( ).logger( "dispatcher" );
         }
 
         void dispatcher::handle_packet_received( mqtt_packet_sender::packet_container_t::ptr packet_container )

@@ -36,7 +36,7 @@ namespace io_wally
 
         mqtt_client_session_manager::mqtt_client_session_manager( const io_wally::context& context,
                                                                   ::asio::io_service& io_service )
-            : context_{context}, io_service_{io_service}
+            : context_{context}, io_service_{io_service}, topic_subscriptions_{context}
         {
         }
 

@@ -40,7 +40,7 @@ namespace io_wally
               tx_in_flight_publications_{session_manager.context( ), session_manager.io_service( ), connection},
               rx_in_flight_publications_{session_manager.context( ), session_manager.io_service( ), connection}
         {
-            logger_ = logging::logger_factory::get( ).logger( "session/" + client_id_ );
+            logger_ = session_manager_.context( ).logger_factory( ).logger( "session/" + client_id_ );
         }
 
         const std::string& mqtt_client_session::client_id( ) const

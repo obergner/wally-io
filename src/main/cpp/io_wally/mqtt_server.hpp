@@ -89,9 +89,9 @@ namespace io_wally
         bool connections_closed_{false};
         std::condition_variable conn_closed_{};
         /// Our session manager that manages all connections
-        mqtt_connection_manager connection_manager_{};
+        mqtt_connection_manager connection_manager_{context_};
         /// Pool of io_service objects used for all things networking (just one io_service object for now)
-        concurrency::io_service_pool network_service_pool_{"network", 1};
+        concurrency::io_service_pool network_service_pool_{context_, "network", 1};
         /// The io_service used to perform asynchronous operations.
         ::asio::io_service& io_service_{network_service_pool_.io_service( )};
         /// Dispatcher: dispatch received packets to dispatcher subsystem
@@ -103,6 +103,6 @@ namespace io_wally
         /// The next socket to be accepted.
         ::asio::ip::tcp::socket socket_{io_service_};
         /// Our logger
-        std::unique_ptr<spdlog::logger> logger_ = logging::logger_factory::get( ).logger( "server" );
+        std::unique_ptr<spdlog::logger> logger_ = context_.logger_factory( ).logger( "server" );
     };
 }  // namespace io_wally

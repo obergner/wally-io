@@ -20,23 +20,16 @@ namespace io_wally
         class logger_factory final
         {
            public:  // static
-            static logger_factory& get( )
-            {
-                assert( instance_ );
-                return *instance_;
-            }
+            static logger_factory create( const boost::program_options::variables_map& config );
 
-            static void initialize( const boost::program_options::variables_map& config );
-
-            /// \brief Disable logging
-            static void disable( );
+            static logger_factory disabled( );
 
             logger_factory( const std::string log_pattern,
                             spdlog::level::level_enum log_level,
                             const std::vector<spdlog::sink_ptr> sinks );
 
            public:
-            std::unique_ptr<spdlog::logger> logger( const std::string& logger_name );
+            std::unique_ptr<spdlog::logger> logger( const std::string& logger_name ) const;
 
            private:  // static
             static std::unique_ptr<logger_factory> instance_;

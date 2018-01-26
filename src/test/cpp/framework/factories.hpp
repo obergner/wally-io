@@ -7,13 +7,14 @@
 
 #include "framework/mocks.hpp"
 
+#include "io_wally/context.hpp"
+#include "io_wally/dispatch/common.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/publish_packet.hpp"
-#include "io_wally/protocol/subscription.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
+#include "io_wally/protocol/subscription.hpp"
 #include "io_wally/protocol/unsubscribe_packet.hpp"
-#include "io_wally/dispatch/common.hpp"
 
 namespace framework
 {
@@ -32,4 +33,6 @@ namespace framework
                                                                             't', 'e', 's', 't'} );
 
     io_wally::mqtt_packet_sender::packet_container_t::ptr create_publish_container( const std::string& topic );
+
+    io_wally::context create_context( );
 }  // namespace framework

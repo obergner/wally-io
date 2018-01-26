@@ -142,7 +142,7 @@ namespace io_wally
             /// All retained messages
             retained_messages retained_messages_{};
             /// Our logger
-            std::unique_ptr<spdlog::logger> logger_ = logging::logger_factory::get( ).logger( "session-manager" );
+            std::unique_ptr<spdlog::logger> logger_ = context_.logger_factory( ).logger( "session-manager" );
         };
     }  // namespace dispatch
 }  // namespace io_wally

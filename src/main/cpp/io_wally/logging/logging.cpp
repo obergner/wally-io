@@ -49,8 +49,6 @@ namespace io_wally
         // --------------------------------------------------------------------------------------------------
         // class logger_factory
         // --------------------------------------------------------------------------------------------------
-        std::unique_ptr<logger_factory> logger_factory::instance_{};
-
         logger_factory::logger_factory( const std::string log_pattern,
                                         spdlog::level::level_enum log_level,
                                         const std::vector<spdlog::sink_ptr> sinks )
@@ -58,7 +56,7 @@ namespace io_wally
         {
         }
 
-        void logger_factory::initialize( const boost::program_options::variables_map& config )
+        logger_factory logger_factory::create( const boost::program_options::variables_map& config )
         {
             // TODO: set log queue size from command line param
             const auto log_q_size = 4096;
@@ -86,18 +84,18 @@ namespace io_wally
                 }
             }
 
-            instance_.reset( new logger_factory{log_pattern, log_level, sinks} );
+            return logger_factory{log_pattern, log_level, sinks};
         }
 
-        void logger_factory::disable( )
+        logger_factory logger_factory::disabled( )
         {
             auto sinks = std::vector<spdlog::sink_ptr>{};
             sinks.push_back( std::make_shared<spdlog::sinks::null_sink_mt>( ) );
 
-            instance_.reset( new logger_factory{"", spdlog::level::off, sinks} );
+            return logger_factory{"", spdlog::level::off, sinks};
         }
 
-        std::unique_ptr<spdlog::logger> logger_factory::logger( const std::string& logger_name )
+        std::unique_ptr<spdlog::logger> logger_factory::logger( const std::string& logger_name ) const
         {
             auto logger = std::make_unique<spdlog::logger>( logger_name, std::begin( sinks_ ), std::end( sinks_ ) );
             logger->set_pattern( log_pattern_ );

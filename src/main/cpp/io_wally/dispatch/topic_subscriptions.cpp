@@ -40,6 +40,11 @@ namespace io_wally
         // class topic_subscriptions
         // --------------------------------------------------------------------------------
 
+        topic_subscriptions::topic_subscriptions( const context& context )
+        {
+            logger_ = context.logger_factory( ).logger( "topic-subscriptions" );
+        }
+
         std::shared_ptr<const protocol::suback> topic_subscriptions::subscribe(
             const std::string& client_id,
             std::shared_ptr<const protocol::subscribe> subscribe )

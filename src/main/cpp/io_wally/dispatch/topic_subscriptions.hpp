@@ -8,6 +8,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include "io_wally/context.hpp"
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/logging/logging.hpp"
 #include "io_wally/protocol/common.hpp"
@@ -84,7 +85,7 @@ namespace io_wally
         class topic_subscriptions final
         {
            public:
-            topic_subscriptions( ) = default;
+            topic_subscriptions( const context& context );
 
             topic_subscriptions( const topic_subscriptions& ) = delete;
 
@@ -121,7 +122,7 @@ namespace io_wally
             // in C++ need to be copy assignable or movable, which is incompatible with const)
             std::unordered_set<subscription_container, subscription_container_hash> subscriptions_{1000};
             /// Our logger
-            std::unique_ptr<spdlog::logger> logger_ = logging::logger_factory::get( ).logger( "topic-subscriptions" );
+            std::unique_ptr<spdlog::logger> logger_;
         };  // class topic_subscriptions
     }       // namespace dispatch
 }  // namespace io_wally

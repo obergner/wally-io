@@ -15,12 +15,11 @@
 
 namespace io_wally
 {
-    using namespace std;
     namespace options = boost::program_options;
 
     namespace app
     {
-        static const string USAGE = R"USG(
+        static const std::string USAGE = R"USG(
 mqttd: MQTT 3.1.1 Broker v. 0.0.1-PREALPHA
 
 mqttd is a fledgling MQTT 3.1.1 broker currently undergoing heavy development.
@@ -48,25 +47,25 @@ DISCLAIMER:
 
                 if ( config.count( context::HELP ) )
                 {
-                    cout << USAGE << endl << all_opts_desc << endl;
+                    std::cout << USAGE << std::endl << all_opts_desc << std::endl;
                     return EC_OK;
                 }
 
                 options::notify( config );
 
-                logging::logger_factory::initialize( config );
+                auto logger_factory = logging::logger_factory::create( config );
 
                 auto auth_service_factory =
                     app::authentication_service_factories::instance( )[config[context::AUTHENTICATION_SERVICE_FACTORY]
-                                                                           .as<string>( )];
+                                                                           .as<std::string>( )];
                 auto auth_service = auth_service_factory( config );
 
-                auto ctx = context( move( config ), move( auth_service ) );
+                auto ctx = context( std::move( config ), std::move( auth_service ), std::move( logger_factory ) );
 
-                server_ = mqtt_server::create( move( ctx ) );
+                server_ = mqtt_server::create( std::move( ctx ) );
                 {
                     // Nested scope to reliable release lock before we call server_.run(), which will block "forever".
-                    auto ul = unique_lock<mutex>{startup_mutex_};
+                    auto ul = std::unique_lock<std::mutex>{startup_mutex_};
 
                     startup_completed_.notify_all( );
                 }
@@ -80,12 +79,12 @@ DISCLAIMER:
             }
             catch ( const options::error& e )
             {
-                cerr << "Wrong usage: " << e.what( ) << endl;
+                std::cerr << "Wrong usage: " << e.what( ) << std::endl;
                 return EC_MALFORMED_CMDLINE;
             }
             catch ( const std::exception& e )
             {
-                cerr << "Error: " << e.what( ) << endl;
+                std::cerr << "Error: " << e.what( ) << std::endl;
                 return EC_RUNTIME_ERROR;
             }
             return EC_OK;
@@ -95,7 +94,7 @@ DISCLAIMER:
         {
             {
                 // Nested block: we don't want to hold this lock when calling wait_for_bound() below
-                auto ul = unique_lock<mutex>{startup_mutex_};
+                auto ul = std::unique_lock<std::mutex>{startup_mutex_};
 
                 startup_completed_.wait( ul, [this]( ) { return server_.use_count( ) > 0; } );
             }
@@ -103,7 +102,7 @@ DISCLAIMER:
             server_->wait_until_bound( );
         }
 
-        void application::stop( const string& message )
+        void application::stop( const std::string& message )
         {
             server_->close_connections( message );
             server_->wait_until_connections_closed( );

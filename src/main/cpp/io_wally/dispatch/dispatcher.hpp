@@ -51,7 +51,7 @@ namespace io_wally
 
            private:
             mqtt_client_session_manager session_manager_;
-            std::unique_ptr<spdlog::logger> logger_ = logging::logger_factory::get( ).logger( "dispatcher" );
+            std::unique_ptr<spdlog::logger> logger_;
         };  // class dispatcher
     }       // namespace dispatch
 }  // namespace io_wally

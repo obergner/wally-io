@@ -4,6 +4,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include "io_wally/context.hpp"
 #include "io_wally/logging/logging.hpp"
 #include "io_wally/logging_support.hpp"
 #include "io_wally/mqtt_connection.hpp"
@@ -24,7 +25,7 @@ namespace io_wally
         mqtt_connection_manager& operator=( const mqtt_connection_manager& ) = delete;
 
         /// Construct a connection manager.
-        mqtt_connection_manager( );
+        mqtt_connection_manager( const context& context );
 
         /// Add the specified \c mqtt_connection to the manager and start it.
         void start( mqtt_connection::ptr connection );
@@ -39,6 +40,6 @@ namespace io_wally
         /// The managed connections.
         std::set<mqtt_connection::ptr> connections_{};
         /// Our logger
-        std::unique_ptr<spdlog::logger> logger_ = logging::logger_factory::get( ).logger( "connection-manager" );
+        std::unique_ptr<spdlog::logger> logger_;
     };
 }  // namespace io_wally

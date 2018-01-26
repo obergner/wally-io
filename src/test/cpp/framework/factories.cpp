@@ -5,14 +5,18 @@
 #include <string>
 #include <vector>
 
+#include <boost/program_options.hpp>
+
 #include "framework/mocks.hpp"
 
+#include "io_wally/dispatch/common.hpp"
+#include "io_wally/impl/accept_all_authentication_service_factory.hpp"
+#include "io_wally/logging/logging.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/publish_packet.hpp"
-#include "io_wally/protocol/subscription.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
-#include "io_wally/dispatch/common.hpp"
+#include "io_wally/protocol/subscription.hpp"
 
 namespace framework
 {
@@ -68,5 +72,13 @@ namespace framework
         auto sender_ptr = framework::packet_sender_mock::create( );
 
         return io_wally::mqtt_packet_sender::packet_container_t::contain( "client_mock", sender_ptr, publish_ptr );
+    }
+
+    io_wally::context create_context( )
+    {
+        return io_wally::context( boost::program_options::variables_map{},
+                                  std::unique_ptr<io_wally::spi::authentication_service>(
+                                      new io_wally::impl::accept_all_authentication_service{} ),
+                                  io_wally::logging::logger_factory::disabled( ) );
     }
 }  // namespace framework

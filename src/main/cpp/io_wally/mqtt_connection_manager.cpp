@@ -7,9 +7,9 @@
 
 namespace io_wally
 {
-    mqtt_connection_manager::mqtt_connection_manager( )
+    mqtt_connection_manager::mqtt_connection_manager( const context& context )
     {
-        return;
+        logger_ = context.logger_factory( ).logger( "connection-manager" );
     }
 
     void mqtt_connection_manager::start( mqtt_connection::ptr connection )

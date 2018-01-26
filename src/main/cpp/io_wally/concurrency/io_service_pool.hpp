@@ -13,6 +13,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include "io_wally/context.hpp"
 #include "io_wally/logging/logging.hpp"
 
 namespace io_wally
@@ -30,11 +31,12 @@ namespace io_wally
         class io_service_pool final
         {
            public:
-            io_service_pool( const std::string& name, std::size_t pool_size = 1 ) : name_{name}, pool_size_{pool_size}
+            io_service_pool( const context& context, const std::string& name, std::size_t pool_size = 1 )
+                : name_{name}, pool_size_{pool_size}
             {
                 assert( pool_size > 0 );
 
-                logger_ = logging::logger_factory::get( ).logger( "io-srvc-pool/" + name_ );
+                logger_ = context.logger_factory( ).logger( "io-service-pool/" + name );
 
                 for ( std::size_t i = 0; i < pool_size; ++i )
                 {

@@ -15,7 +15,7 @@ SCENARIO( "topic_subscriptions#resolve_subscribers", "[dispatch]" )
 {
     GIVEN( "topic_subscriptions with three subscriptions having different QoS" )
     {
-        io_wally::dispatch::topic_subscriptions under_test{};
+        io_wally::dispatch::topic_subscriptions under_test{framework::create_context( )};
 
         auto const client_id = "topic_subscription_tests";
         auto subscriptions = std::vector<subscription>{{"/topic/+/level", packet::QoS::AT_MOST_ONCE},
@@ -47,7 +47,7 @@ SCENARIO( "topic_subscriptions#unsubscribe", "[dispatch]" )
 {
     GIVEN( "topic_subscriptions with three subscriptions" )
     {
-        io_wally::dispatch::topic_subscriptions under_test{};
+        io_wally::dispatch::topic_subscriptions under_test{framework::create_context( )};
 
         auto const client_id = "topic_subscription_tests";
         auto subscriptions = std::vector<subscription>{{"/first/+/level", packet::QoS::AT_MOST_ONCE},

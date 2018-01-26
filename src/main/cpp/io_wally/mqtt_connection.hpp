@@ -183,6 +183,6 @@ namespace io_wally
         ::asio::steady_timer close_on_keep_alive_timeout_;
         /// Our logger
         std::unique_ptr<spdlog::logger> logger_ =
-            logging::logger_factory::get( ).logger( mqtt_connection::endpoint_description( socket_ ) );
+            context_.logger_factory( ).logger( mqtt_connection::endpoint_description( socket_ ) );
     };  // class mqtt_connection
 }
