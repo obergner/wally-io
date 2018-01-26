@@ -1,12 +1,12 @@
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
 
-#include <boost/log/core.hpp>
+#include <io_wally/logging/logging.hpp>
 
 int main( int argc, char** argv )
 {
     // Disable all logging during unit tests
-    boost::log::core::get( )->set_logging_enabled( false );
+    io_wally::logging::logger_factory::disable( );
 
     return Catch::Session( ).run( argc, argv );
 }

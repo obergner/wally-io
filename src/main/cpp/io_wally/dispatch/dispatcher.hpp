@@ -7,11 +7,12 @@
 
 #include <asio.hpp>
 
-#include <boost/log/trivial.hpp>
+#include <spdlog/spdlog.h>
 
 #include "io_wally/context.hpp"
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/dispatch/mqtt_client_session_manager.hpp"
+#include "io_wally/logging/logging.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
 
 namespace io_wally
@@ -50,10 +51,7 @@ namespace io_wally
 
            private:
             mqtt_client_session_manager session_manager_;
-            /// Our severity-enabled channel logger
-            boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
-                boost::log::keywords::channel = "dispatcher",
-                boost::log::keywords::severity = boost::log::trivial::trace};
+            std::unique_ptr<spdlog::logger> logger_ = logging::logger_factory::get( ).logger( "dispatcher" );
         };  // class dispatcher
     }       // namespace dispatch
 }  // namespace io_wally

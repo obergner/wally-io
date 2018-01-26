@@ -4,9 +4,6 @@
 
 #include <asio.hpp>
 
-#include <boost/log/common.hpp>
-#include <boost/log/trivial.hpp>
-
 /// \brief Extend namespace \c asio with logging utility functions
 ///
 /// Implement \c operator<< for

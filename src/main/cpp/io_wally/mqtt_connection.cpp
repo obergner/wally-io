@@ -8,8 +8,8 @@
 
 #include <asio.hpp>
 
-#include <boost/log/common.hpp>
-#include <boost/log/trivial.hpp>
+#include <spdlog/fmt/ostr.h>
+#include <spdlog/spdlog.h>
 
 #include "io_wally/error/protocol.hpp"
 #include "io_wally/logging_support.hpp"
@@ -24,8 +24,6 @@ namespace io_wally
     using namespace std;
     using namespace io_wally::protocol;
     using namespace io_wally::decoder;
-
-    namespace lvl = boost::log::trivial;
 
     // ---------------------------------------------------------------------------------------------------------------
     // Public/static
@@ -95,7 +93,7 @@ namespace io_wally
 
     void mqtt_connection::start( )
     {
-        BOOST_LOG_SEV( logger_, lvl::info ) << "START: " << *this;
+        logger_->info( "START: {}", *this );
 
         close_on_connect_timeout( );
 
@@ -107,9 +105,9 @@ namespace io_wally
         write_packet( *packet );
     }
 
-    void mqtt_connection::stop( const string& message, const boost::log::trivial::severity_level log_level )
+    void mqtt_connection::stop( const string& message, const spdlog::level::level_enum log_level )
     {
-        BOOST_LOG_SEV( logger_, log_level ) << message;
+        logger_->log( log_level, message );
         auto self = shared_from_this( );
         strand_.get_io_service( ).dispatch( strand_.wrap( [self]( ) { self->connection_manager_.stop( self ); } ) );
     }
@@ -127,7 +125,7 @@ namespace io_wally
         socket_.shutdown( socket_.shutdown_both, ignored_ec );
         socket_.close( ignored_ec );
 
-        BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPED: " << *this;
+        logger_->info( "STOPPED: {}", *this );
     }
 
     // Deal with connect timeout
@@ -146,7 +144,7 @@ namespace io_wally
                 msg << "CONNECTION TIMEOUT EXPIRED after ["
                     << self->context_[context::CONNECT_TIMEOUT].as<const uint32_t>( ) << "] ms";
                 self->connection_close_requested( msg.str( ), dispatch::disconnect_reason::protocol_violation, ec,
-                                                  lvl::warning );
+                                                  spdlog::level::level_enum::warn );
             }
         } ) );
     }
@@ -158,8 +156,7 @@ namespace io_wally
         if ( !socket_.is_open( ) )  // Socket was closed
             return;
 
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "<<< READ: next frame ...";
-
+        logger_->debug( "<<< READ: next frame ..." );
         auto self = shared_from_this( );
         ::asio::async_read( socket_, ::asio::buffer( read_buffer_ ),
                             [self]( const std::error_code& ec, const size_t bytes_transferred ) -> size_t {
@@ -189,8 +186,7 @@ namespace io_wally
             const std::optional<const frame> frame = frame_reader_.get_frame( );
             assert( frame );
             auto parsed_packet = packet_decoder_.decode( *frame );
-            BOOST_LOG_SEV( logger_, lvl::info )
-                << "<<< DECODED [res:" << *parsed_packet << "|bytes:" << bytes_transferred << "]";
+            logger_->info( "<<< DECODED [res:{}|bytes:{}]", *parsed_packet, bytes_transferred );
 
             frame_reader_.reset( );
             // TODO: Think about better resizing strategy - maybe using a max buffer capacity
@@ -215,7 +211,7 @@ namespace io_wally
             auto msg = ostringstream{};
             msg << "<<< NETWORK ERROR (" << ec.message( ) << ") after [" << bytes_transferred << "] bytes transferred";
             connection_close_requested( msg.str( ), dispatch::disconnect_reason::network_or_server_failure, ec,
-                                        lvl::error );
+                                        spdlog::level::level_enum::err );
         }
     }
 
@@ -223,7 +219,7 @@ namespace io_wally
 
     void mqtt_connection::process_decoded_packet( shared_ptr<protocol::mqtt_packet> packet )
     {
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "--- PROCESSING: " << *packet << " ...";
+        logger_->debug( "--- PROCESSING: {} ...", *packet );
         switch ( packet->header( ).type( ) )
         {
             case packet::Type::CONNECT:
@@ -236,7 +232,7 @@ namespace io_wally
             case packet::Type::PINGREQ:
             {
                 write_packet( pingresp( ) );
-                BOOST_LOG_SEV( logger_, lvl::info ) << "--- PROCESSED: " << *packet;
+                logger_->info( "--- PROCESSED: {}", *packet );
                 // Keep us in the loop!
                 read_frame( );
             }
@@ -300,7 +296,7 @@ namespace io_wally
                 keep_alive_ = chrono::seconds{connect->keep_alive_secs( )};
                 close_on_keep_alive_timeout( );
             }
-            BOOST_LOG_SEV( logger_, lvl::info ) << "--- PROCESSED: " << *connect;
+            logger_->info( "--- PROCESSED: {}", *connect );
 
             dispatch_connect_packet( connect );
         }
@@ -308,11 +304,11 @@ namespace io_wally
 
     void mqtt_connection::dispatch_connect_packet( shared_ptr<protocol::connect> connect )
     {
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *connect << " ...";
+        logger_->debug( "--- DISPATCHING: {} ...", *connect );
         auto connect_container = packet_container_t::contain( connect->client_id( ), shared_from_this( ), connect,
                                                               dispatch::disconnect_reason::client_disconnect );
         dispatcher_.handle_packet_received( connect_container );
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *connect;
+        logger_->debug( "--- DISPATCHED:  {}", *connect );
         write_packet( connack{false, connect_return_code::CONNECTION_ACCEPTED} );
     }
 
@@ -324,25 +320,23 @@ namespace io_wally
     void mqtt_connection::dispatch_disconnect_packet( shared_ptr<protocol::disconnect> disconnect,
                                                       const dispatch::disconnect_reason disconnect_reason )
     {
-        BOOST_LOG_SEV( logger_, lvl::debug )
-            << "--- DISPATCHING: " << *disconnect << "[rsn:" << disconnect_reason << "] ...";
+        logger_->debug( "--- DISPATCHING: {} [rsn:{}] ...", *disconnect, disconnect_reason );
         auto disconnect_container =
             packet_container_t::contain( *client_id_, shared_from_this( ), disconnect, disconnect_reason );
         dispatcher_.handle_packet_received( disconnect_container );
-        BOOST_LOG_SEV( logger_, lvl::debug )
-            << "--- DISPATCHED: " << *disconnect << " [rsn:" << disconnect_reason << "]";
+        logger_->info( "--- DISPATCHED:  {} [rsn:{}] ...", *disconnect, disconnect_reason );
 
         auto msg = ostringstream{};
         msg << "--- Connection disconnected: " << disconnect_reason;
-        stop( msg.str( ), lvl::info );
+        stop( msg.str( ), spdlog::level::level_enum::info );
     }
 
     void mqtt_connection::dispatch_packet( shared_ptr<protocol::mqtt_packet> packet )
     {
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHING: " << *packet << " ...";
+        logger_->debug( "--- DISPATCHING: {} ...", *packet );
         auto subscribe_container = packet_container_t::contain( *client_id_, shared_from_this( ), packet );
         dispatcher_.handle_packet_received( subscribe_container );
-        BOOST_LOG_SEV( logger_, lvl::debug ) << "--- DISPATCHED: " << *packet;
+        logger_->debug( "--- DISPATCHED:  {} ...", *packet );
     }
 
     // Sending messages
@@ -352,8 +346,7 @@ namespace io_wally
         if ( !socket_.is_open( ) )  // Socket was asynchronously closed
             return;
 
-        BOOST_LOG_SEV( logger_, lvl::debug ) << ">>> SEND: " << packet << " ...";
-
+        logger_->debug( ">>> SEND: {} ...", packet );
         write_buffer_.clear( );
         write_buffer_.resize( packet.header( ).total_length( ) );
         packet_encoder_.encode( packet, write_buffer_.begin( ),
@@ -366,11 +359,12 @@ namespace io_wally
                                  {
                                      self->connection_close_requested(
                                          "Failed to send packet",
-                                         dispatch::disconnect_reason::network_or_server_failure, ec, lvl::error );
+                                         dispatch::disconnect_reason::network_or_server_failure, ec,
+                                         spdlog::level::level_enum::err );
                                  }
                                  else
                                  {
-                                     BOOST_LOG_SEV( self->logger_, lvl::debug ) << ">>> SENT";
+                                     self->logger_->debug( ">>> SENT" );
                                  }
                              } ) );
     }
@@ -382,7 +376,7 @@ namespace io_wally
         if ( !socket_.is_open( ) )  // Socket was asynchronously closed
             return;
 
-        BOOST_LOG_SEV( logger_, lvl::debug ) << ">>> SEND: " << packet << " - " << message << " ...";
+        logger_->debug( ">>> SEND: {} - {} ...", packet, message );
         write_buffer_.clear( );
         write_buffer_.resize( packet.header( ).total_length( ) );
         packet_encoder_.encode( packet, write_buffer_.begin( ),
@@ -394,11 +388,12 @@ namespace io_wally
                                  if ( ec )
                                  {
                                      self->connection_close_requested( ">>> Failed to send packet", reason, ec,
-                                                                       lvl::error );
+                                                                       spdlog::level::level_enum::err );
                                  }
                                  else
                                  {
-                                     self->connection_close_requested( ">>> SENT", reason, ec, lvl::debug );
+                                     self->connection_close_requested( ">>> SENT", reason, ec,
+                                                                       spdlog::level::level_enum::debug );
                                  }
                              } ) );
     }
@@ -423,7 +418,7 @@ namespace io_wally
             auto msg = ostringstream{};
             msg << "Keep alive timeout expired after [" << ( keep_alive_ )->count( ) << "] s";
             connection_close_requested( msg.str( ), dispatch::disconnect_reason::keep_alive_timeout_expired, ec,
-                                        lvl::warning );
+                                        spdlog::level::level_enum::warn );
         }
         else if ( ec == ::asio::error::operation_aborted )
         {
@@ -442,11 +437,11 @@ namespace io_wally
     void mqtt_connection::connection_close_requested( const std::string& message,
                                                       const dispatch::disconnect_reason reason,
                                                       const std::error_code& ec,
-                                                      const boost::log::trivial::severity_level log_level )
+                                                      const spdlog::level::level_enum log_level )
     {
         auto err_info = ( ec ? " [ec:" + std::to_string( ec.value( ) ) + "|emsg:" + ec.message( ) + "]" : "" );
-        BOOST_LOG_SEV( logger_, log_level )
-            << "CLOSE REQUESTED (" << reason << "): " << message << err_info << " - connection will be closed";
+
+        logger_->log( log_level, "CLOSE REQUESTED ({}): {}{} - connection will be closed", reason, message, err_info );
         if ( client_id_ )
         {
             // Only "fake" DISCONNECT if we are actually CONNECTed, i.e. we know our client's client_id. Otherwise,
@@ -459,7 +454,7 @@ namespace io_wally
         }
         else
         {
-            stop( message, lvl::error );
+            stop( message, spdlog::level::level_enum::err );
         }
     }
 }

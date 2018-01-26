@@ -9,6 +9,8 @@
 
 #include <asio.hpp>
 
+#include <spdlog/spdlog.h>
+
 #include "io_wally/context.hpp"
 #include "io_wally/dispatch/rx_publication.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
@@ -93,7 +95,7 @@ namespace io_wally
             {
                 locked_sender->stop(
                     "[MQTT-4.8.0-1] Protocol violation: client sent PUBREL without first sending PUBLISH",
-                    boost::log::trivial::warning );
+                    spdlog::level::level_enum::warn );
             }
         }
 

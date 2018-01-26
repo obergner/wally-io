@@ -34,6 +34,7 @@ SRCS_M                   += $(wildcard $(SRC_DIR_M)/io_wally/codec/*.cpp)
 SRCS_M                   += $(wildcard $(SRC_DIR_M)/io_wally/spi/*.cpp)
 SRCS_M                   += $(wildcard $(SRC_DIR_M)/io_wally/impl/*.cpp)
 SRCS_M                   += $(wildcard $(SRC_DIR_M)/io_wally/dispatch/*.cpp)
+SRCS_M                   += $(wildcard $(SRC_DIR_M)/io_wally/logging/*.cpp)
 SRCS_M                   += $(wildcard $(SRC_DIR_M)/io_wally/app/*.cpp)
 
 EXECSOURCE_M             := $(wildcard $(SRC_DIR_M)/*.cpp)
@@ -154,6 +155,9 @@ EXEC_UT                   := $(BUILD_UT)/unit-tests
 
 SRC_DIR_IT                := $(DIR)/src/itest/py
 
+# Build dir for integration tests
+BUILD_IT                  := $(BUILD)/itest
+
 # --------------------------------------------------------------------------------------------------------------------- 
 # Tooling
 # --------------------------------------------------------------------------------------------------------------------- 
@@ -202,6 +206,7 @@ CXXFLAGS_M                += -fdiagnostics-color=auto
 CXXFLAGS_M                += -MMD # automatically generate dependency rules on each run
 CXXFLAGS_M                += -I $(SRC_DIR_M)
 CXXFLAGS_M                += -I $(ASIO_EXT_INC)
+CXXFLAGS_M                += -I $(SPDLOG_EXT_INC)
 CXXFLAGS_M                += -Werror
 CXXFLAGS_M                += -Wall
 CXXFLAGS_M                += -Wextra
@@ -223,8 +228,6 @@ CPPFLAGS_M                += -DASIO_STANDALONE
 CPPFLAGS_M                += -DASIO_HAS_STD_CHRONO
 
 # Extra linker flags
-LDLIBS_M                  := -lboost_log_setup
-LDLIBS_M                  += -lboost_log
 LDLIBS_M                  += -lboost_program_options
 LDLIBS_M                  += -lboost_regex
 LDLIBS_M                  += -lboost_filesystem
@@ -423,8 +426,11 @@ $(EXEC_UT)                : $(OBJS_M_SAN) $(OBJS_UT) $(OBJS_UT_FRM) $(EXECOBJ_UT
 # --------------------------------------------------------------------------------------------------------------------- 
 
 .PHONY                    : itest
-itest                     : sanitize
+itest                     : sanitize                               | $(BUILD_IT)
 	@python3 -m unittest discover --verbose --start-directory $(SRC_DIR_IT) --pattern "*_tests.py"
+
+$(BUILD_IT)               :
+	@mkdir -p $@
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Build/run load tests
@@ -516,8 +522,8 @@ format-test               : $(SRCS_UT) $(EXECSOURCE_UT)
 	clang-format -i -style=file $(SRCS_UT) $(EXECSOURCE_UT)
 
 .PHONY                    : format-libs
-format-libs               : $(ASIO_EXT_SRCS)
-	clang-format -i -style=file $(ASIO_EXT_SRCS)
+format-libs               : $(ASIO_EXT_SRCS) $(SPDLOG_EXT_SRCS)
+	clang-format -i -style=file $(ASIO_EXT_SRCS) $(SPDLOG_EXT_SRCS)
 
 .PHONY                    : format
 format                    : format-main

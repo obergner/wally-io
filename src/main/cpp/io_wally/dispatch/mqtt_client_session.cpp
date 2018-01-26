@@ -3,10 +3,11 @@
 #include <memory>
 #include <string>
 
-#include <boost/log/common.hpp>
-#include <boost/log/trivial.hpp>
+#include <spdlog/fmt/ostr.h>
+#include <spdlog/spdlog.h>
 
 #include "io_wally/dispatch/mqtt_client_session_manager.hpp"
+#include "io_wally/logging/logging.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/puback_packet.hpp"
@@ -19,8 +20,6 @@ namespace io_wally
     namespace dispatch
     {
         using namespace std;
-        using lvl = boost::log::trivial::severity_level;
-
         // ------------------------------------------------------------------------------------------------------------
         // Public
         // ------------------------------------------------------------------------------------------------------------
@@ -41,6 +40,7 @@ namespace io_wally
               tx_in_flight_publications_{session_manager.context( ), session_manager.io_service( ), connection},
               rx_in_flight_publications_{session_manager.context( ), session_manager.io_service( ), connection}
         {
+            logger_ = logging::logger_factory::get( ).logger( "session/" + client_id_ );
         }
 
         const std::string& mqtt_client_session::client_id( ) const
@@ -54,13 +54,12 @@ namespace io_wally
             {
                 // Connection has not gone away, safe to send
                 conn_local->send( packet );
-                BOOST_LOG_SEV( logger_, lvl::info ) << "SENT: " << *packet;
+                logger_->info( "SENT: {}", *packet );
             }
             else
             {
                 // Connection was closed, destroy this session (IF NOT PERSISTENT)
-                BOOST_LOG_SEV( logger_, lvl::info )
-                    << "Client connection was asynchronously closed - this session will be destroyed";
+                logger_->info( "Client connection was asynchronously closed - this session will be destroyed" );
                 destroy( );
             }
         }
@@ -69,8 +68,7 @@ namespace io_wally
                                            const protocol::packet::QoS maximum_qos )
         {
             tx_in_flight_publications_.publish( incoming_publish, maximum_qos );
-            BOOST_LOG_SEV( logger_, lvl::debug )
-                << "PUBLISHED: " << *incoming_publish << "(maxqos:" << maximum_qos << ")";
+            logger_->debug( "PUBLSIHED: {} (maxqos: {})", *incoming_publish, maximum_qos );
         }
 
         void mqtt_client_session::client_sent_publish( std::shared_ptr<protocol::publish> incoming_publish )
@@ -82,33 +80,32 @@ namespace io_wally
             }
             else
             {
-                BOOST_LOG_SEV( logger_, lvl::info )
-                    << "Client re-sent PUBLISH packet " << incoming_publish << " - will be ignored";
+                logger_->info( "Client re-sent PUBLISH packet {} - will be ignored", *incoming_publish );
             }
         }
 
         void mqtt_client_session::client_acked_publish( std::shared_ptr<protocol::puback> puback )
         {
             tx_in_flight_publications_.response_received( puback );
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "ACKED: " << *puback;
+            logger_->debug( "ACKED: {}", *puback );
         }
 
         void mqtt_client_session::client_received_publish( std::shared_ptr<protocol::pubrec> pubrec )
         {
             tx_in_flight_publications_.response_received( pubrec );
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "RCVD: " << *pubrec;
+            logger_->debug( "RCVD: {}", *pubrec );
         }
 
         void mqtt_client_session::client_released_publish( std::shared_ptr<protocol::pubrel> pubrel )
         {
             rx_in_flight_publications_.client_sent_pubrel( pubrel );
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "RCVD: " << *pubrel;
+            logger_->debug( "RCVD: {}", *pubrel );
         }
 
         void mqtt_client_session::client_completed_publish( std::shared_ptr<protocol::pubcomp> pubcomp )
         {
             tx_in_flight_publications_.response_received( pubcomp );
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "CMPD: " << *pubcomp;
+            logger_->debug( "CMPD: {}", *pubcomp );
         }
 
         void mqtt_client_session::destroy( )

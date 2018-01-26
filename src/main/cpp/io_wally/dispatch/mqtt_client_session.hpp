@@ -1,19 +1,18 @@
 #pragma once
 
-#include <string>
 #include <memory>
+#include <string>
 
-#include <boost/log/common.hpp>
-#include <boost/log/trivial.hpp>
+#include <spdlog/spdlog.h>
 
-#include "io_wally/protocol/common.hpp"
-#include "io_wally/protocol/publish_packet.hpp"
-#include "io_wally/protocol/puback_packet.hpp"
-#include "io_wally/protocol/pubrec_packet.hpp"
-#include "io_wally/protocol/pubcomp_packet.hpp"
-#include "io_wally/mqtt_packet_sender.hpp"
-#include "io_wally/dispatch/tx_in_flight_publications.hpp"
 #include "io_wally/dispatch/rx_in_flight_publications.hpp"
+#include "io_wally/dispatch/tx_in_flight_publications.hpp"
+#include "io_wally/mqtt_packet_sender.hpp"
+#include "io_wally/protocol/common.hpp"
+#include "io_wally/protocol/puback_packet.hpp"
+#include "io_wally/protocol/pubcomp_packet.hpp"
+#include "io_wally/protocol/publish_packet.hpp"
+#include "io_wally/protocol/pubrec_packet.hpp"
 
 namespace io_wally
 {
@@ -87,10 +86,7 @@ namespace io_wally
             std::weak_ptr<mqtt_packet_sender> connection_;
             tx_in_flight_publications tx_in_flight_publications_;
             rx_in_flight_publications rx_in_flight_publications_;
-            /// Our severity-enabled channel logger
-            boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
-                boost::log::keywords::channel = "client-session:" + client_id_,
-                boost::log::keywords::severity = boost::log::trivial::trace};
+            std::unique_ptr<spdlog::logger> logger_;
         };  // class mqtt_client_session
     }       // namespace dispatch
 }  // namespace io_wally

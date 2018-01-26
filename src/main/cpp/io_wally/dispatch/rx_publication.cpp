@@ -5,8 +5,6 @@
 #include <cstdint>
 #include <memory>
 
-#include <boost/log/trivial.hpp>
-
 #include "io_wally/context.hpp"
 #include "io_wally/dispatch/rx_in_flight_publications.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"

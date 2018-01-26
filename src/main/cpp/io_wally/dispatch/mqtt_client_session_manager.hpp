@@ -1,26 +1,27 @@
 #pragma once
 
-#include <string>
-#include <memory>
 #include <map>
+#include <memory>
+#include <string>
 
 #include <asio.hpp>
-#include <boost/log/common.hpp>
-#include <boost/log/trivial.hpp>
 
-#include "io_wally/logging_support.hpp"
+#include <spdlog/spdlog.h>
+
 #include "io_wally/context.hpp"
-#include "io_wally/mqtt_packet_sender.hpp"
-#include "io_wally/protocol/subscribe_packet.hpp"
-#include "io_wally/protocol/unsubscribe_packet.hpp"
-#include "io_wally/protocol/publish_packet.hpp"
-#include "io_wally/protocol/puback_packet.hpp"
-#include "io_wally/protocol/pubrec_packet.hpp"
-#include "io_wally/protocol/pubcomp_packet.hpp"
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/dispatch/mqtt_client_session.hpp"
-#include "io_wally/dispatch/topic_subscriptions.hpp"
 #include "io_wally/dispatch/retained_messages.hpp"
+#include "io_wally/dispatch/topic_subscriptions.hpp"
+#include "io_wally/logging/logging.hpp"
+#include "io_wally/logging_support.hpp"
+#include "io_wally/mqtt_packet_sender.hpp"
+#include "io_wally/protocol/puback_packet.hpp"
+#include "io_wally/protocol/pubcomp_packet.hpp"
+#include "io_wally/protocol/publish_packet.hpp"
+#include "io_wally/protocol/pubrec_packet.hpp"
+#include "io_wally/protocol/subscribe_packet.hpp"
+#include "io_wally/protocol/unsubscribe_packet.hpp"
 
 namespace io_wally
 {
@@ -140,10 +141,8 @@ namespace io_wally
             std::map<const std::string, mqtt_client_session::ptr> sessions_{};
             /// All retained messages
             retained_messages retained_messages_{};
-            /// Our severity-enabled channel logger
-            boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
-                boost::log::keywords::channel = "client-session-manager",
-                boost::log::keywords::severity = boost::log::trivial::trace};
+            /// Our logger
+            std::unique_ptr<spdlog::logger> logger_ = logging::logger_factory::get( ).logger( "session-manager" );
         };
     }  // namespace dispatch
 }  // namespace io_wally

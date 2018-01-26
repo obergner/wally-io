@@ -6,10 +6,11 @@
 
 #include <asio.hpp>
 
-#include <boost/log/core.hpp>
-#include <boost/log/trivial.hpp>
+#include <spdlog/fmt/ostr.h>
+#include <spdlog/spdlog.h>
 
 #include "io_wally/dispatch/common.hpp"
+#include "io_wally/logging/logging.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/connect_packet.hpp"
@@ -23,8 +24,6 @@ namespace io_wally
 {
     namespace dispatch
     {
-        using lvl = boost::log::trivial::severity_level;
-
         // ------------------------------------------------------------------------------------------------------------
         // Public
         // ------------------------------------------------------------------------------------------------------------
@@ -36,7 +35,7 @@ namespace io_wally
 
         void dispatcher::handle_packet_received( mqtt_packet_sender::packet_container_t::ptr packet_container )
         {
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "RX: " << *packet_container->packet( );
+            logger_->debug( "RX: {}", *packet_container->packet( ) );
             if ( packet_container->packet_type( ) == protocol::packet::Type::CONNECT )
             {
                 session_manager_.client_connected( packet_container->client_id( ), packet_container->rx_connection( ) );
@@ -89,9 +88,9 @@ namespace io_wally
 
         void dispatcher::stop( const std::string& message )
         {
-            BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPING: Dispatcher (" << message << ") ...";
+            logger_->info( "STOPPING: Dispatcher ({}) ...", message );
             session_manager_.destroy_all( );
-            BOOST_LOG_SEV( logger_, lvl::info ) << "STOPPED:  Dispatcher (" << message << ")";
+            logger_->info( "STOPPED:  Dispatcher ({}) ...", message );
         }
     }  // namespace dispatch
 }  // namespace io_wally

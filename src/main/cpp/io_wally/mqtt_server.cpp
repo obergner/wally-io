@@ -2,8 +2,7 @@
 
 #include <mutex>
 
-#include <boost/log/common.hpp>
-#include <boost/log/trivial.hpp>
+#include <spdlog/fmt/ostr.h>
 
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/logging_support.hpp"
@@ -11,7 +10,6 @@
 namespace io_wally
 {
     using namespace std;
-    namespace lvl = boost::log::trivial;
 
     // ---------------------------------------------------------------------------------------------------------------
     // Public
@@ -29,12 +27,12 @@ namespace io_wally
 
     void mqtt_server::run( )
     {
-        BOOST_LOG_SEV( logger_, lvl::info ) << "START: MQTT server ...";
+        logger_->info( "START: MQTT server ..." );
 
         do_await_stop( );
 
-        auto address = context_[io_wally::context::SERVER_ADDRESS].as<const string>( );
-        auto port = context_[io_wally::context::SERVER_PORT].as<const int>( );
+        const auto address = context_[io_wally::context::SERVER_ADDRESS].as<const string>( );
+        const auto port = context_[io_wally::context::SERVER_PORT].as<const int>( );
         ::asio::ip::tcp::resolver resolver{io_service_};
         const ::asio::ip::tcp::endpoint endpoint = *resolver.resolve( {address, to_string( port )} );
 
@@ -47,7 +45,7 @@ namespace io_wally
         do_accept( );
 
         network_service_pool_.run( );
-        BOOST_LOG_SEV( logger_, lvl::info ) << "STARTED: MQTT server (" << acceptor_ << ")";
+        logger_->info( "STARTED: MQTT server ({})", acceptor_ );
 
         {
             // Use nested scope to guaratuee that lock is released
@@ -78,7 +76,7 @@ namespace io_wally
     {
         network_service_pool_.stop( );
 
-        BOOST_LOG_SEV( logger_, lvl::debug ) << message;
+        logger_->debug( message );
     }
 
     void mqtt_server::wait_until_stopped( )
@@ -94,7 +92,8 @@ namespace io_wally
     {
         auto self = shared_from_this( );
         acceptor_.async_accept( socket_, [self]( const std::error_code& ec ) {
-            BOOST_LOG_SEV( self->logger_, lvl::debug ) << "ACCEPTED: " << self->socket_;
+            self->logger_->debug( "ACCEPTED: {}", self->socket_ );
+
             // Check whether the mqtt_server was stopped by a signal before this
             // completion handler had a chance to run.
             if ( !self->acceptor_.is_open( ) )
@@ -128,7 +127,7 @@ namespace io_wally
 
     void mqtt_server::do_close_connections( const std::string& message )
     {
-        BOOST_LOG_SEV( logger_, lvl::debug ) << message;
+        logger_->debug( message );
 
         connection_manager_.stop_all( );
 
@@ -138,7 +137,7 @@ namespace io_wally
             conn_closed_.notify_all( );
         }
 
-        BOOST_LOG_SEV( logger_, lvl::info ) << "UNBOUND: MQTT server";
+        logger_->info( "UNBOUND: MQTT server" );
     }
 
 }  // namespace io_wally

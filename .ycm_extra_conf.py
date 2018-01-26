@@ -41,7 +41,7 @@ flags = [
     '-I',
     './libs/asio',
     '-I',
-    './libs/boost-asio-queue-extension',
+    './libs/spdlog',
     '-I',
     './src/main/cpp',
     '-I',

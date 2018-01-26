@@ -6,7 +6,9 @@
 #include <string>
 
 #include <asio.hpp>
-#include <boost/log/trivial.hpp>
+
+#include <spdlog/fmt/ostr.h>
+#include <spdlog/spdlog.h>
 
 #include "io_wally/context.hpp"
 #include "io_wally/dispatch/common.hpp"
@@ -27,7 +29,6 @@ namespace io_wally
     namespace dispatch
     {
         using namespace std;
-        using lvl = boost::log::trivial::severity_level;
 
         // ------------------------------------------------------------------------------------------------------------
         // Public
@@ -63,15 +64,14 @@ namespace io_wally
                 // mqtt_packet_sender)
                 auto session = mqtt_client_session::create( *this, client_id, connection );
                 sessions_.emplace( client_id, session );
-                BOOST_LOG_SEV( logger_, lvl::info )
-                    << "Session for client [cltid:" << client_id << "|conn:" << *connection_ptr
-                    << "] created [total:" << sessions_.size( ) << "]";
+                logger_->info( "Session for client [cltid:{}|conn:{}] created [total:{}]", client_id, *connection_ptr,
+                               sessions_.size( ) );
             }
             else
             {
-                BOOST_LOG_SEV( logger_, lvl::warning )
-                    << "Client connected [cltid:" << client_id
-                    << "], yet connection was immediately closed (network/protocol error)";
+                logger_->warn(
+                    "Client connected [cltid:{}], yet session was immediately closed (network/protocol error)",
+                    client_id );
             }
         }
 
@@ -79,8 +79,7 @@ namespace io_wally
                                                                const dispatch::disconnect_reason reason )
         {
             sessions_.erase( client_id );
-            BOOST_LOG_SEV( logger_, lvl::debug )
-                << "Client disconnected: [cltid:" << client_id << "|rsn:" << reason << "] - session destroyed";
+            logger_->debug( "Client disconnected: [cltid:{}|rsn:{}] - session destroyed", client_id, reason );
         }
 
         void mqtt_client_session_manager::client_subscribed( const std::string& client_id,
@@ -94,7 +93,7 @@ namespace io_wally
                 // what has happened, not what to do. This "send()" method is the only exception. Can we get rid of it?
                 session->send( suback );
             }
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "SUBSCRIBED: [cltid:" << client_id << "|pkt:" << *subscribe << "]";
+            logger_->debug( "SUBSCRIBED: [cltid:{}|pkt:{}]", client_id, *subscribe );
         }
 
         void mqtt_client_session_manager::client_unsubscribed( const std::string& client_id,
@@ -108,24 +107,21 @@ namespace io_wally
                 // what has happened, not what to do. This "send()" method is the only exception. Can we get rid of it?
                 session->send( unsuback );
             }
-            BOOST_LOG_SEV( logger_, lvl::debug )
-                << "UNSUBSCRIBED: [cltid:" << client_id << "|pkt:" << *unsubscribe << "]";
+            logger_->debug( "UNSUBSCRIBED: [cltid:{}|pkt:{}]", client_id, *unsubscribe );
         }
 
         void mqtt_client_session_manager::client_published( const std::string& client_id,
                                                             std::shared_ptr<protocol::publish> incoming_publish )
         {
-            BOOST_LOG_SEV( logger_, lvl::debug )
-                << "RX PUBLISH: [cltid:" << client_id << "|pkt:" << *incoming_publish << "]";
+            logger_->debug( "RX PUBLISH: [cltid:{}|pkt:{}]", client_id, *incoming_publish );
             if ( incoming_publish->retain( ) )
             {
                 retained_messages_.retain( incoming_publish );
                 // [MQTT-3.3.1.3] PUBLISH packets forwarded to subscriptions that already existed when they were
                 // published MUST have their retain flag set to 0
                 incoming_publish->retain( false );
-                BOOST_LOG_SEV( logger_, lvl::debug )
-                    << "RETAINED: [topic:" << incoming_publish->topic( )
-                    << "|size:" << incoming_publish->application_message( ).size( ) << "]";
+                logger_->debug( "RETAINED: [topic:{}|size:{}]", incoming_publish->topic( ),
+                                incoming_publish->application_message( ).size( ) );
             }
             if ( auto session = sessions_[client_id] )
             {
@@ -136,7 +132,7 @@ namespace io_wally
         void mqtt_client_session_manager::client_acked_publish( const std::string& client_id,
                                                                 std::shared_ptr<protocol::puback> puback )
         {
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "RX ACK: [cltid:" << client_id << "|pkt:" << *puback << "]";
+            logger_->debug( "RX ACK: [cltid:{}|pkt:{}]", client_id, *puback );
             // TODO: This will default construct (is that possible?) a new session if client_id is not yet
             // registered.
             if ( auto session = sessions_[client_id] )
@@ -148,7 +144,7 @@ namespace io_wally
         void mqtt_client_session_manager::client_received_publish( const std::string& client_id,
                                                                    std::shared_ptr<protocol::pubrec> pubrec )
         {
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "RX REC: [cltid:" << client_id << "|pkt:" << *pubrec << "]";
+            logger_->debug( "RX REC: [cltid:{}|pkt:{}]", client_id, *pubrec );
             // TODO: This will default construct (is that possible?) a new session if client_id is not yet registered.
             if ( auto session = sessions_[client_id] )
             {
@@ -159,7 +155,7 @@ namespace io_wally
         void mqtt_client_session_manager::client_released_publish( const std::string& client_id,
                                                                    std::shared_ptr<protocol::pubrel> pubrel )
         {
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "RX REL: [cltid:" << client_id << "|pkt:" << *pubrel << "]";
+            logger_->debug( "RX REL: [cltid:{}|pkt:{}]", client_id, *pubrel );
             // TODO: This will default construct (is that possible?) a new session if client_id is not yet registered.
             if ( auto session = sessions_[client_id] )
             {
@@ -170,7 +166,7 @@ namespace io_wally
         void mqtt_client_session_manager::client_completed_publish( const std::string& client_id,
                                                                     std::shared_ptr<protocol::pubcomp> pubcomp )
         {
-            BOOST_LOG_SEV( logger_, lvl::debug ) << "RX COMP: [cltid:" << client_id << "|pkt:" << *pubcomp << "]";
+            logger_->debug( "RX COMP: [cltid:{}|pkt:{}]", client_id, *pubcomp );
             // TODO: This will default construct (is that possible?) a new session if client_id is not yet registered.
             if ( auto session = sessions_[client_id] )
             {
@@ -182,14 +178,14 @@ namespace io_wally
         {
             auto rem_cnt = sessions_.erase( client_id );
             if ( rem_cnt > 0 )
-                BOOST_LOG_SEV( logger_, lvl::info ) << "Client session [cltid:" << client_id << "] destroyed";
+                logger_->info( "Client session [cltid:{}] destroyed", client_id );
         }
 
         void mqtt_client_session_manager::destroy_all( )
         {
             auto sess_cnt = sessions_.size( );
             sessions_.clear( );
-            BOOST_LOG_SEV( logger_, lvl::info ) << "SHUTDOWN: [" << sess_cnt << "] client session(s) destroyed";
+            logger_->info( "SHUTDOWN: [{}] client session(s) destroyed", sess_cnt );
         }
 
         // ------------------------------------------------------------------------------------------------------------

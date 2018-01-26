@@ -45,3 +45,17 @@ ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/ssl/old/*.hpp
 ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/ssl/old/detail/*.hpp)
 ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/windows/*.hpp)
 
+# -------------------------------------------------------------------------------- 
+# spdlog header only
+# -------------------------------------------------------------------------------- 
+
+SPDLOG_EXT_DIR                  := $(CWD)/spdlog
+SPDLOG_EXT_INC                  := $(SPDLOG_EXT_DIR)
+
+SPDLOG_EXT_SRCS                 := $(wildcard $(SPDLOG_EXT_INC)/spdlog/*.h)
+SPDLOG_EXT_SRCS                 += $(wildcard $(SPDLOG_EXT_INC)/spdlog/details/*.h)
+SPDLOG_EXT_SRCS                 += $(wildcard $(SPDLOG_EXT_INC)/spdlog/fmt/*.h)
+SPDLOG_EXT_SRCS                 += $(wildcard $(SPDLOG_EXT_INC)/spdlog/fmt/bundled/*.h)
+SPDLOG_EXT_SRCS                 += $(wildcard $(SPDLOG_EXT_INC)/spdlog/fmt/bundled/*.cc)
+SPDLOG_EXT_SRCS                 += $(wildcard $(SPDLOG_EXT_INC)/spdlog/sinks/*.h)
+

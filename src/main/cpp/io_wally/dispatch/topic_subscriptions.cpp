@@ -5,7 +5,8 @@
 #include <string>
 #include <vector>
 
-#include <boost/log/trivial.hpp>
+#include <spdlog/fmt/ostr.h>
+#include <spdlog/spdlog.h>
 
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
@@ -19,8 +20,6 @@ namespace io_wally
     namespace dispatch
     {
         using namespace std;
-        using lvl = boost::log::trivial::severity_level;
-
         // --------------------------------------------------------------------------------
         // struct subscription_container
         // --------------------------------------------------------------------------------
@@ -50,9 +49,7 @@ namespace io_wally
                 subscriptions_.emplace( subscr.topic_filter( ), subscr.maximum_qos( ), client_id );
             }
             auto suback = subscribe->succeed( );
-
-            BOOST_LOG_SEV( logger_, lvl::debug )
-                << "SUBSRCRIBED: [cltid:" << client_id << "|subscr:" << *subscribe << "] -> " << *suback;
+            logger_->debug( "SUBSRCRIBED: [cltid:{}|subscr:{}] -> {}", client_id, *subscribe, *suback );
 
             return suback;
         }
@@ -73,9 +70,7 @@ namespace io_wally
                 }
             }
             auto unsuback = unsubscribe->ack( );
-
-            BOOST_LOG_SEV( logger_, lvl::debug )
-                << "UNSUBSRCRIBED: [cltid:" << client_id << "|subscr:" << *unsubscribe << "] -> " << *unsuback;
+            logger_->debug( "UNSUBSRCRIBED: [cltid:{}|unsubscr:{}] -> {}", client_id, *unsubscribe, *unsuback );
 
             return unsuback;
         }

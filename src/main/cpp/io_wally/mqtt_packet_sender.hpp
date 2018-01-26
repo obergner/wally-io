@@ -1,11 +1,11 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <ostream>
 #include <string>
 
-#include <boost/log/trivial.hpp>
-#include <optional>
+#include <spdlog/spdlog.h>
 
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/protocol/common.hpp"
@@ -36,7 +36,7 @@ namespace io_wally
 
         /// \brief Stop this connection, closing its \c tcp::socket.
         virtual void stop( const std::string& message = "",
-                           const boost::log::trivial::severity_level log_level = boost::log::trivial::info ) = 0;
+                           const spdlog::level::level_enum log_level = spdlog::level::level_enum::info ) = 0;
 
         /// \brief Return a string representation to be used in log output.
         ///

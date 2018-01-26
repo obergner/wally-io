@@ -1,24 +1,22 @@
 #pragma once
 
-#include <string>
-#include <memory>
-#include <unordered_set>
-#include <tuple>
-#include <vector>
-#include <functional>
 #include <algorithm>
+#include <functional>
+#include <memory>
+#include <string>
+#include <tuple>
+#include <unordered_set>
+#include <vector>
 
-#include <boost/log/common.hpp>
-#include <boost/log/trivial.hpp>
-
-#include "io_wally/protocol/common.hpp"
-#include "io_wally/protocol/subscription.hpp"
-#include "io_wally/protocol/subscribe_packet.hpp"
-#include "io_wally/protocol/suback_packet.hpp"
-#include "io_wally/protocol/unsubscribe_packet.hpp"
-#include "io_wally/protocol/unsuback_packet.hpp"
-#include "io_wally/protocol/publish_packet.hpp"
 #include "io_wally/dispatch/common.hpp"
+#include "io_wally/logging/logging.hpp"
+#include "io_wally/protocol/common.hpp"
+#include "io_wally/protocol/publish_packet.hpp"
+#include "io_wally/protocol/suback_packet.hpp"
+#include "io_wally/protocol/subscribe_packet.hpp"
+#include "io_wally/protocol/subscription.hpp"
+#include "io_wally/protocol/unsuback_packet.hpp"
+#include "io_wally/protocol/unsubscribe_packet.hpp"
 
 namespace io_wally
 {
@@ -122,10 +120,8 @@ namespace io_wally
             // Set of subscriptions we manage (cannot be <const subscription_container> since members of std containers
             // in C++ need to be copy assignable or movable, which is incompatible with const)
             std::unordered_set<subscription_container, subscription_container_hash> subscriptions_{1000};
-            /// Our severity-enabled channel logger
-            boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
-                boost::log::keywords::channel = "topic-subscriptions",
-                boost::log::keywords::severity = boost::log::trivial::trace};
+            /// Our logger
+            std::unique_ptr<spdlog::logger> logger_ = logging::logger_factory::get( ).logger( "topic-subscriptions" );
         };  // class topic_subscriptions
     }       // namespace dispatch
 }  // namespace io_wally

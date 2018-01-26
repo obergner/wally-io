@@ -8,12 +8,12 @@
 
 #include <asio.hpp>
 
-#include <boost/log/common.hpp>
-#include <boost/log/trivial.hpp>
+#include <spdlog/spdlog.h>
 
 #include "io_wally/concurrency/io_service_pool.hpp"
 #include "io_wally/context.hpp"
 #include "io_wally/dispatch/dispatcher.hpp"
+#include "io_wally/logging/logging.hpp"
 #include "io_wally/logging_support.hpp"
 #include "io_wally/mqtt_connection.hpp"
 #include "io_wally/mqtt_connection_manager.hpp"
@@ -102,8 +102,7 @@ namespace io_wally
         ::asio::ip::tcp::acceptor acceptor_{io_service_};
         /// The next socket to be accepted.
         ::asio::ip::tcp::socket socket_{io_service_};
-        /// Our severity-enabled channel logger
-        boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
-            boost::log::keywords::channel = "server", boost::log::keywords::severity = boost::log::trivial::trace};
+        /// Our logger
+        std::unique_ptr<spdlog::logger> logger_ = logging::logger_factory::get( ).logger( "server" );
     };
 }  // namespace io_wally

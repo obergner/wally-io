@@ -1,10 +1,10 @@
 #pragma once
 
-#include <string>
 #include <memory>
-
 #include <optional>
-#include <boost/log/trivial.hpp>
+#include <string>
+
+#include <spdlog/spdlog.h>
 
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/protocol/common.hpp"
@@ -33,8 +33,7 @@ namespace framework
         }
 
         /// \brief Stop this connection, closing its \c tcp::socket.
-        virtual void stop( const std::string& /* /message */,
-                           const boost::log::trivial::severity_level /* log_level */ ) override
+        virtual void stop( const std::string& /* /message */, const spdlog::level::level_enum /* log_level */ ) override
         {
         }
 

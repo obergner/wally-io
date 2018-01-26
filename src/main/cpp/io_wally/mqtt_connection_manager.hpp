@@ -2,9 +2,9 @@
 
 #include <set>
 
-#include <boost/log/common.hpp>
-#include <boost/log/trivial.hpp>
+#include <spdlog/spdlog.h>
 
+#include "io_wally/logging/logging.hpp"
 #include "io_wally/logging_support.hpp"
 #include "io_wally/mqtt_connection.hpp"
 
@@ -38,10 +38,7 @@ namespace io_wally
        private:
         /// The managed connections.
         std::set<mqtt_connection::ptr> connections_{};
-
-        /// Our severity-enabled channel logger
-        boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
-            boost::log::keywords::channel = "connection-manager",
-            boost::log::keywords::severity = boost::log::trivial::trace};
+        /// Our logger
+        std::unique_ptr<spdlog::logger> logger_ = logging::logger_factory::get( ).logger( "connection-manager" );
     };
 }  // namespace io_wally

@@ -9,8 +9,9 @@
 
 #include "io_wally/context.hpp"
 
+#include "io_wally/logging/logging.hpp"
+
 #include "io_wally/app/authentication_service_factories.hpp"
-#include "io_wally/app/logging.hpp"
 
 namespace io_wally
 {
@@ -53,7 +54,7 @@ DISCLAIMER:
 
                 options::notify( config );
 
-                app::init_logging( config );
+                logging::logger_factory::initialize( config );
 
                 auto auth_service_factory =
                     app::authentication_service_factories::instance( )[config[context::AUTHENTICATION_SERVICE_FACTORY]

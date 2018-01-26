@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <memory>
 
-#include <boost/log/trivial.hpp>
+#include <spdlog/spdlog.h>
 
 #include "io_wally/context.hpp"
 #include "io_wally/dispatch/tx_in_flight_publications.hpp"
@@ -139,7 +139,7 @@ namespace io_wally
                     // Protocol violation: client did not send PUBREC but one of PUBCOMP or even PUBACK
                     sender->stop(
                         "Protocol violation: client did not send expected PUBREC but one of PUBCOMP or PUBACK",
-                        boost::log::trivial::warning );
+                        spdlog::level::level_enum::warn );
                 }
                 else
                 {

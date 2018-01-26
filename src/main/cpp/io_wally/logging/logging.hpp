@@ -1,0 +1,50 @@
+#pragma once
+
+#include <algorithm>
+#include <array>
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include <boost/program_options.hpp>
+
+#include <spdlog/spdlog.h>
+
+namespace io_wally
+{
+    namespace logging
+    {
+        /// \brief Factory for \c spdlog::logger instances
+        ///
+        class logger_factory final
+        {
+           public:  // static
+            static logger_factory& get( )
+            {
+                assert( instance_ );
+                return *instance_;
+            }
+
+            static void initialize( const boost::program_options::variables_map& config );
+
+            /// \brief Disable logging
+            static void disable( );
+
+            logger_factory( const std::string log_pattern,
+                            spdlog::level::level_enum log_level,
+                            const std::vector<spdlog::sink_ptr> sinks );
+
+           public:
+            std::unique_ptr<spdlog::logger> logger( const std::string& logger_name );
+
+           private:  // static
+            static std::unique_ptr<logger_factory> instance_;
+
+           private:
+            const std::string log_pattern_;
+            spdlog::level::level_enum log_level_;
+            const std::vector<spdlog::sink_ptr> sinks_;
+        };  // class logger_factory
+    }       // namespace loggers
+}  // namespace io_wally

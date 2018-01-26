@@ -11,12 +11,11 @@
 
 #include <optional>
 
-#include <boost/log/common.hpp>
-#include <boost/log/trivial.hpp>
-
 #include "io_wally/context.hpp"
 #include "io_wally/logging_support.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
+
+#include "io_wally/logging/logging.hpp"
 
 #include "io_wally/protocol/protocol.hpp"
 
@@ -79,7 +78,7 @@ namespace io_wally
 
         /// \brief Stop this connection, closing its \c tcp::socket.
         virtual void stop( const std::string& message = "",
-                           const boost::log::trivial::severity_level log_level = boost::log::trivial::info ) override;
+                           const spdlog::level::level_enum log_level = spdlog::level::level_enum::info ) override;
 
         virtual operator const std::string&( ) const override
         {
@@ -146,11 +145,10 @@ namespace io_wally
 
         // Dealing with protocol violations and network/server failures
 
-        void connection_close_requested(
-            const std::string& message,
-            const dispatch::disconnect_reason reason,
-            const std::error_code& ec = std::error_code{},
-            const boost::log::trivial::severity_level log_level = boost::log::trivial::error );
+        void connection_close_requested( const std::string& message,
+                                         const dispatch::disconnect_reason reason,
+                                         const std::error_code& ec = std::error_code{},
+                                         const spdlog::level::level_enum log_level = spdlog::level::level_enum::err );
 
        private:
         /// Connected client's client_id. Only assigned once successful authenticated.
@@ -183,9 +181,8 @@ namespace io_wally
         std::optional<std::chrono::duration<uint16_t>> keep_alive_ = std::nullopt;
         /// Timer, will fire if keep alive timeout expires without receiving a message
         ::asio::steady_timer close_on_keep_alive_timeout_;
-        /// Our severity-enabled channel logger
-        boost::log::sources::severity_channel_logger<boost::log::trivial::severity_level> logger_{
-            boost::log::keywords::channel = mqtt_connection::endpoint_description( socket_ ),
-            boost::log::keywords::severity = boost::log::trivial::trace};
+        /// Our logger
+        std::unique_ptr<spdlog::logger> logger_ =
+            logging::logger_factory::get( ).logger( mqtt_connection::endpoint_description( socket_ ) );
     };  // class mqtt_connection
 }
