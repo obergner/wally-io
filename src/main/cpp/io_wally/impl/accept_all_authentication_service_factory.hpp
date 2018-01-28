@@ -1,10 +1,10 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <string>
 
-#include <optional>
-#include <boost/program_options.hpp>
+#include <cxxopts.hpp>
 
 #include "io_wally/spi/authentication_service_factory.hpp"
 
@@ -39,8 +39,7 @@ namespace io_wally
                 return;
             }
 
-            std::unique_ptr<spi::authentication_service> operator( )(
-                const boost::program_options::variables_map& /* config */ )
+            std::unique_ptr<spi::authentication_service> operator( )( const cxxopts::ParseResult& /* config */ )
             {
                 return std::unique_ptr<spi::authentication_service>( new accept_all_authentication_service( ) );
             }

@@ -1,25 +1,23 @@
 #pragma once
 
-#include <utility>
+#include <string>
+#include <vector>
 
-#include <boost/program_options.hpp>
+#include <cxxopts.hpp>
 
 namespace io_wally
 {
     namespace app
     {
-        /// \brief Utility class for reading program options from command line and configuration file.
-        class options_parser final
+        /// \brief Utility class for creating a configured instance of \c cxxopts::Options
+        class options_factory final
         {
-           public:
+           public:  // static
             static constexpr const char* HELP = "help";
-            static constexpr const char* HELP_SPEC = "help,h";
-
-            static constexpr const char* CONFIG_FILE = "conf-file";
-            static constexpr const char* CONFIG_FILE_SPEC = "conf-file,c";
+            static constexpr const char* HELP_SPEC = "h,help";
 
             static constexpr const char* LOG_FILE = "log-file";
-            static constexpr const char* LOG_FILE_SPEC = "log-file,f";
+            static constexpr const char* LOG_FILE_SPEC = "f,log-file";
 
             static constexpr const char* LOG_FILE_LEVEL = "log-file-level";
             static constexpr const char* LOG_FILE_LEVEL_SPEC = "log-file-level";
@@ -30,23 +28,20 @@ namespace io_wally
             static constexpr const char* LOG_CONSOLE_LEVEL = "log-console-level";
             static constexpr const char* LOG_CONSOLE_LEVEL_SPEC = "log-console-level";
 
-            static constexpr const char* LOG_SYNC = "log-sync";
-            static constexpr const char* LOG_SYNC_SPEC = "log-sync";
-
             static constexpr const char* LOG_DISABLE = "log-disable";
-            static constexpr const char* LOG_DISABLE_SPEC = "log-disable,s";
+            static constexpr const char* LOG_DISABLE_SPEC = "s,log-disable";
 
             static constexpr const char* SERVER_ADDRESS = "server-address";
-            static constexpr const char* SERVER_ADDRESS_SPEC = "server-address,l";
+            static constexpr const char* SERVER_ADDRESS_SPEC = "l,server-address";
 
             static constexpr const char* SERVER_PORT = "server-port";
-            static constexpr const char* SERVER_PORT_SPEC = "server-port,p";
+            static constexpr const char* SERVER_PORT_SPEC = "p,server-port";
 
             static constexpr const char* AUTHENTICATION_SERVICE_FACTORY = "auth-service-factory";
             static constexpr const char* AUTHENTICATION_SERVICE_FACTORY_SPEC = "auth-service-factory";
 
             static constexpr const char* CONNECT_TIMEOUT = "conn-timeout";
-            static constexpr const char* CONNECT_TIMEOUT_SPEC = "conn-timeout,t";
+            static constexpr const char* CONNECT_TIMEOUT_SPEC = "t,conn-timeout";
 
             static constexpr const char* READ_BUFFER_SIZE = "conn-rbuf-size";
             static constexpr const char* READ_BUFFER_SIZE_SPEC = "conn-rbuf-size";
@@ -60,11 +55,16 @@ namespace io_wally
             static constexpr const char* PUB_MAX_RETRIES = "pub-max-retries";
             static constexpr const char* PUB_MAX_RETRIES_SPEC = "pub-max-retries";
 
-           public:
-            const std::pair<const boost::program_options::variables_map,
-                            const boost::program_options::options_description>
-            parse( const int argc, const char** argv ) const;
+            static constexpr const char* COMMAND_LINE_GROUP = "Command line";
+            static constexpr const char* SERVER_GROUP = "Server";
+            static constexpr const char* CONNECTION_GROUP = "Connection";
+            static constexpr const char* LOGGING_GROUP = "Logging";
+            static constexpr const char* PUBLICATION_GROUP = "Publication";
+            static constexpr const char* AUTHENTICATION_GROUP = "Authentication";
+            static const std::vector<std::string> GROUPS;
 
-        };  // class options_parser
+           public:
+            cxxopts::Options create( ) const;
+        };  // class options_factory
     }       // namespace app
 }

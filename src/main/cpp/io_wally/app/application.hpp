@@ -5,9 +5,7 @@
 #include <mutex>
 #include <string>
 
-#include <boost/program_options.hpp>
-
-#include "io_wally/app/options_parser.hpp"
+#include "io_wally/app/options_factory.hpp"
 #include "io_wally/mqtt_connection.hpp"
 #include "io_wally/mqtt_server.hpp"
 
@@ -48,7 +46,7 @@ namespace io_wally
 
             /// \brief Run this application.
             ///
-            int run( int argc, const char** argv );
+            int run( int argc, char** argv );
 
             /// \brief Wait until \c mqtt_server instance created by this \c application has started listening on its
             ///        server socket.
@@ -66,7 +64,7 @@ namespace io_wally
             /// Signal that this \c application instance has completed its \c run() method.
             std::mutex startup_mutex_{};
             std::condition_variable startup_completed_{};
-            const options_parser options_parser_{};
+            const options_factory options_factory_{};
             /// std::shared_ptr "owning" THE reference to out mqtt_server instance.
             ///
             /// NOTE:

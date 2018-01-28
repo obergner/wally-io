@@ -1,5 +1,9 @@
 #include "catch.hpp"
 
+#include <cxxopts.hpp>
+
+#include "framework/factories.hpp"
+
 #include "io_wally/app/authentication_service_factories.hpp"
 
 SCENARIO( "authentication_service_factories", "[authentication]" )
@@ -16,7 +20,7 @@ SCENARIO( "authentication_service_factories", "[authentication]" )
 
             THEN( "it should receive a fully functional accept all authentication_service_factory" )
             {
-                const boost::program_options::variables_map config;
+                const cxxopts::ParseResult config = framework::create_parse_result( );
 
                 std::unique_ptr<io_wally::spi::authentication_service> accept_all_auth_srvc = accept_all( config );
 

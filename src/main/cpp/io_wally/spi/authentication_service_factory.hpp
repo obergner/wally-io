@@ -2,9 +2,10 @@
 
 #include <functional>
 #include <memory>
-
 #include <optional>
-#include <boost/program_options.hpp>
+#include <string>
+
+#include <cxxopts.hpp>
 
 namespace io_wally
 {
@@ -20,7 +21,7 @@ namespace io_wally
                                        const std::optional<const std::string>& password ) = 0;
         };
 
-        typedef std::function<std::unique_ptr<authentication_service>(
-            const boost::program_options::variables_map& config )> authentication_service_factory;
+        typedef std::function<std::unique_ptr<authentication_service>( const cxxopts::ParseResult& config )>
+            authentication_service_factory;
     }  // namespace spi
 }  // namespace io_wally

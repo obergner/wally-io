@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/program_options.hpp>
+#include <cxxopts.hpp>
 
 #include <spdlog/spdlog.h>
 
@@ -20,7 +20,7 @@ namespace io_wally
         class logger_factory final
         {
            public:  // static
-            static logger_factory create( const boost::program_options::variables_map& config );
+            static logger_factory create( const cxxopts::ParseResult& config );
 
             static logger_factory disabled( );
 

@@ -3,9 +3,9 @@
 #include <cstdint>
 #include <sstream>
 
-#include <boost/program_options.hpp>
+#include <cxxopts.hpp>
 
-#include "io_wally/app/options_parser.hpp"
+#include "io_wally/app/options_factory.hpp"
 #include "io_wally/logging/logging.hpp"
 #include "io_wally/spi/authentication_service_factory.hpp"
 
@@ -14,41 +14,37 @@ namespace io_wally
     struct context final
     {
        public:
-        static constexpr const char* HELP = app::options_parser::HELP;
+        static constexpr const char* HELP = app::options_factory::HELP;
 
-        static constexpr const char* CONFIG_FILE = app::options_parser::CONFIG_FILE;
+        static constexpr const char* LOG_FILE = app::options_factory::LOG_FILE;
 
-        static constexpr const char* LOG_FILE = app::options_parser::LOG_FILE;
+        static constexpr const char* LOG_FILE_LEVEL = app::options_factory::LOG_FILE_LEVEL;
 
-        static constexpr const char* LOG_FILE_LEVEL = app::options_parser::LOG_FILE_LEVEL;
+        static constexpr const char* LOG_CONSOLE = app::options_factory::LOG_CONSOLE;
 
-        static constexpr const char* LOG_CONSOLE = app::options_parser::LOG_CONSOLE;
+        static constexpr const char* LOG_CONSOLE_LEVEL = app::options_factory::LOG_CONSOLE_LEVEL;
 
-        static constexpr const char* LOG_CONSOLE_LEVEL = app::options_parser::LOG_CONSOLE_LEVEL;
+        static constexpr const char* LOG_DISABLE = app::options_factory::LOG_DISABLE;
 
-        static constexpr const char* LOG_SYNC = app::options_parser::LOG_SYNC;
+        static constexpr const char* SERVER_ADDRESS = app::options_factory::SERVER_ADDRESS;
 
-        static constexpr const char* LOG_DISABLE = app::options_parser::LOG_DISABLE;
-
-        static constexpr const char* SERVER_ADDRESS = app::options_parser::SERVER_ADDRESS;
-
-        static constexpr const char* SERVER_PORT = app::options_parser::SERVER_PORT;
+        static constexpr const char* SERVER_PORT = app::options_factory::SERVER_PORT;
 
         static constexpr const char* AUTHENTICATION_SERVICE_FACTORY =
-            app::options_parser::AUTHENTICATION_SERVICE_FACTORY;
+            app::options_factory::AUTHENTICATION_SERVICE_FACTORY;
 
-        static constexpr const char* CONNECT_TIMEOUT = app::options_parser::CONNECT_TIMEOUT;
+        static constexpr const char* CONNECT_TIMEOUT = app::options_factory::CONNECT_TIMEOUT;
 
-        static constexpr const char* READ_BUFFER_SIZE = app::options_parser::READ_BUFFER_SIZE;
+        static constexpr const char* READ_BUFFER_SIZE = app::options_factory::READ_BUFFER_SIZE;
 
-        static constexpr const char* WRITE_BUFFER_SIZE = app::options_parser::WRITE_BUFFER_SIZE;
+        static constexpr const char* WRITE_BUFFER_SIZE = app::options_factory::WRITE_BUFFER_SIZE;
 
-        static constexpr const char* PUB_ACK_TIMEOUT = app::options_parser::PUB_ACK_TIMEOUT;
+        static constexpr const char* PUB_ACK_TIMEOUT = app::options_factory::PUB_ACK_TIMEOUT;
 
-        static constexpr const char* PUB_MAX_RETRIES = app::options_parser::PUB_MAX_RETRIES;
+        static constexpr const char* PUB_MAX_RETRIES = app::options_factory::PUB_MAX_RETRIES;
 
        public:
-        context( boost::program_options::variables_map options,
+        context( cxxopts::ParseResult options,
                  std::unique_ptr<spi::authentication_service> authentication_service,
                  logging::logger_factory logger_factory )
             : options_{std::move( options )},
@@ -66,7 +62,7 @@ namespace io_wally
             return;
         }
 
-        const boost::program_options::variable_value& operator[]( const std::string& name ) const
+        const cxxopts::OptionValue& operator[]( const std::string& name ) const
         {
             return options_[name];
         }
@@ -82,7 +78,7 @@ namespace io_wally
         }
 
        private:
-        const boost::program_options::variables_map options_;
+        const cxxopts::ParseResult options_;
         std::unique_ptr<spi::authentication_service> authentication_service_;
         const logging::logger_factory logger_factory_;
     };

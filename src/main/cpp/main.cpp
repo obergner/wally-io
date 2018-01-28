@@ -2,7 +2,7 @@
 
 int main( int argc, char** argv )
 {
-    io_wally::app::application app;
+    auto app = io_wally::app::application{};
 
-    return app.run( argc, const_cast<const char**>( argv ) );
+    return app.run( argc, argv );
 }

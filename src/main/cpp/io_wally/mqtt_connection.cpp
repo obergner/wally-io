@@ -79,8 +79,8 @@ namespace io_wally
           connection_manager_{connection_manager},
           context_{context},
           dispatcher_{dispatcher},
-          read_buffer_( context[context::READ_BUFFER_SIZE].as<const size_t>( ) ),
-          write_buffer_( context[context::WRITE_BUFFER_SIZE].as<const size_t>( ) ),
+          read_buffer_( context[context::READ_BUFFER_SIZE].as<size_t>( ) ),
+          write_buffer_( context[context::WRITE_BUFFER_SIZE].as<size_t>( ) ),
           close_on_connection_timeout_{socket.get_io_service( )},
           close_on_keep_alive_timeout_{socket.get_io_service( )}
     {
@@ -135,14 +135,14 @@ namespace io_wally
         // Start deadline timer that will close this connection if connect timeout expires without receiving CONNECT
         // request
         auto self = shared_from_this( );
-        auto conn_to = chrono::milliseconds{context_[context::CONNECT_TIMEOUT].as<const uint32_t>( )};
+        auto conn_to = chrono::milliseconds{context_[context::CONNECT_TIMEOUT].as<uint32_t>( )};
         close_on_connection_timeout_.expires_from_now( conn_to );
         close_on_connection_timeout_.async_wait( strand_.wrap( [self]( const std::error_code& ec ) {
             if ( !ec )
             {
                 auto msg = ostringstream{};
-                msg << "CONNECTION TIMEOUT EXPIRED after ["
-                    << self->context_[context::CONNECT_TIMEOUT].as<const uint32_t>( ) << "] ms";
+                msg << "CONNECTION TIMEOUT EXPIRED after [" << self->context_[context::CONNECT_TIMEOUT].as<uint32_t>( )
+                    << "] ms";
                 self->connection_close_requested( msg.str( ), dispatch::disconnect_reason::protocol_violation, ec,
                                                   spdlog::level::level_enum::warn );
             }
@@ -190,7 +190,7 @@ namespace io_wally
 
             frame_reader_.reset( );
             // TODO: Think about better resizing strategy - maybe using a max buffer capacity
-            read_buffer_.resize( context_[context::READ_BUFFER_SIZE].as<const size_t>( ) );
+            read_buffer_.resize( context_[context::READ_BUFFER_SIZE].as<size_t>( ) );
 
             process_decoded_packet( move( parsed_packet ) );
         }

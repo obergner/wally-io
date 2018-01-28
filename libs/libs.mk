@@ -10,7 +10,7 @@
 CWD                             := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 # -------------------------------------------------------------------------------- 
-# Asio header only
+# Asio header only: https://think-async.com/
 # -------------------------------------------------------------------------------- 
 
 ASIO_EXT_DIR                    := $(CWD)/asio
@@ -46,7 +46,7 @@ ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/ssl/old/detai
 ASIO_EXT_SRCS                   += $(wildcard $(ASIO_EXT_INC)/asio/windows/*.hpp)
 
 # -------------------------------------------------------------------------------- 
-# spdlog header only
+# spdlog header only: https://github.com/gabime/spdlog
 # -------------------------------------------------------------------------------- 
 
 SPDLOG_EXT_DIR                  := $(CWD)/spdlog
@@ -58,4 +58,13 @@ SPDLOG_EXT_SRCS                 += $(wildcard $(SPDLOG_EXT_INC)/spdlog/fmt/*.h)
 SPDLOG_EXT_SRCS                 += $(wildcard $(SPDLOG_EXT_INC)/spdlog/fmt/bundled/*.h)
 SPDLOG_EXT_SRCS                 += $(wildcard $(SPDLOG_EXT_INC)/spdlog/fmt/bundled/*.cc)
 SPDLOG_EXT_SRCS                 += $(wildcard $(SPDLOG_EXT_INC)/spdlog/sinks/*.h)
+
+# -------------------------------------------------------------------------------- 
+# cxxopts header only: https://github.com/jarro2783/cxxopts
+# -------------------------------------------------------------------------------- 
+
+CXXOPTS_EXT_DIR                 := $(CWD)/cxxopts
+CXXOPTS_EXT_INC                 := $(CXXOPTS_EXT_DIR)
+
+CXXOPTS_EXT_SRCS                := $(wildcard $(CXXOPTS_EXT_INC)/*.hpp)
 

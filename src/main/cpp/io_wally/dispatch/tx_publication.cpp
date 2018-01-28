@@ -32,8 +32,8 @@ namespace io_wally
 
         tx_publication::tx_publication( tx_in_flight_publications& parent, std::shared_ptr<protocol::publish> publish )
             : parent_{parent},
-              ack_timeout_ms_{parent.context( )[io_wally::context::PUB_ACK_TIMEOUT].as<const std::uint32_t>( )},
-              max_retries_{parent.context( )[io_wally::context::PUB_MAX_RETRIES].as<const std::size_t>( )},
+              ack_timeout_ms_{parent.context( )[io_wally::context::PUB_ACK_TIMEOUT].as<std::uint32_t>( )},
+              max_retries_{parent.context( )[io_wally::context::PUB_MAX_RETRIES].as<std::size_t>( )},
               strand_{parent.io_service( )},
               retry_on_timeout_{parent.io_service( )},
               publish_{publish}

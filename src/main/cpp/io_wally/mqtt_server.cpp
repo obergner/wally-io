@@ -31,8 +31,8 @@ namespace io_wally
 
         do_await_stop( );
 
-        const auto address = context_[io_wally::context::SERVER_ADDRESS].as<const string>( );
-        const auto port = context_[io_wally::context::SERVER_PORT].as<const int>( );
+        const auto address = context_[io_wally::context::SERVER_ADDRESS].as<string>( );
+        const auto port = context_[io_wally::context::SERVER_PORT].as<int>( );
         ::asio::ip::tcp::resolver resolver{io_service_};
         const ::asio::ip::tcp::endpoint endpoint = *resolver.resolve( {address, to_string( port )} );
 

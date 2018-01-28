@@ -29,8 +29,8 @@ namespace io_wally
 
         rx_publication::rx_publication( rx_in_flight_publications& parent, std::shared_ptr<protocol::publish> publish )
             : parent_{parent},
-              pubrel_timeout_ms_{parent.context( )[io_wally::context::PUB_ACK_TIMEOUT].as<const std::uint32_t>( )},
-              max_retries_{parent.context( )[io_wally::context::PUB_MAX_RETRIES].as<const std::size_t>( )},
+              pubrel_timeout_ms_{parent.context( )[io_wally::context::PUB_ACK_TIMEOUT].as<std::uint32_t>( )},
+              max_retries_{parent.context( )[io_wally::context::PUB_MAX_RETRIES].as<std::size_t>( )},
               strand_{parent.io_service( )},
               retry_on_timeout_{parent.io_service( )},
               publish_id_{publish->packet_identifier( )}

@@ -207,6 +207,7 @@ CXXFLAGS_M                += -MMD # automatically generate dependency rules on e
 CXXFLAGS_M                += -I $(SRC_DIR_M)
 CXXFLAGS_M                += -I $(ASIO_EXT_INC)
 CXXFLAGS_M                += -I $(SPDLOG_EXT_INC)
+CXXFLAGS_M                += -I $(CXXOPTS_EXT_INC)
 CXXFLAGS_M                += -Werror
 CXXFLAGS_M                += -Wall
 CXXFLAGS_M                += -Wextra
@@ -222,17 +223,11 @@ CXXFLAGS_M                += -Wswitch-default
 CXXFLAGS_M                += -Wswitch-enum
 
 # Standard preprocessor flags
-CPPFLAGS_M                := -DBOOST_ALL_DYN_LINK
-CPPFLAGS_M                += -DASIO_STANDALONE
+CPPFLAGS_M                := -DASIO_STANDALONE
 # Needed for clang?
 CPPFLAGS_M                += -DASIO_HAS_STD_CHRONO
 
 # Extra linker flags
-LDLIBS_M                  += -lboost_program_options
-LDLIBS_M                  += -lboost_regex
-LDLIBS_M                  += -lboost_filesystem
-LDLIBS_M                  += -lboost_system
-LDLIBS_M                  += -lboost_thread
 LDLIBS_M                  += -lpthread
 
 # --------------------------------------------------------------------------------------------------------------------- 
@@ -243,7 +238,7 @@ CXXFLAGS_REL              := $(CXXFLAGS_M)
 CXXFLAGS_REL              += -O3
 
 # Release build preprocessor flags
-CPPFLAGS_REL              := $(filter-out -DBOOST_ALL_DYN_LINK, $(CPPFLAGS_M))
+CPPFLAGS_REL              := $(CPPFLAGS_M)
 
 # Release linker flags
 LDLIBS_REL                := $(LDLIBS_M)
@@ -255,10 +250,8 @@ LDLIBS_REL                := $(LDLIBS_M)
 
 CXXFLAGS_DEBUG            := $(CXXFLAGS_M)
 CXXFLAGS_DEBUG            += -O0 -g
-CXXFLAGS_DEBUG            += -DASIO_ENABLE_HANDLER_TRACKING
-# Actually, we would like to enable _GLIBCXX_DEBUG, but this is incompatible with Boost Program Options's debug build.
-# See: https://trac.macports.org/ticket/22112
-#CXXFLAGS_DEBUG            += -D_GLIBCXX_DEBUG
+#CXXFLAGS_DEBUG            += -DASIO_ENABLE_HANDLER_TRACKING
+CXXFLAGS_DEBUG            += -D_GLIBCXX_DEBUG
 
 # Debug build preprocessor flags
 CPPFLAGS_DEBUG            := $(CPPFLAGS_M)
@@ -522,8 +515,8 @@ format-test               : $(SRCS_UT) $(EXECSOURCE_UT)
 	clang-format -i -style=file $(SRCS_UT) $(EXECSOURCE_UT)
 
 .PHONY                    : format-libs
-format-libs               : $(ASIO_EXT_SRCS) $(SPDLOG_EXT_SRCS)
-	clang-format -i -style=file $(ASIO_EXT_SRCS) $(SPDLOG_EXT_SRCS)
+format-libs               : $(ASIO_EXT_SRCS) $(SPDLOG_EXT_SRCS) $(CXXOPTS_EXT_SRCS)
+	clang-format -i -style=file $(ASIO_EXT_SRCS) $(SPDLOG_EXT_SRCS) $(CXXOPTS_EXT_SRCS)
 
 .PHONY                    : format
 format                    : format-main

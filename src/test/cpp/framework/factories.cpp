@@ -6,6 +6,7 @@
 #include <vector>
 
 #include <boost/program_options.hpp>
+#include <cxxopts.hpp>
 
 #include "framework/mocks.hpp"
 
@@ -74,9 +75,18 @@ namespace framework
         return io_wally::mqtt_packet_sender::packet_container_t::contain( "client_mock", sender_ptr, publish_ptr );
     }
 
+    cxxopts::ParseResult create_parse_result( )
+    {
+        const char* command_line_args[]{"executable"};
+        auto argc = static_cast<int>( sizeof( command_line_args ) / sizeof( *command_line_args ) );
+        auto argv = const_cast<char**>( command_line_args );
+        auto options = cxxopts::Options{"unit-test-runner", "options for unit testing"};
+        return options.parse( argc, argv );
+    }
+
     io_wally::context create_context( )
     {
-        return io_wally::context( boost::program_options::variables_map{},
+        return io_wally::context( create_parse_result( ),
                                   std::unique_ptr<io_wally::spi::authentication_service>(
                                       new io_wally::impl::accept_all_authentication_service{} ),
                                   io_wally::logging::logger_factory::disabled( ) );

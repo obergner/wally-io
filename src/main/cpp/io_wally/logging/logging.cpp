@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+#include <cxxopts.hpp>
+
 #include <spdlog/sinks/null_sink.h>
 #include <spdlog/spdlog.h>
 
@@ -56,7 +58,7 @@ namespace io_wally
         {
         }
 
-        logger_factory logger_factory::create( const boost::program_options::variables_map& config )
+        logger_factory logger_factory::create( const cxxopts::ParseResult& config )
         {
             // TODO: set log queue size from command line param
             const auto log_q_size = 4096;
@@ -66,16 +68,16 @@ namespace io_wally
             //            auto log_console_filter = safe_log_level_filter( config[context::LOG_CONSOLE_LEVEL].as<const
             //            string>( ),
             //                                                            defaults::DEFAULT_LOG_CONSOLE_LEVEL );
-            auto log_level = safe_log_level_filter( config[context::LOG_CONSOLE_LEVEL].as<const std::string>( ),
+            auto log_level = safe_log_level_filter( config[context::LOG_CONSOLE_LEVEL].as<std::string>( ),
                                                     spdlog::level::level_enum::info );
             auto sinks = std::vector<spdlog::sink_ptr>{};
-            if ( config[context::LOG_DISABLE].as<const bool>( ) )
+            if ( config[context::LOG_DISABLE].as<bool>( ) )
             {
                 sinks.push_back( std::make_shared<spdlog::sinks::null_sink_mt>( ) );
             }
             else
             {
-                auto log_file_name = config[context::LOG_FILE].as<const std::string>( );
+                auto log_file_name = config[context::LOG_FILE].as<std::string>( );
                 sinks.push_back( std::make_shared<spdlog::sinks::simple_file_sink_mt>( log_file_name ) );
 
                 if ( config[context::LOG_CONSOLE].as<bool>( ) )

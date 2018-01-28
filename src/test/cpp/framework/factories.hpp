@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include <cxxopts.hpp>
+
 #include "framework/mocks.hpp"
 
 #include "io_wally/context.hpp"
@@ -33,6 +35,8 @@ namespace framework
                                                                             't', 'e', 's', 't'} );
 
     io_wally::mqtt_packet_sender::packet_container_t::ptr create_publish_container( const std::string& topic );
+
+    cxxopts::ParseResult create_parse_result( );
 
     io_wally::context create_context( );
 }  // namespace framework

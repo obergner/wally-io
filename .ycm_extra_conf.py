@@ -43,6 +43,8 @@ flags = [
     '-I',
     './libs/spdlog',
     '-I',
+    './libs/cxxopts',
+    '-I',
     './src/main/cpp',
     '-I',
     './src/test/cpp',
