@@ -41,7 +41,6 @@ class ServerUnderTest(object):
     def __init__(self, name):
         self.__name = name
         self.__process = None
-        self.__started = False
 
     def start(self):
         """ Start WallyIO subprocess
@@ -52,21 +51,25 @@ class ServerUnderTest(object):
                 '--log-level', 'trace',
                 '--conn-timeout', '2000']
         self.__process = subprocess.Popen(args)
-        self.__started = True
         time.sleep(2)
+        if self.__process.poll() is not None:
+            raise RuntimeError("Failed to start %s" % (self.__name))
         logging.info("Started %s", self.__name)
 
     def is_started(self):
         """ Test whether this server is started
         """
-        return self.__started
+        return self.__process and self.__process.poll() is None
 
     def stop(self):
         """ Stop WallyIO subprocess
         """
         logging.info("Stopping %s ...", self.__name)
-        self.__process.send_signal(signal.SIGKILL)
-        self.__started = False
+        self.__process.send_signal(signal.SIGTERM)
+        time.sleep(1)
+        if self.__process.poll() is None:
+            self.__process.send_signal(signal.SIGKILL)
+        self.__process.wait()
         logging.info("Stopped %s", self.__name)
 
 SERVER_UNDER_TEST = ServerUnderTest("ServerUnderTest")
