@@ -65,11 +65,8 @@ namespace io_wally
             spdlog::set_async_mode( log_q_size );
 
             const auto log_pattern = "[%Y-%m-%d %H:%M:%S.%f] [%l] [%P/%t] [%n] %v";
-            //            auto log_console_filter = safe_log_level_filter( config[context::LOG_CONSOLE_LEVEL].as<const
-            //            string>( ),
-            //                                                            defaults::DEFAULT_LOG_CONSOLE_LEVEL );
-            auto log_level = safe_log_level_filter( config[context::LOG_CONSOLE_LEVEL].as<std::string>( ),
-                                                    spdlog::level::level_enum::info );
+            const auto log_level =
+                safe_log_level_filter( config[context::LOG_LEVEL].as<std::string>( ), spdlog::level::level_enum::info );
             auto sinks = std::vector<spdlog::sink_ptr>{};
             if ( config[context::LOG_DISABLE].as<bool>( ) )
             {
@@ -77,7 +74,7 @@ namespace io_wally
             }
             else
             {
-                auto log_file_name = config[context::LOG_FILE].as<std::string>( );
+                const auto log_file_name = config[context::LOG_FILE].as<std::string>( );
                 sinks.push_back( std::make_shared<spdlog::sinks::simple_file_sink_mt>( log_file_name ) );
 
                 if ( config[context::LOG_CONSOLE].as<bool>( ) )

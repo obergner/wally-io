@@ -13,13 +13,9 @@ namespace io_wally
 
         static const size_t DEFAULT_INITIAL_WRITE_BUFFER_SIZE = 256;
 
-        static const std::string DEFAULT_CONFIG_FILE = "/etc/mqttd.conf";
-
         static const std::string DEFAULT_LOG_FILE = "/var/log/mqttd.log";
 
-        static const std::string DEFAULT_LOG_FILE_LEVEL = "debug";
-
-        static const std::string DEFAULT_LOG_CONSOLE_LEVEL = "info";
+        static const std::string DEFAULT_LOG_LEVEL = "info";
 
         static const std::string DEFAULT_SERVER_ADDRESS = "0.0.0.0";
 

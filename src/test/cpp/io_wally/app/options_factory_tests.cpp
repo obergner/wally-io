@@ -27,11 +27,9 @@ SCENARIO( "options_factory", "[options]" )
             THEN( "it should return a variables_map with default options" )
             {
                 CHECK( config[io_wally::context::LOG_FILE].as<std::string>( ) == io_wally::defaults::DEFAULT_LOG_FILE );
-                CHECK( config[io_wally::context::LOG_FILE_LEVEL].as<std::string>( ) ==
-                       io_wally::defaults::DEFAULT_LOG_FILE_LEVEL );
                 CHECK( config[io_wally::context::LOG_CONSOLE].as<bool>( ) == false );
-                CHECK( config[io_wally::context::LOG_CONSOLE_LEVEL].as<std::string>( ) ==
-                       io_wally::defaults::DEFAULT_LOG_CONSOLE_LEVEL );
+                CHECK( config[io_wally::context::LOG_LEVEL].as<std::string>( ) ==
+                       io_wally::defaults::DEFAULT_LOG_LEVEL );
                 CHECK( config[io_wally::context::LOG_DISABLE].as<bool>( ) == false );
                 CHECK( config[io_wally::context::SERVER_ADDRESS].as<std::string>( ) ==
                        io_wally::defaults::DEFAULT_SERVER_ADDRESS );
@@ -51,8 +49,7 @@ SCENARIO( "options_factory", "[options]" )
     GIVEN( "a command line with all supported options explicitly set" )
     {
         const char* const log_file = "/var/log/log.file";
-        const char* const log_file_level = "fatal";
-        const char* const log_console_level = "error";
+        const char* const log_level = "error";
         const std::string server_address( "8.9.10.11" );
         const int server_port = 1234;
         const std::string auth_service_factory( "test_auth_srvc_factory" );
@@ -63,11 +60,9 @@ SCENARIO( "options_factory", "[options]" )
         const char* command_line_args[]{"executable",
                                         "--log-file",
                                         log_file,
-                                        "--log-file-level",
-                                        log_file_level,
                                         "--log-console",
-                                        "--log-console-level",
-                                        log_console_level,
+                                        "--log-level",
+                                        log_level,
                                         "--log-disable",
                                         "--server-address",
                                         "8.9.10.11",
@@ -92,9 +87,8 @@ SCENARIO( "options_factory", "[options]" )
             THEN( "it should return a variables_map with all command line args correctly parsed" )
             {
                 CHECK( config[io_wally::context::LOG_FILE].as<std::string>( ) == log_file );
-                CHECK( config[io_wally::context::LOG_FILE_LEVEL].as<std::string>( ) == log_file_level );
                 CHECK( config[io_wally::context::LOG_CONSOLE].as<bool>( ) == true );
-                CHECK( config[io_wally::context::LOG_CONSOLE_LEVEL].as<std::string>( ) == log_console_level );
+                CHECK( config[io_wally::context::LOG_LEVEL].as<std::string>( ) == log_level );
                 CHECK( config[io_wally::context::LOG_DISABLE].as<bool>( ) == true );
                 CHECK( config[io_wally::context::SERVER_ADDRESS].as<std::string>( ) == server_address );
                 CHECK( config[io_wally::context::SERVER_PORT].as<int>( ) == server_port );

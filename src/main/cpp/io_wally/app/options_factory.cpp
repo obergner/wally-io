@@ -75,19 +75,15 @@ DISCLAIMER:
                   "Direct log output to <file>",
                   cxxopts::value<std::string>( )->default_value( DEFAULT_LOG_FILE ),
                   "<file>" )
-                ( LOG_FILE_LEVEL_SPEC,
-                  "Restrict file log output to <level> or above: (trace|debug|info|warn|err|critical)",
-                  cxxopts::value<std::string>( )->default_value( DEFAULT_LOG_FILE_LEVEL ),
-                  "<level>" )
                 ( LOG_CONSOLE_SPEC, 
                   "Log to console", 
                   cxxopts::value<bool>( )->default_value( "false" )->implicit_value( "true" ) )
-                ( LOG_CONSOLE_LEVEL_SPEC,
-                  "Restrict console log output to <level> or above: (trace|debug|info|warn|err|critical)",
-                  cxxopts::value<std::string>( )->default_value( DEFAULT_LOG_CONSOLE_LEVEL ), "<level>" )
+                ( LOG_LEVEL_SPEC,
+                  "Restrict log output to <level> or above: (trace|debug|info|warn|err|critical)",
+                  cxxopts::value<std::string>( )->default_value( DEFAULT_LOG_LEVEL ), "<level>" )
                 ( LOG_DISABLE_SPEC,
                   "Do not log, neither to file nor to console. If this option is set --log-file, --log-console, "
-                  "--log-file-level and --log-console-level will be ignored",
+                  "and --log-level will be ignored",
                   cxxopts::value<bool>( )->default_value( "false" )->implicit_value( "true" ) );
 
             options.add_options( PUBLICATION_GROUP )

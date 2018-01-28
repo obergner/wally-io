@@ -49,7 +49,7 @@ class ServerUnderTest(object):
         logging.info("Starting %s ...", self.__name)
         args = ['./target/sanitize/wally-iod',
                 '--log-file', './target/itest/itest_server.log',
-                '--log-file-level', 'trace',
+                '--log-level', 'trace',
                 '--conn-timeout', '2000']
         self.__process = subprocess.Popen(args)
         self.__started = True

@@ -18,11 +18,9 @@ namespace io_wally
 
         static constexpr const char* LOG_FILE = app::options_factory::LOG_FILE;
 
-        static constexpr const char* LOG_FILE_LEVEL = app::options_factory::LOG_FILE_LEVEL;
-
         static constexpr const char* LOG_CONSOLE = app::options_factory::LOG_CONSOLE;
 
-        static constexpr const char* LOG_CONSOLE_LEVEL = app::options_factory::LOG_CONSOLE_LEVEL;
+        static constexpr const char* LOG_LEVEL = app::options_factory::LOG_LEVEL;
 
         static constexpr const char* LOG_DISABLE = app::options_factory::LOG_DISABLE;
 
