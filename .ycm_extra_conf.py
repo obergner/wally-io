@@ -39,18 +39,16 @@ flags = [
     '-x',
     'c++',
     '-I',
-    './libs/asio',
+    './external/asio/include',
     '-I',
-    './libs/spdlog',
+    './external/spdlog/include',
     '-I',
-    './libs/cxxopts',
+    './external/cxxopts/include',
     '-I',
-    './src/main/cpp',
+    './source/server',
     '-I',
-    './src/test/cpp',
-    '-I',
-    './libs/org.eclipse.paho.mqtt.c/include',
-    '-DBOOST_ASIO_HAS_STD_CHRONO',
+    './test/server',
+    '-DASIO_HAS_STD_CHRONO',
 ]
 
 
@@ -108,7 +106,7 @@ def MakeRelativePathsInFlagsAbsolute( flags, working_directory ):
 
 def IsHeaderFile( filename ):
   extension = os.path.splitext( filename )[ 1 ]
-  return extension in [ '.h', '.hxx', '.hpp', '.hh' ]
+  return extension in [ '.h', '.hxx', '.hpp', '.hh', '.ipp' ]
 
 
 def GetCompilationInfoForFile( filename ):

@@ -6,7 +6,7 @@
 # INCLUDES
 # --------------------------------------------------------------------------------------------------------------------- 
 
-include ./libs/libs.mk
+include ./external/external.mk
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Common definitions
@@ -26,7 +26,7 @@ BUILD                    := $(DIR)/target
 #
 # SOURCES
 #
-SRC_DIR_M                := $(DIR)/src/main/cpp
+SRC_DIR_M                := $(DIR)/source/server
 
 SRCS_M                   := $(wildcard $(SRC_DIR_M)/io_wally/*.cpp)
 SRCS_M                   += $(wildcard $(SRC_DIR_M)/io_wally/protocol/*.cpp)
@@ -116,7 +116,7 @@ EXEC_M_SAN               := $(BUILD_M_SAN)/wally-iod
 # --------------------------------------------------------------------------------------------------------------------- 
 
 # Test SRCS
-SRC_DIR_UT                := $(DIR)/src/test/cpp
+SRC_DIR_UT                := $(DIR)/test/server
 
 # Test framework SRCS
 SRCS_UT_FRM               := $(wildcard $(SRC_DIR_UT)/framework/*.cpp)
@@ -153,10 +153,16 @@ EXEC_UT                   := $(BUILD_UT)/unit-tests
 # Integration tests
 # --------------------------------------------------------------------------------------------------------------------- 
 
-SRC_DIR_IT                := $(DIR)/src/itest/py
+SRC_DIR_IT                := $(DIR)/itest/server
 
 # Build dir for integration tests
 BUILD_IT                  := $(BUILD)/itest
+
+# --------------------------------------------------------------------------------------------------------------------- 
+# Load tests
+# --------------------------------------------------------------------------------------------------------------------- 
+
+SRC_DIR_LT                := $(DIR)/ltest/server
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Tooling
@@ -173,10 +179,6 @@ COMPILATIONDB             := $(DIR)/compile_commands.json
 
 # Third-party tools, mainly used for testing
 TOOLSDIR                  := $(DIR)/tools
-
-# Paho conformance test suite
-PAHO_CONFORM_DIR          := $(TOOLSDIR)/paho
-PAHO_CONFORM_EXEC         := $(PAHO_CONFORM_DIR)/client_test.py
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Miscellaneous
@@ -431,15 +433,7 @@ $(BUILD_IT)               :
 
 .PHONY                    : ltest
 ltest                     : main
-	@python3 ./src/ltest/py/simple_load_test.py
-
-# --------------------------------------------------------------------------------------------------------------------- 
-# Paho conformance test suit
-# --------------------------------------------------------------------------------------------------------------------- 
-
-.PHONY                    : conformance-tests
-conformance-tests         :
-	@python3 $(PAHO_CONFORM_EXEC)
+	@python3 $(SRC_DIR_LT)/simple_load_test.py
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Clean up the mess
@@ -514,18 +508,18 @@ format-main               : $(SRCS_M) $(EXECSOURCE_M)
 format-test               : $(SRCS_UT) $(EXECSOURCE_UT)
 	clang-format -i -style=file $(SRCS_UT) $(EXECSOURCE_UT)
 
-.PHONY                    : format-libs
-format-libs               : $(ASIO_EXT_SRCS) $(SPDLOG_EXT_SRCS) $(CXXOPTS_EXT_SRCS)
-	clang-format -i -style=file $(ASIO_EXT_SRCS) $(SPDLOG_EXT_SRCS) $(CXXOPTS_EXT_SRCS)
+.PHONY                    : format-external
+format-external           : $(EXT_SRCS)
+	clang-format -i -style=file $(EXT_SRCS)
 
 .PHONY                    : format
 format                    : format-main
 format                    : format-test
-format                    : format-libs
+format                    : format-external
 
 .PHONY                    : tags
-tags                      : $(SRCS_M) $(EXECSOURCE_M) $(SRCS_UT) $(EXECSOURCE_UT)
-	ctags -R -f ./.tags $(SRC_DIR_M) $(SRC_DIR_UT)
+tags                      : $(SRCS_M) $(EXECSOURCE_M) $(SRCS_UT) $(EXECSOURCE_UT) $(EXT_SRCS)
+	ctags -R -f ./.tags $(SRC_DIR_M) $(SRC_DIR_UT) $(EXT_SRCS)
 
 .PHONY                    : upgrade-catch-hpp
 upgrade-catch-hpp         :
@@ -578,3 +572,4 @@ run-server-san            : $(EXEC_M_SAN)
 -include                  $(EXECOBJ_M_SAN:.o=.d)
 -include                  $(OBJS_UT:.o=.d)
 -include                  $(EXECOBJ_UT:.o=.d)
+
