@@ -496,7 +496,7 @@ $(BUILD_SCAN)             :
 
 .PHONY                    : scan-main
 scan-main                 : $(BUILD_SCAN)
-	scan-build -o $(BUILD_SCAN) -analyze-headers --status-bugs $(MAKE) clean main
+	scan-build -o $(BUILD_SCAN) -analyze-headers --status-bugs $(MAKE) clean debug
 
 .PHONY                    : tidy
 tidy                      : $(SRCS_M) $(EXECSOURCE_M) $(COMPILATIONDB)
