@@ -1,7 +1,7 @@
 ---
 Checks:          'clang-diagnostic-*,clang-analyzer-*,clang-diagnostic-*,clang-analyzer-*,modernize-*,performance-*'
 WarningsAsErrors: ''
-HeaderFilterRegex: src/main/cpp
+HeaderFilterRegex: source/server
 AnalyzeTemporaryDtors: false
 FormatStyle:     file
 User:            obergner

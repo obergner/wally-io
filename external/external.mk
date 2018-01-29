@@ -69,10 +69,27 @@ CXXOPTS_EXT_INC                 := $(CXXOPTS_EXT_DIR)/include
 CXXOPTS_EXT_SRCS                := $(wildcard $(CXXOPTS_EXT_INC)/*.hpp)
 
 # -------------------------------------------------------------------------------- 
+# Catch2 header only: https://github.com/catchorg/Catch2
+# -------------------------------------------------------------------------------- 
+
+CATCH2_EXT_DIR                  := $(CWD)/catch2
+CATCH2_EXT_INC                  := $(CATCH2_EXT_DIR)/include
+
+CATCH2_EXT_SRCS                 := $(wildcard $(CATCH2_EXT_INC)/*.hpp)
+
+CATCH2_DL_URL                   := https://raw.githubusercontent.com/catchorg/Catch2/master/single_include/catch.hpp
+
+.PHONY                          : upgrade-catch-hpp
+upgrade-catch-hpp               :
+	@mv $(CATCH2_EXT_INC)/catch.hpp $(CATCH2_EXT_INC)/catch.hpp.backup; \
+		curl --progress-bar --output $(CATCH2_EXT_INC)/catch.hpp $(CATCH2_DL_URL);
+
+# -------------------------------------------------------------------------------- 
 # All external sources combined
 # -------------------------------------------------------------------------------- 
 
 EXT_SRCS                        := $(ASIO_EXT_SRCS)
 EXT_SRCS                        += $(SPDLOG_EXT_SRCS)
 EXT_SRCS                        += $(CXXOPTS_EXT_SRCS)
+EXT_SRCS                        += $(CATCH2_EXT_SRCS)
 

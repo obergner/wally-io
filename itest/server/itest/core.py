@@ -1,10 +1,11 @@
 """ Integration test core classes
 """
+import atexit
+import logging
+import os
 import signal
 import subprocess
-import logging
 import time
-import atexit
 
 class TimeoutError(Exception):
     """ Timeout exception
@@ -45,9 +46,12 @@ class ServerUnderTest(object):
     def start(self):
         """ Start WallyIO subprocess
         """
+        config = os.environ['CONFIG']
+        executable = './target/%s/main/wally-iod' % (config)
+        log_file = './target/%s/itest/itest_server.log' % (config)
         logging.info("Starting %s ...", self.__name)
-        args = ['./target/sanitize/wally-iod',
-                '--log-file', './target/itest/itest_server.log',
+        args = [executable,
+                '--log-file', log_file,
                 '--log-level', 'trace',
                 '--conn-timeout', '2000']
         self.__process = subprocess.Popen(args)

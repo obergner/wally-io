@@ -1,6 +1,7 @@
 """ Loadtest core classes
 """
 import signal
+import os
 import subprocess
 import threading
 import time
@@ -19,8 +20,13 @@ class ServerUnderTest(object):
         """ Start WallyIO subprocess
         """
         logging.info("Starting %s ...", self.name)
-        args = ['./target/main/wally-iod', '--log-console', '--log-level', 'trace']
+        config = os.environ['CONFIG']
+        executable = "./target/%s/main/wall-iod" % (config)
+        args = [executable, '--log-console', '--log-level', 'trace']
         self.process = subprocess.Popen(args)
+        time.sleep(2)
+        if self.process.poll() is not None:
+            raise RuntimeError("Failed to start %s" % (self.name))
         logging.info("Started %s", self.name)
 
     def stop(self):
