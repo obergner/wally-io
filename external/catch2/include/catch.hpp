@@ -1,6 +1,6 @@
 /*
- *  Catch v2.1.0
- *  Generated: 2018-01-10 13:51:15.378034
+ *  Catch v2.1.1
+ *  Generated: 2018-01-26 16:04:07.190063
  *  ----------------------------------------------------------
  *  This file has been merged from multiple headers. Please don't edit it directly
  *  Copyright (c) 2018 Two Blue Cubes Ltd. All rights reserved.
@@ -667,7 +667,7 @@ namespace Catch
 #include <string>
 #include <type_traits>
 #include <vector>
-   // start catch_stream.h
+    // start catch_stream.h
 
 #include <cstddef>
 #include <iosfwd>
@@ -901,26 +901,6 @@ namespace Catch
     struct StringMaker<wchar_t*>
     {
         static std::string convert( wchar_t* str );
-    };
-
-    template <typename T>
-    struct is_string_array : std::false_type
-    {
-    };
-
-    template <std::size_t N>
-    struct is_string_array<char[N]> : std::true_type
-    {
-    };
-
-    template <std::size_t N>
-    struct is_string_array<signed char[N]> : std::true_type
-    {
-    };
-
-    template <std::size_t N>
-    struct is_string_array<unsigned char[N]> : std::true_type
-    {
     };
 
     template <int SZ>
@@ -1216,11 +1196,20 @@ namespace Catch
     }
 
     template <typename R>
-    struct StringMaker<R, typename std::enable_if<is_range<R>::value && !is_string_array<R>::value>::type>
+    struct StringMaker<R, typename std::enable_if<is_range<R>::value && !std::is_array<R>::value>::type>
     {
         static std::string convert( R const& range )
         {
             return rangeToString( range );
+        }
+    };
+
+    template <typename T, int SZ>
+    struct StringMaker<T[SZ]>
+    {
+        static std::string convert( T const ( &arr )[SZ] )
+        {
+            return rangeToString( arr );
         }
     };
 
@@ -1452,7 +1441,7 @@ namespace Catch
     template <typename LhsT, typename RhsT>
     auto compareEqual( LhsT const& lhs, RhsT const& rhs ) -> bool
     {
-        return lhs == rhs;
+        return static_cast<bool>( lhs == rhs );
     };
     template <typename T>
     auto compareEqual( T* const& lhs, int rhs ) -> bool
@@ -1478,7 +1467,7 @@ namespace Catch
     template <typename LhsT, typename RhsT>
     auto compareNotEqual( LhsT const& lhs, RhsT&& rhs ) -> bool
     {
-        return lhs != rhs;
+        return static_cast<bool>( lhs != rhs );
     };
     template <typename T>
     auto compareNotEqual( T* const& lhs, int rhs ) -> bool
@@ -1534,22 +1523,22 @@ namespace Catch
         template <typename RhsT>
         auto operator>( RhsT const& rhs ) -> BinaryExpr<LhsT, RhsT const&> const
         {
-            return {m_lhs > rhs, m_lhs, ">", rhs};
+            return {static_cast<bool>( m_lhs > rhs ), m_lhs, ">", rhs};
         }
         template <typename RhsT>
         auto operator<( RhsT const& rhs ) -> BinaryExpr<LhsT, RhsT const&> const
         {
-            return {m_lhs < rhs, m_lhs, "<", rhs};
+            return {static_cast<bool>( m_lhs < rhs ), m_lhs, "<", rhs};
         }
         template <typename RhsT>
         auto operator>=( RhsT const& rhs ) -> BinaryExpr<LhsT, RhsT const&> const
         {
-            return {m_lhs >= rhs, m_lhs, ">=", rhs};
+            return {static_cast<bool>( m_lhs >= rhs ), m_lhs, ">=", rhs};
         }
         template <typename RhsT>
         auto operator<=( RhsT const& rhs ) -> BinaryExpr<LhsT, RhsT const&> const
         {
-            return {m_lhs <= rhs, m_lhs, "<=", rhs};
+            return {static_cast<bool>( m_lhs <= rhs ), m_lhs, "<=", rhs};
         }
 
         auto makeUnaryExpr( ) const -> UnaryExpr<LhsT>
@@ -3415,7 +3404,7 @@ namespace Catch
 #endif
 
 #ifdef CATCH_CONFIG_EXTERNAL_INTERFACES
-   // start catch_external_interfaces.h
+    // start catch_external_interfaces.h
 
     // start catch_reporter_bases.hpp
 
@@ -4955,7 +4944,7 @@ namespace Catch
 #endif  // ! CATCH_CONFIG_IMPL_ONLY
 
 #ifdef CATCH_IMPL
-// start catch_impl.hpp
+    // start catch_impl.hpp
 
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -5217,8 +5206,8 @@ namespace Catch
     }
 
 }  // end namespace Catch
-   // end catch_approx.cpp
-   // start catch_assertionhandler.cpp
+    // end catch_approx.cpp
+    // start catch_assertionhandler.cpp
 
     // start catch_context.h
 
@@ -5836,8 +5825,14 @@ namespace Catch
 #endif
 
     // start clara.hpp
-    // v1.0-develop.2
-    // See https://github.com/philsquared/Clara
+    // Copyright 2017 Two Blue Cubes Ltd. All rights reserved.
+    //
+    // Distributed under the Boost Software License, Version 1.0. (See accompanying
+    // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+    //
+    // See https://github.com/philsquared/Clara for more details
+
+    // Clara v1.1.1
 
 #ifndef CATCH_CLARA_CONFIG_CONSOLE_WIDTH
 #define CATCH_CLARA_CONFIG_CONSOLE_WIDTH 80
@@ -6278,7 +6273,6 @@ namespace Catch
             {
                 static const bool isValid = true;
                 using ArgType = typename std::remove_const<typename std::remove_reference<ArgT>::type>::type;
-                ;
                 using ReturnType = ReturnT;
             };
 
@@ -6488,7 +6482,7 @@ namespace Catch
                     return *this;
                 }
 
-                ~ResultValueBase( )
+                ~ResultValueBase( ) override
                 {
                     if ( m_type == Ok )
                         m_value.~T( );
@@ -6549,7 +6543,7 @@ namespace Catch
                 }
 
                protected:
-                virtual void enforceOk( ) const
+                void enforceOk( ) const override
                 {
                     // !TBD: If no exceptions, std::terminate here or something
                     switch ( m_type )
@@ -6646,61 +6640,38 @@ namespace Catch
                 return ParserResult::ok( ParseResultType::Matched );
             }
 
-            struct BoundRefBase
+            struct NonCopyable
             {
-                BoundRefBase( ) = default;
-                BoundRefBase( BoundRefBase const& ) = delete;
-                BoundRefBase( BoundRefBase&& ) = delete;
-                BoundRefBase& operator=( BoundRefBase const& ) = delete;
-                BoundRefBase& operator=( BoundRefBase&& ) = delete;
+                NonCopyable( ) = default;
+                NonCopyable( NonCopyable const& ) = delete;
+                NonCopyable( NonCopyable&& ) = delete;
+                NonCopyable& operator=( NonCopyable const& ) = delete;
+                NonCopyable& operator=( NonCopyable&& ) = delete;
+            };
 
-                virtual ~BoundRefBase( ) = default;
-
-                virtual auto isFlag( ) const -> bool = 0;
+            struct BoundRef : NonCopyable
+            {
+                virtual ~BoundRef( ) = default;
                 virtual auto isContainer( ) const -> bool
                 {
                     return false;
                 }
+            };
+            struct BoundValueRefBase : BoundRef
+            {
                 virtual auto setValue( std::string const& arg ) -> ParserResult = 0;
+            };
+            struct BoundFlagRefBase : BoundRef
+            {
                 virtual auto setFlag( bool flag ) -> ParserResult = 0;
             };
 
-            struct BoundValueRefBase : BoundRefBase
-            {
-                auto isFlag( ) const -> bool override
-                {
-                    return false;
-                }
-
-                auto setFlag( bool ) -> ParserResult override
-                {
-                    return ParserResult::logicError( "Flags can only be set on boolean fields" );
-                }
-            };
-
-            struct BoundFlagRefBase : BoundRefBase
-            {
-                auto isFlag( ) const -> bool override
-                {
-                    return true;
-                }
-
-                auto setValue( std::string const& arg ) -> ParserResult override
-                {
-                    bool flag;
-                    auto result = convertInto( arg, flag );
-                    if ( result )
-                        setFlag( flag );
-                    return result;
-                }
-            };
-
             template <typename T>
-            struct BoundRef : BoundValueRefBase
+            struct BoundValueRef : BoundValueRefBase
             {
                 T& m_ref;
 
-                explicit BoundRef( T& ref ) : m_ref( ref )
+                explicit BoundValueRef( T& ref ) : m_ref( ref )
                 {
                 }
 
@@ -6711,11 +6682,11 @@ namespace Catch
             };
 
             template <typename T>
-            struct BoundRef<std::vector<T>> : BoundValueRefBase
+            struct BoundValueRef<std::vector<T>> : BoundValueRefBase
             {
                 std::vector<T>& m_ref;
 
-                explicit BoundRef( std::vector<T>& ref ) : m_ref( ref )
+                explicit BoundValueRef( std::vector<T>& ref ) : m_ref( ref )
                 {
                 }
 
@@ -6776,11 +6747,11 @@ namespace Catch
             template <typename ArgType, typename L>
             inline auto invokeLambda( L const& lambda, std::string const& arg ) -> ParserResult
             {
-                ArgType temp;
+                ArgType temp{};
                 auto result = convertInto( arg, temp );
                 return !result ? result
                                : LambdaInvoker<typename UnaryLambdaTraits<L>::ReturnType>::invoke( lambda, temp );
-            };
+            }
 
             template <typename L>
             struct BoundLambda : BoundValueRefBase
@@ -6852,6 +6823,9 @@ namespace Catch
                public:
                 template <typename T>
                 auto operator|( T const& other ) const -> Parser;
+
+                template <typename T>
+                auto operator+( T const& other ) const -> Parser;
             };
 
             // Common code and state for Args and Opts
@@ -6860,18 +6834,18 @@ namespace Catch
             {
                protected:
                 Optionality m_optionality = Optionality::Optional;
-                std::shared_ptr<BoundRefBase> m_ref;
+                std::shared_ptr<BoundRef> m_ref;
                 std::string m_hint;
                 std::string m_description;
 
-                explicit ParserRefImpl( std::shared_ptr<BoundRefBase> const& ref ) : m_ref( ref )
+                explicit ParserRefImpl( std::shared_ptr<BoundRef> const& ref ) : m_ref( ref )
                 {
                 }
 
                public:
                 template <typename T>
                 ParserRefImpl( T& ref, std::string const& hint )
-                    : m_ref( std::make_shared<BoundRef<T>>( ref ) ), m_hint( hint )
+                    : m_ref( std::make_shared<BoundValueRef<T>>( ref ) ), m_hint( hint )
                 {
                 }
 
@@ -6921,10 +6895,10 @@ namespace Catch
             class ExeName : public ComposableParserImpl<ExeName>
             {
                 std::shared_ptr<std::string> m_name;
-                std::shared_ptr<BoundRefBase> m_ref;
+                std::shared_ptr<BoundValueRefBase> m_ref;
 
                 template <typename LambdaT>
-                static auto makeRef( LambdaT const& lambda ) -> std::shared_ptr<BoundRefBase>
+                static auto makeRef( LambdaT const& lambda ) -> std::shared_ptr<BoundValueRefBase>
                 {
                     return std::make_shared<BoundLambda<LambdaT>>( lambda );
                 }
@@ -6936,7 +6910,7 @@ namespace Catch
 
                 explicit ExeName( std::string& ref ) : ExeName( )
                 {
-                    m_ref = std::make_shared<BoundRef<std::string>>( ref );
+                    m_ref = std::make_shared<BoundValueRef<std::string>>( ref );
                 }
 
                 template <typename LambdaT>
@@ -6985,7 +6959,10 @@ namespace Catch
                     if ( token.type != TokenType::Argument )
                         return InternalParseResult::ok( ParseState( ParseResultType::NoMatch, remainingTokens ) );
 
-                    auto result = m_ref->setValue( remainingTokens->token );
+                    assert( dynamic_cast<detail::BoundValueRefBase*>( m_ref.get( ) ) );
+                    auto valueRef = static_cast<detail::BoundValueRefBase*>( m_ref.get( ) );
+
+                    auto result = valueRef->setValue( remainingTokens->token );
                     if ( !result )
                         return InternalParseResult( result );
                     else
@@ -7076,9 +7053,9 @@ namespace Catch
                         auto const& token = *remainingTokens;
                         if ( isMatch( token.token ) )
                         {
-                            if ( m_ref->isFlag( ) )
+                            if ( auto flagRef = dynamic_cast<detail::BoundFlagRefBase*>( m_ref.get( ) ) )
                             {
-                                auto result = m_ref->setFlag( true );
+                                auto result = flagRef->setFlag( true );
                                 if ( !result )
                                     return InternalParseResult( result );
                                 if ( result.value( ) == ParseResultType::ShortCircuitAll )
@@ -7086,6 +7063,8 @@ namespace Catch
                             }
                             else
                             {
+                                assert( dynamic_cast<detail::BoundValueRefBase*>( m_ref.get( ) ) );
+                                auto valueRef = static_cast<detail::BoundValueRefBase*>( m_ref.get( ) );
                                 ++remainingTokens;
                                 if ( !remainingTokens )
                                     return InternalParseResult::runtimeError( "Expected argument following " +
@@ -7094,7 +7073,7 @@ namespace Catch
                                 if ( argToken.type != TokenType::Argument )
                                     return InternalParseResult::runtimeError( "Expected argument following " +
                                                                               token.token );
-                                auto result = m_ref->setValue( argToken.token );
+                                auto result = valueRef->setValue( argToken.token );
                                 if ( !result )
                                     return InternalParseResult( result );
                                 if ( result.value( ) == ParseResultType::ShortCircuitAll )
@@ -7176,6 +7155,18 @@ namespace Catch
                     return Parser( *this ) |= other;
                 }
 
+                // Forward deprecated interface with '+' instead of '|'
+                template <typename T>
+                auto operator+=( T const& other ) -> Parser&
+                {
+                    return operator|=( other );
+                }
+                template <typename T>
+                auto operator+( T const& other ) const -> Parser
+                {
+                    return operator|( other );
+                }
+
                 auto getHelpColumns( ) const -> std::vector<HelpColumns>
                 {
                     std::vector<HelpColumns> cols;
@@ -7221,6 +7212,8 @@ namespace Catch
                     size_t optWidth = 0;
                     for ( auto const& cols : rows )
                         optWidth = ( std::max )( optWidth, cols.left.size( ) + 2 );
+
+                    optWidth = ( std::min )( optWidth, consoleWidth / 2 );
 
                     for ( auto const& cols : rows )
                     {
@@ -7497,8 +7490,8 @@ namespace Catch
     }
 
 }  // end namespace Catch
-   // end catch_commandline.cpp
-   // start catch_common.cpp
+    // end catch_commandline.cpp
+    // start catch_common.cpp
 
 #include <cstring>
 #include <ostream>
@@ -7682,8 +7675,8 @@ namespace Catch
     }
 
 }  // end namespace Catch
-   // end catch_config.cpp
-   // start catch_console_colour.cpp
+    // end catch_config.cpp
+    // start catch_console_colour.cpp
 
 #if defined( __clang__ )
 #pragma clang diagnostic push
@@ -8267,6 +8260,18 @@ namespace Catch
                 return Catch::Detail::stringify( [exception description] );
             }
 #else
+            // Compiling a mixed mode project with MSVC means that CLR
+            // exceptions will be caught in (...) as well. However, these
+            // do not fill-in std::current_exception and thus lead to crash
+            // when attempting rethrow.
+            // /EHa switch also causes structured exceptions to be caught
+            // here, but they fill-in current_exception properly, so
+            // at worst the output should be a little weird, instead of
+            // causing a crash.
+            if ( std::current_exception( ) == nullptr )
+            {
+                return "Non C++ exception. Possibly a CLR exception.";
+            }
             return tryTranslators( );
 #endif
         }
@@ -8971,8 +8976,8 @@ namespace Catch
     using Matchers::Impl::MatcherBase;
 
 }  // namespace Catch
-   // end catch_matchers.cpp
-   // start catch_matchers_floating.cpp
+    // end catch_matchers.cpp
+    // start catch_matchers_floating.cpp
 
 #include <cstdint>
 #include <cstdlib>
@@ -9317,8 +9322,8 @@ namespace Catch
 #endif
 
 }  // end namespace Catch
-   // end catch_message.cpp
-   // start catch_random_number_generator.cpp
+    // end catch_message.cpp
+    // start catch_random_number_generator.cpp
 
     // start catch_random_number_generator.h
 
@@ -9698,8 +9703,8 @@ namespace Catch
     }
 
 }  // end namespace Catch
-   // end catch_result_type.cpp
-   // start catch_run_context.cpp
+    // end catch_result_type.cpp
+    // start catch_run_context.cpp
 
 #include <algorithm>
 #include <cassert>
@@ -10264,8 +10269,8 @@ namespace Catch
     }
 
 }  // end namespace Catch
-   // end catch_section_info.cpp
-   // start catch_session.cpp
+    // end catch_section_info.cpp
+    // start catch_session.cpp
 
     // start catch_session.h
 
@@ -10623,6 +10628,9 @@ namespace Catch
             if ( Option<std::size_t> listed = list( config( ) ) )
                 return static_cast<int>( *listed );
 
+            // Note that on unices only the lower 8 bits are usually used, clamping
+            // the return value to 255 prevents false negative when some multiple
+            // of 256 tests has failed
             return ( std::min )( MaxExitCode, static_cast<int>( runTests( m_config ).assertions.failed ) );
         }
         catch ( std::exception& ex )
@@ -10657,8 +10665,8 @@ namespace Catch
     }
 
 }  // end namespace Catch
-   // end catch_startup_exception_registry.cpp
-   // start catch_stream.cpp
+    // end catch_startup_exception_registry.cpp
+    // start catch_stream.cpp
 
 #include <cstdio>
 #include <fstream>
@@ -11201,8 +11209,8 @@ namespace Catch
     }
 
 }  // end namespace Catch
-   // end catch_tag_alias_registry.cpp
-   // start catch_test_case_info.cpp
+    // end catch_tag_alias_registry.cpp
+    // start catch_test_case_info.cpp
 
 #include <algorithm>
 #include <cctype>
@@ -11384,8 +11392,8 @@ namespace Catch
     }
 
 }  // end namespace Catch
-   // end catch_test_case_info.cpp
-   // start catch_test_case_registry_impl.cpp
+    // end catch_test_case_info.cpp
+    // start catch_test_case_registry_impl.cpp
 
 #include <sstream>
 
@@ -11501,8 +11509,8 @@ namespace Catch
     }
 
 }  // end namespace Catch
-   // end catch_test_case_registry_impl.cpp
-   // start catch_test_case_tracker.cpp
+    // end catch_test_case_registry_impl.cpp
+    // start catch_test_case_tracker.cpp
 
 #include <algorithm>
 #include <assert.h>
@@ -12044,8 +12052,8 @@ namespace Catch
     }
 
 }  // namespace Catch
-   // end catch_test_spec_parser.cpp
-   // start catch_timer.cpp
+    // end catch_test_spec_parser.cpp
+    // start catch_timer.cpp
 
 #include <chrono>
 
@@ -12110,8 +12118,8 @@ namespace Catch
     }
 
 }  // namespace Catch
-   // end catch_timer.cpp
-   // start catch_tostring.cpp
+    // end catch_timer.cpp
+    // start catch_tostring.cpp
 
 #if defined( __clang__ )
 #pragma clang diagnostic push
@@ -12512,7 +12520,7 @@ namespace Catch
 
     Version const& libraryVersion( )
     {
-        static Version version( 2, 1, 0, "", 0 );
+        static Version version( 2, 1, 1, "", 0 );
         return version;
     }
 }
@@ -13170,8 +13178,8 @@ namespace Catch
     CATCH_REGISTER_REPORTER( "compact", CompactReporter )
 
 }  // end namespace Catch
-   // end catch_reporter_compact.cpp
-   // start catch_reporter_console.cpp
+    // end catch_reporter_compact.cpp
+    // start catch_reporter_console.cpp
 
 #include <cfloat>
 #include <cstdio>
@@ -13882,8 +13890,8 @@ namespace Catch
 #if defined( _MSC_VER )
 #pragma warning( pop )
 #endif
-   // end catch_reporter_console.cpp
-   // start catch_reporter_junit.cpp
+    // end catch_reporter_console.cpp
+    // start catch_reporter_junit.cpp
 
 #include <algorithm>
 #include <assert.h>
@@ -14251,8 +14259,8 @@ namespace Catch
     }
 
 }  // end namespace Catch
-   // end catch_reporter_multi.cpp
-   // start catch_reporter_xml.cpp
+    // end catch_reporter_multi.cpp
+    // start catch_reporter_xml.cpp
 
 #if defined( _MSC_VER )
 #pragma warning( push )
