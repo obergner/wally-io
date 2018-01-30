@@ -21,8 +21,13 @@ class ServerUnderTest(object):
         """
         logging.info("Starting %s ...", self.name)
         config = os.environ['CONFIG']
-        executable = "./target/%s/main/wall-iod" % (config)
-        args = [executable, '--log-console', '--log-level', 'trace']
+        executable = "./target/%s/main/wally-iod" % (config)
+        log_file = './target/%s/ltest/ltest_server.log' % (config)
+        args = [executable,
+                '--log-file', log_file,
+                '--log-level', 'trace',
+                '--log-console',
+                '--conn-timeout', '2000']
         self.process = subprocess.Popen(args)
         time.sleep(2)
         if self.process.poll() is not None:
