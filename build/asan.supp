@@ -1,7 +1,0 @@
-# Suppress memory leak errors reported by Clang's leak sanitizer
-# in some third-party libraries
-
-# Paho C client library used in integration tests
-leak:src/Heap.c
-leak:src/Tree.c
-

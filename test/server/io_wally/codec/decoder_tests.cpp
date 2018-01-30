@@ -437,11 +437,11 @@ SCENARIO( "parsing a 16 bit unsigned integer", "[packets]" )
 
     GIVEN( "a buffer of length 0" )
     {
-        const std::array<const std::uint8_t, 0> buffer = {{}};
+        const auto buffer = std::array<const std::uint8_t, 0>{{}};
 
         WHEN( "a client passes that buffer into parse_std::uint16" )
         {
-            THEN( "the client should see a error::malformed_mqtt_packet being thrown" )
+            THEN( "the client should see an error::malformed_mqtt_packet being thrown" )
             {
                 REQUIRE_THROWS_AS( decoder::decode_uint16( buffer.begin( ), buffer.cend( ) ),
                                    error::malformed_mqtt_packet );
@@ -451,11 +451,11 @@ SCENARIO( "parsing a 16 bit unsigned integer", "[packets]" )
 
     GIVEN( "a buffer of length 1" )
     {
-        const std::array<const std::uint8_t, 1> buffer = {{0x00}};
+        const auto buffer = std::array<const std::uint8_t, 1>{{0x00}};
 
         WHEN( "a client passes that buffer into parse_std::uint16" )
         {
-            THEN( "the client should see a error::malformed_mqtt_packet being thrown" )
+            THEN( "the client should see an error::malformed_mqtt_packet being thrown" )
             {
                 REQUIRE_THROWS_AS( decoder::decode_uint16( buffer.begin( ), buffer.cend( ) ),
                                    error::malformed_mqtt_packet );
@@ -465,12 +465,12 @@ SCENARIO( "parsing a 16 bit unsigned integer", "[packets]" )
 
     GIVEN( "a buffer of length 2" )
     {
-        const std::uint8_t msb = 0x08;
-        const std::uint8_t lsb = 0xEA;
-        const std::array<const std::uint8_t, 2> buffer = {{msb, lsb}};
-        std::uint16_t parsed_int = 0;
+        const auto msb = std::uint8_t{0x08};
+        const auto lsb = std::uint8_t{0xEA};
+        const auto buffer = std::array<const std::uint8_t, 2>{{msb, lsb}};
+        auto parsed_int = std::uint16_t{0};
 
-        const std::uint16_t expected_result = ( msb << 8 ) + lsb;
+        const auto expected_result = std::uint16_t{( msb << 8 ) + lsb};
 
         WHEN( "a client passes that buffer into parse_std::uint16" )
         {
@@ -495,7 +495,7 @@ SCENARIO( "parsing a UTF-8 string", "[packets]" )
 
     GIVEN( "a buffer of length 1" )
     {
-        const std::array<const char, 1> buffer = {{0x00}};
+        const auto buffer = std::array<const char, 1>{{0x00}};
 
         WHEN( "a client passes that buffer into decode_utf8_string" )
         {
@@ -509,7 +509,7 @@ SCENARIO( "parsing a UTF-8 string", "[packets]" )
 
     GIVEN( "a buffer of insufficient length for the contained string" )
     {
-        const std::array<const char, 5> buffer = {{0x00, 0x04, 0x61, 0x62, 0x63}};
+        const auto buffer = std::array<const char, 5>{{0x00, 0x04, 0x61, 0x62, 0x63}};
 
         WHEN( "a client passes that buffer into decode_utf8_string" )
         {
@@ -523,12 +523,12 @@ SCENARIO( "parsing a UTF-8 string", "[packets]" )
 
     GIVEN( "a buffer of length 2 containing a correctly encoded empty string" )
     {
-        const std::array<const char, 3> buffer = {{0x00, 0x00, 0x00}};
-        std::string parsed_string;
+        const auto buffer = std::array<const char, 3>{{0x00, 0x00, 0x00}};
+        auto parsed_string = std::string{};
 
         WHEN( "a client passes that buffer into decode_utf8_string" )
         {
-            std::array<const char, 3>::iterator new_buffer_start;
+            auto new_buffer_start = std::array<const char, 3>::iterator{};
             std::tie( new_buffer_start, parsed_string ) =
                 decoder::decode_utf8_string( buffer.begin( ), buffer.cend( ) );
 
@@ -546,12 +546,12 @@ SCENARIO( "parsing a UTF-8 string", "[packets]" )
 
     GIVEN( "a buffer of sufficient length containing a correctly encoded non-empty string" )
     {
-        const std::array<char, 6> buffer = {{0x00, 0x03, 0x61, 0x62, 0x63, 0x00}};
-        std::string parsed_string;
+        const auto buffer = std::array<char, 6>{{0x00, 0x03, 0x61, 0x62, 0x63, 0x00}};
+        auto parsed_string = std::string{};
 
         WHEN( "a client passes that buffer into decode_utf8_string" )
         {
-            std::array<const char, 6>::iterator new_buffer_start;
+            auto new_buffer_start = std::array<const char, 6>::iterator{};
             std::tie( new_buffer_start, parsed_string ) =
                 decoder::decode_utf8_string( buffer.begin( ), buffer.cend( ) );
 
@@ -563,6 +563,109 @@ SCENARIO( "parsing a UTF-8 string", "[packets]" )
             THEN( "the client should receive a correctly updated buffer iterator" )
             {
                 REQUIRE( new_buffer_start == buffer.begin( ) + 5 );
+            }
+        }
+    }
+}
+
+SCENARIO( "parsing a QoS byte", "[packets]" )
+{
+
+    GIVEN( "a buffer of length 0" )
+    {
+        const auto buffer = std::array<const std::uint8_t, 0>{{}};
+        auto qos = protocol::packet::QoS{};
+
+        WHEN( "a client passes that buffer into decode_qos" )
+        {
+            THEN( "the client should see an error::malformed_mqtt_packet being thrown" )
+            {
+                REQUIRE_THROWS_AS( decoder::decode_qos( buffer.begin( ), buffer.cend( ), &qos ),
+                                   error::malformed_mqtt_packet );
+            }
+        }
+    }
+
+    GIVEN( "a buffer of length 1 containing QoS::AT_MOST_ONCE" )
+    {
+        const auto buffer = std::array<const std::uint8_t, 1>{{0x00}};
+        auto qos = protocol::packet::QoS{};
+
+        WHEN( "a client passes that buffer into decode_qos" )
+        {
+            const auto new_buffer_start = decoder::decode_qos( buffer.begin( ), buffer.cend( ), &qos );
+
+            THEN( "the client should receive a correctly decoded QoS byte" )
+            {
+                REQUIRE( qos == protocol::packet::QoS::AT_MOST_ONCE );
+            }
+
+            THEN( "the client should receive a correctly updated buffer iterator" )
+            {
+                REQUIRE( new_buffer_start == buffer.begin( ) + 1 );
+            }
+        }
+    }
+
+    GIVEN( "a buffer of length 1 containing QoS::AT_LEAST_ONCE" )
+    {
+        const auto buffer = std::array<const std::uint8_t, 1>{{0x01}};
+        auto qos = protocol::packet::QoS{};
+
+        WHEN( "a client passes that buffer into decode_qos" )
+        {
+            const auto new_buffer_start = decoder::decode_qos( buffer.begin( ), buffer.cend( ), &qos );
+
+            THEN( "the client should receive a correctly decoded QoS byte" )
+            {
+                REQUIRE( qos == protocol::packet::QoS::AT_LEAST_ONCE );
+            }
+
+            THEN( "the client should receive a correctly updated buffer iterator" )
+            {
+                REQUIRE( new_buffer_start == buffer.begin( ) + 1 );
+            }
+        }
+    }
+
+    GIVEN( "a buffer of length 1 containing QoS::EXACTLY_ONCE" )
+    {
+        const auto buffer = std::array<const std::uint8_t, 1>{{0x02}};
+        auto qos = protocol::packet::QoS{};
+
+        WHEN( "a client passes that buffer into decode_qos" )
+        {
+            const auto new_buffer_start = decoder::decode_qos( buffer.begin( ), buffer.cend( ), &qos );
+
+            THEN( "the client should receive a correctly decoded QoS byte" )
+            {
+                REQUIRE( qos == protocol::packet::QoS::EXACTLY_ONCE );
+            }
+
+            THEN( "the client should receive a correctly updated buffer iterator" )
+            {
+                REQUIRE( new_buffer_start == buffer.begin( ) + 1 );
+            }
+        }
+    }
+
+    GIVEN( "a buffer of length 1 containing none of QoS::AT_MOST_ONCE, QoS::AT_LEAST_ONCE,  QoS::EXACTLY_ONCE" )
+    {
+        const auto buffer = std::array<const std::uint8_t, 1>{{0x03}};
+        auto qos = protocol::packet::QoS{};
+
+        WHEN( "a client passes that buffer into decode_qos" )
+        {
+            const auto new_buffer_start = decoder::decode_qos( buffer.begin( ), buffer.cend( ), &qos );
+
+            THEN( "the client should receive a correctly decoded QoS::RESERVED byte" )
+            {
+                REQUIRE( qos == protocol::packet::QoS::RESERVED );
+            }
+
+            THEN( "the client should receive a correctly updated buffer iterator" )
+            {
+                REQUIRE( new_buffer_start == buffer.begin( ) + 1 );
             }
         }
     }

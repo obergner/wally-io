@@ -60,6 +60,8 @@ CXXFLAGS_DEBUG            += -O0
 CXXFLAGS_DEBUG            += -g
 #CXXFLAGS_DEBUG            += -DASIO_ENABLE_HANDLER_TRACKING
 CXXFLAGS_DEBUG            += -D_GLIBCXX_DEBUG
+CXXFLAGS_DEBUG            += -D_GLIBCXX_DEBUG_PEDANTIC
+CXXFLAGS_DEBUG            += -D_GLIBCXX_ASSERTIONS
 
 # Debug build preprocessor flags
 CPPFLAGS_DEBUG            := $(CPPFLAGS_RUN)
@@ -79,6 +81,9 @@ LDLIBS_DEBUG              := $(LDLIBS_RUN)
 CXXFLAGS_ASAN             := $(CXXFLAGS_RUN)
 CXXFLAGS_ASAN             += -O0
 CXXFLAGS_ASAN             += -g # Needed by g++ to support line numbers in asan reports
+CXXFLAGS_ASAN             += -D_GLIBCXX_DEBUG
+CXXFLAGS_ASAN             += -D_GLIBCXX_DEBUG_PEDANTIC
+CXXFLAGS_ASAN             += -D_GLIBCXX_ASSERTIONS
 CXXFLAGS_ASAN             += -fsanitize=address
 CXXFLAGS_ASAN             += -fsanitize=leak
 CXXFLAGS_ASAN             += -fsanitize=undefined
@@ -95,17 +100,6 @@ LDFLAGS_ASAN              += -fsanitize=undefined
 
 # Asan link libraries
 LDLIBS_ASAN               := $(LDLIBS_RUN)
-
-# Correctly configure Address Sanitizer
-# See: https://www.chromium.org/developers/testing/leaksanitizer
-# See: http://tsdgeos.blogspot.de/2014/03/asan-and-gcc-how-to-get-line-numbers-in.html
-# NOTE: a comment to the latter post suggests that recent g++ versions do not use llvm's symbolizer anymore, yet
-# instead need sources compiled with debug flag set.
-# THEREFORE, THESE OPTIONS ARE NOT USED ANYMORE.
-# NOTE: I *believe* ASAN_OPTIONS is only used when *running* an application, *not* when compiling it.
-
-ASAN_SUPPRESSIONS         := ./build/asan.supp
-ASAN_OPTS                 := ASAN_OPTIONS=detect_leaks=1:symbolize=1:verbosity=0:suppressions=$(ASAN_SUPPRESSIONS)
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Compiler configuration/main: config = tsan
@@ -169,6 +163,9 @@ LDLIBS_UT_REL             := $(LDLIBS_UT_RUN)
 CXXFLAGS_UT_DEBUG         := $(CXXFLAGS_UT_RUN)
 CXXFLAGS_UT_DEBUG         += -O0
 CXXFLAGS_UT_DEBUG         += -g # Needed by g++ to support line numbers in asan reports
+CXXFLAGS_UT_DEBUG         += -D_GLIBCXX_DEBUG
+CXXFLAGS_UT_DEBUG         += -D_GLIBCXX_DEBUG_PEDANTIC
+CXXFLAGS_UT_DEBUG         += -D_GLIBCXX_ASSERTIONS
 
 # Test preprocessor flags
 CPPFLAGS_UT_DEBUG         := $(CPPFLAGS_UT_RUN)
@@ -187,6 +184,9 @@ LDLIBS_UT_DEBUG           := $(LDLIBS_UT_RUN)
 CXXFLAGS_UT_ASAN          := $(CXXFLAGS_UT_RUN)
 CXXFLAGS_UT_ASAN          += -O0
 CXXFLAGS_UT_ASAN          += -g # Needed by g++ to support line numbers in asan reports
+CXXFLAGS_UT_ASAN          += -D_GLIBCXX_DEBUG
+CXXFLAGS_UT_ASAN          += -D_GLIBCXX_DEBUG_PEDANTIC
+CXXFLAGS_UT_ASAN          += -D_GLIBCXX_ASSERTIONS
 CXXFLAGS_UT_ASAN          += -fsanitize=address
 CXXFLAGS_UT_ASAN          += -fsanitize=leak
 CXXFLAGS_UT_ASAN          += -fsanitize=undefined

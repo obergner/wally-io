@@ -45,6 +45,8 @@ flags = [
     '-I',
     './external/cxxopts/include',
     '-I',
+    './external/catch2/include',
+    '-I',
     './source/server',
     '-I',
     './test/server',

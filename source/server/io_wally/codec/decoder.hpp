@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <iterator>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -171,7 +172,7 @@ namespace io_wally
                                                                  const InputIterator buf_end )
         {
             // We need at least two bytes for encoding a uint16_t
-            if ( uint16_start + 2 > buf_end )
+            if ( std::distance( uint16_start, buf_end ) < 2 )
             {
                 throw error::malformed_mqtt_packet( "Encoding a 16 bit unsigned int needs at least two bytes" );
             }
@@ -213,7 +214,7 @@ namespace io_wally
         {
             using namespace io_wally::protocol;
             // We need at least one byte for encoding a packet::QoS
-            if ( uint8_start + 1 > buf_end )
+            if ( std::distance( uint8_start, buf_end ) < 1 )
             {
                 throw error::malformed_mqtt_packet( "Encoding QoS needs at least one byte" );
             }
@@ -269,7 +270,7 @@ namespace io_wally
                                                                                const InputIterator buf_end )
         {
             // We need at least two bytes for encoding string length
-            if ( string_start + 2 > buf_end )
+            if ( std::distance( string_start, buf_end ) < 2 )
             {
                 throw error::malformed_mqtt_packet( "Encoding an UTF-8 string needs at least two bytes" );
             }
@@ -277,7 +278,7 @@ namespace io_wally
             uint16_t string_length = -1;
             std::tie( string_start, string_length ) = decode_uint16( string_start, buf_end );
             // Do we have enough room for our string?
-            if ( string_start + string_length > buf_end )
+            if ( std::distance( string_start, buf_end ) < string_length )
             {
                 throw error::malformed_mqtt_packet( "Buffer truncated: cannot decode UTF-8 string" );
             }
@@ -288,7 +289,7 @@ namespace io_wally
             // Update buffer start iterator
             string_start += string_length;
 
-            return {string_start, parsed_string};
+            return std::make_pair( string_start, parsed_string );
         }
 
         /// \brief Interface for decoders capable of decoding a single type of MQTT packets.
