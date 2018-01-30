@@ -1,7 +1,7 @@
 # Wallee IO
 
-A fledgling [MQTT 3.1.1](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html) server written in C++11,
-using [Boost Asio](http://www.boost.org/doc/libs/1_58_0/doc/html/boost_asio.html) for implementing the IO layer.
+A fledgling [MQTT 3.1.1](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html) server written in C++17,
+using [Asio](https://think-async.com/) for implementing the IO layer.
 
 ## Motivation
 
