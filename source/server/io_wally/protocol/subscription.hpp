@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include <sstream>
+#include <string>
 
 #include "io_wally/error/protocol.hpp"
 #include "io_wally/protocol/common.hpp"
@@ -161,8 +161,8 @@ namespace io_wally
                 }
 
                 if ( !valid )
-                    throw error::malformed_mqtt_packet( "[MQTT-" + mqtt_ref + "] Not a well-formed topic filter: " +
-                                                        topic_filter );
+                    throw error::malformed_mqtt_packet( "[MQTT-" + mqtt_ref +
+                                                        "] Not a well-formed topic filter: " + topic_filter );
             }
 
            private:

@@ -667,7 +667,7 @@ namespace Catch
 #include <string>
 #include <type_traits>
 #include <vector>
-    // start catch_stream.h
+   // start catch_stream.h
 
 #include <cstddef>
 #include <iosfwd>
@@ -3404,7 +3404,7 @@ namespace Catch
 #endif
 
 #ifdef CATCH_CONFIG_EXTERNAL_INTERFACES
-    // start catch_external_interfaces.h
+   // start catch_external_interfaces.h
 
     // start catch_reporter_bases.hpp
 
@@ -5206,8 +5206,8 @@ namespace Catch
     }
 
 }  // end namespace Catch
-    // end catch_approx.cpp
-    // start catch_assertionhandler.cpp
+   // end catch_approx.cpp
+   // start catch_assertionhandler.cpp
 
     // start catch_context.h
 
@@ -7490,8 +7490,8 @@ namespace Catch
     }
 
 }  // end namespace Catch
-    // end catch_commandline.cpp
-    // start catch_common.cpp
+   // end catch_commandline.cpp
+   // start catch_common.cpp
 
 #include <cstring>
 #include <ostream>
@@ -7675,8 +7675,8 @@ namespace Catch
     }
 
 }  // end namespace Catch
-    // end catch_config.cpp
-    // start catch_console_colour.cpp
+   // end catch_config.cpp
+   // start catch_console_colour.cpp
 
 #if defined( __clang__ )
 #pragma clang diagnostic push
@@ -8976,8 +8976,8 @@ namespace Catch
     using Matchers::Impl::MatcherBase;
 
 }  // namespace Catch
-    // end catch_matchers.cpp
-    // start catch_matchers_floating.cpp
+   // end catch_matchers.cpp
+   // start catch_matchers_floating.cpp
 
 #include <cstdint>
 #include <cstdlib>
@@ -9322,8 +9322,8 @@ namespace Catch
 #endif
 
 }  // end namespace Catch
-    // end catch_message.cpp
-    // start catch_random_number_generator.cpp
+   // end catch_message.cpp
+   // start catch_random_number_generator.cpp
 
     // start catch_random_number_generator.h
 
@@ -9703,8 +9703,8 @@ namespace Catch
     }
 
 }  // end namespace Catch
-    // end catch_result_type.cpp
-    // start catch_run_context.cpp
+   // end catch_result_type.cpp
+   // start catch_run_context.cpp
 
 #include <algorithm>
 #include <cassert>
@@ -10269,8 +10269,8 @@ namespace Catch
     }
 
 }  // end namespace Catch
-    // end catch_section_info.cpp
-    // start catch_session.cpp
+   // end catch_section_info.cpp
+   // start catch_session.cpp
 
     // start catch_session.h
 
@@ -10665,8 +10665,8 @@ namespace Catch
     }
 
 }  // end namespace Catch
-    // end catch_startup_exception_registry.cpp
-    // start catch_stream.cpp
+   // end catch_startup_exception_registry.cpp
+   // start catch_stream.cpp
 
 #include <cstdio>
 #include <fstream>
@@ -11209,8 +11209,8 @@ namespace Catch
     }
 
 }  // end namespace Catch
-    // end catch_tag_alias_registry.cpp
-    // start catch_test_case_info.cpp
+   // end catch_tag_alias_registry.cpp
+   // start catch_test_case_info.cpp
 
 #include <algorithm>
 #include <cctype>
@@ -11392,8 +11392,8 @@ namespace Catch
     }
 
 }  // end namespace Catch
-    // end catch_test_case_info.cpp
-    // start catch_test_case_registry_impl.cpp
+   // end catch_test_case_info.cpp
+   // start catch_test_case_registry_impl.cpp
 
 #include <sstream>
 
@@ -11509,8 +11509,8 @@ namespace Catch
     }
 
 }  // end namespace Catch
-    // end catch_test_case_registry_impl.cpp
-    // start catch_test_case_tracker.cpp
+   // end catch_test_case_registry_impl.cpp
+   // start catch_test_case_tracker.cpp
 
 #include <algorithm>
 #include <assert.h>
@@ -12052,8 +12052,8 @@ namespace Catch
     }
 
 }  // namespace Catch
-    // end catch_test_spec_parser.cpp
-    // start catch_timer.cpp
+   // end catch_test_spec_parser.cpp
+   // start catch_timer.cpp
 
 #include <chrono>
 
@@ -12118,8 +12118,8 @@ namespace Catch
     }
 
 }  // namespace Catch
-    // end catch_timer.cpp
-    // start catch_tostring.cpp
+   // end catch_timer.cpp
+   // start catch_tostring.cpp
 
 #if defined( __clang__ )
 #pragma clang diagnostic push
@@ -13178,8 +13178,8 @@ namespace Catch
     CATCH_REGISTER_REPORTER( "compact", CompactReporter )
 
 }  // end namespace Catch
-    // end catch_reporter_compact.cpp
-    // start catch_reporter_console.cpp
+   // end catch_reporter_compact.cpp
+   // start catch_reporter_console.cpp
 
 #include <cfloat>
 #include <cstdio>
@@ -13890,8 +13890,8 @@ namespace Catch
 #if defined( _MSC_VER )
 #pragma warning( pop )
 #endif
-    // end catch_reporter_console.cpp
-    // start catch_reporter_junit.cpp
+   // end catch_reporter_console.cpp
+   // start catch_reporter_junit.cpp
 
 #include <algorithm>
 #include <assert.h>
@@ -14259,8 +14259,8 @@ namespace Catch
     }
 
 }  // end namespace Catch
-    // end catch_reporter_multi.cpp
-    // start catch_reporter_xml.cpp
+   // end catch_reporter_multi.cpp
+   // start catch_reporter_xml.cpp
 
 #if defined( _MSC_VER )
 #pragma warning( push )
