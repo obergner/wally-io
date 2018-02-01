@@ -48,11 +48,24 @@ class PublishRetainedMessagesToExistingSubscribersQoS2Tests(unittest.TestCase):
     def test_retained_publish_forwarded_without_retained_flag_qos2(self):
         """ Test that a PUBLISH packet WITH retained flag set is forwarded WITHOUT retained flag to ALREADY EXISTING subscribers when that PUBLISH packet is published using QoS 2 """
         self.publisher.publish("/test/retained/qos2/test-messages", "test_retained_qos2", 2, True)
-        msg = self.subscriber_qos2.wait_for_message(2)
-        self.assertIsNotNone(msg)
-        self.assertEqual(msg.payload, b'test_retained_qos2')
-        self.assertEqual(msg.qos, 2)
-        self.assertEqual(msg.retain, False)
+
+        msg1 = self.subscriber_qos0.wait_for_message(2)
+        self.assertIsNotNone(msg1)
+        self.assertEqual(msg1.payload, b'test_retained_qos2')
+        self.assertEqual(msg1.qos, 0)
+        self.assertEqual(msg1.retain, False)
+
+        msg2 = self.subscriber_qos1.wait_for_message(2)
+        self.assertIsNotNone(msg2)
+        self.assertEqual(msg2.payload, b'test_retained_qos2')
+        self.assertEqual(msg2.qos, 1)
+        self.assertEqual(msg2.retain, False)
+
+        msg3 = self.subscriber_qos2.wait_for_message(2)
+        self.assertIsNotNone(msg3)
+        self.assertEqual(msg3.payload, b'test_retained_qos2')
+        self.assertEqual(msg3.qos, 2)
+        self.assertEqual(msg3.retain, False)
 
 
 if __name__ == '__main__':
