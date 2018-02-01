@@ -355,7 +355,7 @@ namespace io_wally
                                 write_buffer_.begin( ) + packet.header( ).total_length( ) );
 
         auto self = shared_from_this( );
-        ::asio::async_write( socket_, ::asio::buffer( write_buffer_, packet.header( ).total_length( ) ),
+        ::asio::async_write( socket_, ::asio::buffer( write_buffer_.data( ), packet.header( ).total_length( ) ),
                              strand_.wrap( [self]( const std::error_code& ec, size_t bytes_written ) {
                                  if ( ec )
                                  {

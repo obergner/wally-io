@@ -62,10 +62,6 @@ CXXFLAGS_DEBUG            += -g
 CXXFLAGS_DEBUG            += -D_GLIBCXX_DEBUG
 CXXFLAGS_DEBUG            += -D_GLIBCXX_DEBUG_PEDANTIC
 CXXFLAGS_DEBUG            += -D_GLIBCXX_ASSERTIONS
-# I want to use this flag but currently enabling it causes a very strange error in Asio's mutable_buffer ctor ONLY
-# when sending a previously retained PUBLISH to a newly connected client.
-# TODO: fix issue with -DASIO_ENABLE_BUFFER_DEBUGGING
-CXXFLAGS_DEBUG            += -DASIO_DISABLE_BUFFER_DEBUGGING
 
 # Debug build preprocessor flags
 CPPFLAGS_DEBUG            := $(CPPFLAGS_RUN)
@@ -88,10 +84,6 @@ CXXFLAGS_ASAN             += -g # Needed by g++ to support line numbers in asan 
 CXXFLAGS_ASAN             += -D_GLIBCXX_DEBUG
 CXXFLAGS_ASAN             += -D_GLIBCXX_DEBUG_PEDANTIC
 CXXFLAGS_ASAN             += -D_GLIBCXX_ASSERTIONS
-# I want to use this flag but currently enabling it causes a very strange error in Asio's mutable_buffer ctor ONLY
-# when sending a previously retained PUBLISH to a newly connected client.
-# TODO: fix issue with -DASIO_ENABLE_BUFFER_DEBUGGING
-CXXFLAGS_ASAN             += -DASIO_DISABLE_BUFFER_DEBUGGING
 CXXFLAGS_ASAN             += -fsanitize=address
 CXXFLAGS_ASAN             += -fsanitize=leak
 CXXFLAGS_ASAN             += -fsanitize=undefined
@@ -170,14 +162,10 @@ LDLIBS_UT_REL             := $(LDLIBS_UT_RUN)
 # Test compiler flags
 CXXFLAGS_UT_DEBUG         := $(CXXFLAGS_UT_RUN)
 CXXFLAGS_UT_DEBUG         += -O0
-CXXFLAGS_UT_DEBUG         += -g # Needed by g++ to support line numbers in asan reports
+CXXFLAGS_UT_DEBUG         += -g # Needed by g++ to support line numbers in debug reports
 CXXFLAGS_UT_DEBUG         += -D_GLIBCXX_DEBUG
 CXXFLAGS_UT_DEBUG         += -D_GLIBCXX_DEBUG_PEDANTIC
 CXXFLAGS_UT_DEBUG         += -D_GLIBCXX_ASSERTIONS
-# I want to use this flag but currently enabling it causes a very strange error in Asio's mutable_buffer ctor ONLY
-# when sending a previously retained PUBLISH to a newly connected client.
-# TODO: fix issue with -DASIO_ENABLE_BUFFER_DEBUGGING
-CXXFLAGS_UT_DEBUG         += -DASIO_DISABLE_BUFFER_DEBUGGING
 
 # Test preprocessor flags
 CPPFLAGS_UT_DEBUG         := $(CPPFLAGS_UT_RUN)
@@ -199,10 +187,6 @@ CXXFLAGS_UT_ASAN          += -g # Needed by g++ to support line numbers in asan 
 CXXFLAGS_UT_ASAN          += -D_GLIBCXX_DEBUG
 CXXFLAGS_UT_ASAN          += -D_GLIBCXX_DEBUG_PEDANTIC
 CXXFLAGS_UT_ASAN          += -D_GLIBCXX_ASSERTIONS
-# I want to use this flag but currently enabling it causes a very strange error in Asio's mutable_buffer ctor ONLY
-# when sending a previously retained PUBLISH to a newly connected client.
-# TODO: fix issue with -DASIO_ENABLE_BUFFER_DEBUGGING
-CXXFLAGS_UT_ASAN          += -DASIO_DISABLE_BUFFER_DEBUGGING
 CXXFLAGS_UT_ASAN          += -fsanitize=address
 CXXFLAGS_UT_ASAN          += -fsanitize=leak
 CXXFLAGS_UT_ASAN          += -fsanitize=undefined
@@ -227,7 +211,7 @@ LDLIBS_UT_ASAN            := $(LDLIBS_UT_RUN)
 # Test compiler flags
 CXXFLAGS_UT_TSAN          := $(CXXFLAGS_UT_RUN)
 CXXFLAGS_UT_TSAN          += -O2
-CXXFLAGS_UT_TSAN          += -g # Needed by g++ to support line numbers in asan reports
+CXXFLAGS_UT_TSAN          += -g # Needed by g++ to support line numbers in tsan reports
 CXXFLAGS_UT_TSAN          += -fsanitize=thread
 CXXFLAGS_UT_TSAN          += -fno-omit-frame-pointer
 
