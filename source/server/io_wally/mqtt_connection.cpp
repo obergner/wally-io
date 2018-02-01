@@ -19,7 +19,7 @@
 
 namespace io_wally
 {
-    using ::asio::ip::tcp;
+    using asio::ip::tcp;
 
     using namespace std;
     using namespace io_wally::protocol;
@@ -42,7 +42,7 @@ namespace io_wally
     // Private/static
     // ---------------------------------------------------------------------------------------------------------------
 
-    const std::string mqtt_connection::endpoint_description( const ::asio::ip::tcp::socket& socket )
+    const std::string mqtt_connection::endpoint_description( const asio::ip::tcp::socket& socket )
     {
         if ( socket.is_open( ) )
         {
@@ -55,7 +55,7 @@ namespace io_wally
         }
     }
 
-    const std::string mqtt_connection::connection_description( const ::asio::ip::tcp::socket& socket,
+    const std::string mqtt_connection::connection_description( const asio::ip::tcp::socket& socket,
                                                                const std::string& client_id )
     {
         if ( socket.is_open( ) )
@@ -158,8 +158,8 @@ namespace io_wally
 
         logger_->debug( "<<< READ: next frame ..." );
         auto self = shared_from_this( );
-        ::asio::async_read(
-            socket_, ::asio::buffer( read_buffer_ ),
+        asio::async_read(
+            socket_, asio::buffer( read_buffer_ ),
             [self]( const std::error_code& ec, const size_t bytes_transferred ) -> size_t {
                 return self->frame_reader_( ec, bytes_transferred );
             },
@@ -208,7 +208,7 @@ namespace io_wally
         assert( ec );
         // Reset header_decoder's internal state: not needed since we will close this connection no matter what,
         // but Mum always told me to clean up after yourself ...
-        if ( ec != ::asio::error::operation_aborted )  // opration_aborted: regular shutdown sequence
+        if ( ec != asio::error::operation_aborted )  // opration_aborted: regular shutdown sequence
         {
             auto msg = ostringstream{};
             msg << "<<< NETWORK ERROR (" << ec.message( ) << ") after [" << bytes_transferred << "] bytes transferred";
@@ -355,20 +355,19 @@ namespace io_wally
                                 write_buffer_.begin( ) + packet.header( ).total_length( ) );
 
         auto self = shared_from_this( );
-        ::asio::async_write( socket_, ::asio::buffer( write_buffer_.data( ), packet.header( ).total_length( ) ),
-                             strand_.wrap( [self]( const std::error_code& ec, size_t bytes_written ) {
-                                 if ( ec )
-                                 {
-                                     self->connection_close_requested(
-                                         "Failed to send packet",
-                                         dispatch::disconnect_reason::network_or_server_failure, ec,
-                                         spdlog::level::level_enum::err );
-                                 }
-                                 else
-                                 {
-                                     self->logger_->debug( ">>> SENT: [{}] bytes", bytes_written );
-                                 }
-                             } ) );
+        asio::async_write( socket_, asio::buffer( write_buffer_.data( ), packet.header( ).total_length( ) ),
+                           strand_.wrap( [self]( const std::error_code& ec, size_t bytes_written ) {
+                               if ( ec )
+                               {
+                                   self->connection_close_requested(
+                                       "Failed to send packet", dispatch::disconnect_reason::network_or_server_failure,
+                                       ec, spdlog::level::level_enum::err );
+                               }
+                               else
+                               {
+                                   self->logger_->debug( ">>> SENT: [{}] bytes", bytes_written );
+                               }
+                           } ) );
     }
 
     void mqtt_connection::write_packet_and_close_connection( const protocol::mqtt_packet& packet,
@@ -385,19 +384,19 @@ namespace io_wally
                                 write_buffer_.begin( ) + packet.header( ).total_length( ) );
 
         auto self = shared_from_this( );
-        ::asio::async_write( socket_, ::asio::buffer( write_buffer_.data( ), packet.header( ).total_length( ) ),
-                             strand_.wrap( [self, reason]( const std::error_code& ec, size_t /* bytes_written */ ) {
-                                 if ( ec )
-                                 {
-                                     self->connection_close_requested( ">>> Failed to send packet", reason, ec,
-                                                                       spdlog::level::level_enum::err );
-                                 }
-                                 else
-                                 {
-                                     self->connection_close_requested( ">>> SENT", reason, ec,
-                                                                       spdlog::level::level_enum::debug );
-                                 }
-                             } ) );
+        asio::async_write( socket_, asio::buffer( write_buffer_.data( ), packet.header( ).total_length( ) ),
+                           strand_.wrap( [self, reason]( const std::error_code& ec, size_t /* bytes_written */ ) {
+                               if ( ec )
+                               {
+                                   self->connection_close_requested( ">>> Failed to send packet", reason, ec,
+                                                                     spdlog::level::level_enum::err );
+                               }
+                               else
+                               {
+                                   self->connection_close_requested( ">>> SENT", reason, ec,
+                                                                     spdlog::level::level_enum::debug );
+                               }
+                           } ) );
     }
 
     // Closing this connection
@@ -422,7 +421,7 @@ namespace io_wally
             connection_close_requested( msg.str( ), dispatch::disconnect_reason::keep_alive_timeout_expired, ec,
                                         spdlog::level::level_enum::warn );
         }
-        else if ( ec == ::asio::error::operation_aborted )
+        else if ( ec == asio::error::operation_aborted )
         {
             if ( socket_.is_open( ) )
             {

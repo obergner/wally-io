@@ -29,12 +29,12 @@ namespace io_wally
 
            public:
             tx_in_flight_publications( const context& context,
-                                       ::asio::io_service& io_service,
+                                       asio::io_service& io_service,
                                        std::weak_ptr<mqtt_packet_sender> sender );
 
             const io_wally::context& context( ) const;
 
-            ::asio::io_service& io_service( ) const;
+            asio::io_service& io_service( ) const;
 
             void publish( std::shared_ptr<protocol::publish> incoming_publish,
                           const protocol::packet::QoS maximum_qos );
@@ -57,7 +57,7 @@ namespace io_wally
 
            private:
             const io_wally::context& context_;
-            ::asio::io_service& io_service_;
+            asio::io_service& io_service_;
             std::weak_ptr<mqtt_packet_sender> sender_;
             std::unordered_map<std::uint16_t, std::shared_ptr<tx_publication>> publications_{};
             std::uint16_t next_packet_identifier_{0};

@@ -38,7 +38,7 @@ namespace io_wally
             ///
             /// \param context Context containing our configuration
             /// \param io_service Asio io_service instance to be passed on to \c mqtt_client_session_manager
-            dispatcher( const context& context, ::asio::io_service& io_service );
+            dispatcher( const context& context, asio::io_service& io_service );
 
            public:
             void handle_packet_received( mqtt_packet_sender::packet_container_t::ptr packet_container );

@@ -93,15 +93,15 @@ namespace io_wally
         /// Pool of io_service objects used for all things networking (just one io_service object for now)
         concurrency::io_service_pool network_service_pool_{context_, "network", 1};
         /// The io_service used to perform asynchronous operations.
-        ::asio::io_service& io_service_{network_service_pool_.io_service( )};
+        asio::io_service& io_service_{network_service_pool_.io_service( )};
         /// Dispatcher: dispatch received packets to dispatcher subsystem
         dispatch::dispatcher dispatcher_{context_, io_service_};
         /// The signal_set is used to register for process termination notifications
-        ::asio::signal_set termination_signals_{io_service_, SIGINT, SIGTERM, SIGQUIT};
+        asio::signal_set termination_signals_{io_service_, SIGINT, SIGTERM, SIGQUIT};
         /// Acceptor used to listen for incoming connections.
-        ::asio::ip::tcp::acceptor acceptor_{io_service_};
+        asio::ip::tcp::acceptor acceptor_{io_service_};
         /// The next socket to be accepted.
-        ::asio::ip::tcp::socket socket_{io_service_};
+        asio::ip::tcp::socket socket_{io_service_};
         /// Our logger
         std::unique_ptr<spdlog::logger> logger_ = context_.logger_factory( ).logger( "server" );
     };

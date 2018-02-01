@@ -4944,7 +4944,7 @@ namespace Catch
 #endif  // ! CATCH_CONFIG_IMPL_ONLY
 
 #ifdef CATCH_IMPL
-    // start catch_impl.hpp
+// start catch_impl.hpp
 
 #ifdef __clang__
 #pragma clang diagnostic push

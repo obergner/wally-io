@@ -46,15 +46,15 @@ namespace io_wally
         using buf_iter = std::vector<uint8_t>::iterator;
 
         /// Factory method for \c mqtt_connections.
-        static mqtt_connection::ptr create(::asio::ip::tcp::socket socket,
+        static mqtt_connection::ptr create(asio::ip::tcp::socket socket,
                                            mqtt_connection_manager& connection_manager,
                                            const context& context,
                                            dispatch::dispatcher& dispatcher );
 
        private:  // static
-        static const std::string endpoint_description( const ::asio::ip::tcp::socket& socket );
+        static const std::string endpoint_description( const asio::ip::tcp::socket& socket );
 
-        static const std::string connection_description( const ::asio::ip::tcp::socket& socket,
+        static const std::string connection_description( const asio::ip::tcp::socket& socket,
                                                          const std::string& client_id = "ANON" );
 
        public:
@@ -87,7 +87,7 @@ namespace io_wally
 
        private:
         /// Hide constructor since we MUST be created by static factory method 'create' above
-        mqtt_connection(::asio::ip::tcp::socket socket,
+        mqtt_connection(asio::ip::tcp::socket socket,
                         mqtt_connection_manager& connection_manager,
                         const context& context,
                         dispatch::dispatcher& dispatcher );
@@ -158,9 +158,9 @@ namespace io_wally
         /// Encode outgoing packets
         const encoder::mqtt_packet_encoder<buf_iter> packet_encoder_{};
         /// The client socket this connection is connected to
-        ::asio::ip::tcp::socket socket_;
+        asio::ip::tcp::socket socket_;
         /// Strand used to serialize access to socket and timer
-        ::asio::io_service::strand strand_;
+        asio::io_service::strand strand_;
         /// Our connection manager, responsible for managing our lifecycle
         mqtt_connection_manager& connection_manager_;
         /// Our context reference, used for configuring ourselves etc
@@ -176,11 +176,11 @@ namespace io_wally
         /// Buffer outgoing data
         std::vector<uint8_t> write_buffer_;
         /// Timer, will fire if connection timeout expires without receiving a CONNECT request
-        ::asio::steady_timer close_on_connection_timeout_;
+        asio::steady_timer close_on_connection_timeout_;
         /// Keep alive duration (seconds)
         std::optional<std::chrono::duration<uint16_t>> keep_alive_ = std::nullopt;
         /// Timer, will fire if keep alive timeout expires without receiving a message
-        ::asio::steady_timer close_on_keep_alive_timeout_;
+        asio::steady_timer close_on_keep_alive_timeout_;
         /// Our logger
         std::unique_ptr<spdlog::logger> logger_ =
             context_.logger_factory( ).logger( mqtt_connection::endpoint_description( socket_ ) );

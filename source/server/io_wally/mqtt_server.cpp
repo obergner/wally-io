@@ -38,7 +38,7 @@ namespace io_wally
 
         acceptor_.open( endpoint.protocol( ) );
         // Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
-        acceptor_.set_option(::asio::ip::tcp::acceptor::reuse_address( true ) );
+        acceptor_.set_option( asio::ip::tcp::acceptor::reuse_address( true ) );
         acceptor_.bind( endpoint );
         acceptor_.listen( );
 

@@ -37,7 +37,7 @@ namespace io_wally
 
            public:
             /// \brief Create a session manager.
-            mqtt_client_session_manager( const context& context, ::asio::io_service& io_service );
+            mqtt_client_session_manager( const context& context, asio::io_service& io_service );
 
             /// \brief Destroy this session manager, taking care to destroy all \c mqtt_client_session instances.
             ~mqtt_client_session_manager( );
@@ -55,7 +55,7 @@ namespace io_wally
             /// \brief Return \c io_service associated with this session manager.
             ///
             /// \return \c io_service associated with this session manager
-            ::asio::io_service& io_service( ) const;
+            asio::io_service& io_service( ) const;
 
             /// \brief Called when a new successful CONNECT request has been received. Creates a new \c
             /// mqtt_client_session.
@@ -134,7 +134,7 @@ namespace io_wally
             /// Our configuration context, to be passed on to client sessions
             const io_wally::context& context_;
             /// Boost Asio io_service, to be passed on to client sessions
-            ::asio::io_service& io_service_;
+            asio::io_service& io_service_;
             /// Where we store topic subscriptions
             topic_subscriptions topic_subscriptions_;
             /// The managed sessions.

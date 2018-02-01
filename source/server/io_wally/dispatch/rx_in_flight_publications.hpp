@@ -26,12 +26,12 @@ namespace io_wally
 
            public:
             rx_in_flight_publications( const context& context,
-                                       ::asio::io_service& io_service,
+                                       asio::io_service& io_service,
                                        std::weak_ptr<mqtt_packet_sender> sender );
 
             const io_wally::context& context( ) const;
 
-            ::asio::io_service& io_service( ) const;
+            asio::io_service& io_service( ) const;
 
             bool client_sent_publish( std::shared_ptr<protocol::publish> incoming_publish );
 
@@ -42,7 +42,7 @@ namespace io_wally
 
            private:
             const io_wally::context& context_;
-            ::asio::io_service& io_service_;
+            asio::io_service& io_service_;
             std::weak_ptr<mqtt_packet_sender> sender_;
             std::unordered_map<std::uint16_t, std::shared_ptr<rx_publication>> publications_{};
         };  // class rx_in_flight_publications

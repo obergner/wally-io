@@ -28,7 +28,7 @@ namespace io_wally
         // Public
         // ------------------------------------------------------------------------------------------------------------
 
-        dispatcher::dispatcher( const context& context, ::asio::io_service& io_service )
+        dispatcher::dispatcher( const context& context, asio::io_service& io_service )
             : session_manager_{context, io_service}
         {
             logger_ = context.logger_factory( ).logger( "dispatcher" );
