@@ -34,9 +34,9 @@ SCENARIO( "subscription_container#matches", "[dispatch]" )
 
     GIVEN( "topic filter \"#\" and a random topic" )
     {
-        auto const topic_filter = "#";
-        auto const topic = random_topic( 1200 );
-        auto const under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
+        const auto topic_filter = "#";
+        const auto topic = random_topic( 1200 );
+        const auto under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
 
         WHEN( "a caller matches topic against topic filter " )
         {
@@ -51,9 +51,9 @@ SCENARIO( "subscription_container#matches", "[dispatch]" )
         "topic filter \"/sports/premiere-league/barcelona/\" and the same topic "
         "\"/sports/premiere-league/barcelona/\"" )
     {
-        auto const topic_filter = "/sports/premiere-league/barcelona/";
-        auto const topic = "/sports/premiere-league/barcelona/";
-        auto const under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
+        const auto topic_filter = "/sports/premiere-league/barcelona/";
+        const auto topic = "/sports/premiere-league/barcelona/";
+        const auto under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
 
         WHEN( "a caller matches topic against topic filter " )
         {
@@ -66,9 +66,9 @@ SCENARIO( "subscription_container#matches", "[dispatch]" )
 
     GIVEN( "topic filter \"/sports/premiere-league/barcelona/\" and topic \"sports/premiere-league/barcelona/\"" )
     {
-        auto const topic_filter = "/sports/premiere-league/barcelona/";
-        auto const topic = "sports/premiere-league/barcelona/";
-        auto const under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
+        const auto topic_filter = "/sports/premiere-league/barcelona/";
+        const auto topic = "sports/premiere-league/barcelona/";
+        const auto under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
 
         WHEN( "a caller matches topic against topic filter " )
         {
@@ -81,9 +81,9 @@ SCENARIO( "subscription_container#matches", "[dispatch]" )
 
     GIVEN( "topic filter \"/sports/premiere-league/barcelona/\" and topic \"/sports/premiere-league/barcelona\"" )
     {
-        auto const topic_filter = "/sports/premiere-league/barcelona/";
-        auto const topic = "/sports/premiere-league/barcelona";
-        auto const under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
+        const auto topic_filter = "/sports/premiere-league/barcelona/";
+        const auto topic = "/sports/premiere-league/barcelona";
+        const auto under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
 
         WHEN( "a caller matches topic against topic filter" )
         {
@@ -96,9 +96,9 @@ SCENARIO( "subscription_container#matches", "[dispatch]" )
 
     GIVEN( "topic filter \"/sports/premiere-league/barcelona\" and topic \"/sports/premiere-league/barcelona\"" )
     {
-        auto const topic_filter = "/sports/premiere-league/barcelona";
-        auto const topic = "/sports/premiere-league/barcelona";
-        auto const under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
+        const auto topic_filter = "/sports/premiere-league/barcelona";
+        const auto topic = "/sports/premiere-league/barcelona";
+        const auto under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
 
         WHEN( "a caller matches topic against topic filter" )
         {
@@ -111,9 +111,9 @@ SCENARIO( "subscription_container#matches", "[dispatch]" )
 
     GIVEN( "topic filter \"/sports/+/barcelona\" and topic \"/sports/premiere-league/barcelona\"" )
     {
-        auto const topic_filter = "/sports/+/barcelona";
-        auto const topic = "/sports/premiere-league/barcelona";
-        auto const under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
+        const auto topic_filter = "/sports/+/barcelona";
+        const auto topic = "/sports/premiere-league/barcelona";
+        const auto under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
 
         WHEN( "a caller matches topic against topic filter" )
         {
@@ -126,8 +126,8 @@ SCENARIO( "subscription_container#matches", "[dispatch]" )
 
     GIVEN( "topic filter \"sport/tennis/player1/#\"" )
     {
-        auto const topic_filter = "sport/tennis/player1/#";
-        auto const under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
+        const auto topic_filter = "sport/tennis/player1/#";
+        const auto under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
 
         WHEN( "a caller matches topic \"sport/tennis/player1\" against topic filter" )
         {
@@ -156,9 +156,9 @@ SCENARIO( "subscription_container#matches", "[dispatch]" )
 
     GIVEN( "topic filter \"+/+\" and topic \"/finance\"" )
     {
-        auto const topic_filter = "+/+";
-        auto const topic = "/finance";
-        auto const under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
+        const auto topic_filter = "+/+";
+        const auto topic = "/finance";
+        const auto under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
 
         WHEN( "a caller matches topic against topic filter" )
         {
@@ -171,9 +171,9 @@ SCENARIO( "subscription_container#matches", "[dispatch]" )
 
     GIVEN( "topic filter \"/+\" and topic \"/finance\"" )
     {
-        auto const topic_filter = "/+";
-        auto const topic = "/finance";
-        auto const under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
+        const auto topic_filter = "/+";
+        const auto topic = "/finance";
+        const auto under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
 
         WHEN( "a caller matches topic against topic filter" )
         {
@@ -186,9 +186,9 @@ SCENARIO( "subscription_container#matches", "[dispatch]" )
 
     GIVEN( "topic filter \"+\" and topic \"/finance\"" )
     {
-        auto const topic_filter = "+";
-        auto const topic = "/finance";
-        auto const under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
+        const auto topic_filter = "+";
+        const auto topic = "/finance";
+        const auto under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
 
         WHEN( "a caller matches topic against topic filter" )
         {
@@ -207,9 +207,9 @@ SCENARIO( "subscription_container#topic_filter_matches_one_of", "[dispatch]" )
 
     GIVEN( "topic filter \"/test\" and topic filters {\"/a\", \"b\", \"/test\"}" )
     {
-        auto const topic_filter = "/test";
-        auto const topic_filters = std::vector<std::string>{"/a", "/b", "/test"};
-        auto const under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
+        const auto topic_filter = "/test";
+        const auto topic_filters = std::vector<std::string>{"/a", "/b", "/test"};
+        const auto under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
 
         WHEN( "a caller matches topic against topic filters" )
         {
@@ -222,9 +222,9 @@ SCENARIO( "subscription_container#topic_filter_matches_one_of", "[dispatch]" )
 
     GIVEN( "topic filter \"/another/topic/#\" and topic filters {\"/a\", \"b\", \"/another/topic/+\"}" )
     {
-        auto const topic_filter = "/another/topic/#";
-        auto const topic_filters = std::vector<std::string>{"/a", "/b", "/another/topic/+"};
-        auto const under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
+        const auto topic_filter = "/another/topic/#";
+        const auto topic_filters = std::vector<std::string>{"/a", "/b", "/another/topic/+"};
+        const auto under_test = io_wally::dispatch::subscription_container{topic_filter, MAX_QOS, CLIENT_ID};
 
         WHEN( "a caller matches topic against topic filters" )
         {

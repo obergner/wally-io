@@ -23,12 +23,14 @@ class ServerUnderTest(object):
         config = os.environ['CONFIG']
         executable = "./target/%s/main/wally-iod" % (config)
         log_file = './target/%s/ltest/ltest_server.log' % (config)
+        # See: https://stackoverflow.com/questions/42851670/how-to-generate-core-dump-on-addresssanitizer-error
+        process_env = {'ASAN_OPTIONS': 'abort_on_error=1:disable_coredump=0:unmap_shadow_on_exit=1'}
         args = [executable,
                 '--log-file', log_file,
                 '--log-level', 'trace',
                 '--log-console',
                 '--conn-timeout', '2000']
-        self.process = subprocess.Popen(args)
+        self.process = subprocess.Popen(args, env=process_env)
         time.sleep(2)
         if self.process.poll() is not None:
             raise RuntimeError("Failed to start %s" % (self.name))

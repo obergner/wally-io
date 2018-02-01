@@ -11,15 +11,15 @@ SCENARIO( "publish", "[packets]" )
 {
     GIVEN( "a publish with DUP set to false" )
     {
-        auto const flgs = std::uint8_t{3 << 4 | 0x03};
-        auto const rem_len = std::uint32_t{5};
-        auto const hdr = packet::header{flgs, rem_len};
+        const auto flgs = std::uint8_t{3 << 4 | 0x03};
+        const auto rem_len = std::uint32_t{5};
+        const auto hdr = packet::header{flgs, rem_len};
 
-        auto const topic = "a";
+        const auto topic = "a";
 
-        auto const pktid = std::uint16_t{0xF312};
+        const auto pktid = std::uint16_t{0xF312};
 
-        auto const msg = std::vector<uint8_t>{0x00, 0x00};
+        const auto msg = std::vector<uint8_t>{0x00, 0x00};
 
         auto under_test = publish{hdr, topic, pktid, msg};
 
@@ -46,15 +46,15 @@ SCENARIO( "publish", "[packets]" )
 
     GIVEN( "a publish with DUP set to true" )
     {
-        auto const flgs = std::uint8_t{3 << 4 | 0x09};
-        auto const rem_len = std::uint32_t{5};
-        auto const hdr = packet::header{flgs, rem_len};
+        const auto flgs = std::uint8_t{3 << 4 | 0x09};
+        const auto rem_len = std::uint32_t{5};
+        const auto hdr = packet::header{flgs, rem_len};
 
-        auto const topic = "a";
+        const auto topic = "a";
 
-        auto const pktid = std::uint16_t{0xF312};
+        const auto pktid = std::uint16_t{0xF312};
 
-        auto const msg = std::vector<uint8_t>{0x00, 0x00};
+        const auto msg = std::vector<uint8_t>{0x00, 0x00};
 
         auto under_test = publish{hdr, topic, pktid, msg};
 
@@ -81,15 +81,15 @@ SCENARIO( "publish", "[packets]" )
 
     GIVEN( "a publish with QoS At most once (QoS0)" )
     {
-        auto const flgs = std::uint8_t{3 << 4 | 0x00};
-        auto const rem_len = std::uint32_t{3};
-        auto const hdr = packet::header{flgs, rem_len};
+        const auto flgs = std::uint8_t{3 << 4 | 0x00};
+        const auto rem_len = std::uint32_t{3};
+        const auto hdr = packet::header{flgs, rem_len};
 
-        auto const topic = "a";
+        const auto topic = "a";
 
-        auto const pktid = std::uint16_t{0xF312};
+        const auto pktid = std::uint16_t{0xF312};
 
-        auto const msg = std::vector<uint8_t>{0x01, 0x02};
+        const auto msg = std::vector<uint8_t>{0x01, 0x02};
 
         auto under_test = publish{hdr, topic, 0, msg};
 
@@ -135,15 +135,15 @@ SCENARIO( "publish", "[packets]" )
 
     GIVEN( "a publish with QoS At least once (QoS1)" )
     {
-        auto const flgs = std::uint8_t{3 << 4 | 0x0B};
-        auto const rem_len = std::uint32_t{5};
-        auto const hdr = packet::header{flgs, rem_len};
+        const auto flgs = std::uint8_t{3 << 4 | 0x0B};
+        const auto rem_len = std::uint32_t{5};
+        const auto hdr = packet::header{flgs, rem_len};
 
-        auto const topic = "a";
+        const auto topic = "a";
 
-        auto const pktid = std::uint16_t{0xF312};
+        const auto pktid = std::uint16_t{0xF312};
 
-        auto const msg = std::vector<uint8_t>{0x00, 0x00};
+        const auto msg = std::vector<uint8_t>{0x00, 0x00};
 
         auto under_test = publish{hdr, topic, pktid, msg};
 
@@ -186,15 +186,15 @@ SCENARIO( "publish", "[packets]" )
 
     GIVEN( "a publish with QoS 'Exactly once' (QoS2)" )
     {
-        auto const flgs = std::uint8_t{3 << 4 | 0x04};
-        auto const rem_len = std::uint32_t{5};
-        auto const hdr = packet::header{flgs, rem_len};
+        const auto flgs = std::uint8_t{3 << 4 | 0x04};
+        const auto rem_len = std::uint32_t{5};
+        const auto hdr = packet::header{flgs, rem_len};
 
-        auto const topic = "a";
+        const auto topic = "a";
 
-        auto const pktid = std::uint16_t{0xF312};
+        const auto pktid = std::uint16_t{0xF312};
 
-        auto const msg = std::vector<uint8_t>{0x00, 0x00};
+        const auto msg = std::vector<uint8_t>{0x00, 0x00};
 
         auto under_test = publish{hdr, topic, pktid, msg};
 
@@ -237,15 +237,15 @@ SCENARIO( "publish", "[packets]" )
 
     GIVEN( "a publish with RETAIN set to false" )
     {
-        auto const flgs = std::uint8_t{3 << 4 | 0x02};
-        auto const rem_len = std::uint32_t{5};
-        auto const hdr = packet::header{flgs, rem_len};
+        const auto flgs = std::uint8_t{3 << 4 | 0x02};
+        const auto rem_len = std::uint32_t{5};
+        const auto hdr = packet::header{flgs, rem_len};
 
-        auto const topic = "a";
+        const auto topic = "a";
 
-        auto const pktid = std::uint16_t{0xF312};
+        const auto pktid = std::uint16_t{0xF312};
 
-        auto const msg = std::vector<uint8_t>{0x00, 0x00};
+        const auto msg = std::vector<uint8_t>{0x00, 0x00};
 
         auto under_test = publish{hdr, topic, pktid, msg};
 
@@ -272,15 +272,15 @@ SCENARIO( "publish", "[packets]" )
 
     GIVEN( "a publish with RETAIN set to true" )
     {
-        auto const flgs = std::uint8_t{3 << 4 | 0x03};
-        auto const rem_len = std::uint32_t{5};
-        auto const hdr = packet::header{flgs, rem_len};
+        const auto flgs = std::uint8_t{3 << 4 | 0x03};
+        const auto rem_len = std::uint32_t{5};
+        const auto hdr = packet::header{flgs, rem_len};
 
-        auto const topic = "a";
+        const auto topic = "a";
 
-        auto const pktid = std::uint16_t{0xF312};
+        const auto pktid = std::uint16_t{0xF312};
 
-        auto const msg = std::vector<uint8_t>{0x00, 0x00};
+        const auto msg = std::vector<uint8_t>{0x00, 0x00};
 
         auto under_test = publish{hdr, topic, pktid, msg};
 

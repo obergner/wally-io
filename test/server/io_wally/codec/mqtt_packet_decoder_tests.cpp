@@ -214,8 +214,8 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
 
     GIVEN( "a PUBLISH packet body with packet identifier and a header with QoS 1" )
     {
-        auto const type_and_flags = std::uint8_t{( 3 << 4 ) | 2};  // PUBLISH + DUP 0, QoS 1, RETAIN 0
-        auto const message = std::vector<uint8_t>{'s', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e'};
+        const auto type_and_flags = std::uint8_t{( 3 << 4 ) | 2};  // PUBLISH + DUP 0, QoS 1, RETAIN 0
+        const auto message = std::vector<uint8_t>{'s', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e'};
         // Shameless act of robbery: https://github.com/surgemq/message/blob/master/publish_test.go
         const auto buffer = std::vector<std::uint8_t>{
             0,  // topic name MSB (0)
@@ -238,8 +238,8 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
 
             AND_THEN( "it should be able to cast that result to a 'publish' instance with all fields correctly set" )
             {
-                auto const& raw_result = *result;
-                auto const& publish_packet = static_cast<const protocol::publish&>( raw_result );
+                const auto& raw_result = *result;
+                const auto& publish_packet = static_cast<const protocol::publish&>( raw_result );
 
                 CHECK( publish_packet.header( ).type( ) == protocol::packet::Type::PUBLISH );
 

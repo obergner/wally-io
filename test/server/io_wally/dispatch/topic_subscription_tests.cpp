@@ -17,7 +17,7 @@ SCENARIO( "topic_subscriptions#resolve_subscribers", "[dispatch]" )
     {
         io_wally::dispatch::topic_subscriptions under_test{framework::create_context( )};
 
-        auto const client_id = "topic_subscription_tests";
+        const auto client_id = "topic_subscription_tests";
         auto subscriptions = std::vector<subscription>{{"/topic/+/level", packet::QoS::AT_MOST_ONCE},
                                                        {"/topic/+/+", packet::QoS::AT_LEAST_ONCE},
                                                        {"/topic/#", packet::QoS::EXACTLY_ONCE}};
@@ -36,7 +36,7 @@ SCENARIO( "topic_subscriptions#resolve_subscribers", "[dispatch]" )
 
             AND_THEN( "that subscriber should have the maximum of all three QoS levels assigned" )
             {
-                auto const assigned_qos = subscribers[0].second;
+                const auto assigned_qos = subscribers[0].second;
                 REQUIRE( assigned_qos == packet::QoS::EXACTLY_ONCE );
             }
         }
@@ -49,7 +49,7 @@ SCENARIO( "topic_subscriptions#unsubscribe", "[dispatch]" )
     {
         io_wally::dispatch::topic_subscriptions under_test{framework::create_context( )};
 
-        auto const client_id = "topic_subscription_tests";
+        const auto client_id = "topic_subscription_tests";
         auto subscriptions = std::vector<subscription>{{"/first/+/level", packet::QoS::AT_MOST_ONCE},
                                                        {"/topic/+/+", packet::QoS::AT_LEAST_ONCE},
                                                        {"/topic/#", packet::QoS::EXACTLY_ONCE}};
@@ -58,7 +58,7 @@ SCENARIO( "topic_subscriptions#unsubscribe", "[dispatch]" )
 
         WHEN( "a caller unsubscribes from one of the subscriptions and publishes to that subscriptions" )
         {
-            auto const unsubscribe = framework::create_unsubscribe_packet( {"/first/+/level"} );
+            const auto unsubscribe = framework::create_unsubscribe_packet( {"/first/+/level"} );
             under_test.unsubscribe( client_id, unsubscribe );
 
             auto publish_cont = framework::create_publish_packet( "/first/ignored/level" );

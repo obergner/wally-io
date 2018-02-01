@@ -155,6 +155,16 @@ SRC_DIR_LT                := $(DIR)/ltest/server
 BUILD_LT                  := $(BUILD)/ltest
 
 # --------------------------------------------------------------------------------------------------------------------- 
+# Running compiled server
+# --------------------------------------------------------------------------------------------------------------------- 
+
+# These extra environment variables tell ASAN to produce a coredump on SIGABRT, as you would usually expect. However,
+# with ASAN coredumps are disabled by default, possibly because its creators feared that those coredumps would tend to
+# be excessively big.
+# See: https://stackoverflow.com/questions/42851670/how-to-generate-core-dump-on-addresssanitizer-error
+EXTRA_EXEC_ENV            := ASAN_OPTIONS=abort_on_error=1:disable_coredump=0:unmap_shadow_on_exit=1
+
+# --------------------------------------------------------------------------------------------------------------------- 
 # Tooling
 # --------------------------------------------------------------------------------------------------------------------- 
 
@@ -512,7 +522,7 @@ tags                      : $(SRCS_M) $(EXECSOURCE_M) $(SRCS_UT) $(EXECSOURCE_UT
 # Run server with some convenient default settings
 .PHONY                    : run-server
 run-server                : $(EXEC_M)
-	@$(EXEC_M) --log-file .testlog --log-level trace --log-console --conn-timeout 1000000
+	@$(EXTRA_EXEC_ENV) $(EXEC_M) --log-file .testlog --log-level trace --log-console --conn-timeout 1000000
 
 #######################################################################################################################
 # Dependency rules: http://stackoverflow.com/questions/8025766/makefile-auto-dependency-generation

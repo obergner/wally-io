@@ -11,19 +11,19 @@ using namespace io_wally;
 
 SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
 {
-    auto const under_test = decoder::publish_packet_decoder_impl{};
+    const auto under_test = decoder::publish_packet_decoder_impl{};
 
     GIVEN( "a PUBLISH packet body without packet identifier and a header with QoS 0" )
     {
-        auto const type_and_flags = std::uint8_t{( 3 << 4 ) | 1};  // PUBLISH + DUP 0, QoS 0, RETAIN 1
-        auto const message = std::vector<uint8_t>{'s', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e'};
+        const auto type_and_flags = std::uint8_t{( 3 << 4 ) | 1};  // PUBLISH + DUP 0, QoS 0, RETAIN 1
+        const auto message = std::vector<uint8_t>{'s', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e'};
         // Shameless act of robbery: https://github.com/surgemq/message/blob/master/publish_test.go
-        auto const buffer = std::vector<std::uint8_t>{
+        const auto buffer = std::vector<std::uint8_t>{
             0,  // topic name MSB (0)
             7,  // topic name LSB (7)
             's', 'u', 'r', 'g', 'e', 'm', 'q', 's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
         };  /// avoids warning
-        auto const frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
+        const auto frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
 
         WHEN( "a client passes that array into publish_packet_decoder::decode" )
         {
@@ -36,8 +36,8 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
 
             AND_THEN( "it should be able to cast that result to a 'publish' instance with all fields correctly set" )
             {
-                auto const& raw_result = *result;
-                auto const& publish_packet = static_cast<const protocol::publish&>( raw_result );
+                const auto& raw_result = *result;
+                const auto& publish_packet = static_cast<const protocol::publish&>( raw_result );
 
                 CHECK( publish_packet.header( ).type( ) == protocol::packet::Type::PUBLISH );
 
@@ -54,10 +54,10 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
 
     GIVEN( "a PUBLISH packet body with packet identifier and a header with QoS 1" )
     {
-        auto const type_and_flags = std::uint8_t{( 3 << 4 ) | 2};  // PUBLISH + DUP 0, QoS 1, RETAIN 0
-        auto const message = std::vector<uint8_t>{'s', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e'};
+        const auto type_and_flags = std::uint8_t{( 3 << 4 ) | 2};  // PUBLISH + DUP 0, QoS 1, RETAIN 0
+        const auto message = std::vector<uint8_t>{'s', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e'};
         // Shameless act of robbery: https://github.com/surgemq/message/blob/master/publish_test.go
-        auto const buffer = std::vector<std::uint8_t>{
+        const auto buffer = std::vector<std::uint8_t>{
             0,  // topic name MSB (0)
             7,  // topic name LSB (7)
             's', 'u', 'r', 'g', 'e', 'm', 'q',
@@ -65,7 +65,7 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
             7,  // packet ID LSB (7)
             's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
         };  /// avoids warning
-        auto const frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
+        const auto frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
 
         WHEN( "a client passes that array into publish_packet_decoder::decode" )
         {
@@ -78,8 +78,8 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
 
             AND_THEN( "it should be able to cast that result to a 'publish' instance with all fields correctly set" )
             {
-                auto const& raw_result = *result;
-                auto const& publish_packet = static_cast<const protocol::publish&>( raw_result );
+                const auto& raw_result = *result;
+                const auto& publish_packet = static_cast<const protocol::publish&>( raw_result );
 
                 CHECK( publish_packet.header( ).type( ) == protocol::packet::Type::PUBLISH );
 
@@ -98,10 +98,10 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
 
     GIVEN( "a PUBLISH packet body with packet identifier and a header with QoS 2" )
     {
-        auto const type_and_flags = std::uint8_t{( 3 << 4 ) | 12};  // PUBLISH + DUP 1, QoS 2, RETAIN 0
-        auto const message = std::vector<uint8_t>{'s', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e'};
+        const auto type_and_flags = std::uint8_t{( 3 << 4 ) | 12};  // PUBLISH + DUP 1, QoS 2, RETAIN 0
+        const auto message = std::vector<uint8_t>{'s', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e'};
         // Shameless act of robbery: https://github.com/surgemq/message/blob/master/publish_test.go
-        auto const buffer = std::vector<std::uint8_t>{
+        const auto buffer = std::vector<std::uint8_t>{
             0,  // topic name MSB (0)
             7,  // topic name LSB (7)
             's',  'u', 'r', 'g', 'e', 'm', 'q',
@@ -109,7 +109,7 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
             0x34,  // packet ID LSB (7)
             's',  'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
         };  /// avoids warning
-        auto const frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
+        const auto frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
 
         WHEN( "a client passes that array into publish_packet_decoder::decode" )
         {
@@ -122,8 +122,8 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
 
             AND_THEN( "it should be able to cast that result to a 'publish' instance with all fields correctly set" )
             {
-                auto const& raw_result = *result;
-                auto const& publish_packet = static_cast<const protocol::publish&>( raw_result );
+                const auto& raw_result = *result;
+                const auto& publish_packet = static_cast<const protocol::publish&>( raw_result );
 
                 CHECK( publish_packet.header( ).type( ) == protocol::packet::Type::PUBLISH );
 
@@ -142,7 +142,7 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
 
     GIVEN( "a PUBLISH packet body with topic '' (ILLEGAL)" )
     {
-        auto const type_and_flags = std::uint8_t{( 3 << 4 ) | 2};  // PUBLISH + DUP 0, QoS 1, RETAIN 0
+        const auto type_and_flags = std::uint8_t{( 3 << 4 ) | 2};  // PUBLISH + DUP 0, QoS 1, RETAIN 0
         // Shameless act of robbery: https://github.com/surgemq/message/blob/master/publish_test.go
         const std::vector<std::uint8_t> buffer = {
             0,  // topic name MSB (0)
@@ -151,7 +151,7 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
             7,  // packet ID LSB (7)
             's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
         };  /// avoids warning
-        auto const frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
+        const auto frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
 
         WHEN( "a client passes that array into publish_packet_decoder::decode" )
         {
@@ -164,9 +164,9 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
 
     GIVEN( "a PUBLISH packet body with topic '/wally/#' (ILLEGAL)" )
     {
-        auto const type_and_flags = std::uint8_t{( 3 << 4 ) | 2};  // PUBLISH + DUP 0, QoS 1, RETAIN 0
+        const auto type_and_flags = std::uint8_t{( 3 << 4 ) | 2};  // PUBLISH + DUP 0, QoS 1, RETAIN 0
         // Shameless act of robbery: https://github.com/surgemq/message/blob/master/publish_test.go
-        auto const buffer = std::vector<std::uint8_t>{
+        const auto buffer = std::vector<std::uint8_t>{
             0,  // topic name MSB (0)
             8,  // topic name LSB (8)
             '/', 'w', 'a', 'l', 'l', 'y', '/', '#',
@@ -174,7 +174,7 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
             7,  // packet ID LSB (7)
             's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
         };  /// avoids warning
-        auto const frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
+        const auto frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
 
         WHEN( "a client passes that array into publish_packet_decoder::decode" )
         {
@@ -187,9 +187,9 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
 
     GIVEN( "a PUBLISH packet body with topic '/wally/+' (ILLEGAL)" )
     {
-        auto const type_and_flags = std::uint8_t{( 3 << 4 ) | 2};  // PUBLISH + DUP 0, QoS 1, RETAIN 0
+        const auto type_and_flags = std::uint8_t{( 3 << 4 ) | 2};  // PUBLISH + DUP 0, QoS 1, RETAIN 0
         // Shameless act of robbery: https://github.com/surgemq/message/blob/master/publish_test.go
-        auto const buffer = std::vector<std::uint8_t>{
+        const auto buffer = std::vector<std::uint8_t>{
             0,  // topic name MSB (0)
             8,  // topic name LSB (8)
             '/', 'w', 'a', 'l', 'l', 'y', '/', '+',
@@ -197,7 +197,7 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
             7,  // packet ID LSB (7)
             's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
         };  /// avoids warning
-        auto const frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
+        const auto frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
 
         WHEN( "a client passes that array into publish_packet_decoder::decode" )
         {
@@ -210,9 +210,9 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
 
     GIVEN( "a PUBLISH packet body with topic '/wal\0y/g' (ILLEGAL)" )
     {
-        auto const type_and_flags = std::uint8_t{( 3 << 4 ) | 2};  // PUBLISH + DUP 0, QoS 1, RETAIN 0
+        const auto type_and_flags = std::uint8_t{( 3 << 4 ) | 2};  // PUBLISH + DUP 0, QoS 1, RETAIN 0
         // Shameless act of robbery: https://github.com/surgemq/message/blob/master/publish_test.go
-        auto const buffer = std::vector<std::uint8_t>{
+        const auto buffer = std::vector<std::uint8_t>{
             0,  // topic name MSB (0)
             8,  // topic name LSB (8)
             '/', 'w', 'a', 'l', '\0', 'y', '/', 'g',
@@ -220,7 +220,7 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
             7,  // packet ID LSB (7)
             's', 'e', 'n', 'd', ' ',  'm', 'e', ' ', 'h', 'o', 'm', 'e',
         };  /// avoids warning
-        auto const frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
+        const auto frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
 
         WHEN( "a client passes that array into publish_packet_decoder::decode" )
         {
@@ -233,9 +233,9 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
 
     GIVEN( "a PUBLISH header with dup flag set and QoS 0  (ILLEGAL)" )
     {
-        auto const type_and_flags = std::uint8_t{( 3 << 4 ) | 9};  // PUBLISH + DUP 0, QoS 0, RETAIN 1
+        const auto type_and_flags = std::uint8_t{( 3 << 4 ) | 9};  // PUBLISH + DUP 0, QoS 0, RETAIN 1
         // Shameless act of robbery: https://github.com/surgemq/message/blob/master/publish_test.go
-        auto const buffer = std::vector<std::uint8_t>{
+        const auto buffer = std::vector<std::uint8_t>{
             0,  // topic name MSB (0)
             8,  // topic name LSB (8)
             '/', 'w', 'a', 'l', 'l', 'y', '/', 'g',
@@ -243,7 +243,7 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
             7,  // packet ID LSB (7)
             's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
         };  /// avoids warning
-        auto const frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
+        const auto frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
 
         WHEN( "a client passes that array into publish_packet_decoder::decode" )
         {
@@ -256,9 +256,9 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
 
     GIVEN( "a PUBLISH header with QoS 3  (ILLEGAL)" )
     {
-        auto const type_and_flags = std::uint8_t{( 3 << 4 ) | 6};  // PUBLISH + DUP 0, QoS 3, RETAIN 0
+        const auto type_and_flags = std::uint8_t{( 3 << 4 ) | 6};  // PUBLISH + DUP 0, QoS 3, RETAIN 0
         // Shameless act of robbery: https://github.com/surgemq/message/blob/master/publish_test.go
-        auto const buffer = std::vector<std::uint8_t>{
+        const auto buffer = std::vector<std::uint8_t>{
             0,  // topic name MSB (0)
             8,  // topic name LSB (8)
             '/', 'w', 'a', 'l', 'l', 'y', '/', 'g',
@@ -266,7 +266,7 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
             7,  // packet ID LSB (7)
             's', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e',
         };  /// avoids warning
-        auto const frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
+        const auto frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
 
         WHEN( "a client passes that array into publish_packet_decoder::decode" )
         {
@@ -279,10 +279,10 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
 
     GIVEN( "a PUBLISH packet body with packet identifier and a header with QoS 1 (suspected bug)" )
     {
-        auto const type_and_flags = std::uint8_t{( 3 << 4 ) | 2};  // PUBLISH + DUP 0, QoS 1, RETAIN 0
-        auto const message =
+        const auto type_and_flags = std::uint8_t{( 3 << 4 ) | 2};  // PUBLISH + DUP 0, QoS 1, RETAIN 0
+        const auto message =
             std::vector<uint8_t>{'t', 'e', 's', 't', '_', 'p', 'u', 'b', 'l', 'i', 's', 'h', '_', 'q', 'o', 's', '1'};
-        auto const buffer = std::vector<std::uint8_t>{
+        const auto buffer = std::vector<std::uint8_t>{
             0,   // topic name MSB (0)
             18,  // topic name LSB (18)
             '/', 't', 'e', 's', 't', '/', 'p', 'u', 'b', 'l', 'i', 's', 'h', '/', 'q', 'o', 's', '1',
@@ -290,7 +290,7 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
             1,  // packet ID LSB (1)
             't', 'e', 's', 't', '_', 'p', 'u', 'b', 'l', 'i', 's', 'h', '_', 'q', 'o', 's', '1',
         };  /// avoids warning
-        auto const frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
+        const auto frame = decoder::frame{type_and_flags, buffer.begin( ), buffer.end( )};
 
         WHEN( "a client passes that array into publish_packet_decoder::decode" )
         {
@@ -303,8 +303,8 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
 
             AND_THEN( "it should be able to cast that result to a 'publish' instance with all fields correctly set" )
             {
-                auto const& raw_result = *result;
-                auto const& publish_packet = static_cast<const protocol::publish&>( raw_result );
+                const auto& raw_result = *result;
+                const auto& publish_packet = static_cast<const protocol::publish&>( raw_result );
 
                 CHECK( publish_packet.header( ).type( ) == protocol::packet::Type::PUBLISH );
 

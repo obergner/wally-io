@@ -396,7 +396,7 @@ SCENARIO( "frame_reader", "[packets]" )
     {
         const auto remaining_length = std::size_t{0x27};
         const auto type_and_flags = uint8_t{0x32};
-        auto const received_packet = std::vector<std::uint8_t>{
+        const auto received_packet = std::vector<std::uint8_t>{
             0x32,  // Type and flags
             0x27,  // Remaining length
             0x00,  // topic name MSB (0)

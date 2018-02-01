@@ -59,9 +59,9 @@ namespace framework
             flags |= 0x01;
         }
 
-        auto const type_and_flags = std::uint8_t( ( 3 << 4 ) | flags );
-        auto const header = io_wally::protocol::packet::header{type_and_flags, 20};
-        auto const pktid = std::uint16_t{7};
+        const auto type_and_flags = std::uint8_t( ( 3 << 4 ) | flags );
+        const auto header = io_wally::protocol::packet::header{type_and_flags, 20};
+        const auto pktid = std::uint16_t{7};
 
         return std::make_shared<io_wally::protocol::publish>( header, topic, pktid, msg );
     }

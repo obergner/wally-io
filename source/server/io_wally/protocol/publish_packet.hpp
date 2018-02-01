@@ -88,7 +88,7 @@ namespace io_wally
             /// \param \c new_qos quality of service level to use for this PUBLISH
             void qos( const packet::QoS new_qos )
             {
-                auto const old_qos = qos( );
+                const auto old_qos = qos( );
                 type_and_flags_ = ( type_and_flags_ & 0xF9 ) | ( static_cast<uint8_t>( new_qos ) << 1 );
                 // Adjust remaining length if we change from a QoS that requires a packet identifier to one without or
                 // vice versa.

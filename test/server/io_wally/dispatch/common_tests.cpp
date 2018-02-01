@@ -30,8 +30,8 @@ SCENARIO( "topic_filter_matches_topic", "[dispatch]" )
 {
     GIVEN( "topic filter \"#\" and a random topic" )
     {
-        auto const topic_filter = "#";
-        auto const topic = random_topic( 1200 );
+        const auto topic_filter = "#";
+        const auto topic = random_topic( 1200 );
 
         WHEN( "a caller matches topic against topic filter " )
         {
@@ -46,8 +46,8 @@ SCENARIO( "topic_filter_matches_topic", "[dispatch]" )
         "topic filter \"/sports/premiere-league/barcelona/\" and the same topic "
         "\"/sports/premiere-league/barcelona/\"" )
     {
-        auto const topic_filter = "/sports/premiere-league/barcelona/";
-        auto const topic = "/sports/premiere-league/barcelona/";
+        const auto topic_filter = "/sports/premiere-league/barcelona/";
+        const auto topic = "/sports/premiere-league/barcelona/";
 
         WHEN( "a caller matches topic against topic filter " )
         {
@@ -60,8 +60,8 @@ SCENARIO( "topic_filter_matches_topic", "[dispatch]" )
 
     GIVEN( "topic filter \"/sports/premiere-league/barcelona/\" and topic \"sports/premiere-league/barcelona/\"" )
     {
-        auto const topic_filter = "/sports/premiere-league/barcelona/";
-        auto const topic = "sports/premiere-league/barcelona/";
+        const auto topic_filter = "/sports/premiere-league/barcelona/";
+        const auto topic = "sports/premiere-league/barcelona/";
 
         WHEN( "a caller matches topic against topic filter " )
         {
@@ -74,8 +74,8 @@ SCENARIO( "topic_filter_matches_topic", "[dispatch]" )
 
     GIVEN( "topic filter \"/sports/premiere-league/barcelona/\" and topic \"/sports/premiere-league/barcelona\"" )
     {
-        auto const topic_filter = "/sports/premiere-league/barcelona/";
-        auto const topic = "/sports/premiere-league/barcelona";
+        const auto topic_filter = "/sports/premiere-league/barcelona/";
+        const auto topic = "/sports/premiere-league/barcelona";
 
         WHEN( "a caller matches topic against topic filter" )
         {
@@ -88,8 +88,8 @@ SCENARIO( "topic_filter_matches_topic", "[dispatch]" )
 
     GIVEN( "topic filter \"/sports/premiere-league/barcelona\" and topic \"/sports/premiere-league/barcelona\"" )
     {
-        auto const topic_filter = "/sports/premiere-league/barcelona";
-        auto const topic = "/sports/premiere-league/barcelona";
+        const auto topic_filter = "/sports/premiere-league/barcelona";
+        const auto topic = "/sports/premiere-league/barcelona";
 
         WHEN( "a caller matches topic against topic filter" )
         {
@@ -102,8 +102,8 @@ SCENARIO( "topic_filter_matches_topic", "[dispatch]" )
 
     GIVEN( "topic filter \"/sports/+/barcelona\" and topic \"/sports/premiere-league/barcelona\"" )
     {
-        auto const topic_filter = "/sports/+/barcelona";
-        auto const topic = "/sports/premiere-league/barcelona";
+        const auto topic_filter = "/sports/+/barcelona";
+        const auto topic = "/sports/premiere-league/barcelona";
 
         WHEN( "a caller matches topic against topic filter" )
         {
@@ -116,7 +116,7 @@ SCENARIO( "topic_filter_matches_topic", "[dispatch]" )
 
     GIVEN( "topic filter \"sport/tennis/player1/#\"" )
     {
-        auto const topic_filter = "sport/tennis/player1/#";
+        const auto topic_filter = "sport/tennis/player1/#";
 
         WHEN( "a caller matches topic \"sport/tennis/player1\" against topic filter" )
         {
@@ -148,8 +148,8 @@ SCENARIO( "topic_filter_matches_topic", "[dispatch]" )
 
     GIVEN( "topic filter \"+/+\" and topic \"/finance\"" )
     {
-        auto const topic_filter = "+/+";
-        auto const topic = "/finance";
+        const auto topic_filter = "+/+";
+        const auto topic = "/finance";
 
         WHEN( "a caller matches topic against topic filter" )
         {
@@ -162,8 +162,8 @@ SCENARIO( "topic_filter_matches_topic", "[dispatch]" )
 
     GIVEN( "topic filter \"/+\" and topic \"/finance\"" )
     {
-        auto const topic_filter = "/+";
-        auto const topic = "/finance";
+        const auto topic_filter = "/+";
+        const auto topic = "/finance";
 
         WHEN( "a caller matches topic against topic filter" )
         {
@@ -176,8 +176,8 @@ SCENARIO( "topic_filter_matches_topic", "[dispatch]" )
 
     GIVEN( "topic filter \"+\" and topic \"/finance\"" )
     {
-        auto const topic_filter = "+";
-        auto const topic = "/finance";
+        const auto topic_filter = "+";
+        const auto topic = "/finance";
 
         WHEN( "a caller matches topic against topic filter" )
         {

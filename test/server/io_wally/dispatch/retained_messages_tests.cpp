@@ -15,8 +15,8 @@ SCENARIO( "retained_messages#retain", "[dispatch]" )
     {
         io_wally::dispatch::retained_messages under_test{};
 
-        auto const topic = "/test/retain";
-        auto const publish = framework::create_publish_packet( topic, true );
+        const auto topic = "/test/retain";
+        const auto publish = framework::create_publish_packet( topic, true );
 
         WHEN( "no messages have been retained yet" )
         {
@@ -52,10 +52,10 @@ SCENARIO( "retained_messages#retain", "[dispatch]" )
     {
         io_wally::dispatch::retained_messages under_test{};
 
-        auto const topic = "/test/retain";
-        auto const publish_non_zero =
+        const auto topic = "/test/retain";
+        const auto publish_non_zero =
             framework::create_publish_packet( topic, true, std::vector<uint8_t>{'n', 'o', 'n', 'z', 'e', 'r', 'o'} );
-        auto const publish_zero = framework::create_publish_packet( topic, true, std::vector<uint8_t>{} );
+        const auto publish_zero = framework::create_publish_packet( topic, true, std::vector<uint8_t>{} );
 
         WHEN(
             "a caller first stores a non-zero-length PUBLISH packet and then a zero-length PUBLISH packet for the same "
@@ -89,7 +89,7 @@ SCENARIO( "retained_messages#messages_for", "[dispatch]" )
             auto subscribe = framework::create_subscribe_packet(
                 {{"/test/retain1/topic1", io_wally::protocol::packet::QoS::AT_MOST_ONCE},
                  {"/test/retain4/+", io_wally::protocol::packet::QoS::EXACTLY_ONCE}} );
-            auto const matches = under_test.messages_for( subscribe );
+            const auto matches = under_test.messages_for( subscribe );
 
             THEN( "retained_messages#messages_for() should return all 3 matching messages" )
             {
