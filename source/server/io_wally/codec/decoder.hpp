@@ -177,9 +177,9 @@ namespace io_wally
                 throw error::malformed_mqtt_packet( "Encoding a 16 bit unsigned int needs at least two bytes" );
             }
 
-            const uint8_t msb = *uint16_start++;
-            const uint8_t lsb = *uint16_start++;
-            const uint16_t parsed_uint16 = ( msb << 8 ) + lsb;
+            const auto msb = *uint16_start++;
+            const auto lsb = *uint16_start++;
+            const auto parsed_uint16 = ( msb << 8 ) + lsb;
 
             return std::make_pair( uint16_start, parsed_uint16 );
         }
@@ -219,7 +219,7 @@ namespace io_wally
                 throw error::malformed_mqtt_packet( "Encoding QoS needs at least one byte" );
             }
 
-            const uint8_t qos_bits = *uint8_start++;
+            const auto qos_bits = *uint8_start++;
             switch ( qos_bits )
             {
                 case 0x00:
@@ -275,7 +275,7 @@ namespace io_wally
                 throw error::malformed_mqtt_packet( "Encoding an UTF-8 string needs at least two bytes" );
             }
 
-            uint16_t string_length = -1;
+            auto string_length = uint16_t{0};
             std::tie( string_start, string_length ) = decode_uint16( string_start, buf_end );
             // Do we have enough room for our string?
             if ( std::distance( string_start, buf_end ) < string_length )
@@ -283,8 +283,8 @@ namespace io_wally
                 throw error::malformed_mqtt_packet( "Buffer truncated: cannot decode UTF-8 string" );
             }
 
-            const char* parsed_string_ptr = reinterpret_cast<const char*>( &( *string_start ) );
-            const std::string parsed_string{parsed_string_ptr, string_length};
+            const auto parsed_string_ptr = reinterpret_cast<const char*>( &( *string_start ) );
+            const auto parsed_string = std::string{parsed_string_ptr, string_length};
 
             // Update buffer start iterator
             string_start += string_length;
@@ -332,6 +332,5 @@ namespace io_wally
             ///             expects to decode.
             virtual std::shared_ptr<protocol::mqtt_packet> decode( const frame& frame ) const = 0;
         };  // packet_body_decoder
-
-    }  /// namespace decoder
+    }       /// namespace decoder
 }  /// namespace io_wally

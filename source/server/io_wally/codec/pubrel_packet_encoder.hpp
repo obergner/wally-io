@@ -33,7 +33,7 @@ namespace io_wally
 
                 assert( pubrel_packet.header( ).type( ) == packet::Type::PUBREL );
 
-                const pubrel& pubrel = dynamic_cast<const struct pubrel&>( pubrel_packet );
+                const auto& pubrel = dynamic_cast<const struct pubrel&>( pubrel_packet );
 
                 // Encode packet identifier
                 buf_start = encode_uint16( pubrel.packet_identifier( ), buf_start );
@@ -41,6 +41,5 @@ namespace io_wally
                 return buf_start;
             }
         };
-
     }  /// namespace decoder
 }  /// namespace io_wally

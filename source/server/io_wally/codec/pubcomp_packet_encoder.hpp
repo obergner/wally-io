@@ -33,7 +33,7 @@ namespace io_wally
 
                 assert( pubcomp_packet.header( ).type( ) == packet::Type::PUBCOMP );
 
-                const pubcomp& pubcomp = dynamic_cast<const struct pubcomp&>( pubcomp_packet );
+                const auto& pubcomp = dynamic_cast<const struct pubcomp&>( pubcomp_packet );
 
                 // Encode packet identifier
                 buf_start = encode_uint16( pubcomp.packet_identifier( ), buf_start );

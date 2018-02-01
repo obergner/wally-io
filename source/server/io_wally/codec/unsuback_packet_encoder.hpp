@@ -33,7 +33,7 @@ namespace io_wally
 
                 assert( unsuback_packet.header( ).type( ) == packet::Type::UNSUBACK );
 
-                const unsuback& unsuback = dynamic_cast<const struct unsuback&>( unsuback_packet );
+                const auto& unsuback = dynamic_cast<const struct unsuback&>( unsuback_packet );
 
                 // Encode packet identifier
                 buf_start = encode_uint16( unsuback.packet_identifier( ), buf_start );
@@ -41,6 +41,5 @@ namespace io_wally
                 return buf_start;
             }
         };
-
     }  /// namespace decoder
 }  /// namespace io_wally

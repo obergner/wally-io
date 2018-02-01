@@ -33,7 +33,7 @@ namespace io_wally
 
                 assert( puback_packet.header( ).type( ) == packet::Type::PUBACK );
 
-                const puback& puback = dynamic_cast<const struct puback&>( puback_packet );
+                const auto& puback = dynamic_cast<const struct puback&>( puback_packet );
 
                 // Encode packet identifier
                 buf_start = encode_uint16( puback.packet_identifier( ), buf_start );

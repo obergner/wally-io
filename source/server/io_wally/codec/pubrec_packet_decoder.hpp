@@ -5,8 +5,9 @@
 #include <memory>
 #include <tuple>
 
-#include "io_wally/protocol/pubrec_packet.hpp"
 #include "io_wally/codec/decoder.hpp"
+#include "io_wally/protocol/common.hpp"
+#include "io_wally/protocol/pubrec_packet.hpp"
 
 namespace io_wally
 {

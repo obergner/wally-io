@@ -33,13 +33,13 @@ namespace io_wally
 
                 assert( suback_packet.header( ).type( ) == packet::Type::SUBACK );
 
-                const suback& suback = dynamic_cast<const struct suback&>( suback_packet );
+                const auto& suback = dynamic_cast<const struct suback&>( suback_packet );
 
                 // Encode packet identifier
                 buf_start = encode_uint16( suback.packet_identifier( ), buf_start );
 
                 // Encode list of return codes
-                for ( auto& rc : suback.return_codes( ) )
+                for ( const auto& rc : suback.return_codes( ) )
                 {
                     assert( rc != suback_return_code::RESERVED );
                     *buf_start++ = static_cast<uint8_t>( rc );
@@ -48,6 +48,5 @@ namespace io_wally
                 return buf_start;
             }
         };
-
     }  /// namespace decoder
 }  /// namespace io_wally

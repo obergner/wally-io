@@ -1,11 +1,10 @@
 #pragma once
 
 #include <cassert>
-#include <vector>
-#include <algorithm>
 
-#include "io_wally/protocol/publish_packet.hpp"
 #include "io_wally/codec/encoder.hpp"
+#include "io_wally/protocol/common.hpp"
+#include "io_wally/protocol/publish_packet.hpp"
 
 namespace io_wally
 {
@@ -34,7 +33,7 @@ namespace io_wally
 
                 assert( publish_packet.header( ).type( ) == packet::Type::PUBLISH );
 
-                const publish& publish = dynamic_cast<const struct publish&>( publish_packet );
+                const auto& publish = dynamic_cast<const struct publish&>( publish_packet );
 
                 // Encode topic
                 buf_start = encode_utf8_string( publish.topic( ), buf_start );
@@ -46,16 +45,13 @@ namespace io_wally
                 }
 
                 // Encode application message
-                std::for_each( publish.application_message( ).begin( ),
-                               publish.application_message( ).end( ),
-                               [&buf_start]( const uint8_t byte )
-                               {
+                for ( const auto byte : publish.application_message( ) )
+                {
                     *( buf_start++ ) = byte;
-                } );
+                }
 
                 return buf_start;
             }
         };
-
     }  /// namespace decoder
 }  // namespace io_wally

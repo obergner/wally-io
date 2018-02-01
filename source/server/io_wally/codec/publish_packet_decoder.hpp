@@ -3,11 +3,12 @@
 #include <cassert>
 #include <cstdint>
 #include <memory>
-#include <vector>
 #include <tuple>
+#include <vector>
 
-#include "io_wally/protocol/publish_packet.hpp"
 #include "io_wally/codec/decoder.hpp"
+#include "io_wally/protocol/common.hpp"
+#include "io_wally/protocol/publish_packet.hpp"
 
 namespace io_wally
 {

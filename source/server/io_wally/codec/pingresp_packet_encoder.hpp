@@ -3,6 +3,7 @@
 #include <cassert>
 
 #include "io_wally/codec/encoder.hpp"
+#include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/pingresp_packet.hpp"
 
 namespace io_wally

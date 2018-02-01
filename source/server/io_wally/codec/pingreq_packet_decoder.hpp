@@ -3,8 +3,9 @@
 #include <cassert>
 #include <memory>
 
-#include "io_wally/protocol/pingreq_packet.hpp"
 #include "io_wally/codec/decoder.hpp"
+#include "io_wally/protocol/common.hpp"
+#include "io_wally/protocol/pingreq_packet.hpp"
 
 namespace io_wally
 {

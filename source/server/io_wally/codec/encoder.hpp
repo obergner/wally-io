@@ -1,8 +1,8 @@
 #pragma once
 
-#include <string>
 #include <cstdint>
 #include <stdexcept>
+#include <string>
 
 #include "io_wally/error/protocol.hpp"
 #include "io_wally/protocol/common.hpp"
@@ -48,9 +48,9 @@ namespace io_wally
             const OutputIterator saved_buf_start = buf_start;
             do
             {
-                uint8_t rest = remaining_length % 0x80;
+                const auto rest = remaining_length % 0x80;
                 remaining_length = remaining_length / 0x80;
-                uint8_t current = ( remaining_length > 0 ? ( rest | 0x80 ) : rest );
+                const auto current = ( remaining_length > 0 ? ( rest | 0x80 ) : rest );
                 *buf_start++ = current;
             } while ( remaining_length > 0 );
 
@@ -74,8 +74,8 @@ namespace io_wally
         template <typename OutputIterator>
         inline OutputIterator encode_uint16( const uint16_t value, OutputIterator buf_start )
         {
-            const uint8_t msb = value / 0x0100;
-            const uint8_t lsb = value % 0x0100;
+            const auto msb = value / 0x0100;
+            const auto lsb = value % 0x0100;
 
             *buf_start++ = msb;
             *buf_start++ = lsb;
@@ -107,7 +107,7 @@ namespace io_wally
             if ( value.length( ) > MAX_STRING_LENGTH )
                 throw error::malformed_mqtt_packet( "Supplied UTF-8 string is longer than allowed maximum" );
 
-            const uint16_t string_length = value.length( );
+            const auto string_length = value.length( );
             buf_start = encode_uint16( string_length, buf_start );
             for ( const char& ch : value )
                 *buf_start++ = ch;

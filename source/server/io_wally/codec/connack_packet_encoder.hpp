@@ -34,9 +34,9 @@ namespace io_wally
 
                 assert( connack_packet.header( ).type( ) == packet::Type::CONNACK );
 
-                const connack& connack = dynamic_cast<const struct connack&>( connack_packet );
-                const uint8_t first_byte = ( connack.is_session_present( ) ? 0x01 : 0x00 );
-                uint8_t second_byte;
+                const auto& connack = dynamic_cast<const struct connack&>( connack_packet );
+                const auto first_byte = ( connack.is_session_present( ) ? 0x01 : 0x00 );
+                auto second_byte = uint8_t{0x00};
                 switch ( connack.return_code( ) )
                 {
                     case connect_return_code::CONNECTION_ACCEPTED:
@@ -71,6 +71,5 @@ namespace io_wally
                 return buf_start;
             }
         };
-
     }  /// namespace decoder
 }  /// namespace io_wally
