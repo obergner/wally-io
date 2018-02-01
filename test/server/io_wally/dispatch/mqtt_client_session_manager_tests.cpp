@@ -36,8 +36,7 @@ SCENARIO( "mqtt_client_session_manager#client_published", "[dispatch]" )
 
         WHEN( "client code calls client_published() with a PUBLISH packet WITHOUT retained flag" )
         {
-            auto publish_packet = framework::create_publish_packet( topic );
-            publish_packet->retain( false );  // Just to be on the safe side
+            auto publish_packet = framework::create_publish_packet( topic, false );
             under_test.client_published( publisher_id, publish_packet );
 
             THEN( "that PUBLISH packet should be sent to the connected client" )
@@ -50,8 +49,20 @@ SCENARIO( "mqtt_client_session_manager#client_published", "[dispatch]" )
 
         WHEN( "client code calls client_published() with a PUBLISH packet WITH retained flag" )
         {
-            auto publish_packet = framework::create_publish_packet( topic );
-            publish_packet->retain( true );
+            auto publish_packet = framework::create_publish_packet( topic, true );
+            under_test.client_published( publisher_id, publish_packet );
+
+            THEN( "that PUBLISH packet should be sent to the connected client" )
+            {
+                const auto& sent_packets = subscriber_ptr->sent_packets( );
+                const auto pos = std::find( std::begin( sent_packets ), std::end( sent_packets ), publish_packet );
+                REQUIRE( pos != std::end( sent_packets ) );
+            }
+        }
+
+        WHEN( "client code calls client_published() with a PUBLISH packet of size 0 WITH retained flag" )
+        {
+            auto publish_packet = framework::create_publish_packet( topic, true, {} );
             under_test.client_published( publisher_id, publish_packet );
 
             THEN( "that PUBLISH packet should be sent to the connected client" )
@@ -66,8 +77,7 @@ SCENARIO( "mqtt_client_session_manager#client_published", "[dispatch]" )
             "client code calls client_published() with a PUBLISH packet WITH retained flag AND THEN a new client "
             "connects and subscribes to the same topic" )
         {
-            auto publish_packet = framework::create_publish_packet( topic );
-            publish_packet->retain( true );
+            auto publish_packet = framework::create_publish_packet( topic, true );
             under_test.client_published( publisher_id, publish_packet );
 
             const auto new_subscriber_id = "new-test-subscriber";
@@ -90,8 +100,7 @@ SCENARIO( "mqtt_client_session_manager#client_published", "[dispatch]" )
             "client code calls client_published() with a PUBLISH packet WITHOUT retained flag AND THEN a new client "
             "connects and subscribes to the same topic" )
         {
-            auto publish_packet = framework::create_publish_packet( topic );
-            publish_packet->retain( false );  // Just to be on the safe side
+            auto publish_packet = framework::create_publish_packet( topic, false );
             under_test.client_published( publisher_id, publish_packet );
 
             const auto new_subscriber_id = "new-test-subscriber";
@@ -107,6 +116,37 @@ SCENARIO( "mqtt_client_session_manager#client_published", "[dispatch]" )
                 const auto& sent_packets = new_subscriber_ptr->sent_packets( );
                 const auto pos = std::find( std::begin( sent_packets ), std::end( sent_packets ), publish_packet );
                 REQUIRE( pos == std::end( sent_packets ) );
+            }
+        }
+
+        WHEN(
+            "client code first calls client_published() with a regular PUBLISH packet WITH retained flag, THEN with a "
+            "PUBLISH packet of size 0 WITH retained flag AND THEN a new client connects and subscribes to the same "
+            "topic" )
+        {
+            auto regular_publish_packet = framework::create_publish_packet( topic, true );
+            under_test.client_published( publisher_id, regular_publish_packet );
+
+            auto delete_publish_packet = framework::create_publish_packet( topic, true, {} );
+            under_test.client_published( publisher_id, delete_publish_packet );
+
+            const auto new_subscriber_id = "new-test-subscriber";
+            auto new_subscriber_ptr = std::make_shared<framework::packet_sender_mock>( new_subscriber_id );
+            under_test.client_connected( *new_subscriber_ptr->client_id( ), new_subscriber_ptr );
+
+            const auto new_subscribe_packet =
+                framework::create_subscribe_packet( {{topic, packet::QoS::AT_MOST_ONCE}} );
+            under_test.client_subscribed( *new_subscriber_ptr->client_id( ), new_subscribe_packet );
+
+            THEN( "NO PUBLISH packet should be sent to the new connected client" )
+            {
+                const auto& sent_packets = new_subscriber_ptr->sent_packets( );
+                const auto regular_pos =
+                    std::find( std::begin( sent_packets ), std::end( sent_packets ), regular_publish_packet );
+                const auto delete_pos =
+                    std::find( std::begin( sent_packets ), std::end( sent_packets ), delete_publish_packet );
+                CHECK( regular_pos == std::end( sent_packets ) );
+                REQUIRE( delete_pos == std::end( sent_packets ) );
             }
         }
     }

@@ -25,6 +25,9 @@ namespace io_wally
         {
             assert( incoming_publish->retain( ) );
 
+            // A PUBLISH with retained flag set and application message size 0 REMOVES any retained PUBLISH
+            // previously stored under that topic.
+            // See: http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718038
             if ( incoming_publish->application_message( ).size( ) > 0 )
             {
                 messages_[incoming_publish->topic( )] = incoming_publish;
