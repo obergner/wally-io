@@ -3,6 +3,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include <spdlog/spdlog.h>
 
@@ -15,9 +16,20 @@ namespace framework
                                public std::enable_shared_from_this<packet_sender_mock>
     {
        public:  // static
+        static constexpr const char* const DEFAULT_CLIENT = "mock-client";
+
+       public:  // static
         static io_wally::mqtt_packet_sender::ptr create( )
         {
             return std::make_shared<packet_sender_mock>( );
+        }
+
+        packet_sender_mock( ) : packet_sender_mock{DEFAULT_CLIENT}
+        {
+        }
+
+        packet_sender_mock( const std::string& client_id ) : client_id_{client_id}
+        {
         }
 
        public:
@@ -28,8 +40,9 @@ namespace framework
         }
 
         /// \brief Send an \c mqtt_packet to connected client.
-        virtual void send( io_wally::protocol::mqtt_packet::ptr /* packet */ ) override
+        virtual void send( io_wally::protocol::mqtt_packet::ptr packet ) override
         {
+            sent_packets_.push_back( packet );
         }
 
         /// \brief Stop this connection, closing its \c tcp::socket.
@@ -45,8 +58,23 @@ namespace framework
             return to_string_;
         }
 
+        ///
+        /// Test support
+        ///
+
+        const std::vector<io_wally::protocol::mqtt_packet::ptr>& sent_packets( ) const
+        {
+            return sent_packets_;
+        }
+
+        void reset( )
+        {
+            sent_packets_.clear( );
+        }
+
        private:
-        const std::optional<const std::string> client_id_{"mock_client"};
-        const std::string to_string_{"mock_packet_sender"};
+        const std::optional<const std::string> client_id_;
+        const std::string to_string_{"mock_packet_sender/" + *client_id_};
+        std::vector<io_wally::protocol::mqtt_packet::ptr> sent_packets_{};
     };
 }

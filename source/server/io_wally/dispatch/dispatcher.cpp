@@ -39,6 +39,9 @@ namespace io_wally
             logger_->debug( "RX: {}", *packet_container->packet( ) );
             if ( packet_container->packet_type( ) == protocol::packet::Type::CONNECT )
             {
+                // For now, we do not support LWT messages
+                const auto connect = packet_container->packetAs<protocol::connect>( );
+                assert( !connect->contains_last_will( ) );
                 session_manager_.client_connected( packet_container->client_id( ), packet_container->rx_connection( ) );
             }
             else if ( packet_container->packet_type( ) == protocol::packet::Type::DISCONNECT )
@@ -48,37 +51,37 @@ namespace io_wally
             }
             else if ( packet_container->packet_type( ) == protocol::packet::Type::SUBSCRIBE )
             {
-                auto subscribe = packet_container->packetAs<protocol::subscribe>( );
+                const auto subscribe = packet_container->packetAs<protocol::subscribe>( );
                 session_manager_.client_subscribed( packet_container->client_id( ), subscribe );
             }
             else if ( packet_container->packet_type( ) == protocol::packet::Type::UNSUBSCRIBE )
             {
-                auto unsubscribe = packet_container->packetAs<protocol::unsubscribe>( );
+                const auto unsubscribe = packet_container->packetAs<protocol::unsubscribe>( );
                 session_manager_.client_unsubscribed( packet_container->client_id( ), unsubscribe );
             }
             else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBLISH )
             {
-                auto publish = packet_container->packetAs<protocol::publish>( );
+                const auto publish = packet_container->packetAs<protocol::publish>( );
                 session_manager_.client_published( packet_container->client_id( ), publish );
             }
             else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBACK )
             {
-                auto puback = packet_container->packetAs<protocol::puback>( );
+                const auto puback = packet_container->packetAs<protocol::puback>( );
                 session_manager_.client_acked_publish( packet_container->client_id( ), puback );
             }
             else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBREC )
             {
-                auto pubrec = packet_container->packetAs<protocol::pubrec>( );
+                const auto pubrec = packet_container->packetAs<protocol::pubrec>( );
                 session_manager_.client_received_publish( packet_container->client_id( ), pubrec );
             }
             else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBREL )
             {
-                auto pubrel = packet_container->packetAs<protocol::pubrel>( );
+                const auto pubrel = packet_container->packetAs<protocol::pubrel>( );
                 session_manager_.client_released_publish( packet_container->client_id( ), pubrel );
             }
             else if ( packet_container->packet_type( ) == protocol::packet::Type::PUBCOMP )
             {
-                auto pubcomp = packet_container->packetAs<protocol::pubcomp>( );
+                const auto pubcomp = packet_container->packetAs<protocol::pubcomp>( );
                 session_manager_.client_completed_publish( packet_container->client_id( ), pubcomp );
             }
             else
@@ -91,7 +94,7 @@ namespace io_wally
         {
             logger_->info( "STOPPING: Dispatcher ({}) ...", message );
             session_manager_.destroy_all( );
-            logger_->info( "STOPPED:  Dispatcher ({}) ...", message );
+            logger_->info( "STOPPED:  Dispatcher ({})", message );
         }
     }  // namespace dispatch
 }  // namespace io_wally

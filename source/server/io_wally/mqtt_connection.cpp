@@ -135,7 +135,7 @@ namespace io_wally
         // Start deadline timer that will close this connection if connect timeout expires without receiving CONNECT
         // request
         auto self = shared_from_this( );
-        auto conn_to = chrono::milliseconds{context_[context::CONNECT_TIMEOUT].as<uint32_t>( )};
+        const auto conn_to = chrono::milliseconds{context_[context::CONNECT_TIMEOUT].as<uint32_t>( )};
         close_on_connection_timeout_.expires_from_now( conn_to );
         close_on_connection_timeout_.async_wait( strand_.wrap( [self]( const std::error_code& ec ) {
             if ( !ec )
@@ -158,12 +158,14 @@ namespace io_wally
 
         logger_->debug( "<<< READ: next frame ..." );
         auto self = shared_from_this( );
-        ::asio::async_read( socket_, ::asio::buffer( read_buffer_ ),
-                            [self]( const std::error_code& ec, const size_t bytes_transferred ) -> size_t {
-                                return self->frame_reader_( ec, bytes_transferred );
-                            },
-                            strand_.wrap( std::bind( &mqtt_connection::on_frame_read, shared_from_this( ),
-                                                     std::placeholders::_1, std::placeholders::_2 ) ) );
+        ::asio::async_read(
+            socket_, ::asio::buffer( read_buffer_ ),
+            [self]( const std::error_code& ec, const size_t bytes_transferred ) -> size_t {
+                return self->frame_reader_( ec, bytes_transferred );
+            },
+            strand_.wrap( [self]( const std::error_code& ec, const std::size_t bytes_transferred ) -> void {
+                self->on_frame_read( ec, bytes_transferred );
+            } ) );
     }
 
     void mqtt_connection::on_frame_read( const std::error_code& ec, const size_t bytes_transferred )
@@ -185,7 +187,7 @@ namespace io_wally
         {
             const std::optional<const frame> frame = frame_reader_.get_frame( );
             assert( frame );
-            auto parsed_packet = packet_decoder_.decode( *frame );
+            const auto parsed_packet = packet_decoder_.decode( *frame );
             logger_->info( "<<< DECODED [res:{}|bytes:{}]", *parsed_packet, bytes_transferred );
 
             frame_reader_.reset( );
@@ -305,8 +307,8 @@ namespace io_wally
     void mqtt_connection::dispatch_connect_packet( shared_ptr<protocol::connect> connect )
     {
         logger_->debug( "--- DISPATCHING: {} ...", *connect );
-        auto connect_container = packet_container_t::contain( connect->client_id( ), shared_from_this( ), connect,
-                                                              dispatch::disconnect_reason::client_disconnect );
+        const auto connect_container = packet_container_t::contain( connect->client_id( ), shared_from_this( ), connect,
+                                                                    dispatch::disconnect_reason::client_disconnect );
         dispatcher_.handle_packet_received( connect_container );
         logger_->debug( "--- DISPATCHED:  {}", *connect );
         write_packet( connack{false, connect_return_code::CONNECTION_ACCEPTED} );
@@ -321,10 +323,10 @@ namespace io_wally
                                                       const dispatch::disconnect_reason disconnect_reason )
     {
         logger_->debug( "--- DISPATCHING: {} [rsn:{}] ...", *disconnect, disconnect_reason );
-        auto disconnect_container =
+        const auto disconnect_container =
             packet_container_t::contain( *client_id_, shared_from_this( ), disconnect, disconnect_reason );
         dispatcher_.handle_packet_received( disconnect_container );
-        logger_->info( "--- DISPATCHED:  {} [rsn:{}] ...", *disconnect, disconnect_reason );
+        logger_->info( "--- DISPATCHED:  {} [rsn:{}]", *disconnect, disconnect_reason );
 
         auto msg = ostringstream{};
         msg << "--- Connection disconnected: " << disconnect_reason;
@@ -334,9 +336,9 @@ namespace io_wally
     void mqtt_connection::dispatch_packet( shared_ptr<protocol::mqtt_packet> packet )
     {
         logger_->debug( "--- DISPATCHING: {} ...", *packet );
-        auto subscribe_container = packet_container_t::contain( *client_id_, shared_from_this( ), packet );
+        const auto subscribe_container = packet_container_t::contain( *client_id_, shared_from_this( ), packet );
         dispatcher_.handle_packet_received( subscribe_container );
-        logger_->debug( "--- DISPATCHED:  {} ...", *packet );
+        logger_->debug( "--- DISPATCHED:  {}", *packet );
     }
 
     // Sending messages
@@ -354,7 +356,7 @@ namespace io_wally
 
         auto self = shared_from_this( );
         ::asio::async_write( socket_, ::asio::buffer( write_buffer_, packet.header( ).total_length( ) ),
-                             strand_.wrap( [self]( const std::error_code& ec, size_t /* bytes_written */ ) {
+                             strand_.wrap( [self]( const std::error_code& ec, size_t bytes_written ) {
                                  if ( ec )
                                  {
                                      self->connection_close_requested(
@@ -364,7 +366,7 @@ namespace io_wally
                                  }
                                  else
                                  {
-                                     self->logger_->debug( ">>> SENT" );
+                                     self->logger_->debug( ">>> SENT: [{}] bytes", bytes_written );
                                  }
                              } ) );
     }

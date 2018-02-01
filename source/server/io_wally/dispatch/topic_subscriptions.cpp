@@ -49,11 +49,11 @@ namespace io_wally
             const std::string& client_id,
             std::shared_ptr<const protocol::subscribe> subscribe )
         {
-            for ( auto& subscr : subscribe->subscriptions( ) )
+            for ( const auto& subscr : subscribe->subscriptions( ) )
             {
                 subscriptions_.emplace( subscr.topic_filter( ), subscr.maximum_qos( ), client_id );
             }
-            auto suback = subscribe->succeed( );
+            const auto suback = subscribe->succeed( );
             logger_->debug( "SUBSRCRIBED: [cltid:{}|subscr:{}] -> {}", client_id, *subscribe, *suback );
 
             return suback;
@@ -74,7 +74,7 @@ namespace io_wally
                     ++it;
                 }
             }
-            auto unsuback = unsubscribe->ack( );
+            const auto unsuback = unsubscribe->ack( );
             logger_->debug( "UNSUBSRCRIBED: [cltid:{}|unsubscr:{}] -> {}", client_id, *unsubscribe, *unsuback );
 
             return unsuback;
@@ -83,29 +83,28 @@ namespace io_wally
         const std::vector<resolved_subscriber_t> topic_subscriptions::resolve_subscribers(
             std::shared_ptr<const protocol::publish> publish ) const
         {
-            auto const& topic = publish->topic( );
+            const auto& topic = publish->topic( );
 
-            auto resolved_subscribers = vector<resolved_subscriber_t>{};
-            for_each( subscriptions_.begin( ), subscriptions_.end( ),
-                      [&topic, &resolved_subscribers]( const subscription_container& subscr ) {
-                          if ( !subscr.matches( topic ) )
-                              return;
-                          auto const& seen_subscr = find_if( resolved_subscribers.begin( ), resolved_subscribers.end( ),
-                                                             [&subscr]( const resolved_subscriber_t& res_subscr ) {
-                                                                 return res_subscr.first == subscr.client_id;
-                                                             } );
-                          if ( seen_subscr != resolved_subscribers.end( ) )
-                          {
-                              auto const seen_qos = seen_subscr->second;
-                              if ( subscr.maximum_qos > seen_qos )
-                                  seen_subscr->second = subscr.maximum_qos;
-                          }
-                          else
-                          {
-                              resolved_subscribers.emplace_back(
-                                  resolved_subscriber_t{subscr.client_id, subscr.maximum_qos} );
-                          }
-                      } );
+            auto resolved_subscribers = std::vector<resolved_subscriber_t>{};
+            for ( const auto& subscr : subscriptions_ )
+            {
+                if ( !subscr.matches( topic ) )
+                    continue;
+                const auto& seen_subscr = std::find_if( resolved_subscribers.begin( ), resolved_subscribers.end( ),
+                                                        [&subscr]( const resolved_subscriber_t& res_subscr ) {
+                                                            return res_subscr.first == subscr.client_id;
+                                                        } );
+                if ( seen_subscr != resolved_subscribers.end( ) )
+                {
+                    const auto seen_qos = seen_subscr->second;
+                    if ( subscr.maximum_qos > seen_qos )
+                        seen_subscr->second = subscr.maximum_qos;
+                }
+                else
+                {
+                    resolved_subscribers.emplace_back( resolved_subscriber_t{subscr.client_id, subscr.maximum_qos} );
+                }
+            }
 
             return resolved_subscribers;
         }

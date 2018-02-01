@@ -29,7 +29,7 @@ namespace io_wally
 
                 auto logger_factory = logging::logger_factory::create( config );
 
-                auto auth_service_factory =
+                const auto auth_service_factory =
                     app::authentication_service_factories::instance( )[config[context::AUTHENTICATION_SERVICE_FACTORY]
                                                                            .as<std::string>( )];
                 auto auth_service = auth_service_factory( config );
@@ -39,7 +39,7 @@ namespace io_wally
                 server_ = mqtt_server::create( std::move( ctx ) );
                 {
                     // Nested scope to reliable release lock before we call server_.run(), which will block "forever".
-                    auto ul = std::unique_lock<std::mutex>{startup_mutex_};
+                    const auto ul = std::unique_lock<std::mutex>{startup_mutex_};
 
                     startup_completed_.notify_all( );
                 }

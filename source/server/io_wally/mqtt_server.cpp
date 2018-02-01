@@ -33,8 +33,8 @@ namespace io_wally
 
         const auto address = context_[io_wally::context::SERVER_ADDRESS].as<string>( );
         const auto port = context_[io_wally::context::SERVER_PORT].as<int>( );
-        ::asio::ip::tcp::resolver resolver{io_service_};
-        const ::asio::ip::tcp::endpoint endpoint = *resolver.resolve( {address, to_string( port )} );
+        asio::ip::tcp::resolver resolver{io_service_};
+        const asio::ip::tcp::endpoint endpoint = *resolver.resolve( {address, to_string( port )} );
 
         acceptor_.open( endpoint.protocol( ) );
         // Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
@@ -49,7 +49,7 @@ namespace io_wally
 
         {
             // Use nested scope to guaratuee that lock is released
-            auto ul = unique_lock<mutex>{bind_mutex_};
+            const auto ul = unique_lock<mutex>{bind_mutex_};
             bound_.notify_all( );
         }
     }
@@ -132,7 +132,7 @@ namespace io_wally
         connection_manager_.stop_all( );
 
         {
-            auto ul = unique_lock<mutex>{bind_mutex_};
+            const auto ul = unique_lock<mutex>{bind_mutex_};
             connections_closed_ = true;
             conn_closed_.notify_all( );
         }

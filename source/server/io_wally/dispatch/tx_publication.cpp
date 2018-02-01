@@ -63,7 +63,7 @@ namespace io_wally
             assert( state_ == state::waiting_for_ack );
             assert( ack->header( ).type( ) == protocol::packet::Type::PUBACK );
 
-            auto pub_ack = std::dynamic_pointer_cast<protocol::puback>( ack );
+            const auto pub_ack = std::dynamic_pointer_cast<protocol::puback>( ack );
             assert( pub_ack->packet_identifier( ) == publish_->packet_identifier( ) );
 
             state_ = state::completed;
@@ -94,15 +94,15 @@ namespace io_wally
 
             // We use a weak_ptr in this async callback since our owner - mqtt_client_session via
             // tx_in_flight_publications - may go away anytime while we wait for this timeout to expire
-            auto self_weak = std::weak_ptr<qos1_tx_publication>{shared_from_this( )};
-            auto ack_tmo = std::chrono::milliseconds{ack_timeout_ms_};
+            const auto self_weak = std::weak_ptr<qos1_tx_publication>{shared_from_this( )};
+            const auto ack_tmo = std::chrono::milliseconds{ack_timeout_ms_};
             retry_on_timeout_.expires_from_now( ack_tmo );
             retry_on_timeout_.async_wait( strand_.wrap( [self_weak, sender]( const std::error_code& ec ) {
                 if ( ec )
                 {
                     return;
                 }
-                if ( auto self = self_weak.lock( ) )
+                if ( const auto self = self_weak.lock( ) )
                 {
                     self->ack_timeout_expired( sender );
                 }
@@ -143,10 +143,10 @@ namespace io_wally
                 }
                 else
                 {
-                    auto pubrec = std::dynamic_pointer_cast<protocol::pubrec>( ack );
+                    const auto pubrec = std::dynamic_pointer_cast<protocol::pubrec>( ack );
                     assert( pubrec->packet_identifier( ) == publish_->packet_identifier( ) );
 
-                    auto pubrel = std::make_shared<protocol::pubrel>( publish_->packet_identifier( ) );
+                    const auto pubrel = std::make_shared<protocol::pubrel>( publish_->packet_identifier( ) );
                     sender->send( pubrel );
 
                     start_ack_timeout( sender );
@@ -157,7 +157,7 @@ namespace io_wally
                 if ( ack->header( ).type( ) == protocol::packet::Type::PUBREC )
                 {
                     // Client re-sent PUBREC. This likely means it did not receive our PUBREL. Let's sent it again.
-                    auto pubrel = std::make_shared<protocol::pubrel>( publish_->packet_identifier( ) );
+                    const auto pubrel = std::make_shared<protocol::pubrel>( publish_->packet_identifier( ) );
                     sender->send( pubrel );
 
                     start_ack_timeout( sender );
@@ -184,7 +184,7 @@ namespace io_wally
                 }
                 else  // waiting for pubcomp
                 {
-                    auto pubrel = std::make_shared<protocol::pubrel>( publish_->packet_identifier( ) );
+                    const auto pubrel = std::make_shared<protocol::pubrel>( publish_->packet_identifier( ) );
                     sender->send( pubrel );
                 }
                 start_ack_timeout( sender );
@@ -210,15 +210,15 @@ namespace io_wally
 
             // We use a weak_ptr in this async callback since our owner - mqtt_client_session via
             // tx_in_flight_publications - may go away anytime while we wait for this timeout to expire
-            auto self_weak = std::weak_ptr<qos2_tx_publication>{shared_from_this( )};
-            auto ack_tmo = std::chrono::milliseconds{ack_timeout_ms_};
+            const auto self_weak = std::weak_ptr<qos2_tx_publication>{shared_from_this( )};
+            const auto ack_tmo = std::chrono::milliseconds{ack_timeout_ms_};
             retry_on_timeout_.expires_from_now( ack_tmo );
             retry_on_timeout_.async_wait( strand_.wrap( [self_weak, sender]( const std::error_code& ec ) {
                 if ( ec )
                 {
                     return;
                 }
-                if ( auto self = self_weak.lock( ) )
+                if ( const auto self = self_weak.lock( ) )
                 {
                     self->ack_timeout_expired( sender );
                 }

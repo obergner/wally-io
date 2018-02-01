@@ -62,6 +62,7 @@ CXXFLAGS_DEBUG            += -g
 CXXFLAGS_DEBUG            += -D_GLIBCXX_DEBUG
 CXXFLAGS_DEBUG            += -D_GLIBCXX_DEBUG_PEDANTIC
 CXXFLAGS_DEBUG            += -D_GLIBCXX_ASSERTIONS
+CXXFLAGS_ASAN             += -DASIO_DISABLE_BUFFER_DEBUGGING # TOOD: fix the issue when sending retained message
 
 # Debug build preprocessor flags
 CPPFLAGS_DEBUG            := $(CPPFLAGS_RUN)
@@ -84,6 +85,7 @@ CXXFLAGS_ASAN             += -g # Needed by g++ to support line numbers in asan 
 CXXFLAGS_ASAN             += -D_GLIBCXX_DEBUG
 CXXFLAGS_ASAN             += -D_GLIBCXX_DEBUG_PEDANTIC
 CXXFLAGS_ASAN             += -D_GLIBCXX_ASSERTIONS
+CXXFLAGS_ASAN             += -DASIO_DISABLE_BUFFER_DEBUGGING # TOOD: fix the issue when sending retained message
 CXXFLAGS_ASAN             += -fsanitize=address
 CXXFLAGS_ASAN             += -fsanitize=leak
 CXXFLAGS_ASAN             += -fsanitize=undefined

@@ -52,14 +52,13 @@ namespace io_wally
             std::shared_ptr<protocol::subscribe> incoming_subscribe ) const
         {
             auto matches = std::vector<std::shared_ptr<protocol::publish>>{};
-            std::for_each( messages_.begin( ), messages_.end( ),
-                           [&matches, &incoming_subscribe](
-                               const std::pair<const std::string, std::shared_ptr<protocol::publish>>& topic_publish ) {
-                               if ( subscribe_matches_topic( incoming_subscribe, topic_publish.first ) )
-                               {
-                                   matches.push_back( topic_publish.second );
-                               }
-                           } );
+            for ( const auto& topic_publish : messages_ )
+            {
+                if ( subscribe_matches_topic( incoming_subscribe, topic_publish.first ) )
+                {
+                    matches.push_back( topic_publish.second );
+                }
+            }
 
             return matches;
         }

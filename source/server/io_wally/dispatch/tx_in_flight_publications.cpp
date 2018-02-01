@@ -72,7 +72,7 @@ namespace io_wally
 
         void tx_in_flight_publications::response_received( std::shared_ptr<protocol::publish_ack> publish_ack )
         {
-            const protocol::packet::Type ack_type = publish_ack->header( ).type( );
+            const auto ack_type = publish_ack->header( ).type( );
             assert( ( ack_type == protocol::packet::Type::PUBACK ) || ( ack_type == protocol::packet::Type::PUBREC ) ||
                     ( ack_type == protocol::packet::Type::PUBCOMP ) );
 
@@ -82,7 +82,7 @@ namespace io_wally
                 // Client connection has gone away. The client session we belong to will likely be discarded soon.
                 return;
             }
-            auto const pktid = publish_ack->packet_identifier( );
+            const auto pktid = publish_ack->packet_identifier( );
             if ( publications_.count( pktid ) > 0 )
             {
                 publications_[pktid]->response_received( publish_ack, locked_sender );
@@ -115,7 +115,7 @@ namespace io_wally
         }
 
         void tx_in_flight_publications::publish_using_qos0( std::shared_ptr<protocol::publish> incoming_publish,
-                                                            std::shared_ptr<mqtt_packet_sender> locked_sender )
+                                                            std::shared_ptr<mqtt_packet_sender> locked_sender ) const
         {
             incoming_publish->qos( protocol::packet::QoS::AT_MOST_ONCE );
             locked_sender->send( incoming_publish );
@@ -126,8 +126,7 @@ namespace io_wally
         {
             // Need to copy incoming PUBLISH packet since we now start a new, unrelated OUTGOING publication we need a
             // packet identifier for that is unique for THIS client, not the client that sent this incoming PUBLISH.
-            auto outgoing_publish = incoming_publish->with_new_packet_identifier( next_packet_identifier( ) );
-
+            const auto outgoing_publish = incoming_publish->with_new_packet_identifier( next_packet_identifier( ) );
             auto publish_itr = std::unordered_map<std::uint16_t, std::shared_ptr<tx_publication>>::iterator{};
             auto inserted = false;
             std::tie( publish_itr, inserted ) = publications_.emplace(
@@ -144,8 +143,7 @@ namespace io_wally
         {
             // Need to copy incoming PUBLISH packet since we now start a new, unrelated OUTGOING publication we need a
             // packet identifier for that is unique for THIS client, not the client that sent this incoming PUBLISH.
-            auto outgoing_publish = incoming_publish->with_new_packet_identifier( next_packet_identifier( ) );
-
+            const auto outgoing_publish = incoming_publish->with_new_packet_identifier( next_packet_identifier( ) );
             auto publish_itr = std::unordered_map<std::uint16_t, std::shared_ptr<tx_publication>>::iterator{};
             auto inserted = false;
             std::tie( publish_itr, inserted ) = publications_.emplace(
@@ -159,7 +157,7 @@ namespace io_wally
 
         void tx_in_flight_publications::release( std::shared_ptr<tx_publication> publication )
         {
-            auto const erase_count = publications_.erase( publication->packet_identifier( ) );
+            const auto erase_count = publications_.erase( publication->packet_identifier( ) );
             assert( erase_count == 1 );
         }
     }  // namespace dispatch

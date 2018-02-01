@@ -2,17 +2,17 @@
 
 #include <cstdint>
 #include <memory>
-#include <utility>
 #include <unordered_map>
+#include <utility>
 
 #include <asio.hpp>
 
 #include "io_wally/context.hpp"
+#include "io_wally/dispatch/tx_publication.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
 #include "io_wally/protocol/common.hpp"
-#include "io_wally/protocol/publish_packet.hpp"
 #include "io_wally/protocol/publish_ack_packet.hpp"
-#include "io_wally/dispatch/tx_publication.hpp"
+#include "io_wally/protocol/publish_packet.hpp"
 
 namespace io_wally
 {
@@ -45,7 +45,7 @@ namespace io_wally
             std::uint16_t next_packet_identifier( );
 
             void publish_using_qos0( std::shared_ptr<protocol::publish> incoming_publish,
-                                     std::shared_ptr<mqtt_packet_sender> locked_sender );
+                                     std::shared_ptr<mqtt_packet_sender> locked_sender ) const;
 
             void publish_using_qos1( std::shared_ptr<protocol::publish> incoming_publish,
                                      std::shared_ptr<mqtt_packet_sender> locked_sender );

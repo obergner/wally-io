@@ -50,7 +50,7 @@ namespace io_wally
 
         void mqtt_client_session::send( protocol::mqtt_packet::ptr packet )
         {
-            if ( auto conn_local = connection_.lock( ) )
+            if ( const auto conn_local = connection_.lock( ) )
             {
                 // Connection has not gone away, safe to send
                 conn_local->send( packet );
@@ -68,12 +68,12 @@ namespace io_wally
                                            const protocol::packet::QoS maximum_qos )
         {
             tx_in_flight_publications_.publish( incoming_publish, maximum_qos );
-            logger_->debug( "PUBLSIHED: {} (maxqos: {})", *incoming_publish, maximum_qos );
+            logger_->debug( "PUBLISHED: {} (maxqos: {})", *incoming_publish, maximum_qos );
         }
 
         void mqtt_client_session::client_sent_publish( std::shared_ptr<protocol::publish> incoming_publish )
         {
-            bool dispatch_publish = rx_in_flight_publications_.client_sent_publish( incoming_publish );
+            const bool dispatch_publish = rx_in_flight_publications_.client_sent_publish( incoming_publish );
             if ( dispatch_publish )
             {
                 session_manager_.publish( incoming_publish );

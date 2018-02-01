@@ -28,7 +28,7 @@ namespace io_wally
 
     void mqtt_connection_manager::stop_all( )
     {
-        for ( auto& c : connections_ )
+        for ( const auto& c : connections_ )
             c->do_stop( );
         connections_.clear( );
         logger_->debug( "All connections stopped" );
