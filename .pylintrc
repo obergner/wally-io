@@ -112,7 +112,9 @@ logging-modules=logging
 [FORMAT]
 
 # Maximum number of characters on a single line.
-max-line-length=120
+# NOTE: unittest runner shows only the FIRST line of each test method's doc string. That's why we want to keep that
+# doc string all on one line. Hence this ridiculous limit.
+max-line-length=300
 
 # Regexp for a line that is allowed to be longer than the limit.
 ignore-long-lines=^\s*(# )?<?https?://\S+>?$
