@@ -18,19 +18,6 @@ namespace io_wally
     namespace dispatch
     {
         // ------------------------------------------------------------------------------------------------------------
-        // Private static
-        // ------------------------------------------------------------------------------------------------------------
-
-        bool retained_messages::subscribe_matches_topic( std::shared_ptr<protocol::subscribe>& subscribe,
-                                                         const std::string& topic )
-        {
-            return std::any_of( subscribe->subscriptions( ).begin( ), subscribe->subscriptions( ).end( ),
-                                [topic]( const protocol::subscription& subscription ) {
-                                    return topic_filter_matches_topic( subscription.topic_filter( ), topic );
-                                } );
-        }
-
-        // ------------------------------------------------------------------------------------------------------------
         // Public
         // ------------------------------------------------------------------------------------------------------------
 
@@ -48,19 +35,36 @@ namespace io_wally
             }
         }
 
-        std::vector<std::shared_ptr<protocol::publish>> retained_messages::messages_for(
+        std::vector<retained_messages::resolved_publish_t> retained_messages::messages_for(
             std::shared_ptr<protocol::subscribe> incoming_subscribe ) const
         {
-            auto matches = std::vector<std::shared_ptr<protocol::publish>>{};
+            auto resolved_publishes = std::vector<retained_messages::resolved_publish_t>{};
             for ( const auto& topic_publish : messages_ )
             {
-                if ( subscribe_matches_topic( incoming_subscribe, topic_publish.first ) )
+                for ( const auto& subscr : incoming_subscribe->subscriptions( ) )
                 {
-                    matches.push_back( topic_publish.second );
+                    if ( !topic_filter_matches_topic( subscr.topic_filter( ), topic_publish.first ) )
+                        continue;
+
+                    const auto& seen_resolved_publish =
+                        std::find_if( resolved_publishes.begin( ), resolved_publishes.end( ),
+                                      [&topic_publish]( const resolved_publish_t& res_publish ) {
+                                          return res_publish.first == topic_publish.second;
+                                      } );
+                    if ( seen_resolved_publish != resolved_publishes.end( ) )
+                    {
+                        const auto seen_qos = seen_resolved_publish->second;
+                        if ( subscr.maximum_qos( ) > seen_qos )
+                            seen_resolved_publish->second = subscr.maximum_qos( );
+                    }
+                    else
+                    {
+                        resolved_publishes.emplace_back( topic_publish.second, subscr.maximum_qos( ) );
+                    }
                 }
             }
 
-            return matches;
+            return resolved_publishes;
         }
 
         std::size_t retained_messages::size( ) const

@@ -40,22 +40,28 @@ SCENARIO( "options_factory", "[options]" )
                        io_wally::defaults::DEFAULT_CONNECT_TIMEOUT_MS );
                 CHECK( config[io_wally::context::READ_BUFFER_SIZE].as<std::size_t>( ) ==
                        io_wally::defaults::DEFAULT_INITIAL_READ_BUFFER_SIZE );
-                REQUIRE( config[io_wally::context::WRITE_BUFFER_SIZE].as<std::size_t>( ) ==
-                         io_wally::defaults::DEFAULT_INITIAL_WRITE_BUFFER_SIZE );
+                CHECK( config[io_wally::context::WRITE_BUFFER_SIZE].as<std::size_t>( ) ==
+                       io_wally::defaults::DEFAULT_INITIAL_WRITE_BUFFER_SIZE );
+                CHECK( config[io_wally::context::PUB_ACK_TIMEOUT].as<std::uint32_t>( ) ==
+                       io_wally::defaults::DEFAULT_PUB_ACK_TIMEOUT_MS );
+                REQUIRE( config[io_wally::context::PUB_MAX_RETRIES].as<std::size_t>( ) ==
+                         io_wally::defaults::DEFAULT_PUB_MAX_RETRIES );
             }
         }
     }
 
     GIVEN( "a command line with all supported options explicitly set" )
     {
-        const char* const log_file = "/var/log/log.file";
-        const char* const log_level = "error";
-        const std::string server_address( "8.9.10.11" );
-        const int server_port = 1234;
-        const std::string auth_service_factory( "test_auth_srvc_factory" );
-        const std::uint32_t connect_timeout_ms = 3456;
-        const std::size_t read_buffer_size = 1024;
-        const std::size_t write_buffer_size = 4096;
+        const auto log_file = "/var/log/log.file";
+        const auto log_level = "error";
+        const auto server_address = std::string{"8.9.10.11"};
+        const auto server_port = int{1234};
+        const auto auth_service_factory = std::string{"test_auth_srvc_factory"};
+        const auto connect_timeout_ms = std::uint32_t{3456};
+        const auto read_buffer_size = std::size_t{1024};
+        const auto write_buffer_size = std::size_t{4096};
+        const auto pub_ack_timeout_ms = std::uint32_t{1234};
+        const auto pub_max_retries = std::size_t{5};
 
         const char* command_line_args[]{"executable",
                                         "--log-file",
@@ -75,7 +81,11 @@ SCENARIO( "options_factory", "[options]" )
                                         "--conn-rbuf-size",
                                         "1024",
                                         "--conn-wbuf-size",
-                                        "4096"};
+                                        "4096",
+                                        "--pub-ack-timeout",
+                                        "1234",
+                                        "--pub-max-retries",
+                                        "5"};
 
         WHEN( "parsing that command line" )
         {
@@ -96,7 +106,9 @@ SCENARIO( "options_factory", "[options]" )
                        auth_service_factory );
                 CHECK( config[io_wally::context::CONNECT_TIMEOUT].as<std::uint32_t>( ) == connect_timeout_ms );
                 CHECK( config[io_wally::context::READ_BUFFER_SIZE].as<std::size_t>( ) == read_buffer_size );
-                REQUIRE( config[io_wally::context::WRITE_BUFFER_SIZE].as<std::size_t>( ) == write_buffer_size );
+                CHECK( config[io_wally::context::WRITE_BUFFER_SIZE].as<std::size_t>( ) == write_buffer_size );
+                CHECK( config[io_wally::context::PUB_ACK_TIMEOUT].as<std::uint32_t>( ) == pub_ack_timeout_ms );
+                REQUIRE( config[io_wally::context::PUB_MAX_RETRIES].as<std::size_t>( ) == pub_max_retries );
             }
         }
     }

@@ -75,7 +75,7 @@ SCENARIO( "mqtt_client_session_manager#client_published", "[dispatch]" )
             under_test.client_connected( *new_subscriber_ptr->client_id( ), new_subscriber_ptr );
 
             const auto new_subscribe_packet =
-                framework::create_subscribe_packet( {{topic, packet::QoS::EXACTLY_ONCE}} );
+                framework::create_subscribe_packet( {{topic, packet::QoS::AT_MOST_ONCE}} );
             under_test.client_subscribed( *new_subscriber_ptr->client_id( ), new_subscribe_packet );
 
             THEN( "that PUBLISH packet should be sent to the new connected client" )
@@ -99,7 +99,7 @@ SCENARIO( "mqtt_client_session_manager#client_published", "[dispatch]" )
             under_test.client_connected( *new_subscriber_ptr->client_id( ), new_subscriber_ptr );
 
             const auto new_subscribe_packet =
-                framework::create_subscribe_packet( {{topic, packet::QoS::EXACTLY_ONCE}} );
+                framework::create_subscribe_packet( {{topic, packet::QoS::AT_MOST_ONCE}} );
             under_test.client_subscribed( *new_subscriber_ptr->client_id( ), new_subscribe_packet );
 
             THEN( "that PUBLISH packet should NOT be sent to the new connected client" )

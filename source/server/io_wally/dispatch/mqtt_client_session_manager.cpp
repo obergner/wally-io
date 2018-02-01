@@ -95,8 +95,8 @@ namespace io_wally
                 const auto matching_retained_messages = retained_messages_.messages_for( subscribe );
                 for ( const auto retained_message : matching_retained_messages )
                 {
-                    assert( retained_message->retain( ) );
-                    session->publish( retained_message, retained_message->qos( ) );
+                    assert( retained_message.first->retain( ) );
+                    session->publish( retained_message.first, retained_message.second );
                 }
 
                 logger_->debug( "SUBSCRIBED: [cltid:{}|pkt:{}] - received [{}] retained message(s)", client_id,

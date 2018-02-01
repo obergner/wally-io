@@ -7,8 +7,8 @@ import logging
 
 import itest.core
 
-class PublishRetainedMessagesToExistingSubscribersQoS2Tests(unittest.TestCase):
-    """ Test that publishing retained messages with QoS2 to existing subscribers works.
+class PublishRetainedMessagesToLaterSubscribersQoS2Tests(unittest.TestCase):
+    """ Test that publishing retained messages with QoS2 to later subscribers works.
     """
 
     @classmethod
@@ -25,15 +25,12 @@ class PublishRetainedMessagesToExistingSubscribersQoS2Tests(unittest.TestCase):
     def setUp(self):
         warnings.filterwarnings("ignore", category=ResourceWarning)
 
-        self.subscriber_qos0 = itest.core.Subscriber("PublishRetainedMessagesToExistingSubscribersQoS2Tests-Sub0",
-                                                     "/test/retained/existing/qos2/#", 0)
-        self.subscriber_qos0.start()
-        self.subscriber_qos1 = itest.core.Subscriber("PublishRetainedMessagesToExistingSubscribersQoS2Tests-Sub1",
-                                                     "/test/retained/existing/qos2/#", 1)
-        self.subscriber_qos1.start()
-        self.subscriber_qos2 = itest.core.Subscriber("PublishRetainedMessagesToExistingSubscribersQoS2Tests-Sub2",
-                                                     "/test/retained/existing/qos2/#", 2)
-        self.subscriber_qos2.start()
+        self.subscriber_qos0 = itest.core.Subscriber("PublishRetainedMessagesToLaterSubscribersQoS2Tests-Sub0",
+                                                     "/test/retained/later/qos2/#", 0)
+        self.subscriber_qos1 = itest.core.Subscriber("PublishRetainedMessagesToLaterSubscribersQoS2Tests-Sub1",
+                                                     "/test/retained/later/qos2/#", 1)
+        self.subscriber_qos2 = itest.core.Subscriber("PublishRetainedMessagesToLaterSubscribersQoS2Tests-Sub2",
+                                                     "/test/retained/later/qos2/#", 2)
         self.publisher = itest.core.Publisher("PublishRetainedMessagesQoS2Tests-Pub")
         self.publisher.start()
         time.sleep(1)
@@ -46,26 +43,30 @@ class PublishRetainedMessagesToExistingSubscribersQoS2Tests(unittest.TestCase):
         time.sleep(1)
 
     def test_retained_publish_forwarded_without_retained_flag_qos2(self):
-        """ Test that a PUBLISH packet WITH retained flag set is forwarded WITHOUT retained flag to ALREADY EXISTING subscribers when that PUBLISH packet is published using QoS 2 """
-        self.publisher.publish("/test/retained/existing/qos2/test-messages", "test_retained_qos2", 2, True)
+        """ Test that a PUBLISH packet WITH retained flag set is forwarded WITH retained flag to LATER/NEW subscribers when that PUBLISH packet is published using QoS 2 """
+        self.publisher.publish("/test/retained/later/qos2/test-messages", "test_retained_qos2", 0, True)
+
+        self.subscriber_qos0.start()
+        self.subscriber_qos1.start()
+        self.subscriber_qos2.start()
 
         msg1 = self.subscriber_qos0.wait_for_message(2)
         self.assertIsNotNone(msg1)
         self.assertEqual(msg1.payload, b'test_retained_qos2')
         self.assertEqual(msg1.qos, 0)
-        self.assertEqual(msg1.retain, False)
+        self.assertEqual(msg1.retain, True)
 
         msg2 = self.subscriber_qos1.wait_for_message(2)
         self.assertIsNotNone(msg2)
         self.assertEqual(msg2.payload, b'test_retained_qos2')
         self.assertEqual(msg2.qos, 1)
-        self.assertEqual(msg2.retain, False)
+        self.assertEqual(msg2.retain, True)
 
         msg3 = self.subscriber_qos2.wait_for_message(2)
         self.assertIsNotNone(msg3)
         self.assertEqual(msg3.payload, b'test_retained_qos2')
         self.assertEqual(msg3.qos, 2)
-        self.assertEqual(msg3.retain, False)
+        self.assertEqual(msg3.retain, True)
 
 
 if __name__ == '__main__':

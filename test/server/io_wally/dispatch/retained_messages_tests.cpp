@@ -97,4 +97,26 @@ SCENARIO( "retained_messages#messages_for", "[dispatch]" )
             }
         }
     }
+
+    GIVEN( "a retained_messages instance containing 1 retained message" )
+    {
+        io_wally::dispatch::retained_messages under_test{};
+
+        under_test.retain( framework::create_publish_packet( "/test/retain1/topic1", true ) );
+
+        WHEN( "a caller calls messages_for( subscribe ) with a subscribe packet contains 3 matching subscriptions" )
+        {
+            auto subscribe = framework::create_subscribe_packet(
+                {{"/test/retain1/topic1", io_wally::protocol::packet::QoS::EXACTLY_ONCE},
+                 {"/test/retain1/+", io_wally::protocol::packet::QoS::AT_LEAST_ONCE},
+                 {"/test/#", io_wally::protocol::packet::QoS::AT_MOST_ONCE}} );
+            const auto matches = under_test.messages_for( subscribe );
+
+            THEN( "retained_messages#messages_for() should return matching message and maximum QoS" )
+            {
+                CHECK( matches.size( ) == 1 );
+                REQUIRE( matches[0].second == io_wally::protocol::packet::QoS::EXACTLY_ONCE );
+            }
+        }
+    }
 }

@@ -1,9 +1,10 @@
 #pragma once
 
-#include <string>
 #include <memory>
-#include <vector>
+#include <string>
 #include <unordered_map>
+#include <utility>
+#include <vector>
 
 #include "io_wally/protocol/publish_packet.hpp"
 #include "io_wally/protocol/subscribe_packet.hpp"
@@ -14,9 +15,16 @@ namespace io_wally
     {
         class retained_messages final
         {
-           private:  // Static
-            static bool subscribe_matches_topic( std::shared_ptr<protocol::subscribe>& subscribe,
-                                                 const std::string& topic );
+           public:  // static
+            /// Represents a previously retained PUBLISH matching a given SUBSCRIBE: a pair of PUBLISH packet and
+            /// desired QoS stating that (a) the PUBLISH packet contained in that pair matches one of the topics in the
+            /// given SUBSCRIBE and (b) that it should be published using the QoS contained in that pair.
+            ///
+            /// In general, a given SUBSCRIBE packet will contain more than one \c subscription, i.e. pair of \c topic
+            /// and desired \c QoS. In this case, MQTT 3.1.1 mandates that the PUBLISH packet be delivered to that
+            /// client only once, using the maximum QoS of all matching subscriptions.
+            ///
+            using resolved_publish_t = std::pair<const std::shared_ptr<protocol::publish>, protocol::packet::QoS>;
 
            public:
             retained_messages( ) = default;
@@ -31,7 +39,7 @@ namespace io_wally
 
             void retain( std::shared_ptr<protocol::publish> incoming_publish );
 
-            std::vector<std::shared_ptr<protocol::publish>> messages_for(
+            std::vector<resolved_publish_t> messages_for(
                 const std::shared_ptr<protocol::subscribe> incoming_subscribe ) const;
 
             std::size_t size( ) const;

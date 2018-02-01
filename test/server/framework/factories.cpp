@@ -43,7 +43,6 @@ namespace framework
         const std::vector<io_wally::protocol::subscription> subscriptions )
     {
         auto subscribe_ptr = create_subscribe_packet( subscriptions );
-
         auto sender_ptr = framework::packet_sender_mock::create( );
 
         return io_wally::mqtt_packet_sender::packet_container_t::contain( "client_mock", sender_ptr, subscribe_ptr );
@@ -69,7 +68,6 @@ namespace framework
     io_wally::mqtt_packet_sender::packet_container_t::ptr create_publish_container( const std::string& topic )
     {
         auto publish_ptr = create_publish_packet( topic );
-
         auto sender_ptr = framework::packet_sender_mock::create( );
 
         return io_wally::mqtt_packet_sender::packet_container_t::contain( "client_mock", sender_ptr, publish_ptr );
@@ -80,8 +78,8 @@ namespace framework
         const char* command_line_args[]{"executable"};
         auto argc = static_cast<int>( sizeof( command_line_args ) / sizeof( *command_line_args ) );
         auto argv = const_cast<char**>( command_line_args );
-        auto options = cxxopts::Options{"unit-test-runner", "options for unit testing"};
-        return options.parse( argc, argv );
+
+        return PROGRAM_OPTIONS.parse( argc, argv );
     }
 
     io_wally::context create_context( )

@@ -1,17 +1,18 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
 #include <memory>
+#include <string>
+#include <utility>
 
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/connect_packet.hpp"
 #include "io_wally/protocol/disconnect_packet.hpp"
-#include "io_wally/protocol/subscribe_packet.hpp"
-#include "io_wally/protocol/publish_packet.hpp"
 #include "io_wally/protocol/puback_packet.hpp"
-#include "io_wally/protocol/pubrec_packet.hpp"
 #include "io_wally/protocol/pubcomp_packet.hpp"
+#include "io_wally/protocol/publish_packet.hpp"
+#include "io_wally/protocol/pubrec_packet.hpp"
+#include "io_wally/protocol/subscribe_packet.hpp"
 
 namespace io_wally
 {

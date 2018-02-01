@@ -9,6 +9,7 @@
 
 #include "framework/mocks.hpp"
 
+#include "io_wally/app/options_factory.hpp"
 #include "io_wally/context.hpp"
 #include "io_wally/dispatch/common.hpp"
 #include "io_wally/mqtt_packet_sender.hpp"
@@ -20,6 +21,10 @@
 
 namespace framework
 {
+    static const io_wally::app::options_factory OPTIONS_FACTORY{};
+
+    static cxxopts::Options PROGRAM_OPTIONS = OPTIONS_FACTORY.create( );
+
     std::shared_ptr<io_wally::protocol::subscribe> create_subscribe_packet(
         const std::vector<io_wally::protocol::subscription> subscriptions );
 
