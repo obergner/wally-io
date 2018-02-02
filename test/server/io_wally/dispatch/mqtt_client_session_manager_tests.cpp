@@ -14,6 +14,201 @@
 
 using namespace io_wally::protocol;
 
+SCENARIO( "mqtt_client_session_manager::session_store#insert", "[dispatch]" )
+{
+    GIVEN( "an initially empty instance of mqtt_client_session_manager::session_store" )
+    {
+        const auto context = framework::create_context( );
+        auto io_service = asio::io_service{};
+        auto parent = io_wally::dispatch::mqtt_client_session_manager{context, io_service};
+
+        auto under_test = io_wally::dispatch::mqtt_client_session_manager::session_store{parent};
+
+        WHEN( "client code calls under_test.insert(...)" )
+        {
+            const auto client_id = "test-client";
+            auto client_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id );
+
+            const auto inserted = under_test.insert( client_connection_ptr );
+
+            THEN( "that client code should see true being returned" )
+            {
+                REQUIRE( inserted );
+            }
+        }
+
+        WHEN( "client code calls under_test.insert(...) twice with the same client_id" )
+        {
+            const auto client_id = "test-client";
+
+            auto client1_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id );
+            under_test.insert( client1_connection_ptr );
+
+            auto client2_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id );
+            const auto inserted2 = under_test.insert( client2_connection_ptr );
+
+            THEN( "that client code should see false being returned" )
+            {
+                REQUIRE( !inserted2 );
+            }
+        }
+
+        WHEN( "client code calls under_test.insert(client_id, connection_ptr)" )
+        {
+            const auto client_id = "test-client";
+            auto client_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id );
+
+            under_test.insert( client_connection_ptr );
+
+            THEN( "calling under_test[client_id] should return newly created session" )
+            {
+                const auto stored_session = under_test[client_id];
+                CHECK( stored_session );
+                REQUIRE( stored_session->client_id( ) == client_id );
+            }
+        }
+    }
+}
+
+SCENARIO( "mqtt_client_session_manager::session_store#size", "[dispatch]" )
+{
+    GIVEN( "an initially empty instance of mqtt_client_session_manager::session_store" )
+    {
+        const auto context = framework::create_context( );
+        auto io_service = asio::io_service{};
+        auto parent = io_wally::dispatch::mqtt_client_session_manager{context, io_service};
+
+        auto under_test = io_wally::dispatch::mqtt_client_session_manager::session_store{parent};
+
+        const auto client_id = "test-client";
+
+        WHEN( "client code calls under_test.insert(...) x times with connections having different client_ids" )
+        {
+            static constexpr const std::size_t x = 10;
+            const auto ids = std::array<const int, x>{{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}};
+            for ( const auto id : ids )
+            {
+                auto client_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id + id );
+                under_test.insert( client_connection_ptr );
+            }
+
+            THEN( "that client code should see x being returned from under_test.size()" )
+            {
+                REQUIRE( under_test.size( ) == x );
+            }
+        }
+    }
+}
+
+SCENARIO( "mqtt_client_session_manager::session_store#remove", "[dispatch]" )
+{
+    GIVEN( "an initially empty instance of mqtt_client_session_manager::session_store" )
+    {
+        const auto context = framework::create_context( );
+        auto io_service = asio::io_service{};
+        auto parent = io_wally::dispatch::mqtt_client_session_manager{context, io_service};
+
+        auto under_test = io_wally::dispatch::mqtt_client_session_manager::session_store{parent};
+
+        const auto client_id = "test-client";
+
+        WHEN( "client code calls under_test.insert(...)" )
+        {
+            auto client_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id );
+
+            const auto inserted = under_test.insert( client_connection_ptr );
+
+            THEN( "that client code should see true being returned" )
+            {
+                REQUIRE( inserted );
+            }
+        }
+
+        AND_WHEN( "client code calls under_test.remove(...) with the same client_id" )
+        {
+            under_test.remove( client_id );
+
+            THEN( "that client code should see a nullptr being returned from under_test[...]" )
+            {
+                REQUIRE( !under_test[client_id] );
+            }
+        }
+    }
+}
+
+SCENARIO( "mqtt_client_session_manager::session_store#operator[]", "[dispatch]" )
+{
+    GIVEN( "an initially empty instance of mqtt_client_session_manager::session_store" )
+    {
+        const auto context = framework::create_context( );
+        auto io_service = asio::io_service{};
+        auto parent = io_wally::dispatch::mqtt_client_session_manager{context, io_service};
+
+        auto under_test = io_wally::dispatch::mqtt_client_session_manager::session_store{parent};
+
+        WHEN( "client code calls under_test['some-client-id']" )
+        {
+            const auto client_id = "some-client-id";
+            const auto non_existing_session = under_test[client_id];
+
+            THEN( "that client code should see a nullptr being returned" )
+            {
+                REQUIRE( !non_existing_session );
+            }
+        }
+
+        WHEN( "client code calls under_test.insert(client_id, connection_ptr)" )
+        {
+            const auto client_id = "test-client";
+            auto client_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id );
+
+            under_test.insert( client_connection_ptr );
+
+            THEN( "calling under_test[client_id] should return newly created session" )
+            {
+                const auto stored_session = under_test[client_id];
+                CHECK( stored_session );
+                REQUIRE( stored_session->client_id( ) == client_id );
+            }
+        }
+    }
+}
+
+SCENARIO( "mqtt_client_session_manager::session_store#clear", "[dispatch]" )
+{
+    GIVEN( "an initially empty instance of mqtt_client_session_manager::session_store" )
+    {
+        const auto context = framework::create_context( );
+        auto io_service = asio::io_service{};
+        auto parent = io_wally::dispatch::mqtt_client_session_manager{context, io_service};
+
+        auto under_test = io_wally::dispatch::mqtt_client_session_manager::session_store{parent};
+
+        const auto client_id = "test-client";
+
+        WHEN( "client code calls under_test.insert(...) x times with connections having different client_ids" )
+        {
+            static constexpr const std::size_t x = 10;
+            const auto ids = std::array<const int, x>{{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}};
+            for ( const auto id : ids )
+            {
+                auto client_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id + id );
+                under_test.insert( client_connection_ptr );
+            }
+        }
+
+        AND_WHEN( "client code then calls under_test.clear()" )
+        {
+            under_test.clear( );
+
+            THEN( "calling under_test.size() should return 0" )
+            {
+                REQUIRE( under_test.size( ) == 0 );
+            }
+        }
+    }
+}
+
 SCENARIO( "mqtt_client_session_manager#client_published", "[dispatch]" )
 {
     GIVEN( "mqtt_client_session_manager holding a connected client subscribed to a topic" )

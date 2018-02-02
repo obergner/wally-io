@@ -35,7 +35,62 @@ namespace io_wally
         {
             friend class mqtt_client_session;
 
-           public:
+           public:  // static
+            /// \brief A map of \c client_id to corresponding \c mqtt_client_session.
+            ///
+            /// \c session_store was introduced to abstract from the underlying map implementation. This allows for
+            /// more easily replacing the default std::map with data structures that are a better fit for our needs.
+            /// In particular, we will need to find a concurrent, thread-safe implementation. This struct's very
+            /// restricted interface should accommodate many such alternatives.
+            struct session_store final
+            {
+               public:
+                /// \brief Create a new \c session_store.
+                ///
+                /// \param parent Owning \c mqtt_client_session_manager
+                session_store( mqtt_client_session_manager& parent );
+
+                session_store( const session_store& ) = delete;
+
+               public:
+                session_store& operator=( const session_store& ) = delete;
+
+                /// \brief Look up \c mqtt_client_session for client having \c client_id.
+                ///
+                /// \param client_id ID of client whose session we want to look up
+                /// \return \c std::shared_ptr to \c mqtt_client_session belonging to client \c client_id. \c nullptr
+                ///         if no such session exists
+                mqtt_client_session::ptr operator[]( const std::string& client_id ) const;
+
+                /// \brief Create a new \c mqtt_client_session and store it.
+                ///
+                /// \param connection Handle to \c mqtt_connection via which the client is connected
+                /// \return \c true if no \c mqtt_client_session was associated with \c client_id prior to calling this
+                ///         method, \c false otherwise. In the latter case, no new \c mqtt_client_session was created
+                bool insert( std::weak_ptr<mqtt_packet_sender> connection );
+
+                /// \brief Destroy \c mqtt_client_session associated with \c client_id, if any.
+                ///
+                /// \param client_id ID of client whose associated \c mqtt_client_session will be destroyed.
+                void remove( const std::string& client_id );
+
+                /// \brief Destroy all \c mqtt_client_sessions.
+                ///
+                void clear( );
+
+                /// \brief Return number of \c mqtt_client_sessions currently stored.
+                ///
+                /// \return Number of \c mqtt_client_sessions currently stored.
+                std::size_t size( ) const;
+
+               private:
+                /// The mqtt_client_session_manager that owns us
+                mqtt_client_session_manager& parent_;
+                /// The managed sessions.
+                std::map<const std::string, mqtt_client_session::ptr> sessions_{};
+            };  // struct session_store
+
+           public:  // static
             /// \brief Create a session manager.
             mqtt_client_session_manager( const context& context, asio::io_service& io_service );
 
@@ -44,6 +99,8 @@ namespace io_wally
 
             /// An mqtt_client_session_manager cannot be copied.
             mqtt_client_session_manager( const mqtt_client_session_manager& ) = delete;
+
+           public:
             /// An mqtt_client_session_manager cannot be copied.
             mqtt_client_session_manager& operator=( const mqtt_client_session_manager& ) = delete;
 
@@ -138,7 +195,7 @@ namespace io_wally
             /// Where we store topic subscriptions
             topic_subscriptions topic_subscriptions_;
             /// The managed sessions.
-            std::map<const std::string, mqtt_client_session::ptr> sessions_{};
+            session_store sessions_{*this};
             /// All retained messages
             retained_messages retained_messages_{};
             /// Our logger
