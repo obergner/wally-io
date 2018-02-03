@@ -86,9 +86,8 @@ class KeepAliveClient(object):
                 chunk = self.__socket.recv(1)
                 if chunk == b'':
                     return False
-                else:
-                    return True
-        except itest.core.TimeoutError:
+                return True
+        except itest.core.OperationTimeoutError:
             return True
 
     def disconnect(self):
@@ -119,9 +118,8 @@ class TCPConnector(object):
                 chunk = self.__socket.recv(1)
                 if chunk == b'':
                     return False
-                else:
-                    return True
-        except itest.core.TimeoutError:
+                return True
+        except itest.core.OperationTimeoutError:
             return True
 
     def disconnect(self):

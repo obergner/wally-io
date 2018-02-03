@@ -155,7 +155,7 @@ namespace io_wally
             }
 
             template <typename PACKET>
-            std::shared_ptr<PACKET> packetAs( )
+            std::shared_ptr<PACKET> packet_as( )
             {
                 static_assert( std::is_base_of<protocol::mqtt_packet, PACKET>::value,
                                "Template parameter PACKET needs to be a subtype of protocol::mqtt_packet" );

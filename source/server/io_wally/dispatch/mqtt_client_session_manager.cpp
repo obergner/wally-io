@@ -235,6 +235,18 @@ namespace io_wally
             }
         }
 
+        void mqtt_client_session_manager::client_disconnected_ungracefully( const std::string& client_id,
+                                                                            dispatch::disconnect_reason reason )
+        {
+            sessions_.remove( client_id );
+            logger_->info( "Client session [cltid:{}] destroyed after ungraceful disconnect: {}", client_id, reason );
+        }
+
+        std::size_t mqtt_client_session_manager::connected_clients_count( ) const
+        {
+            return sessions_.size( );
+        }
+
         void mqtt_client_session_manager::destroy( const std::string& client_id )
         {
             sessions_.remove( client_id );

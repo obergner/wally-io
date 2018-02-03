@@ -41,12 +41,26 @@ namespace io_wally
             dispatcher( const context& context, asio::io_service& io_service );
 
            public:
+            /**
+             * @brief Called for each MQTT packet received on a client connection.
+             *
+             * @param packet_container A @c mqtt_packet_sender::packet_container_t carrying the packet received on a
+             *                         client connection
+             */
             void handle_packet_received( mqtt_packet_sender::packet_container_t::ptr packet_container );
+
+            /**
+             * @brief Called when client @c client_id disconnected without sending a DISCONNECT packet, e.g. due to a
+             *        network error.
+             *
+             * @param client_id ID of client that disconnected ungracefully
+             * @param reason Why the client disconnected
+             */
+            void client_disconnected_ungracefully( const std::string& client_id, dispatch::disconnect_reason reason );
 
             /// \brief Stop this \c dispatcher instance, closing all \c mqtt_client_sessions
             ///
             /// \param message Optional message to log when stopping
-            /// TODO: Consider using RAII for this, i.e. move to destructor
             void stop( const std::string& message = "" );
 
            private:

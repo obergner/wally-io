@@ -450,8 +450,30 @@ namespace io_wally
             // - there won't be client_session to close anyway
             // - we don't have a means of identifying any client_session anyway
             //
-            auto disconnect = make_shared<protocol::disconnect>( );
-            dispatch_disconnect_packet( disconnect, reason );
+            switch ( reason )
+            {
+                case dispatch::disconnect_reason::network_or_server_failure:
+                case dispatch::disconnect_reason::protocol_violation:
+                case dispatch::disconnect_reason::keep_alive_timeout_expired:
+                {
+                    dispatcher_.client_disconnected_ungracefully( *client_id_, reason );
+
+                    auto msg = ostringstream{};
+                    msg << "--- Connection disconnected ungracefully: " << reason;
+                    stop( msg.str( ), spdlog::level::level_enum::info );
+                }
+                break;
+                case dispatch::disconnect_reason::client_disconnect:
+                case dispatch::disconnect_reason::authentication_failed:
+                case dispatch::disconnect_reason::not_a_disconnect:
+                {
+                    const auto disconnect = make_shared<protocol::disconnect>( );
+                    dispatch_disconnect_packet( disconnect, reason );
+                }
+                break;
+                default:
+                    assert( false );
+            }
         }
         else
         {

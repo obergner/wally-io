@@ -174,7 +174,7 @@ BUILD_M_SCAN              := $(BUILD_SCAN)/main
 BUILD_UT_SCAN             := $(BUILD_SCAN)/test
 
 # All things doxygen
-BUILD_DOC                 := $(BUILD)/doc
+BUILD_DOC                 := $(BUILD_BASE)/doc
 
 # Clang's compilation database needed for some of its tooling
 COMPILATIONDB             := $(DIR)/compile_commands.json
@@ -448,8 +448,11 @@ ltest                     : main                                   | $(BUILD_LT)
 # Generate/publish documentation
 # --------------------------------------------------------------------------------------------------------------------- 
 
+$(BUILD_DOC)              :
+	@mkdir -p $@
+
 .PHONY                    : doc
-doc                       : $(SRCS_M) $(EXECSOURCE_M)
+doc                       : $(SRCS_M) $(EXECSOURCE_M)              | $(BUILD_DOC)
 	@rm -rf $(BUILD_DOC)
 	@doxygen ./build/doxygen.cfg
 

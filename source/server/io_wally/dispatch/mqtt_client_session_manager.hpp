@@ -176,6 +176,21 @@ namespace io_wally
             /// \param pubrec PUBCOMP sent by connected client
             void client_completed_publish( const std::string& client_id, std::shared_ptr<protocol::pubcomp> pubcomp );
 
+            /**
+             * @brief Called when a client disconnected ungracefully, without sending a DISCONNECT packet.
+             *
+             * @param client_id ID of client that disconnected ungracefully
+             * @param reason Why the client disconnected
+             */
+            void client_disconnected_ungracefully( const std::string& client_id, dispatch::disconnect_reason reason );
+
+            /**
+             * @brief Return number of currently connected clients.
+             *
+             * @return Number of currently connected clients.
+             */
+            std::size_t connected_clients_count( ) const;
+
             /// \brief Destroy the \c mqtt_client_session identified by specified \c client_id.
             ///
             /// \param client_id Client ID associated with \c mqtt_client_session to destroy (remove from this manager)

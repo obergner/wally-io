@@ -346,3 +346,28 @@ SCENARIO( "mqtt_client_session_manager#client_published", "[dispatch]" )
         }
     }
 }
+
+SCENARIO( "mqtt_client_session_manager#client_disconnected_ungracefully", "[dispatch]" )
+{
+    GIVEN( "mqtt_client_session_manager holding one connected client" )
+    {
+        const auto context = framework::create_context( );
+        auto io_service = asio::io_service{};
+        auto under_test = io_wally::dispatch::mqtt_client_session_manager{context, io_service};
+
+        const auto client_id = "test-client";
+        auto client_ptr = std::make_shared<framework::packet_sender_mock>( client_id );
+        under_test.client_connected( *client_ptr->client_id( ), client_ptr );
+
+        WHEN( "client code calls under_test.client_disconnected_ungracefully(...)" )
+        {
+            under_test.client_disconnected_ungracefully( client_id,
+                                                         io_wally::dispatch::disconnect_reason::protocol_violation );
+
+            THEN( "under_test.connected_clients_count() should return 0" )
+            {
+                REQUIRE( under_test.connected_clients_count( ) == 0 );
+            }
+        }
+    }
+}
