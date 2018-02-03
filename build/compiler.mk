@@ -100,6 +100,7 @@ LDFLAGS_ASAN              += -fsanitize=undefined
 
 # Asan link libraries
 LDLIBS_ASAN               := $(LDLIBS_RUN)
+LDLIBS_ASAN               += -lubsan
 
 # --------------------------------------------------------------------------------------------------------------------- 
 # Compiler configuration/main: config = tsan
