@@ -42,7 +42,8 @@ namespace io_wally
                 // For now, we do not support LWT messages
                 const auto connect = packet_container->packet_as<protocol::connect>( );
                 assert( !connect->contains_last_will( ) );
-                session_manager_.client_connected( packet_container->client_id( ), packet_container->rx_connection( ) );
+                session_manager_.client_connected( packet_container->packet_as<protocol::connect>( ),
+                                                   packet_container->rx_connection( ) );
             }
             else if ( packet_container->packet_type( ) == protocol::packet::Type::DISCONNECT )
             {

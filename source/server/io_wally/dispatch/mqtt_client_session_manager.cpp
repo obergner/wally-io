@@ -45,7 +45,8 @@ namespace io_wally
                 return mqtt_client_session::ptr{};
         }
 
-        bool mqtt_client_session_manager::session_store::insert( std::weak_ptr<mqtt_packet_sender> connection )
+        bool mqtt_client_session_manager::session_store::insert( std::shared_ptr<protocol::connect> connect,
+                                                                 std::weak_ptr<mqtt_packet_sender> connection )
         {
             if ( const auto locked_connection = connection.lock( ) )
             {
@@ -53,9 +54,9 @@ namespace io_wally
 
                 auto stored = false;
                 auto pos = std::map<const std::string, mqtt_client_session::ptr>::iterator{};
-                std::tie( pos, stored ) = sessions_.try_emplace(
-                    *locked_connection->client_id( ),
-                    mqtt_client_session::create( parent_, *locked_connection->client_id( ), connection ) );
+                std::tie( pos, stored ) =
+                    sessions_.try_emplace( *locked_connection->client_id( ),
+                                           mqtt_client_session::client_connected( parent_, connect, connection ) );
 
                 // We touch both stored AND pos since otherwise clang-analyzer complains about a dead store to pos.
                 return stored && ( pos != sessions_.end( ) );
@@ -104,18 +105,19 @@ namespace io_wally
             return io_service_;
         }
 
-        void mqtt_client_session_manager::client_connected( const std::string& client_id,
+        void mqtt_client_session_manager::client_connected( std::shared_ptr<protocol::connect> connect,
                                                             std::weak_ptr<mqtt_packet_sender> connection )
         {
-            if ( sessions_.insert( connection ) )
+            if ( sessions_.insert( connect, connection ) )
             {
-                logger_->info( "Session for client [cltid:{}] created [total:{}]", client_id, sessions_.size( ) );
+                logger_->info( "Session for client [cltid:{}] created [total:{}]", connect->client_id( ),
+                               sessions_.size( ) );
             }
             else
             {
                 logger_->warn(
                     "Client connected [cltid:{}], yet session was immediately closed (network/protocol error)",
-                    client_id );
+                    connect->client_id( ) );
             }
         }
 

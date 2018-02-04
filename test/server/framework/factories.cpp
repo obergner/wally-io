@@ -21,6 +21,50 @@
 
 namespace framework
 {
+    std::shared_ptr<io_wally::protocol::connect> create_connect_packet( const std::string& client_id,
+                                                                        bool clean_session )
+    {
+        const auto header = io_wally::protocol::packet::header{0x01 << 4, 20};  // 20 is just some number
+        const auto prot_name = "MQTT";
+        const auto prot_level = std::uint8_t{0x04};
+        auto connect_flags = std::uint8_t{0x00};
+        connect_flags = clean_session ? connect_flags | 0x02 : connect_flags;
+        const auto keep_alive_secs = std::uint16_t{0x0000};
+        const auto will_topic = nullptr;
+        const auto will_message = nullptr;
+        const auto username = nullptr;
+        const auto password = nullptr;
+
+        return std::make_shared<io_wally::protocol::connect>( header, prot_name, prot_level, connect_flags,
+                                                              keep_alive_secs, client_id.c_str( ), will_topic,
+                                                              will_message, username, password );
+    }
+
+    std::shared_ptr<io_wally::protocol::connect> create_connect_packet_with_lwt(
+        const std::string& client_id,
+        bool clean_session,
+        const std::string& will_topic,
+        const std::string& will_message,
+        io_wally::protocol::packet::QoS will_qos,
+        bool will_retain )
+    {
+        const auto header = io_wally::protocol::packet::header{0x01 << 4, 20};  // 20 is just some number
+        const auto prot_name = "MQTT";
+        const auto prot_level = std::uint8_t{0x04};
+        auto connect_flags = std::uint8_t{0x00};
+        connect_flags = clean_session ? connect_flags | 0x02 : connect_flags;
+        connect_flags |= 0x04;
+        connect_flags |= ( static_cast<uint8_t>( will_qos ) << 3 );
+        connect_flags = will_retain ? connect_flags | 0x20 : connect_flags;
+        const auto keep_alive_secs = std::uint16_t{0x0000};
+        const auto username = nullptr;
+        const auto password = nullptr;
+
+        return std::make_shared<io_wally::protocol::connect>( header, prot_name, prot_level, connect_flags,
+                                                              keep_alive_secs, client_id.c_str( ), will_topic.c_str( ),
+                                                              will_message.c_str( ), username, password );
+    }
+
     std::shared_ptr<io_wally::protocol::subscribe> create_subscribe_packet(
         const std::vector<io_wally::protocol::subscription> subscriptions )
     {

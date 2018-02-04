@@ -25,6 +25,17 @@ namespace framework
 
     static cxxopts::Options PROGRAM_OPTIONS = OPTIONS_FACTORY.create( );
 
+    std::shared_ptr<io_wally::protocol::connect> create_connect_packet( const std::string& client_id,
+                                                                        bool clean_session = false );
+
+    std::shared_ptr<io_wally::protocol::connect> create_connect_packet_with_lwt(
+        const std::string& client_id,
+        bool clean_session = false,
+        const std::string& will_topic = "/#",
+        const std::string& will_message = "last will and testament",
+        io_wally::protocol::packet::QoS will_qos = io_wally::protocol::packet::QoS::AT_MOST_ONCE,
+        bool will_retain = false );
+
     std::shared_ptr<io_wally::protocol::subscribe> create_subscribe_packet(
         const std::vector<io_wally::protocol::subscription> subscriptions );
 

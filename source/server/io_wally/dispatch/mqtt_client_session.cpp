@@ -24,11 +24,11 @@ namespace io_wally
         // Public
         // ------------------------------------------------------------------------------------------------------------
 
-        mqtt_client_session::ptr mqtt_client_session::create( mqtt_client_session_manager& session_manager,
-                                                              const std::string& client_id,
-                                                              std::weak_ptr<mqtt_packet_sender> connection )
+        mqtt_client_session::ptr mqtt_client_session::client_connected( mqtt_client_session_manager& session_manager,
+                                                                        std::shared_ptr<protocol::connect> connect,
+                                                                        std::weak_ptr<mqtt_packet_sender> connection )
         {
-            return std::make_shared<mqtt_client_session>( session_manager, client_id, connection );
+            return std::make_shared<mqtt_client_session>( session_manager, connect->client_id( ), connection );
         }
 
         mqtt_client_session::mqtt_client_session( mqtt_client_session_manager& session_manager,

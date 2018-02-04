@@ -27,9 +27,10 @@ SCENARIO( "mqtt_client_session_manager::session_store#insert", "[dispatch]" )
         WHEN( "client code calls under_test.insert(...)" )
         {
             const auto client_id = "test-client";
+            const auto connect = framework::create_connect_packet( client_id );
             auto client_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id );
 
-            const auto inserted = under_test.insert( client_connection_ptr );
+            const auto inserted = under_test.insert( connect, client_connection_ptr );
 
             THEN( "that client code should see true being returned" )
             {
@@ -41,11 +42,13 @@ SCENARIO( "mqtt_client_session_manager::session_store#insert", "[dispatch]" )
         {
             const auto client_id = "test-client";
 
+            const auto connect1 = framework::create_connect_packet( client_id );
             auto client1_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id );
-            under_test.insert( client1_connection_ptr );
+            under_test.insert( connect1, client1_connection_ptr );
 
+            const auto connect2 = framework::create_connect_packet( client_id );
             auto client2_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id );
-            const auto inserted2 = under_test.insert( client2_connection_ptr );
+            const auto inserted2 = under_test.insert( connect2, client2_connection_ptr );
 
             THEN( "that client code should see false being returned" )
             {
@@ -56,9 +59,10 @@ SCENARIO( "mqtt_client_session_manager::session_store#insert", "[dispatch]" )
         WHEN( "client code calls under_test.insert(client_id, connection_ptr)" )
         {
             const auto client_id = "test-client";
+            const auto connect = framework::create_connect_packet( client_id );
             auto client_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id );
 
-            under_test.insert( client_connection_ptr );
+            under_test.insert( connect, client_connection_ptr );
 
             THEN( "calling under_test[client_id] should return newly created session" )
             {
@@ -88,8 +92,9 @@ SCENARIO( "mqtt_client_session_manager::session_store#size", "[dispatch]" )
             const auto ids = std::array<const int, x>{{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}};
             for ( const auto id : ids )
             {
+                const auto connect = framework::create_connect_packet( client_id + id );
                 auto client_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id + id );
-                under_test.insert( client_connection_ptr );
+                under_test.insert( connect, client_connection_ptr );
             }
 
             THEN( "that client code should see x being returned from under_test.size()" )
@@ -114,9 +119,10 @@ SCENARIO( "mqtt_client_session_manager::session_store#remove", "[dispatch]" )
 
         WHEN( "client code calls under_test.insert(...)" )
         {
+            const auto connect = framework::create_connect_packet( client_id );
             auto client_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id );
 
-            const auto inserted = under_test.insert( client_connection_ptr );
+            const auto inserted = under_test.insert( connect, client_connection_ptr );
 
             THEN( "that client code should see true being returned" )
             {
@@ -160,9 +166,10 @@ SCENARIO( "mqtt_client_session_manager::session_store#operator[]", "[dispatch]" 
         WHEN( "client code calls under_test.insert(client_id, connection_ptr)" )
         {
             const auto client_id = "test-client";
+            const auto connect = framework::create_connect_packet( client_id );
             auto client_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id );
 
-            under_test.insert( client_connection_ptr );
+            under_test.insert( connect, client_connection_ptr );
 
             THEN( "calling under_test[client_id] should return newly created session" )
             {
@@ -192,8 +199,9 @@ SCENARIO( "mqtt_client_session_manager::session_store#clear", "[dispatch]" )
             const auto ids = std::array<const int, x>{{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}};
             for ( const auto id : ids )
             {
+                const auto connect = framework::create_connect_packet( client_id + id );
                 auto client_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id + id );
-                under_test.insert( client_connection_ptr );
+                under_test.insert( connect, client_connection_ptr );
             }
         }
 
@@ -218,16 +226,18 @@ SCENARIO( "mqtt_client_session_manager#client_published", "[dispatch]" )
         auto under_test = io_wally::dispatch::mqtt_client_session_manager{context, io_service};
 
         const auto subscriber_id = "test-subscriber";
+        const auto subscriber_connect = framework::create_connect_packet( subscriber_id );
         auto subscriber_ptr = std::make_shared<framework::packet_sender_mock>( subscriber_id );
-        under_test.client_connected( *subscriber_ptr->client_id( ), subscriber_ptr );
+        under_test.client_connected( subscriber_connect, subscriber_ptr );
 
         const auto topic = "/topic/mqtt_client_session_manager/test";
         const auto subscribe_packet = framework::create_subscribe_packet( {{topic, packet::QoS::AT_MOST_ONCE}} );
         under_test.client_subscribed( *subscriber_ptr->client_id( ), subscribe_packet );
 
         const auto publisher_id = "test-publisher";
+        const auto publisher_connect = framework::create_connect_packet( publisher_id );
         auto publisher_ptr = std::make_shared<framework::packet_sender_mock>( publisher_id );
-        under_test.client_connected( *publisher_ptr->client_id( ), publisher_ptr );
+        under_test.client_connected( publisher_connect, publisher_ptr );
 
         WHEN( "client code calls client_published() with a PUBLISH packet WITHOUT retained flag" )
         {
@@ -276,8 +286,9 @@ SCENARIO( "mqtt_client_session_manager#client_published", "[dispatch]" )
             under_test.client_published( publisher_id, publish_packet );
 
             const auto new_subscriber_id = "new-test-subscriber";
+            const auto new_subscriber_connect = framework::create_connect_packet( new_subscriber_id );
             auto new_subscriber_ptr = std::make_shared<framework::packet_sender_mock>( new_subscriber_id );
-            under_test.client_connected( *new_subscriber_ptr->client_id( ), new_subscriber_ptr );
+            under_test.client_connected( new_subscriber_connect, new_subscriber_ptr );
 
             const auto new_subscribe_packet =
                 framework::create_subscribe_packet( {{topic, packet::QoS::AT_MOST_ONCE}} );
@@ -299,8 +310,9 @@ SCENARIO( "mqtt_client_session_manager#client_published", "[dispatch]" )
             under_test.client_published( publisher_id, publish_packet );
 
             const auto new_subscriber_id = "new-test-subscriber";
+            const auto new_subscriber_connect = framework::create_connect_packet( new_subscriber_id );
             auto new_subscriber_ptr = std::make_shared<framework::packet_sender_mock>( new_subscriber_id );
-            under_test.client_connected( *new_subscriber_ptr->client_id( ), new_subscriber_ptr );
+            under_test.client_connected( new_subscriber_connect, new_subscriber_ptr );
 
             const auto new_subscribe_packet =
                 framework::create_subscribe_packet( {{topic, packet::QoS::AT_MOST_ONCE}} );
@@ -326,8 +338,9 @@ SCENARIO( "mqtt_client_session_manager#client_published", "[dispatch]" )
             under_test.client_published( publisher_id, delete_publish_packet );
 
             const auto new_subscriber_id = "new-test-subscriber";
+            const auto new_subscriber_connect = framework::create_connect_packet( new_subscriber_id );
             auto new_subscriber_ptr = std::make_shared<framework::packet_sender_mock>( new_subscriber_id );
-            under_test.client_connected( *new_subscriber_ptr->client_id( ), new_subscriber_ptr );
+            under_test.client_connected( new_subscriber_connect, new_subscriber_ptr );
 
             const auto new_subscribe_packet =
                 framework::create_subscribe_packet( {{topic, packet::QoS::AT_MOST_ONCE}} );
@@ -356,8 +369,9 @@ SCENARIO( "mqtt_client_session_manager#client_disconnected_ungracefully", "[disp
         auto under_test = io_wally::dispatch::mqtt_client_session_manager{context, io_service};
 
         const auto client_id = "test-client";
+        const auto connect = framework::create_connect_packet( client_id );
         auto client_ptr = std::make_shared<framework::packet_sender_mock>( client_id );
-        under_test.client_connected( *client_ptr->client_id( ), client_ptr );
+        under_test.client_connected( connect, client_ptr );
 
         WHEN( "client code calls under_test.client_disconnected_ungracefully(...)" )
         {

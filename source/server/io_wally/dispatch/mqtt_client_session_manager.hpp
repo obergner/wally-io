@@ -64,10 +64,11 @@ namespace io_wally
 
                 /// \brief Create a new \c mqtt_client_session and store it.
                 ///
+                /// \param connect    CONNECT packet sent by client
                 /// \param connection Handle to \c mqtt_connection via which the client is connected
                 /// \return \c true if no \c mqtt_client_session was associated with \c client_id prior to calling this
                 ///         method, \c false otherwise. In the latter case, no new \c mqtt_client_session was created
-                bool insert( std::weak_ptr<mqtt_packet_sender> connection );
+                bool insert( std::shared_ptr<protocol::connect> connect, std::weak_ptr<mqtt_packet_sender> connection );
 
                 /// \brief Destroy \c mqtt_client_session associated with \c client_id, if any.
                 ///
@@ -114,17 +115,19 @@ namespace io_wally
             /// \return \c io_service associated with this session manager
             asio::io_service& io_service( ) const;
 
-            /// \brief Called when a new successful CONNECT request has been received. Creates a new \c
-            /// mqtt_client_session.
-            ///
-            /// \param client_id   Client ID contained in CONNECT request. Uniquely identifies \c mqtt_client_session to
-            ///                    be created.
-            /// \param connection  \c mqtt_packet_sender CONNECT request has been received on. Will be associated with
-            /// new
-            ///                    \c mqtt_client_session. Passed as a \c std::weak_ptr since \c mqtt_packet_sender
-            ///                    instances are owned by the network subsystem which may decide - potentially because
-            ///                    network errors - to discard a connection at any time.
-            void client_connected( const std::string& client_id, std::weak_ptr<mqtt_packet_sender> connection );
+            /**
+             * @brief Called when a new successful CONNECT request has been received. Creates a new @c
+             * mqtt_client_session.
+             *
+             * @param connect     CONNECT packet sent by client, passed on since it may contain LWT and clean_session
+             *                    flag we will need when creating a session
+             * @param connection  @c mqtt_packet_sender CONNECT request has been received on. Will be associated with
+             *                    new @c mqtt_client_session. Passed as a @c std::weak_ptr since @c mqtt_packet_sender
+             *                    instances are owned by the network subsystem which may decide - potentially because
+             *                    network errors - to discard a connection at any time.
+             */
+            void client_connected( std::shared_ptr<protocol::connect> connect,
+                                   std::weak_ptr<mqtt_packet_sender> connection );
 
             /// \brief Called when a client disconnects, either voluntarily by sending a DISCONNECT, or involuntarily
             /// due to network or protocol error. Destroys associated \c mqtt_client_session.

@@ -26,9 +26,9 @@ namespace io_wally
            public:  // static
             using ptr = std::shared_ptr<mqtt_client_session>;
 
-            static mqtt_client_session::ptr create( mqtt_client_session_manager& session_manager,
-                                                    const std::string& client_id,
-                                                    std::weak_ptr<mqtt_packet_sender> connection );
+            static mqtt_client_session::ptr client_connected( mqtt_client_session_manager& session_manager,
+                                                              std::shared_ptr<protocol::connect> connect,
+                                                              std::weak_ptr<mqtt_packet_sender> connection );
 
            public:
             mqtt_client_session( mqtt_client_session_manager& session_manager,
