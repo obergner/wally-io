@@ -30,11 +30,11 @@ namespace io_wally
                                                               std::shared_ptr<protocol::connect> connect,
                                                               std::weak_ptr<mqtt_packet_sender> connection );
 
-           public:
             mqtt_client_session( mqtt_client_session_manager& session_manager,
-                                 const std::string& client_id,
+                                 std::shared_ptr<protocol::connect> connect,
                                  std::weak_ptr<mqtt_packet_sender> connection );
 
+           public:
             /// \brief ID of client connected to this \c mqtt_client_session.
             ///
             /// \return ID of client connected to this \c mqtt_client_session
@@ -86,6 +86,7 @@ namespace io_wally
             std::weak_ptr<mqtt_packet_sender> connection_;
             tx_in_flight_publications tx_in_flight_publications_;
             rx_in_flight_publications rx_in_flight_publications_;
+            std::shared_ptr<protocol::connect> lwt_message_;
             std::unique_ptr<spdlog::logger> logger_;
         };  // class mqtt_client_session
     }       // namespace dispatch

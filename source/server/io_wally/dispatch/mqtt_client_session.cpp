@@ -19,7 +19,6 @@ namespace io_wally
 {
     namespace dispatch
     {
-        using namespace std;
         // ------------------------------------------------------------------------------------------------------------
         // Public
         // ------------------------------------------------------------------------------------------------------------
@@ -28,18 +27,19 @@ namespace io_wally
                                                                         std::shared_ptr<protocol::connect> connect,
                                                                         std::weak_ptr<mqtt_packet_sender> connection )
         {
-            return std::make_shared<mqtt_client_session>( session_manager, connect->client_id( ), connection );
+            return std::make_shared<mqtt_client_session>( session_manager, connect, connection );
         }
 
         mqtt_client_session::mqtt_client_session( mqtt_client_session_manager& session_manager,
-                                                  const std::string& client_id,
+                                                  std::shared_ptr<protocol::connect> connect,
                                                   std::weak_ptr<mqtt_packet_sender> connection )
             : session_manager_{session_manager},
-              client_id_{client_id},
+              client_id_{connect->client_id( )},
               connection_{connection},
               tx_in_flight_publications_{session_manager.context( ), session_manager.io_service( ), connection},
               rx_in_flight_publications_{session_manager.context( ), session_manager.io_service( ), connection}
         {
+            lwt_message_ = connect->contains_last_will( ) ? connect : nullptr;
             logger_ = session_manager_.context( ).logger_factory( ).logger( "session/" + client_id_ );
         }
 
