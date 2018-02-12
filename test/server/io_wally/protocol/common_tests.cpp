@@ -206,6 +206,74 @@ TEST_CASE( "An MQTT header is read", "[header]" )
     }
 }
 
+SCENARIO( "Converting a byte into QoS", "[packets]" )
+{
+    GIVEN( "a byte encoding QoS::AT_MOST_ONCE in bits 0 and 1 with some other bits set" )
+    {
+        const auto input = std::uint8_t{0x0C};
+
+        WHEN( "a caller passes that byte into qos_of()" )
+        {
+            const auto qos = packet::qos_of( input );
+
+            THEN( "it will receive QoS::AT_MOST_ONCE" )
+            {
+                REQUIRE( qos == packet::QoS::AT_MOST_ONCE );
+            }
+        }
+    }
+
+    GIVEN( "a byte encoding QoS::AT_LEAST_ONCE in bits 0 and 1 with some other bits set" )
+    {
+        const auto input = std::uint8_t{0x1D};
+
+        WHEN( "a caller passes that byte into qos_of()" )
+        {
+            const auto qos = packet::qos_of( input );
+
+            THEN( "it will receive QoS::AT_LEAST_ONCE" )
+            {
+                REQUIRE( qos == packet::QoS::AT_LEAST_ONCE );
+            }
+        }
+    }
+
+    GIVEN( "a byte encoding QoS::EXACTLY_ONCE in bits 0 and 1 with some other bits set" )
+    {
+        const auto input = std::uint8_t{0x1E};
+
+        WHEN( "a caller passes that byte into qos_of()" )
+        {
+            const auto qos = packet::qos_of( input );
+
+            THEN( "it will receive QoS::EXACTLY_ONCE" )
+            {
+                REQUIRE( qos == packet::QoS::EXACTLY_ONCE );
+            }
+        }
+    }
+}
+/*
+SCENARIO( "writing a QoS into a byte", "[packets]" )
+{
+    GIVEN( "a byte with some bits set" )
+    {
+        auto byte = std::uint8_t{0x1E};
+        const auto expected_byte = std::uint8_t{0x3E};
+
+        WHEN( "a caller passes type PUBLISH and the given header byte into type_into()" )
+        {
+            packet::type_into( packet::Type::PUBLISH, header_byte );
+
+            THEN( "it will see a correctly updated header byte" )
+            {
+                REQUIRE( header_byte == expected_header_byte );
+            }
+        }
+    }
+}
+*/
+
 SCENARIO( "converting a header byte into Type", "[packets]" )
 {
     GIVEN( "a byte encoding type PUBREL with some header flags set" )

@@ -77,6 +77,13 @@ namespace io_wally
             /// \param pubcomp PUBCOMP sent by connected client
             void client_completed_publish( std::shared_ptr<protocol::pubcomp> pubcomp );
 
+            /**
+             * @brief Called when this client disconnected ungracefully, without sending a DISCONNECT packet.
+             *
+             * @param reason Why the client disconnected
+             */
+            void client_disconnected_ungracefully( dispatch::disconnect_reason reason );
+
             /// \brief Destroy this \c mqtt_client_session.
             void destroy( );
 

@@ -108,6 +108,11 @@ namespace io_wally
             logger_->debug( "CMPD: {}", *pubcomp );
         }
 
+        void mqtt_client_session::client_disconnected_ungracefully( dispatch::disconnect_reason reason )
+        {
+            logger_->info( "UNGRACEFUL DISCONNECT: [{}:{}]", client_id_, reason );
+        }
+
         void mqtt_client_session::destroy( )
         {
             session_manager_.destroy( client_id_ );

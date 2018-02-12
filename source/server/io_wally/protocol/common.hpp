@@ -1,10 +1,10 @@
 #pragma once
 
-#include <cstdint>
-#include <string>
 #include <cassert>
+#include <cstdint>
 #include <iostream>
 #include <memory>
+#include <string>
 
 namespace io_wally
 {
@@ -37,23 +37,83 @@ namespace io_wally
             ///
             /// Contract on delivery guarantuees for published messages:
             ///
-            enum class QoS : int
+            enum class QoS : uint8_t
             {
                 /// A published message is delivered at most once to each subscriber. A subscriber may not see all
                 /// messages published to a topic it is subscribed to.
-                AT_MOST_ONCE,
+                AT_MOST_ONCE = 0,
 
                 /// A published message is delivered at least once to each subscriber. A subscriber may see one and the
                 /// same message delivered to it more than once.
-                AT_LEAST_ONCE,
+                AT_LEAST_ONCE = 1,
 
                 /// A published message is delivered exactly once to each subscriber. Often the most desirable but
                 /// also the most expensive guarantuee.
-                EXACTLY_ONCE,
+                EXACTLY_ONCE = 2,
 
                 /// Reserved for future use. MUST NOT BE USED.
                 RESERVED
             };
+
+            /**
+             * @brief Determine @c QoS encoded in @c byte and return it
+             *
+             * @param byte     A byte containing an encoded QoS in its least significant (right-most) two bits
+             * @return         Decoded @c QoS
+             */
+            inline QoS qos_of( const uint8_t byte )
+            {
+                packet::QoS res;
+                switch ( byte & 0x03 )
+                {
+                    case 0x00:
+                        res = packet::QoS::AT_MOST_ONCE;
+                        break;
+                    case 0x01:
+                        res = packet::QoS::AT_LEAST_ONCE;
+                        break;
+                    case 0x02:
+                        res = packet::QoS::EXACTLY_ONCE;
+                        break;
+                    default:
+                        res = packet::QoS::RESERVED;
+                        break;
+                }
+                return res;
+            }
+
+            /**
+             * @brief Encode @c qos into @c byte, optionally shifting by @c left_shift
+             *
+             * @param qos         @c QoS to encode
+             * @param byte        Byte to encode into
+             * @param left_shift  Optional left shift to apply
+             */
+            inline void qos_into( const QoS qos, uint8_t& byte, const uint8_t left_shift = 0 )
+            {
+                uint8_t qos_mask = 0x00;
+                switch ( qos )
+                {
+                    case packet::QoS::AT_MOST_ONCE:
+                        qos_mask = ( 0x00 << left_shift );
+                        break;
+                    case packet::QoS::AT_LEAST_ONCE:
+                        qos_mask = ( 0x01 << left_shift );
+                        break;
+                    case packet::QoS::EXACTLY_ONCE:
+                        qos_mask = ( 0x02 << left_shift );
+                        break;
+                    case packet::QoS::RESERVED:
+                        qos_mask = ( 0x0F << left_shift );
+                        break;
+                    default:
+                        assert( false );
+                        break;
+                }
+
+                byte &= 0xFF - ( 0x03 << left_shift );
+                byte |= qos_mask;
+            }
 
             /// \brief Overload stream output operator for \c packet::QoS.
             ///
@@ -86,7 +146,7 @@ namespace io_wally
 
             /// \brief Type of MQTT control packet.
             ///
-            enum class Type : int
+            enum class Type : uint8_t
             {
                 RESERVED1 = 0,
                 CONNECT = 1,
