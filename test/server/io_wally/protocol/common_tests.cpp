@@ -252,27 +252,104 @@ SCENARIO( "Converting a byte into QoS", "[packets]" )
             }
         }
     }
-}
-/*
-SCENARIO( "writing a QoS into a byte", "[packets]" )
-{
-    GIVEN( "a byte with some bits set" )
+
+    GIVEN( "a byte encoding QoS::AT_LEAST_ONCE in bits 2 and 3 with some other bits set" )
     {
-        auto byte = std::uint8_t{0x1E};
-        const auto expected_byte = std::uint8_t{0x3E};
+        const auto input = std::uint8_t{0x15};
 
-        WHEN( "a caller passes type PUBLISH and the given header byte into type_into()" )
+        WHEN( "a caller passes that byte into qos_of() with left_shift 2" )
         {
-            packet::type_into( packet::Type::PUBLISH, header_byte );
+            const auto qos = packet::qos_of( input, 2 );
 
-            THEN( "it will see a correctly updated header byte" )
+            THEN( "it will receive QoS::AT_LEAST_ONCE" )
             {
-                REQUIRE( header_byte == expected_header_byte );
+                REQUIRE( qos == packet::QoS::AT_LEAST_ONCE );
+            }
+        }
+    }
+
+    GIVEN( "a byte encoding QoS::EXACTLY_ONCE in bits 6 and 7 with some other bits set" )
+    {
+        const auto input = std::uint8_t{0x88};
+
+        WHEN( "a caller passes that byte into qos_of() with left_shift 6" )
+        {
+            const auto qos = packet::qos_of( input, 6 );
+
+            THEN( "it will receive QoS::EXACTLY_ONCE" )
+            {
+                REQUIRE( qos == packet::QoS::EXACTLY_ONCE );
             }
         }
     }
 }
-*/
+
+SCENARIO( "writing a QoS into a byte", "[packets]" )
+{
+    GIVEN( "a byte with some bits set" )
+    {
+        auto byte = std::uint8_t{0x0F};
+        const auto expected_byte = std::uint8_t{0x0C};
+
+        WHEN( "a caller passes QoS::AT_MOST_ONCE and the given byte into qos_into() with left_shift 0" )
+        {
+            packet::qos_into( packet::QoS::AT_MOST_ONCE, byte );
+
+            THEN( "it will see a correctly updated byte" )
+            {
+                REQUIRE( byte == expected_byte );
+            }
+        }
+    }
+
+    GIVEN( "a byte with some bits set" )
+    {
+        auto byte = std::uint8_t{0x0F};
+        const auto expected_byte = std::uint8_t{0x0D};
+
+        WHEN( "a caller passes QoS::AT_LEAST_ONCE and the given byte into qos_into() with left_shift 0" )
+        {
+            packet::qos_into( packet::QoS::AT_LEAST_ONCE, byte );
+
+            THEN( "it will see a correctly updated byte" )
+            {
+                REQUIRE( byte == expected_byte );
+            }
+        }
+    }
+
+    GIVEN( "a byte with some bits set" )
+    {
+        auto byte = std::uint8_t{0x0F};
+        const auto expected_byte = std::uint8_t{0x0E};
+
+        WHEN( "a caller passes QoS::EXACTLY_ONCE and the given byte into qos_into() with left_shift 0" )
+        {
+            packet::qos_into( packet::QoS::EXACTLY_ONCE, byte );
+
+            THEN( "it will see a correctly updated byte" )
+            {
+                REQUIRE( byte == expected_byte );
+            }
+        }
+    }
+
+    GIVEN( "a byte with some bits set" )
+    {
+        auto byte = std::uint8_t{0xFF};
+        const auto expected_byte = std::uint8_t{0xEF};
+
+        WHEN( "a caller passes QoS::AT_LEAST_ONCE and the given byte into qos_into() with left_shift 3" )
+        {
+            packet::qos_into( packet::QoS::AT_LEAST_ONCE, byte, 3 );
+
+            THEN( "it will see a correctly updated byte" )
+            {
+                REQUIRE( byte == expected_byte );
+            }
+        }
+    }
+}
 
 SCENARIO( "converting a header byte into Type", "[packets]" )
 {

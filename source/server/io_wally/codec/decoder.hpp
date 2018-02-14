@@ -219,22 +219,7 @@ namespace io_wally
                 throw error::malformed_mqtt_packet( "Encoding QoS needs at least one byte" );
             }
 
-            const auto qos_bits = *uint8_start++;
-            switch ( qos_bits )
-            {
-                case 0x00:
-                    *parsed_qos = packet::QoS::AT_MOST_ONCE;
-                    break;
-                case 0x01:
-                    *parsed_qos = packet::QoS::AT_LEAST_ONCE;
-                    break;
-                case 0x02:
-                    *parsed_qos = packet::QoS::EXACTLY_ONCE;
-                    break;
-                default:
-                    *parsed_qos = packet::QoS::RESERVED;
-                    break;
-            }
+            *parsed_qos = packet::qos_of( *uint8_start++ );
 
             return uint8_start;
         }  // decode_qos

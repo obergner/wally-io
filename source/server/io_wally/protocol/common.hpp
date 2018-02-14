@@ -58,13 +58,16 @@ namespace io_wally
             /**
              * @brief Determine @c QoS encoded in @c byte and return it
              *
-             * @param byte     A byte containing an encoded QoS in its least significant (right-most) two bits
-             * @return         Decoded @c QoS
+             * @param byte       A byte containing an encoded QoS
+             * @param left_shift Optional left shift to apply
+             * @return           Decoded @c QoS
              */
-            inline QoS qos_of( const uint8_t byte )
+            inline QoS qos_of( const uint8_t byte, const uint8_t left_shift = 0 )
             {
+                assert( left_shift < 7 );
+
                 packet::QoS res;
-                switch ( byte & 0x03 )
+                switch ( ( byte >> left_shift ) & 0x03 )
                 {
                     case 0x00:
                         res = packet::QoS::AT_MOST_ONCE;
@@ -91,6 +94,8 @@ namespace io_wally
              */
             inline void qos_into( const QoS qos, uint8_t& byte, const uint8_t left_shift = 0 )
             {
+                assert( left_shift < 7 );
+
                 uint8_t qos_mask = 0x00;
                 switch ( qos )
                 {
@@ -348,24 +353,7 @@ namespace io_wally
                 /// \see QoS
                 packet::QoS qos( ) const
                 {
-                    const uint8_t qos_bits = ( flags_ & 0x06 ) >> 1;
-                    packet::QoS res;
-                    switch ( qos_bits )
-                    {
-                        case 0x00:
-                            res = packet::QoS::AT_MOST_ONCE;
-                            break;
-                        case 0x01:
-                            res = packet::QoS::AT_LEAST_ONCE;
-                            break;
-                        case 0x02:
-                            res = packet::QoS::EXACTLY_ONCE;
-                            break;
-                        default:
-                            res = packet::QoS::RESERVED;
-                            break;
-                    }
-                    return res;
+                    return packet::qos_of( flags_, 1 );
                 }
 
                 /// \brief Overload stream output operator for \c header_flags.

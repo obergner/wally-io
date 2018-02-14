@@ -2,8 +2,8 @@
 
 #include <cassert>
 #include <cstdint>
-#include <string>
 #include <sstream>
+#include <string>
 
 #include <optional>
 
@@ -52,24 +52,7 @@ namespace io_wally
             /// \see packet::QoS
             packet::QoS last_will_qos( ) const
             {
-                const uint8_t qos_bits = ( con_flags_ & 0x18 ) >> 3;
-                packet::QoS res;
-                switch ( qos_bits )
-                {
-                    case 0x00:
-                        res = packet::QoS::AT_MOST_ONCE;
-                        break;
-                    case 0x01:
-                        res = packet::QoS::AT_LEAST_ONCE;
-                        break;
-                    case 0x02:
-                        res = packet::QoS::EXACTLY_ONCE;
-                        break;
-                    default:
-                        res = packet::QoS::RESERVED;
-                        break;
-                }
-                return res;
+                return packet::qos_of( con_flags_, 3 );
             }
 
             /// \brief Whether the \c connect_payload contains a last will message.
@@ -310,12 +293,12 @@ namespace io_wally
             const uint8_t prot_level_;
             const struct connect_flags con_flags_;
             const uint16_t keep_alive_secs_;
-            const std::string client_id_;                            // mandatory
+            const std::string client_id_;                          // mandatory
             const std::optional<const std::string> will_topic_;    // MUST be present iff will flag is set
             const std::optional<const std::string> will_message_;  // MUST be present iff will flag is set
             const std::optional<const std::string> username_;      // MUST be present iff username flag is set
             const std::optional<const std::string> password_;      // MUST be present iff password flag is set
-        };                                                           // struct connect
+        };                                                         // struct connect
 
     }  // namespace protocol
 }  // namespace io_wally
