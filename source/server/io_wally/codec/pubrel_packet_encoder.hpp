@@ -31,7 +31,7 @@ namespace io_wally
             {
                 using namespace io_wally::protocol;
 
-                assert( pubrel_packet.header( ).type( ) == packet::Type::PUBREL );
+                assert( pubrel_packet.type( ) == packet::Type::PUBREL );
 
                 const auto& pubrel = dynamic_cast<const struct pubrel&>( pubrel_packet );
 

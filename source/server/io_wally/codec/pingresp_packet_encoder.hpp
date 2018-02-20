@@ -28,7 +28,7 @@ namespace io_wally
             /// \return         \c OutputIterator that points immediately past the last byte written
             OutputIterator encode( const protocol::mqtt_packet& pingresp_packet, OutputIterator buf_start ) const
             {
-                assert( pingresp_packet.header( ).type( ) == protocol::packet::Type::PINGRESP );
+                assert( pingresp_packet.type( ) == protocol::packet::Type::PINGRESP );
 
                 return buf_start;
             }

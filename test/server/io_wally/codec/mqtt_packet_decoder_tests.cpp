@@ -56,7 +56,7 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
                 const protocol::mqtt_packet& raw_result = *result;
                 const protocol::connect& connect_packet = static_cast<const protocol::connect&>( raw_result );
 
-                CHECK( connect_packet.header( ).type( ) == protocol::packet::Type::CONNECT );
+                CHECK( connect_packet.type( ) == protocol::packet::Type::CONNECT );
 
                 CHECK( connect_packet.contains_last_will( ) );
                 CHECK( connect_packet.last_will_qos( ) == protocol::packet::QoS::AT_LEAST_ONCE );
@@ -103,7 +103,7 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
                 const protocol::mqtt_packet& raw_result = *result;
                 const protocol::pingreq& pingreq_packet = static_cast<const protocol::pingreq&>( raw_result );
 
-                CHECK( pingreq_packet.header( ).type( ) == protocol::packet::Type::PINGREQ );
+                CHECK( pingreq_packet.type( ) == protocol::packet::Type::PINGREQ );
             }
         }
     }
@@ -144,7 +144,7 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
                 const protocol::mqtt_packet& raw_result = *result;
                 const protocol::subscribe& subscribe_packet = static_cast<const protocol::subscribe&>( raw_result );
 
-                CHECK( subscribe_packet.header( ).type( ) == protocol::packet::Type::SUBSCRIBE );
+                CHECK( subscribe_packet.type( ) == protocol::packet::Type::SUBSCRIBE );
 
                 CHECK( subscribe_packet.packet_identifier( ) == 7 );
 
@@ -197,7 +197,7 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
                 const protocol::unsubscribe& unsubscribe_packet =
                     static_cast<const protocol::unsubscribe&>( raw_result );
 
-                CHECK( unsubscribe_packet.header( ).type( ) == protocol::packet::Type::UNSUBSCRIBE );
+                CHECK( unsubscribe_packet.type( ) == protocol::packet::Type::UNSUBSCRIBE );
 
                 CHECK( unsubscribe_packet.packet_identifier( ) == 7 );
 
@@ -241,7 +241,7 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
                 const auto& raw_result = *result;
                 const auto& publish_packet = static_cast<const protocol::publish&>( raw_result );
 
-                CHECK( publish_packet.header( ).type( ) == protocol::packet::Type::PUBLISH );
+                CHECK( publish_packet.type( ) == protocol::packet::Type::PUBLISH );
 
                 CHECK( publish_packet.header( ).flags( ).dup( ) == false );
                 CHECK( publish_packet.header( ).flags( ).qos( ) == protocol::packet::QoS::AT_LEAST_ONCE );
@@ -280,7 +280,7 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
                 const protocol::mqtt_packet& raw_result = *result;
                 const protocol::puback& puback_packet = static_cast<const protocol::puback&>( raw_result );
 
-                CHECK( puback_packet.header( ).type( ) == protocol::packet::Type::PUBACK );
+                CHECK( puback_packet.type( ) == protocol::packet::Type::PUBACK );
 
                 CHECK( puback_packet.packet_identifier( ) == 7 );
             }
@@ -311,7 +311,7 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
                 const protocol::mqtt_packet& raw_result = *result;
                 const protocol::pubrec& pubrec_packet = static_cast<const protocol::pubrec&>( raw_result );
 
-                CHECK( pubrec_packet.header( ).type( ) == protocol::packet::Type::PUBREC );
+                CHECK( pubrec_packet.type( ) == protocol::packet::Type::PUBREC );
 
                 CHECK( pubrec_packet.packet_identifier( ) == 7 );
             }
@@ -342,7 +342,7 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
                 const protocol::mqtt_packet& raw_result = *result;
                 const protocol::pubcomp& pubcomp_packet = static_cast<const protocol::pubcomp&>( raw_result );
 
-                CHECK( pubcomp_packet.header( ).type( ) == protocol::packet::Type::PUBCOMP );
+                CHECK( pubcomp_packet.type( ) == protocol::packet::Type::PUBCOMP );
 
                 CHECK( pubcomp_packet.packet_identifier( ) == 7 );
             }
@@ -373,7 +373,7 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
                 const protocol::mqtt_packet& raw_result = *result;
                 const protocol::pubrel& pubrel_packet = static_cast<const protocol::pubrel&>( raw_result );
 
-                CHECK( pubrel_packet.header( ).type( ) == protocol::packet::Type::PUBREL );
+                CHECK( pubrel_packet.type( ) == protocol::packet::Type::PUBREL );
 
                 CHECK( pubrel_packet.packet_identifier( ) == 7 );
             }

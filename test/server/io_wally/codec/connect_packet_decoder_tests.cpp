@@ -59,7 +59,7 @@ SCENARIO( "connect_packet_decoder_impl", "[decoder]" )
                 const protocol::mqtt_packet& raw_result = *result;
                 const protocol::connect& connect_packet = static_cast<const protocol::connect&>( raw_result );
 
-                CHECK( connect_packet.header( ).type( ) == protocol::packet::Type::CONNECT );
+                CHECK( connect_packet.type( ) == protocol::packet::Type::CONNECT );
 
                 CHECK( connect_packet.contains_last_will( ) );
                 CHECK( connect_packet.last_will_qos( ) == protocol::packet::QoS::AT_LEAST_ONCE );

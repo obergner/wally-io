@@ -308,6 +308,40 @@ namespace io_wally
                 control_packet_type_and_flags |= type_mask;
             }
 
+            inline bool dup_of( const uint8_t control_packet_type_and_flags )
+            {
+                return ( control_packet_type_and_flags & 0x08 ) == 0x08;
+            }
+
+            inline void dup_into( const bool dup, uint8_t& control_packet_type_and_flags )
+            {
+                if ( dup )
+                {
+                    control_packet_type_and_flags |= 0x08;
+                }
+                else
+                {
+                    control_packet_type_and_flags &= ~0x08;
+                }
+            }
+
+            inline bool retain_of( const uint8_t control_packet_type_and_flags )
+            {
+                return ( control_packet_type_and_flags & 0x01 ) == 0x01;
+            }
+
+            inline void retain_into( const bool retain, uint8_t& control_packet_type_and_flags )
+            {
+                if ( retain )
+                {
+                    control_packet_type_and_flags |= 0x01;
+                }
+                else
+                {
+                    control_packet_type_and_flags &= ~0x01;
+                }
+            }
+
             /// \brief Protocol level, a.k.a. protocol version.
             ///
             enum class ProtocolLevel : int
@@ -339,13 +373,13 @@ namespace io_wally
                 /// Whether this is the first (\c false) delivery attempt or not (\c true)
                 bool dup( ) const
                 {
-                    return ( flags_ & 0x08 ) == 0x08;
+                    return packet::dup_of( flags_ );
                 }
 
                 /// Whether the broker should retain this message for delivery to future subscribers to its topic.
                 bool retain( ) const
                 {
-                    return ( flags_ & 0x01 ) == 0x01;
+                    return packet::retain_of( flags_ );
                 }
 
                 /// Message delivery quality of service.
@@ -552,6 +586,26 @@ namespace io_wally
            public:
             using ptr = std::shared_ptr<const mqtt_packet>;
 
+            /**
+             * @brief Return this @c mqtt_packet's @c packet::Type
+             *
+             * @return This @c mqtt_packet's @c packet::Type
+             */
+            packet::Type type( ) const
+            {
+                return packet::type_of( type_and_flags_ );
+            }
+
+            /**
+             * @brief Return this @c mqtt_packet's remaining length
+             *
+             * @return This @c mqtt_packet's remaining length
+             */
+            uint32_t remaining_length( ) const
+            {
+                return remaining_length_;
+            }
+
             /// \brief Return this \c mqtt_packet's \c packet::header.
             ///
             /// \return This MQTT packet's packet::header
@@ -576,11 +630,23 @@ namespace io_wally
             }
 
            protected:
+            /**
+             * @brief Create a new @c mqtt_packet instance from @c type_and_flags and @c remaining_length.
+             *
+             * @param type_and_flags   Byte containing packet type and fixed header flags
+             * @param remaining_length Remaining length of packet
+             */
+            mqtt_packet( uint8_t type_and_flags, uint32_t remaining_length )
+                : type_and_flags_{type_and_flags}, remaining_length_{remaining_length}
+            {
+                return;
+            }
+
             /// \brief Create a new \c mqtt_packet instance from the supplied \c packet::header.
             ///
             /// \param header This MQTT packet's packet::header
             mqtt_packet( struct packet::header header )
-                : type_and_flags_{header.type_and_flags( )}, remaining_length_{header.remaining_length( )}
+                : mqtt_packet{header.type_and_flags( ), header.remaining_length( )}
             {
                 return;
             }

@@ -61,7 +61,7 @@ namespace io_wally
                                                      std::shared_ptr<mqtt_packet_sender> /* sender */ )
         {
             assert( state_ == state::waiting_for_ack );
-            assert( ack->header( ).type( ) == protocol::packet::Type::PUBACK );
+            assert( ack->type( ) == protocol::packet::Type::PUBACK );
 
             const auto pub_ack = std::dynamic_pointer_cast<protocol::puback>( ack );
             assert( pub_ack->packet_identifier( ) == publish_->packet_identifier( ) );
@@ -134,7 +134,7 @@ namespace io_wally
             retry_on_timeout_.cancel( );
             if ( state_ == state::waiting_for_rec )
             {
-                if ( ack->header( ).type( ) != protocol::packet::Type::PUBREC )
+                if ( ack->type( ) != protocol::packet::Type::PUBREC )
                 {
                     // Protocol violation: client did not send PUBREC but one of PUBCOMP or even PUBACK
                     sender->stop(
@@ -154,7 +154,7 @@ namespace io_wally
             }
             else  // waiting for pubcomp
             {
-                if ( ack->header( ).type( ) == protocol::packet::Type::PUBREC )
+                if ( ack->type( ) == protocol::packet::Type::PUBREC )
                 {
                     // Client re-sent PUBREC. This likely means it did not receive our PUBREL. Let's sent it again.
                     const auto pubrel = std::make_shared<protocol::pubrel>( publish_->packet_identifier( ) );
@@ -164,7 +164,7 @@ namespace io_wally
                 }
                 else
                 {
-                    assert( ack->header( ).type( ) == protocol::packet::Type::PUBCOMP );
+                    assert( ack->type( ) == protocol::packet::Type::PUBCOMP );
                     state_ = state::completed;
                     // Now, this packet identifier may be re-used
                     parent_.release( shared_from_this( ) );

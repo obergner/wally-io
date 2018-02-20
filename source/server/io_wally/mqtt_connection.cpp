@@ -222,7 +222,7 @@ namespace io_wally
     void mqtt_connection::process_decoded_packet( shared_ptr<protocol::mqtt_packet> packet )
     {
         logger_->debug( "--- PROCESSING: {} ...", *packet );
-        switch ( packet->header( ).type( ) )
+        switch ( packet->type( ) )
         {
             case packet::Type::CONNECT:
             {

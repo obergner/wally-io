@@ -39,7 +39,7 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
                 const auto& raw_result = *result;
                 const auto& publish_packet = static_cast<const protocol::publish&>( raw_result );
 
-                CHECK( publish_packet.header( ).type( ) == protocol::packet::Type::PUBLISH );
+                CHECK( publish_packet.type( ) == protocol::packet::Type::PUBLISH );
 
                 CHECK( publish_packet.header( ).flags( ).dup( ) == false );
                 CHECK( publish_packet.header( ).flags( ).qos( ) == protocol::packet::QoS::AT_MOST_ONCE );
@@ -81,7 +81,7 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
                 const auto& raw_result = *result;
                 const auto& publish_packet = static_cast<const protocol::publish&>( raw_result );
 
-                CHECK( publish_packet.header( ).type( ) == protocol::packet::Type::PUBLISH );
+                CHECK( publish_packet.type( ) == protocol::packet::Type::PUBLISH );
 
                 CHECK( publish_packet.header( ).flags( ).dup( ) == false );
                 CHECK( publish_packet.header( ).flags( ).qos( ) == protocol::packet::QoS::AT_LEAST_ONCE );
@@ -125,7 +125,7 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
                 const auto& raw_result = *result;
                 const auto& publish_packet = static_cast<const protocol::publish&>( raw_result );
 
-                CHECK( publish_packet.header( ).type( ) == protocol::packet::Type::PUBLISH );
+                CHECK( publish_packet.type( ) == protocol::packet::Type::PUBLISH );
 
                 CHECK( publish_packet.header( ).flags( ).dup( ) == true );
                 CHECK( publish_packet.header( ).flags( ).qos( ) == protocol::packet::QoS::EXACTLY_ONCE );
@@ -306,7 +306,7 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
                 const auto& raw_result = *result;
                 const auto& publish_packet = static_cast<const protocol::publish&>( raw_result );
 
-                CHECK( publish_packet.header( ).type( ) == protocol::packet::Type::PUBLISH );
+                CHECK( publish_packet.type( ) == protocol::packet::Type::PUBLISH );
 
                 CHECK( publish_packet.header( ).flags( ).dup( ) == false );
                 CHECK( publish_packet.header( ).flags( ).qos( ) == protocol::packet::QoS::AT_LEAST_ONCE );

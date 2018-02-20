@@ -37,7 +37,7 @@ SCENARIO( "puback_packet_decoder_impl", "[decoder]" )
                 const protocol::mqtt_packet& raw_result = *result;
                 const protocol::puback& puback_packet = static_cast<const protocol::puback&>( raw_result );
 
-                CHECK( puback_packet.header( ).type( ) == protocol::packet::Type::PUBACK );
+                CHECK( puback_packet.type( ) == protocol::packet::Type::PUBACK );
 
                 CHECK( puback_packet.packet_identifier( ) == 7 );
             }

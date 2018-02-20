@@ -31,7 +31,7 @@ namespace io_wally
             {
                 using namespace io_wally::protocol;
 
-                assert( pubcomp_packet.header( ).type( ) == packet::Type::PUBCOMP );
+                assert( pubcomp_packet.type( ) == packet::Type::PUBCOMP );
 
                 const auto& pubcomp = dynamic_cast<const struct pubcomp&>( pubcomp_packet );
 

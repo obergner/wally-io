@@ -51,7 +51,7 @@ namespace io_wally
             const packet_body_encoder<OutputIterator>& body_encoder_for(
                 const protocol::mqtt_packet& mqtt_packet ) const
             {
-                switch ( mqtt_packet.header( ).type( ) )
+                switch ( mqtt_packet.type( ) )
                 {
                     case protocol::packet::Type::CONNACK:
                         return connack_encoder_;

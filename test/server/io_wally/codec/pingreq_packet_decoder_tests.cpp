@@ -32,7 +32,7 @@ SCENARIO( "pingreq_packet_decoder_impl", "[decoder]" )
                 const protocol::mqtt_packet& raw_result = *result;
                 const protocol::pingreq& pingreq_packet = static_cast<const protocol::pingreq&>( raw_result );
 
-                CHECK( pingreq_packet.header( ).type( ) == protocol::packet::Type::PINGREQ );
+                CHECK( pingreq_packet.type( ) == protocol::packet::Type::PINGREQ );
             }
         }
     }

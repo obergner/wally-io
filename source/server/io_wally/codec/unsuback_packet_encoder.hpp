@@ -31,7 +31,7 @@ namespace io_wally
             {
                 using namespace io_wally::protocol;
 
-                assert( unsuback_packet.header( ).type( ) == packet::Type::UNSUBACK );
+                assert( unsuback_packet.type( ) == packet::Type::UNSUBACK );
 
                 const auto& unsuback = dynamic_cast<const struct unsuback&>( unsuback_packet );
 

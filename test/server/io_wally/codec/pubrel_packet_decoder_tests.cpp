@@ -37,7 +37,7 @@ SCENARIO( "pubrel_packet_decoder_impl", "[decoder]" )
                 const protocol::mqtt_packet& raw_result = *result;
                 const protocol::pubrel& pubrel_packet = static_cast<const protocol::pubrel&>( raw_result );
 
-                CHECK( pubrel_packet.header( ).type( ) == protocol::packet::Type::PUBREL );
+                CHECK( pubrel_packet.type( ) == protocol::packet::Type::PUBREL );
 
                 CHECK( pubrel_packet.packet_identifier( ) == 7 );
             }

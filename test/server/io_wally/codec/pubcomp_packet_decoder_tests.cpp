@@ -37,7 +37,7 @@ SCENARIO( "pubcomp_packet_decoder_impl", "[decoder]" )
                 const protocol::mqtt_packet& raw_result = *result;
                 const protocol::pubcomp& pubcomp_packet = static_cast<const protocol::pubcomp&>( raw_result );
 
-                CHECK( pubcomp_packet.header( ).type( ) == protocol::packet::Type::PUBCOMP );
+                CHECK( pubcomp_packet.type( ) == protocol::packet::Type::PUBCOMP );
 
                 CHECK( pubcomp_packet.packet_identifier( ) == 7 );
             }

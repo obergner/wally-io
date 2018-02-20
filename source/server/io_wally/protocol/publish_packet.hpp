@@ -34,6 +34,27 @@ namespace io_wally
         struct publish final : public mqtt_packet
         {
            public:
+            /**
+             * @brief Create a new @c publish instance
+             *
+             * @param type_and_flags       Fixed header type and flags
+             * @param remaining_length     Remaining length of packet
+             * @param packet_identifier    Unsigned 16 bit integer identifying this packet (IGNORED IF QoS = 0)
+             * @param application_message  The message payload, an opaque byte array
+             */
+            publish( uint8_t type_and_flags,
+                     uint32_t remaining_length,
+                     const std::string& topic,
+                     const uint16_t packet_identifier,
+                     std::vector<uint8_t> application_message )
+                : mqtt_packet{type_and_flags, remaining_length},
+                  topic_{topic},
+                  packet_identifier_{packet_identifier},
+                  application_message_{std::move( application_message )}
+            {
+                assert( packet::type_of( type_and_flags ) == packet::Type::PUBLISH );
+            }
+
             /// \brief Create a new \c publish instance.
             ///
             /// \param header           Fixed header, common to all MQTT control packets
@@ -44,12 +65,9 @@ namespace io_wally
                      const std::string& topic,
                      const uint16_t packet_identifier,
                      std::vector<uint8_t> application_message )
-                : mqtt_packet{std::move( header )},
-                  topic_{topic},
-                  packet_identifier_{packet_identifier},
-                  application_message_{std::move( application_message )}
+                : publish{header.type_and_flags( ), header.remaining_length( ), topic, packet_identifier,
+                          std::move( application_message )}
             {
-                assert( header.type( ) == packet::Type::PUBLISH );
             }
 
             /// \brief Return whether DUP flag is set, i.e. this PUBLISH packet is a duplicate publication.

@@ -49,7 +49,7 @@ SCENARIO( "subscribe_packet_decoder_impl", "[decoder]" )
                 const protocol::mqtt_packet& raw_result = *result;
                 const protocol::subscribe& subscribe_packet = static_cast<const protocol::subscribe&>( raw_result );
 
-                CHECK( subscribe_packet.header( ).type( ) == protocol::packet::Type::SUBSCRIBE );
+                CHECK( subscribe_packet.type( ) == protocol::packet::Type::SUBSCRIBE );
 
                 CHECK( subscribe_packet.packet_identifier( ) == 7 );
 

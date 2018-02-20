@@ -72,7 +72,7 @@ namespace io_wally
 
         void tx_in_flight_publications::response_received( std::shared_ptr<protocol::publish_ack> publish_ack )
         {
-            const auto ack_type = publish_ack->header( ).type( );
+            const auto ack_type = publish_ack->type( );
             assert( ( ack_type == protocol::packet::Type::PUBACK ) || ( ack_type == protocol::packet::Type::PUBREC ) ||
                     ( ack_type == protocol::packet::Type::PUBCOMP ) );
 

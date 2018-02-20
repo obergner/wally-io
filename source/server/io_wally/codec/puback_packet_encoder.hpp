@@ -31,7 +31,7 @@ namespace io_wally
             {
                 using namespace io_wally::protocol;
 
-                assert( puback_packet.header( ).type( ) == packet::Type::PUBACK );
+                assert( puback_packet.type( ) == packet::Type::PUBACK );
 
                 const auto& puback = dynamic_cast<const struct puback&>( puback_packet );
 

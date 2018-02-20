@@ -48,7 +48,7 @@ SCENARIO( "unsubscribe_packet_decoder_impl", "[decoder]" )
                 const protocol::unsubscribe& unsubscribe_packet =
                     static_cast<const protocol::unsubscribe&>( raw_result );
 
-                CHECK( unsubscribe_packet.header( ).type( ) == protocol::packet::Type::UNSUBSCRIBE );
+                CHECK( unsubscribe_packet.type( ) == protocol::packet::Type::UNSUBSCRIBE );
 
                 CHECK( unsubscribe_packet.packet_identifier( ) == 7 );
 

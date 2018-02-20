@@ -31,7 +31,7 @@ namespace io_wally
             {
                 using namespace io_wally::protocol;
 
-                assert( publish_packet.header( ).type( ) == packet::Type::PUBLISH );
+                assert( publish_packet.type( ) == packet::Type::PUBLISH );
 
                 const auto& publish = dynamic_cast<const struct publish&>( publish_packet );
 

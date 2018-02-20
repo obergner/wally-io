@@ -141,7 +141,7 @@ namespace io_wally
 
             protocol::packet::Type packet_type( ) const
             {
-                return packet_->header( ).type( );
+                return packet_->type( );
             }
 
             std::shared_ptr<protocol::mqtt_packet> packet( )

@@ -32,7 +32,7 @@ namespace io_wally
             {
                 using namespace io_wally::protocol;
 
-                assert( connack_packet.header( ).type( ) == packet::Type::CONNACK );
+                assert( connack_packet.type( ) == packet::Type::CONNACK );
 
                 const auto& connack = dynamic_cast<const struct connack&>( connack_packet );
                 const auto first_byte = ( connack.is_session_present( ) ? 0x01 : 0x00 );

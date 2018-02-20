@@ -15,7 +15,7 @@ SCENARIO( "pingresp packet", "[packets]" )
 
         WHEN( "a caller asks for its packet type" )
         {
-            const packet::Type packet_type = under_test.header( ).type( );
+            const packet::Type packet_type = under_test.type( );
 
             THEN( "it should see PINGRESP" )
             {
