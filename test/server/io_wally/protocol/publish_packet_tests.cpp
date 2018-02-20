@@ -99,7 +99,7 @@ SCENARIO( "publish", "[packets]" )
             {
                 CHECK( under_test.retain( ) == false );
                 CHECK( under_test.dup( ) == false );
-                CHECK( under_test.header( ).remaining_length( ) == rem_len );
+                CHECK( under_test.remaining_length( ) == rem_len );
                 REQUIRE( under_test.qos( ) == packet::QoS::AT_MOST_ONCE );
             }
         }
@@ -114,7 +114,7 @@ SCENARIO( "publish", "[packets]" )
 
             AND_THEN( "remaining_length() should be increased by two bytes" )
             {
-                REQUIRE( under_test.header( ).remaining_length( ) == rem_len + 2 );
+                REQUIRE( under_test.remaining_length( ) == rem_len + 2 );
             }
         }
 
@@ -128,7 +128,7 @@ SCENARIO( "publish", "[packets]" )
 
             AND_THEN( "remaining_length() should be increased by two bytes" )
             {
-                REQUIRE( under_test.header( ).remaining_length( ) == rem_len + 2 );
+                REQUIRE( under_test.remaining_length( ) == rem_len + 2 );
             }
         }
     }
@@ -164,7 +164,7 @@ SCENARIO( "publish", "[packets]" )
             {
                 CHECK( under_test.retain( ) == true );
                 CHECK( under_test.dup( ) == true );
-                CHECK( under_test.header( ).remaining_length( ) == rem_len );
+                CHECK( under_test.remaining_length( ) == rem_len );
                 REQUIRE( under_test.qos( ) == packet::QoS::EXACTLY_ONCE );
             }
         }
@@ -179,7 +179,7 @@ SCENARIO( "publish", "[packets]" )
 
             AND_THEN( "remaining_length() should be decreased by two bytes" )
             {
-                REQUIRE( under_test.header( ).remaining_length( ) == rem_len - 2 );
+                REQUIRE( under_test.remaining_length( ) == rem_len - 2 );
             }
         }
     }
@@ -215,7 +215,7 @@ SCENARIO( "publish", "[packets]" )
             {
                 CHECK( under_test.retain( ) == false );
                 CHECK( under_test.dup( ) == false );
-                CHECK( under_test.header( ).remaining_length( ) == rem_len );
+                CHECK( under_test.remaining_length( ) == rem_len );
                 REQUIRE( under_test.qos( ) == packet::QoS::AT_LEAST_ONCE );
             }
         }
@@ -230,7 +230,7 @@ SCENARIO( "publish", "[packets]" )
 
             AND_THEN( "remaining_length() should be decreased by two bytes" )
             {
-                REQUIRE( under_test.header( ).remaining_length( ) == rem_len - 2 );
+                REQUIRE( under_test.remaining_length( ) == rem_len - 2 );
             }
         }
     }

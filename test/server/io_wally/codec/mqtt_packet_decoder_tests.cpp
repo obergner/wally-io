@@ -243,9 +243,9 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
 
                 CHECK( publish_packet.type( ) == protocol::packet::Type::PUBLISH );
 
-                CHECK( publish_packet.header( ).flags( ).dup( ) == false );
-                CHECK( publish_packet.header( ).flags( ).qos( ) == protocol::packet::QoS::AT_LEAST_ONCE );
-                CHECK( publish_packet.header( ).flags( ).retain( ) == false );
+                CHECK( publish_packet.dup( ) == false );
+                CHECK( publish_packet.qos( ) == protocol::packet::QoS::AT_LEAST_ONCE );
+                CHECK( publish_packet.retain( ) == false );
 
                 CHECK( publish_packet.packet_identifier( ) == 7 );
 

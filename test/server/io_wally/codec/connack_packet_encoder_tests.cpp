@@ -31,7 +31,7 @@ SCENARIO( "connack_packet_encoder", "[encoder]" )
 
             AND_THEN( "it should see a correctly advanced out iterator" )
             {
-                REQUIRE( ( new_buf_start - result.begin( ) ) == connack.header( ).remaining_length( ) );
+                REQUIRE( ( new_buf_start - result.begin( ) ) == connack.remaining_length( ) );
             }
         }
     }
@@ -54,7 +54,7 @@ SCENARIO( "connack_packet_encoder", "[encoder]" )
 
             AND_THEN( "it should see a correctly advanced out iterator" )
             {
-                REQUIRE( ( new_buf_start - result.begin( ) ) == connack.header( ).remaining_length( ) );
+                REQUIRE( ( new_buf_start - result.begin( ) ) == connack.remaining_length( ) );
             }
         }
     }

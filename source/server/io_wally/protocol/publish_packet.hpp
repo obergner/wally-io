@@ -75,7 +75,7 @@ namespace io_wally
             /// \return \c true if DUP flag is set, \c false otherwise
             bool dup( ) const
             {
-                return header( ).flags( ).dup( );
+                return packet::dup_of( type_and_flags_ );
             }
 
             /// \brief Set/unset DUP flag to mark this packet as a duplicate PUBLISH in a QoS 2 publication.
@@ -83,14 +83,7 @@ namespace io_wally
             /// \param \c dup Whether to mark this packet as a duplicate PUBLISH in a QoS 2 publication
             void dup( const bool dup )
             {
-                if ( dup )
-                {
-                    type_and_flags_ |= 0x08;
-                }
-                else
-                {
-                    type_and_flags_ &= ~0x08;
-                }
+                packet::dup_into( dup, type_and_flags_ );
             }
 
             /// \brief Return quality of service assigned this PUBLISH packet.
@@ -98,7 +91,7 @@ namespace io_wally
             /// \return quality of service level (At most once, At least once, Exactly once) assigned this packet
             packet::QoS qos( ) const
             {
-                return header( ).flags( ).qos( );
+                return packet::qos_of( type_and_flags_, 1 );
             }
 
             /// \brief Assign quality of service level assigned this PUBLISH packet.
@@ -136,7 +129,7 @@ namespace io_wally
             /// \return \c true if RETAIN flag is set, \c false otherwise
             bool retain( ) const
             {
-                return header( ).flags( ).retain( );
+                return packet::retain_of( type_and_flags_ );
             }
 
             /// \brief Set/unset RETAIN flag, i.e. whether a message should be retained by the the broker.
@@ -144,14 +137,7 @@ namespace io_wally
             /// \param \c retain Whether message should be retained
             void retain( const bool retain )
             {
-                if ( retain )
-                {
-                    type_and_flags_ |= 0x01;
-                }
-                else
-                {
-                    type_and_flags_ &= ~0x01;
-                }
+                packet::retain_into( retain, type_and_flags_ );
             }
 
             /// \brief Return \c topic to publish this message to.
@@ -169,7 +155,7 @@ namespace io_wally
             ///         0)
             bool has_packet_identifier( ) const
             {
-                return ( header( ).flags( ).qos( ) != packet::QoS::AT_MOST_ONCE );
+                return ( qos( ) != packet::QoS::AT_MOST_ONCE );
             }
 
             /// \brief Return packet's \c packet_identifier.
@@ -195,11 +181,9 @@ namespace io_wally
             {
                 std::ostringstream output;
                 output << "publish[";
-                if ( ( header( ).flags( ).qos( ) == packet::QoS::AT_LEAST_ONCE ) ||
-                     ( header( ).flags( ).qos( ) == packet::QoS::EXACTLY_ONCE ) )
+                if ( ( qos( ) == packet::QoS::AT_LEAST_ONCE ) || ( qos( ) == packet::QoS::EXACTLY_ONCE ) )
                     output << "pktid:" << packet_identifier_ << "|";
-                output << "dup:" << header( ).flags( ).dup( ) << "|qos:" << header( ).flags( ).qos( )
-                       << "|ret:" << header( ).flags( ).retain( ) << "|topic:" << topic_
+                output << "dup:" << dup( ) << "|qos:" << qos( ) << "|ret:" << retain( ) << "|topic:" << topic_
                        << "|msg-size:" << application_message_.size( ) << "]";
 
                 return output.str( );

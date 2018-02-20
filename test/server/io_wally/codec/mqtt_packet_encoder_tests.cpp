@@ -32,7 +32,7 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
 
             AND_THEN( "it should see a correctly advanced out iterator" )
             {
-                REQUIRE( ( new_buf_start - result.begin( ) ) == connack.header( ).total_length( ) );
+                REQUIRE( ( new_buf_start - result.begin( ) ) == connack.total_length( ) );
             }
         }
     }
@@ -55,7 +55,7 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
 
             AND_THEN( "it should see a correctly advanced out iterator" )
             {
-                REQUIRE( ( new_buf_start - result.begin( ) ) == pingresp.header( ).total_length( ) );
+                REQUIRE( ( new_buf_start - result.begin( ) ) == pingresp.total_length( ) );
             }
         }
     }
@@ -82,7 +82,7 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
 
             AND_THEN( "it should see a correctly advanced out iterator" )
             {
-                REQUIRE( ( new_buf_start - result.begin( ) ) == suback.header( ).total_length( ) );
+                REQUIRE( ( new_buf_start - result.begin( ) ) == suback.total_length( ) );
             }
         }
     }
@@ -137,7 +137,7 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
 
             AND_THEN( "it should see a correctly advanced out iterator" )
             {
-                REQUIRE( ( new_buf_start - result.begin( ) ) == publish.header( ).total_length( ) );
+                REQUIRE( ( new_buf_start - result.begin( ) ) == publish.total_length( ) );
             }
         }
     }
@@ -161,7 +161,7 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
 
             AND_THEN( "it should see a correctly advanced out iterator" )
             {
-                REQUIRE( ( new_buf_start - result.begin( ) ) == puback.header( ).total_length( ) );
+                REQUIRE( ( new_buf_start - result.begin( ) ) == puback.total_length( ) );
             }
         }
     }
@@ -185,7 +185,7 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
 
             AND_THEN( "it should see a correctly advanced out iterator" )
             {
-                REQUIRE( ( new_buf_start - result.begin( ) ) == pubrel.header( ).total_length( ) );
+                REQUIRE( ( new_buf_start - result.begin( ) ) == pubrel.total_length( ) );
             }
         }
     }
@@ -209,7 +209,7 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
 
             AND_THEN( "it should see a correctly advanced out iterator" )
             {
-                REQUIRE( ( new_buf_start - result.begin( ) ) == pubrec.header( ).total_length( ) );
+                REQUIRE( ( new_buf_start - result.begin( ) ) == pubrec.total_length( ) );
             }
         }
     }
@@ -233,7 +233,7 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
 
             AND_THEN( "it should see a correctly advanced out iterator" )
             {
-                REQUIRE( ( new_buf_start - result.begin( ) ) == pubcomp.header( ).total_length( ) );
+                REQUIRE( ( new_buf_start - result.begin( ) ) == pubcomp.total_length( ) );
             }
         }
     }
@@ -257,7 +257,7 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
 
             AND_THEN( "it should see a correctly advanced out iterator" )
             {
-                REQUIRE( ( new_buf_start - result.begin( ) ) == unsuback.header( ).total_length( ) );
+                REQUIRE( ( new_buf_start - result.begin( ) ) == unsuback.total_length( ) );
             }
         }
     }

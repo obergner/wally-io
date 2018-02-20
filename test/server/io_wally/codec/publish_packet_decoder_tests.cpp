@@ -41,9 +41,9 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
 
                 CHECK( publish_packet.type( ) == protocol::packet::Type::PUBLISH );
 
-                CHECK( publish_packet.header( ).flags( ).dup( ) == false );
-                CHECK( publish_packet.header( ).flags( ).qos( ) == protocol::packet::QoS::AT_MOST_ONCE );
-                CHECK( publish_packet.header( ).flags( ).retain( ) == true );
+                CHECK( publish_packet.dup( ) == false );
+                CHECK( publish_packet.qos( ) == protocol::packet::QoS::AT_MOST_ONCE );
+                CHECK( publish_packet.retain( ) == true );
 
                 CHECK( publish_packet.topic( ) == "surgemq" );
 
@@ -83,9 +83,9 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
 
                 CHECK( publish_packet.type( ) == protocol::packet::Type::PUBLISH );
 
-                CHECK( publish_packet.header( ).flags( ).dup( ) == false );
-                CHECK( publish_packet.header( ).flags( ).qos( ) == protocol::packet::QoS::AT_LEAST_ONCE );
-                CHECK( publish_packet.header( ).flags( ).retain( ) == false );
+                CHECK( publish_packet.dup( ) == false );
+                CHECK( publish_packet.qos( ) == protocol::packet::QoS::AT_LEAST_ONCE );
+                CHECK( publish_packet.retain( ) == false );
 
                 CHECK( publish_packet.packet_identifier( ) == 7 );
 
@@ -127,9 +127,9 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
 
                 CHECK( publish_packet.type( ) == protocol::packet::Type::PUBLISH );
 
-                CHECK( publish_packet.header( ).flags( ).dup( ) == true );
-                CHECK( publish_packet.header( ).flags( ).qos( ) == protocol::packet::QoS::EXACTLY_ONCE );
-                CHECK( publish_packet.header( ).flags( ).retain( ) == false );
+                CHECK( publish_packet.dup( ) == true );
+                CHECK( publish_packet.qos( ) == protocol::packet::QoS::EXACTLY_ONCE );
+                CHECK( publish_packet.retain( ) == false );
 
                 CHECK( publish_packet.packet_identifier( ) == 0x2334 );
 
@@ -308,9 +308,9 @@ SCENARIO( "publish_packet_decoder_impl", "[decoder]" )
 
                 CHECK( publish_packet.type( ) == protocol::packet::Type::PUBLISH );
 
-                CHECK( publish_packet.header( ).flags( ).dup( ) == false );
-                CHECK( publish_packet.header( ).flags( ).qos( ) == protocol::packet::QoS::AT_LEAST_ONCE );
-                CHECK( publish_packet.header( ).flags( ).retain( ) == false );
+                CHECK( publish_packet.dup( ) == false );
+                CHECK( publish_packet.qos( ) == protocol::packet::QoS::AT_LEAST_ONCE );
+                CHECK( publish_packet.retain( ) == false );
 
                 CHECK( publish_packet.packet_identifier( ) == 1 );
 

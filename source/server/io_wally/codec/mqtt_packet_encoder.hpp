@@ -41,7 +41,7 @@ namespace io_wally
                                    OutputIterator buf_end ) const
             {
                 buf_start = encode_header( mqtt_packet.header( ), buf_start );
-                assert( ( buf_end - buf_start ) >= mqtt_packet.header( ).remaining_length( ) );
+                assert( ( buf_end - buf_start ) >= mqtt_packet.remaining_length( ) );
 
                 return body_encoder_for( mqtt_packet ).encode( mqtt_packet, buf_start );
             }

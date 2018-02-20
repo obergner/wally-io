@@ -30,7 +30,7 @@ SCENARIO( "pingresp packet", "[packets]" )
 
         WHEN( "a caller asks for its remaining_length" )
         {
-            const std::uint32_t remaining_length = under_test.header( ).remaining_length( );
+            const std::uint32_t remaining_length = under_test.remaining_length( );
 
             THEN( "it should see 0" )
             {
@@ -45,7 +45,7 @@ SCENARIO( "pingresp packet", "[packets]" )
 
         WHEN( "a caller asks for its total_length" )
         {
-            const std::uint32_t total_length = under_test.header( ).total_length( );
+            const std::uint32_t total_length = under_test.total_length( );
 
             THEN( "it should see 2" )
             {

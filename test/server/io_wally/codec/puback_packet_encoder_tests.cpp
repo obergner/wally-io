@@ -32,7 +32,7 @@ SCENARIO( "puback_packet_encoder", "[encoder]" )
 
             AND_THEN( "it should see a correctly advanced out iterator" )
             {
-                REQUIRE( ( new_buf_start - result.begin( ) ) == puback.header( ).remaining_length( ) );
+                REQUIRE( ( new_buf_start - result.begin( ) ) == puback.remaining_length( ) );
             }
         }
     }

@@ -350,12 +350,11 @@ namespace io_wally
 
         logger_->debug( ">>> SEND: {} ...", packet );
         write_buffer_.clear( );
-        write_buffer_.resize( packet.header( ).total_length( ) );
-        packet_encoder_.encode( packet, write_buffer_.begin( ),
-                                write_buffer_.begin( ) + packet.header( ).total_length( ) );
+        write_buffer_.resize( packet.total_length( ) );
+        packet_encoder_.encode( packet, write_buffer_.begin( ), write_buffer_.begin( ) + packet.total_length( ) );
 
         auto self = shared_from_this( );
-        asio::async_write( socket_, asio::buffer( write_buffer_.data( ), packet.header( ).total_length( ) ),
+        asio::async_write( socket_, asio::buffer( write_buffer_.data( ), packet.total_length( ) ),
                            strand_.wrap( [self]( const std::error_code& ec, size_t bytes_written ) {
                                if ( ec )
                                {
@@ -379,12 +378,11 @@ namespace io_wally
 
         logger_->debug( ">>> SEND: {} - {} ...", packet, message );
         write_buffer_.clear( );
-        write_buffer_.resize( packet.header( ).total_length( ) );
-        packet_encoder_.encode( packet, write_buffer_.begin( ),
-                                write_buffer_.begin( ) + packet.header( ).total_length( ) );
+        write_buffer_.resize( packet.total_length( ) );
+        packet_encoder_.encode( packet, write_buffer_.begin( ), write_buffer_.begin( ) + packet.total_length( ) );
 
         auto self = shared_from_this( );
-        asio::async_write( socket_, asio::buffer( write_buffer_.data( ), packet.header( ).total_length( ) ),
+        asio::async_write( socket_, asio::buffer( write_buffer_.data( ), packet.total_length( ) ),
                            strand_.wrap( [self, reason]( const std::error_code& ec, size_t /* bytes_written */ ) {
                                if ( ec )
                                {
