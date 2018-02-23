@@ -37,7 +37,7 @@ namespace io_wally
                 // Check that header flags comply with MQTT spec
                 // See: [MQTT-3.8.1-1]
                 if ( ( frame.type_and_flags & 0x0F ) != 0x02 )
-                    throw error::malformed_mqtt_packet( "[MQTT-3.8.1-1] Illegal header flags in SUBSCRIBE packet" );
+                    throw error::malformed_mqtt_packet{"[MQTT-3.8.1-1] Illegal header flags in SUBSCRIBE packet"};
 
                 auto new_buf_start = frame.begin;
 
@@ -59,9 +59,9 @@ namespace io_wally
                     subscriptions.emplace_back( topic_filter, maximum_qos );
                 }
                 if ( subscriptions.empty( ) )
-                    throw error::malformed_mqtt_packet(
+                    throw error::malformed_mqtt_packet{
                         "[MQTT-3.8.3-3] A SUBSCRIBE packet MUST contain at least one subscription (topic filter/QoS "
-                        "pair)" );
+                        "pair)"};
 
                 return std::make_shared<protocol::subscribe>(
                     protocol::packet::header{frame.type_and_flags,

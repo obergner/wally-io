@@ -8,13 +8,13 @@
 #include "io_wally/codec/connect_packet_decoder.hpp"
 #include "io_wally/codec/disconnect_packet_decoder.hpp"
 #include "io_wally/codec/pingreq_packet_decoder.hpp"
-#include "io_wally/codec/subscribe_packet_decoder.hpp"
-#include "io_wally/codec/unsubscribe_packet_decoder.hpp"
-#include "io_wally/codec/publish_packet_decoder.hpp"
 #include "io_wally/codec/puback_packet_decoder.hpp"
+#include "io_wally/codec/pubcomp_packet_decoder.hpp"
+#include "io_wally/codec/publish_packet_decoder.hpp"
 #include "io_wally/codec/pubrec_packet_decoder.hpp"
 #include "io_wally/codec/pubrel_packet_decoder.hpp"
-#include "io_wally/codec/pubcomp_packet_decoder.hpp"
+#include "io_wally/codec/subscribe_packet_decoder.hpp"
+#include "io_wally/codec/unsubscribe_packet_decoder.hpp"
 
 namespace io_wally
 {
@@ -40,11 +40,6 @@ namespace io_wally
             /// \param frame        \c frame to decode \c mqtt_packet from
             /// \throws error::malformed_mqtt_packet    If encoding is malformed, e.g. remaining length has been
             ///                                         incorrectly encoded.
-            ///
-            /// \pre        \c buf_start points to the first byte after the fixed header in a buffer representing
-            ///             an \c mqtt_packet's on the wire format.
-            /// \pre        \c buf_end points immediately past the last byte in a buffer representing an
-            ///             \c mqtt_packet's on the wire format.
             std::shared_ptr<protocol::mqtt_packet> decode( const frame& frame ) const
             {
                 return body_decoder_for( frame ).decode( frame );

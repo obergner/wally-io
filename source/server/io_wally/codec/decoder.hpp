@@ -290,32 +290,17 @@ namespace io_wally
         class packet_decoder_impl
         {
            public:
-            /// \brief Parse the supplied buffer into an MQTT packet.
+            /// @brief Parse the supplied @c frame into an MQTT packet.
             ///
-            /// Start decoding at \c buf_start. Parse until \c buf_end. Use \c header to create the parsed
-            /// \c mqtt_packet and return it, transferring ownership to the caller. If decoding fails throw an
-            /// \c error::malformed_mqtt_packet.
-            ///
-            /// \param header               Header of MQTT packet to parse. Contains the type of MQTT packet.
-            /// \attention                  Implementations are asked to throw an assertion error if the the type
-            ///                             of MQTT packet to parse contained in \c header does not match this
+            /// @param frame                @c frame to decode into an @c mqtt_packet
+            /// @attention                  Implementations are asked to throw an assertion error if the the type
+            ///                             of MQTT packet to parse contained in @c frame does not match this
             ///                             implementation.
-            /// \param buf_start            Start of buffer containing the serialized MQTT packet. MUST point to
-            ///                             the start of the packet body, i.e. the variable header (if present) or
-            ///                             the payload.
-            /// \param buf_end              End of buffer containing the serialized MQTT packet.
-            /// \return                     The parsed \c mqtt_packet, i.e. an instance of a concrete subclass of
-            ///                             \c mqtt_packet. Note that the caller assumes ownership.
-            /// \throws error::malformed_mqtt_packet    If encoding is malformed, e.g. remaining length has been
+            /// @return                     The parsed @c mqtt_packet, i.e. an instance of a concrete subclass of
+            ///                             @c mqtt_packet. Note that the caller assumes ownership.
+            /// @throws error::malformed_mqtt_packet    If encoding is malformed, e.g. remaining length has been
             ///                                         incorrectly encoded.
-            ///
-            /// \pre        \c buf_start points to the first byte after the fixed header in a buffer representing
-            ///             an \c mqtt_packet's on the wire format.
-            /// \pre        \c buf_end points immediately past the last byte in a buffer representing an
-            ///             \c mqtt_packet's on the wire format.
-            /// \pre        \c header is of the same MQTT Control Packet type as this \c packet_body_decoder
-            ///             expects to decode.
             virtual std::shared_ptr<protocol::mqtt_packet> decode( const frame& frame ) const = 0;
-        };  // packet_body_decoder
+        };  // packet_decoder_impl
     }       /// namespace decoder
 }  /// namespace io_wally

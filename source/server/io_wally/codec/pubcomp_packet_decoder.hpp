@@ -33,7 +33,7 @@ namespace io_wally
                 // [MQTT-2.2.2-1] Flags in PUBCOMP MUST be zero
                 if ( ( frame.type_and_flags & 0x0F ) != 0x00 )
                 {
-                    throw error::malformed_mqtt_packet( "[MQTT-2.2.2-1] Invalid flags in PUBCOMP packet." );
+                    throw error::malformed_mqtt_packet{"[MQTT-2.2.2-1] Invalid flags in PUBCOMP packet."};
                 }
 
                 // Parse variable header pubcomp_header

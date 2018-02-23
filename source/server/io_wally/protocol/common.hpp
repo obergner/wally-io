@@ -430,6 +430,27 @@ namespace io_wally
 
             constexpr const uint32_t MAX_FIXED_HEADER_LENGTH = 5;
 
+            /**
+             * @brief Compute an MQTT packet's total lenght in bytes on the wire given its @c remaining_length
+             *
+             * An MQTT packet's total length in bytes on the wire is simply the sum of its fixed header's lenght
+             * plus its @c remaining_length.
+             */
+            inline uint32_t total_length( const uint32_t remaining_length )
+            {
+                uint32_t rem_length_bytes;
+                if ( remaining_length <= 127 )
+                    rem_length_bytes = 1;
+                else if ( remaining_length <= 16383 )
+                    rem_length_bytes = 2;
+                else if ( remaining_length <= 2097151 )
+                    rem_length_bytes = 3;
+                else
+                    rem_length_bytes = 4;
+
+                return 1 + rem_length_bytes + remaining_length;
+            }
+
             /// \brief Represents an MQTT control packet's \c fixed header.
             ///
             /// Each MQTT control packet starts with a variable length \c fixed header encoding
@@ -490,17 +511,7 @@ namespace io_wally
                 /// plus its \c remaining_length().
                 uint32_t total_length( ) const
                 {
-                    uint32_t rem_length_bytes;
-                    if ( remaining_length_ <= 127 )
-                        rem_length_bytes = 1;
-                    else if ( remaining_length_ <= 16383 )
-                        rem_length_bytes = 2;
-                    else if ( remaining_length_ <= 2097151 )
-                        rem_length_bytes = 3;
-                    else
-                        rem_length_bytes = 4;
-
-                    return 1 + rem_length_bytes + remaining_length_;
+                    return packet::total_length( remaining_length_ );
                 }
 
                 /// \brief Overload stream output operator for \c headers.
@@ -612,17 +623,7 @@ namespace io_wally
             /// plus its \c remaining_length().
             uint32_t total_length( ) const
             {
-                uint32_t rem_length_bytes;
-                if ( remaining_length_ <= 127 )
-                    rem_length_bytes = 1;
-                else if ( remaining_length_ <= 16383 )
-                    rem_length_bytes = 2;
-                else if ( remaining_length_ <= 2097151 )
-                    rem_length_bytes = 3;
-                else
-                    rem_length_bytes = 4;
-
-                return 1 + rem_length_bytes + remaining_length_;
+                return packet::total_length( remaining_length_ );
             }
 
             /// \brief Return this \c mqtt_packet's \c packet::header.
@@ -691,11 +692,10 @@ namespace io_wally
                                               const uint32_t remaining_length,
                                               const uint8_t flags )
             {
-                uint8_t type_and_flags = flags;
+                auto type_and_flags = flags;
                 packet::type_into( type, type_and_flags );
-                const packet::header res( type_and_flags, remaining_length );
 
-                return res;
+                return packet::header{type_and_flags, remaining_length};
             }
         };  // struct mqtt_ack
 

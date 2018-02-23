@@ -26,13 +26,17 @@ namespace io_wally
 
                 assert( frame.type( ) == packet::Type::CONNECT );
 
+                if ( ( frame.type_and_flags & 0x0F ) != 0x00 )
+                    throw error::malformed_mqtt_packet{
+                        "[MQTT-2.2.2-2] CONNECT packet contains invalid fixed header flags"};
+
                 auto new_buf_start = frame.begin;
 
                 // Parse variable header connect_header
                 auto protocol_name = std::string{};
                 std::tie( new_buf_start, protocol_name ) = decode_utf8_string( new_buf_start, frame.end );
                 if ( protocol_name.empty( ) )
-                    throw error::malformed_mqtt_packet( "CONNECT packet does not contain protocol name" );
+                    throw error::malformed_mqtt_packet{"CONNECT packet does not contain protocol name"};
 
                 const auto protocol_level = *new_buf_start++;
 
@@ -51,7 +55,6 @@ namespace io_wally
                 if ( cf.contains_last_will( ) )
                 {
                     std::tie( new_buf_start, last_will_topic ) = decode_utf8_string( new_buf_start, frame.end );
-
                     std::tie( new_buf_start, last_will_msg ) = decode_utf8_string( new_buf_start, frame.end );
                 }
 
@@ -68,8 +71,8 @@ namespace io_wally
                 }
 
                 if ( new_buf_start != frame.end )
-                    throw error::malformed_mqtt_packet(
-                        "Combined size of fields in buffers does not add up to advertised remaining length" );
+                    throw error::malformed_mqtt_packet{
+                        "Combined size of fields in buffers does not add up to advertised remaining length"};
 
                 return std::make_shared<protocol::connect>(
                     protocol::packet::header{frame.type_and_flags,

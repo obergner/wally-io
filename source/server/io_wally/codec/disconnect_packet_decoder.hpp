@@ -33,15 +33,15 @@ namespace io_wally
                 // MQTT-3.14.1-1: Header flags MUST be zero
                 if ( ( frame.type_and_flags & 0x0F ) != 0 )
                 {
-                    throw error::malformed_mqtt_packet(
-                        "[MQTT-3.14.1.-1] DISCONNECT header has non-zero flags set (violates MQTT 3.1.1 spec)" );
+                    throw error::malformed_mqtt_packet{
+                        "[MQTT-3.14.1.-1] DISCONNECT header has non-zero flags set (violates MQTT 3.1.1 spec)"};
                 }
 
                 // Check that remaining length is 0, as required by MQTT 3.1.1
                 if ( frame.remaining_length( ) != 0 )
                 {
-                    throw error::malformed_mqtt_packet(
-                        "DISCONNECT fixed header reports remaining length != 0 (violates MQTT 3.1.1 spec)" );
+                    throw error::malformed_mqtt_packet{
+                        "DISCONNECT fixed header reports remaining length != 0 (violates MQTT 3.1.1 spec)"};
                 }
 
                 return std::make_shared<protocol::disconnect>( );

@@ -32,7 +32,7 @@ namespace io_wally
 
                 // [MQTT-2.2.2-1] Flags in PUBREC MUST be zero
                 if ( ( frame.type_and_flags & 0x0F ) != 0x00 )
-                    throw error::malformed_mqtt_packet( "[MQTT-2.2.2-1] Invalid flags in PUBREC packet." );
+                    throw error::malformed_mqtt_packet{"[MQTT-2.2.2-1] Invalid flags in PUBREC packet."};
 
                 // Parse variable header pubrec_header
                 auto packet_id = uint16_t{0};

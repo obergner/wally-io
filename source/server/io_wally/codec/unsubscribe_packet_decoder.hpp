@@ -36,7 +36,7 @@ namespace io_wally
                 // Check that header flags comply with MQTT spec
                 // See: [MQTT-3.10.1-1]
                 if ( ( frame.type_and_flags & 0x0F ) != 0x02 )
-                    throw error::malformed_mqtt_packet( "[MQTT-3.10.1-1] Illegal header flags in UNSUBSCRIBE packet" );
+                    throw error::malformed_mqtt_packet{"[MQTT-3.10.1-1] Illegal header flags in UNSUBSCRIBE packet"};
 
                 auto new_buf_start = frame.begin;
 
@@ -54,8 +54,8 @@ namespace io_wally
                     topic_filters.emplace_back( topic_filter );
                 }
                 if ( topic_filters.empty( ) )
-                    throw error::malformed_mqtt_packet(
-                        "[MQTT-3.10.3-2] A UNSUBSCRIBE packet MUST contain at least one subscription (topic filter)" );
+                    throw error::malformed_mqtt_packet{
+                        "[MQTT-3.10.3-2] A UNSUBSCRIBE packet MUST contain at least one subscription (topic filter)"};
 
                 return std::make_shared<protocol::unsubscribe>(
                     protocol::packet::header{frame.type_and_flags,

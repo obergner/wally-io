@@ -28,11 +28,15 @@ namespace io_wally
             {
                 assert( frame.type( ) == protocol::packet::Type::PINGREQ );
 
+                if ( ( frame.type_and_flags & 0x0F ) != 0x00 )
+                    throw error::malformed_mqtt_packet{
+                        "[MQTT-2.2.2-2] PINGREQ packet contains invalid fixed header flags"};
+
                 // Check that remaining length is 0, as required by MQTT 3.1.1
                 if ( frame.remaining_length( ) != 0 )
                 {
-                    throw error::malformed_mqtt_packet(
-                        "PINGREQ fixed header reports remaining length != 0 (violates MQTT 3.1.1 spec)" );
+                    throw error::malformed_mqtt_packet{
+                        "PINGREQ fixed header reports remaining length != 0 (violates MQTT 3.1.1 spec)"};
                 }
 
                 return std::make_shared<protocol::pingreq>( );
