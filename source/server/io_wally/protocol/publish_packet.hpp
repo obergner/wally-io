@@ -33,7 +33,28 @@ namespace io_wally
         /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718037
         struct publish final : public mqtt_packet
         {
-           public:
+           public:  // static
+            static std::unique_ptr<publish> create( const bool dup,
+                                                    const packet::QoS qos,
+                                                    const bool retain,
+                                                    const std::string& topic,
+                                                    const uint16_t packet_identifier,
+                                                    std::vector<uint8_t> application_message )
+            {
+                auto type_and_flags = uint8_t{0x00};
+                packet::type_into( packet::Type::PUBLISH, type_and_flags );
+                packet::dup_into( dup, type_and_flags );
+                packet::qos_into( qos, type_and_flags, 1 );
+                packet::retain_into( retain, type_and_flags );
+
+                auto remaining_length = uint32_t{2};  // packet_identifier
+                remaining_length += ( 2 + topic.length( ) );
+                remaining_length += application_message.size( );
+
+                return std::make_unique<publish>( type_and_flags, remaining_length, topic, packet_identifier,
+                                                  std::move( application_message ) );
+            }
+
             /**
              * @brief Create a new @c publish instance
              *
@@ -55,6 +76,7 @@ namespace io_wally
                 assert( packet::type_of( type_and_flags ) == packet::Type::PUBLISH );
             }
 
+           public:
             /// \brief Return whether DUP flag is set, i.e. this PUBLISH packet is a duplicate publication.
             ///
             /// \return \c true if DUP flag is set, \c false otherwise
