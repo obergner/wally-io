@@ -10,19 +10,19 @@ using namespace io_wally;
 
 SCENARIO( "unsuback_packet_encoder", "[encoder]" )
 {
-    auto under_test = encoder::unsuback_packet_encoder<std::uint8_t*>{};
+    const auto under_test = encoder::unsuback_packet_encoder<std::uint8_t*>{};
 
     GIVEN( "an unsuback packet" )
     {
-        auto packet_identifier = uint16_t{65535};
-        auto unsuback = protocol::unsuback{packet_identifier};
+        const auto packet_identifier = uint16_t{65535};
+        const auto unsuback = protocol::unsuback{packet_identifier};
 
         auto result = std::array<std::uint8_t, 2>{{0x00, 0x00}};
-        auto expected_result = std::array<std::uint8_t, 2>{{0xFF, 0xFF}};
+        const auto expected_result = std::array<std::uint8_t, 2>{{0xFF, 0xFF}};
 
         WHEN( "a client passes that packet into unsuback_packet_encoder::encode" )
         {
-            auto new_buf_start = under_test.encode( unsuback, result.begin( ) );
+            const auto new_buf_start = under_test.encode( unsuback, result.begin( ) );
 
             THEN( "that client should see a correctly encoded buffer" )
             {

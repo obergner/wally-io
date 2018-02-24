@@ -115,21 +115,27 @@ namespace io_wally
             return buf_start;
         }
 
-        /// \brief Encode an MQTT \c header.
-        ///
-        /// Encode \c header into a buffer starting at \c buf_start. Return an \c OutputIterator pointing immediately
-        /// past the last byte written. If \c header is not spec compliant, throw an error::illegal_mqtt_packet.
-        ///
-        /// \param header       The packet::header to encode
-        /// \param buf_start    Start of buffer to encode \c header into
-        /// \return             An \c OutputIterator pointing immediately past the last byte written
-        ///
-        /// \see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718020
+        /**
+         * @brief Encode an MQTT @c header.
+         *
+         * Encode @c type_and_flags and @c remaining_length into a buffer starting at @c buf_start. Return an @c
+         * OutputIterator pointing immediately past the last byte written. If @c remaining_length is not spec compliant,
+         * throw an error::illegal_mqtt_packet.
+         *
+         * @param type_and_flags    The first header byte containing @c packet::Type and flags
+         * @param remaining_length  MQTT packet's remaining length
+         * @param buf_start    Start of buffer to encode @c header into
+         * @return             An @c OutputIterator pointing immediately past the last byte written
+         *
+         * @see http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718020
+         */
         template <typename OutputIterator>
-        OutputIterator encode_header( const protocol::packet::header& header, OutputIterator buf_start )
+        OutputIterator encode_fixed_header( const uint8_t type_and_flags,
+                                            const uint32_t remaining_length,
+                                            OutputIterator buf_start )
         {
-            *buf_start++ = header.type_and_flags( );
-            buf_start = encode_remaining_length( header.remaining_length( ), buf_start );
+            *buf_start++ = type_and_flags;
+            buf_start = encode_remaining_length( remaining_length, buf_start );
 
             return buf_start;
         }

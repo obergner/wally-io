@@ -608,6 +608,14 @@ namespace io_wally
             }
 
             /**
+             * @brief Return control packet type and flags in "raw" form, i.e. as a byte.
+             */
+            uint8_t type_and_flags( ) const
+            {
+                return type_and_flags_;
+            }
+
+            /**
              * @brief Return this @c mqtt_packet's remaining length
              *
              * @return This @c mqtt_packet's remaining length
@@ -624,14 +632,6 @@ namespace io_wally
             uint32_t total_length( ) const
             {
                 return packet::total_length( remaining_length_ );
-            }
-
-            /// \brief Return this \c mqtt_packet's \c packet::header.
-            ///
-            /// \return This MQTT packet's packet::header
-            const struct packet::header header( ) const
-            {
-                return packet::header{type_and_flags_, remaining_length_};
             }
 
             /// \brief Return a string representation of this packet to be used e.g. in log output.
@@ -662,15 +662,6 @@ namespace io_wally
                 return;
             }
 
-            /// \brief Create a new \c mqtt_packet instance from the supplied \c packet::header.
-            ///
-            /// \param header This MQTT packet's packet::header
-            mqtt_packet( struct packet::header header )
-                : mqtt_packet{header.type_and_flags( ), header.remaining_length( )}
-            {
-                return;
-            }
-
            protected:
             uint8_t type_and_flags_;
             uint32_t remaining_length_;
@@ -682,20 +673,9 @@ namespace io_wally
         {
            protected:
             mqtt_ack( const packet::Type type, const uint32_t remaining_length, const uint8_t flags = 0x00 )
-                : mqtt_packet{header_for( type, remaining_length, flags )}
+                : mqtt_packet{flags, remaining_length}
             {
-                return;
-            }
-
-           private:
-            static packet::header header_for( const packet::Type type,
-                                              const uint32_t remaining_length,
-                                              const uint8_t flags )
-            {
-                auto type_and_flags = flags;
-                packet::type_into( type, type_and_flags );
-
-                return packet::header{type_and_flags, remaining_length};
+                packet::type_into( type, type_and_flags_ );
             }
         };  // struct mqtt_ack
 

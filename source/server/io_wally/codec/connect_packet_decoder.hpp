@@ -75,10 +75,9 @@ namespace io_wally
                         "Combined size of fields in buffers does not add up to advertised remaining length"};
 
                 return std::make_shared<protocol::connect>(
-                    protocol::packet::header{frame.type_and_flags,
-                                             static_cast<const uint32_t>( frame.remaining_length( ) )},
-                    protocol_name.c_str( ), protocol_level, connect_flags, keep_alive_secs, client_id.c_str( ),
-                    last_will_topic.c_str( ), last_will_msg.c_str( ), username.c_str( ), password.c_str( ) );
+                    static_cast<const uint32_t>( frame.remaining_length( ) ), protocol_name.c_str( ), protocol_level,
+                    connect_flags, keep_alive_secs, client_id.c_str( ), last_will_topic.c_str( ),
+                    last_will_msg.c_str( ), username.c_str( ), password.c_str( ) );
             }
         };  // class connect_packet_decoder_impl
 

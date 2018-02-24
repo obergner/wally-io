@@ -55,22 +55,6 @@ namespace io_wally
                 assert( packet::type_of( type_and_flags ) == packet::Type::PUBLISH );
             }
 
-            /// \brief Create a new \c publish instance.
-            ///
-            /// \param header           Fixed header, common to all MQTT control packets
-            /// \param topic            Topic this message should be published to
-            /// \param packet_identifier Unsigned 16 bit int identifying this packet: IGNORED IF QOS = 0
-            /// \param application_message The message payload, an opaque byte array
-            publish( packet::header header,
-                     const std::string& topic,
-                     const uint16_t packet_identifier,
-                     std::vector<uint8_t> application_message )
-                : publish{header.type_and_flags( ), header.remaining_length( ), topic, packet_identifier,
-                          std::move( application_message )}
-            {
-                assert( header.type( ) == packet::Type::PUBLISH );
-            }
-
             /// \brief Return whether DUP flag is set, i.e. this PUBLISH packet is a duplicate publication.
             ///
             /// \return \c true if DUP flag is set, \c false otherwise
@@ -192,9 +176,8 @@ namespace io_wally
 
             std::shared_ptr<publish> with_new_packet_identifier( const std::uint16_t new_packet_identifier ) const
             {
-                const packet::header& header_copy = header( );
-
-                return std::make_shared<publish>( header_copy, topic_, new_packet_identifier, application_message_ );
+                return std::make_shared<publish>( type_and_flags_, remaining_length_, topic_, new_packet_identifier,
+                                                  application_message_ );
             }
 
            private:

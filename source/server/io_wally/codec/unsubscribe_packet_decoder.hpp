@@ -58,9 +58,7 @@ namespace io_wally
                         "[MQTT-3.10.3-2] A UNSUBSCRIBE packet MUST contain at least one subscription (topic filter)"};
 
                 return std::make_shared<protocol::unsubscribe>(
-                    protocol::packet::header{frame.type_and_flags,
-                                             static_cast<const uint32_t>( frame.remaining_length( ) )},
-                    packet_id, topic_filters );
+                    static_cast<const uint32_t>( frame.remaining_length( ) ), packet_id, topic_filters );
             }
         };  // class unsubscribe_packet_decoder_impl
     }       // namespace decoder

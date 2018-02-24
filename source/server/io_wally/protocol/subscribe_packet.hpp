@@ -48,17 +48,6 @@ namespace io_wally
                 assert( packet::type_of( type_and_flags_ ) == packet::Type::SUBSCRIBE );
             }
 
-            /// \brief Create a new \c subscribe instance.
-            ///
-            /// \param header           Fixed header, common to all MQTT control packets
-            subscribe( packet::header header,
-                       const uint16_t packet_identifier,
-                       std::vector<subscription> subscriptions )
-                : subscribe{header.remaining_length( ), packet_identifier, subscriptions}
-            {
-                assert( header.type( ) == packet::Type::SUBSCRIBE );
-            }
-
             /// \brief Return packet's \c packet_identifier.
             ///
             /// \return Packet identifier uniquely identifying this packet.

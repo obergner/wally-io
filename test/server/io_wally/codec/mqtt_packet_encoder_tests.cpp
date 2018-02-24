@@ -16,7 +16,7 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
 
     GIVEN( "a connack packet with session present flag set and return code 'NOT_AUTHORIZED'" )
     {
-        const protocol::connack connack( true, protocol::connect_return_code::NOT_AUTHORIZED );
+        const protocol::connack connack{true, protocol::connect_return_code::NOT_AUTHORIZED};
 
         std::array<std::uint8_t, 4> result = {{0x00, 0x00, 0x00, 0x00}};
         const std::array<std::uint8_t, 4> expected_result = {{0x20, 0x02, 0x01, 0x05}};
@@ -89,16 +89,18 @@ SCENARIO( "mqtt_packet_encoder", "[encoder]" )
 
     GIVEN( "a PUBLISH packet with QoS 1" )
     {
-        auto header = protocol::packet::header{3 << 4 | 0x02, 23};
-        auto packet_identifier = uint16_t{7};
-        auto topic = "surgemq";
+        const auto type_and_flags = uint8_t{3 << 4 | 0x02};
+        const auto remaining_length = uint32_t{23};
+        const auto packet_identifier = uint16_t{7};
+        const auto topic = "surgemq";
         auto application_message = std::vector<uint8_t>{'s', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e'};
-        auto publish = protocol::publish{header, topic, packet_identifier, application_message};
+        const auto publish =
+            protocol::publish{type_and_flags, remaining_length, topic, packet_identifier, application_message};
 
         auto result =
             std::array<std::uint8_t, 25>{{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
-        auto expected_result = std::array<std::uint8_t, 25>{{
+        const auto expected_result = std::array<std::uint8_t, 25>{{
             ( 3 << 4 | 0x02 ),
             0x17,
             0x00,

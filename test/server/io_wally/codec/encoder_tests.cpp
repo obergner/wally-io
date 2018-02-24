@@ -287,13 +287,12 @@ SCENARIO( "encoding an mqtt_header", "[packets]" )
     {
         const std::uint8_t type_and_flags = 0x62;
         const std::uint32_t remaining_length = 244;
-        const protocol::packet::header header{type_and_flags, remaining_length};
         std::array<std::uint8_t, 5> result = {{0x00, 0x00, 0x00, 0x00, 0x00}};
         const std::array<std::uint8_t, 5> expected_result = {{0x62, 0xF4, 0x01, 0x00, 0x00}};
 
         WHEN( "a client passes that buffer into encode_header" )
         {
-            const out_iter buf_end = encoder::encode_header( header, result.begin( ) );
+            const out_iter buf_end = encoder::encode_fixed_header( type_and_flags, remaining_length, result.begin( ) );
 
             THEN( "the client should see a correctly encoded value and a correctly updated buffer iterator" )
             {

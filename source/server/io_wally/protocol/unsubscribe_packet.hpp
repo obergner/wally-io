@@ -46,17 +46,6 @@ namespace io_wally
                 assert( packet::type_of( type_and_flags_ ) == packet::Type::UNSUBSCRIBE );
             }
 
-            /// \brief Create a new \c unsubscribe instance.
-            ///
-            /// \param header           Fixed header, common to all MQTT control packets
-            unsubscribe( packet::header header,
-                         const uint16_t packet_identifier,
-                         std::vector<std::string> topic_filters )
-                : unsubscribe{header.remaining_length( ), packet_identifier, topic_filters}
-            {
-                assert( header.type( ) == packet::Type::UNSUBSCRIBE );
-            }
-
             /// \brief Return packet's \c packet_identifier.
             ///
             /// \return Packet identifier uniquely identifying this packet.

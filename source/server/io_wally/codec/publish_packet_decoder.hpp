@@ -60,10 +60,9 @@ namespace io_wally
                 // Parse application message
                 auto application_message = std::vector<uint8_t>{new_buf_start, frame.end};
 
-                return std::make_shared<protocol::publish>(
-                    protocol::packet::header{frame.type_and_flags,
-                                             static_cast<const uint32_t>( frame.remaining_length( ) )},
-                    topic_name, packet_id, application_message );
+                return std::make_shared<protocol::publish>( frame.type_and_flags,
+                                                            static_cast<const uint32_t>( frame.remaining_length( ) ),
+                                                            topic_name, packet_id, application_message );
             }
 
            private:
