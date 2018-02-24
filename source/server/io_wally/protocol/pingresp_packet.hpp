@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include <sstream>
+#include <string>
 
 #include "io_wally/protocol/common.hpp"
 
@@ -16,8 +16,9 @@ namespace io_wally
         {
            public:
             /// \brief Create a new \c pingresp instance.
-            pingresp( ) : mqtt_packet{packet::header{0x0D << 4, 0x00}}
+            pingresp( ) : mqtt_packet{0x0D << 4, 0x00}
             {
+                assert( packet::type_of( type_and_flags_ ) == packet::Type::PINGRESP );
             }
 
             /// \return A string representation to be used in log output

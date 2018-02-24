@@ -2,15 +2,15 @@
 
 #include <cassert>
 #include <cstdint>
-#include <string>
 #include <sstream>
+#include <string>
 #include <vector>
 
 #include <optional>
 
 #include "io_wally/protocol/common.hpp"
-#include "io_wally/protocol/subscription.hpp"
 #include "io_wally/protocol/suback_packet.hpp"
+#include "io_wally/protocol/subscription.hpp"
 
 namespace io_wally
 {
@@ -38,12 +38,23 @@ namespace io_wally
             /// \brief Create a new \c subscribe instance.
             ///
             /// \param header           Fixed header, common to all MQTT control packets
+            subscribe( const uint32_t remaining_length,
+                       const uint16_t packet_identifier,
+                       std::vector<subscription> subscriptions )
+                : mqtt_packet{( 0x08 << 4 ) | 0x02, remaining_length},
+                  packet_identifier_{packet_identifier},
+                  subscriptions_{std::move( subscriptions )}
+            {
+                assert( packet::type_of( type_and_flags_ ) == packet::Type::SUBSCRIBE );
+            }
+
+            /// \brief Create a new \c subscribe instance.
+            ///
+            /// \param header           Fixed header, common to all MQTT control packets
             subscribe( packet::header header,
                        const uint16_t packet_identifier,
                        std::vector<subscription> subscriptions )
-                : mqtt_packet{std::move( header )},
-                  packet_identifier_{packet_identifier},
-                  subscriptions_{std::move( subscriptions )}
+                : subscribe{header.remaining_length( ), packet_identifier, subscriptions}
             {
                 assert( header.type( ) == packet::Type::SUBSCRIBE );
             }

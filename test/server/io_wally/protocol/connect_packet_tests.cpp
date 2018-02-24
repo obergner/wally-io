@@ -14,7 +14,7 @@ SCENARIO( "connect", "[packets]" )
 
     GIVEN( "a connect with default protocol name" )
     {
-        packet::header header{0x01 << 4, 20};  // 20 is just some number
+        const uint32_t remaining_length = 20;  // 20 is just some number
         const char* const prot_name = "MQTT";
         const std::uint8_t prot_level = 0x04;
         const std::uint8_t prot_flags = 0x00;
@@ -25,8 +25,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
-                                  will_message, username, password );
+        const connect under_test( remaining_length, prot_name, prot_level, prot_flags, keep_alive_secs, client_id,
+                                  will_topic, will_message, username, password );
 
         WHEN( "a caller asks for the protocol name" )
         {
@@ -41,7 +41,7 @@ SCENARIO( "connect", "[packets]" )
 
     GIVEN( "a connect with protocol name 'Custom protocol'" )
     {
-        packet::header header{0x01 << 4, 20};  // 20 is just some number
+        const uint32_t remaining_length = 20;  // 20 is just some number
         const char* const prot_name = "Custom protocol";
         const std::uint8_t prot_level = 0x04;
         const std::uint8_t prot_flags = 0x00;
@@ -52,8 +52,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
-                                  will_message, username, password );
+        const connect under_test( remaining_length, prot_name, prot_level, prot_flags, keep_alive_secs, client_id,
+                                  will_topic, will_message, username, password );
 
         WHEN( "a caller asks for the protocol name" )
         {
@@ -68,7 +68,7 @@ SCENARIO( "connect", "[packets]" )
 
     GIVEN( "a connect with default protocol level" )
     {
-        packet::header header{0x01 << 4, 20};  // 20 is just some number
+        const uint32_t remaining_length = 20;  // 20 is just some number
         const char* const prot_name = "MQTT";
         const std::uint8_t prot_level = 0x04;
         const std::uint8_t prot_flags = 0x00;
@@ -79,8 +79,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
-                                  will_message, username, password );
+        const connect under_test( remaining_length, prot_name, prot_level, prot_flags, keep_alive_secs, client_id,
+                                  will_topic, will_message, username, password );
 
         WHEN( "a caller asks for the protocol level" )
         {
@@ -95,7 +95,7 @@ SCENARIO( "connect", "[packets]" )
 
     GIVEN( "a connect with non-default protocol level" )
     {
-        packet::header header{0x01 << 4, 20};  // 20 is just some number
+        const uint32_t remaining_length = 20;  // 20 is just some number
         const char* const prot_name = "MQTT";
         const std::uint8_t prot_level = 0x03;
         const std::uint8_t prot_flags = 0x00;
@@ -106,8 +106,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
-                                  will_message, username, password );
+        const connect under_test( remaining_length, prot_name, prot_level, prot_flags, keep_alive_secs, client_id,
+                                  will_topic, will_message, username, password );
 
         WHEN( "a caller asks for the protocol level" )
         {
@@ -122,7 +122,7 @@ SCENARIO( "connect", "[packets]" )
 
     GIVEN( "a connect with username flag set" )
     {
-        packet::header header{0x01 << 4, 20};  // 20 is just some number
+        const uint32_t remaining_length = 20;  // 20 is just some number
         const char* const prot_name = "MQTT";
         const std::uint8_t prot_level = 0x04;
         const std::uint8_t prot_flags = 0x80;
@@ -133,8 +133,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
-                                  will_message, username, password );
+        const connect under_test( remaining_length, prot_name, prot_level, prot_flags, keep_alive_secs, client_id,
+                                  will_topic, will_message, username, password );
 
         WHEN( "a caller asks if the username flag is set" )
         {
@@ -149,7 +149,7 @@ SCENARIO( "connect", "[packets]" )
 
     GIVEN( "a connect with username flag not set" )
     {
-        packet::header header{0x01 << 4, 20};  // 20 is just some number
+        const uint32_t remaining_length = 20;  // 20 is just some number
         const char* const prot_name = "MQTT";
         const std::uint8_t prot_level = 0x04;
         const std::uint8_t prot_flags = 0x7F;
@@ -160,8 +160,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
-                                  will_message, username, password );
+        const connect under_test( remaining_length, prot_name, prot_level, prot_flags, keep_alive_secs, client_id,
+                                  will_topic, will_message, username, password );
 
         WHEN( "a caller asks if the username flag is set" )
         {
@@ -176,7 +176,7 @@ SCENARIO( "connect", "[packets]" )
 
     GIVEN( "a connect with password flag set" )
     {
-        packet::header header{0x01 << 4, 20};  // 20 is just some number
+        const uint32_t remaining_length = 20;  // 20 is just some number
         const char* const prot_name = "MQTT";
         const std::uint8_t prot_level = 0x04;
         const std::uint8_t prot_flags = 0x40;
@@ -187,8 +187,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
-                                  will_message, username, password );
+        const connect under_test( remaining_length, prot_name, prot_level, prot_flags, keep_alive_secs, client_id,
+                                  will_topic, will_message, username, password );
 
         WHEN( "a caller asks if the password flag is set" )
         {
@@ -203,7 +203,7 @@ SCENARIO( "connect", "[packets]" )
 
     GIVEN( "a connect with password flag not set" )
     {
-        packet::header header{0x01 << 4, 20};  // 20 is just some number
+        const uint32_t remaining_length = 20;  // 20 is just some number
         const char* const prot_name = "MQTT";
         const std::uint8_t prot_level = 0x04;
         const std::uint8_t prot_flags = 0xBF;
@@ -214,8 +214,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
-                                  will_message, username, password );
+        const connect under_test( remaining_length, prot_name, prot_level, prot_flags, keep_alive_secs, client_id,
+                                  will_topic, will_message, username, password );
 
         WHEN( "a caller asks if the password flag is set" )
         {
@@ -230,7 +230,7 @@ SCENARIO( "connect", "[packets]" )
 
     GIVEN( "a connect with last will retain flag set" )
     {
-        packet::header header{0x01 << 4, 20};  // 20 is just some number
+        const uint32_t remaining_length = 20;  // 20 is just some number
         const char* const prot_name = "MQTT";
         const std::uint8_t prot_level = 0x04;
         const std::uint8_t prot_flags = 0x20;
@@ -241,8 +241,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
-                                  will_message, username, password );
+        const connect under_test( remaining_length, prot_name, prot_level, prot_flags, keep_alive_secs, client_id,
+                                  will_topic, will_message, username, password );
 
         WHEN( "a caller asks if the receiver should retain any last will message" )
         {
@@ -257,7 +257,7 @@ SCENARIO( "connect", "[packets]" )
 
     GIVEN( "a connect with last will retain flag not set" )
     {
-        packet::header header{0x01 << 4, 20};  // 20 is just some number
+        const uint32_t remaining_length = 20;  // 20 is just some number
         const char* const prot_name = "MQTT";
         const std::uint8_t prot_level = 0x04;
         const std::uint8_t prot_flags = 0xDF;
@@ -268,8 +268,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
-                                  will_message, username, password );
+        const connect under_test( remaining_length, prot_name, prot_level, prot_flags, keep_alive_secs, client_id,
+                                  will_topic, will_message, username, password );
 
         WHEN( "a caller asks if the receiver should retain any last will message" )
         {
@@ -284,7 +284,7 @@ SCENARIO( "connect", "[packets]" )
 
     GIVEN( "a connect with last will quality of service 'Exactly Once'" )
     {
-        packet::header header{0x01 << 4, 20};  // 20 is just some number
+        const uint32_t remaining_length = 20;  // 20 is just some number
         const char* const prot_name = "MQTT";
         const std::uint8_t prot_level = 0x04;
         const std::uint8_t prot_flags = 0x10;
@@ -295,8 +295,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
-                                  will_message, username, password );
+        const connect under_test( remaining_length, prot_name, prot_level, prot_flags, keep_alive_secs, client_id,
+                                  will_topic, will_message, username, password );
 
         WHEN( "a caller asks for the last will quality of service" )
         {
@@ -311,7 +311,7 @@ SCENARIO( "connect", "[packets]" )
 
     GIVEN( "a connect with last will quality of service 'At least once'" )
     {
-        packet::header header{0x01 << 4, 20};  // 20 is just some number
+        const uint32_t remaining_length = 20;  // 20 is just some number
         const char* const prot_name = "MQTT";
         const std::uint8_t prot_level = 0x04;
         const std::uint8_t prot_flags = 0x08;
@@ -322,8 +322,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
-                                  will_message, username, password );
+        const connect under_test( remaining_length, prot_name, prot_level, prot_flags, keep_alive_secs, client_id,
+                                  will_topic, will_message, username, password );
 
         WHEN( "a caller asks for the last will quality of service" )
         {
@@ -338,7 +338,7 @@ SCENARIO( "connect", "[packets]" )
 
     GIVEN( "a connect with last will quality of service 'At most once'" )
     {
-        packet::header header{0x01 << 4, 20};  // 20 is just some number
+        const uint32_t remaining_length = 20;  // 20 is just some number
         const char* const prot_name = "MQTT";
         const std::uint8_t prot_level = 0x04;
         const std::uint8_t prot_flags = 0xE7;
@@ -349,8 +349,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
-                                  will_message, username, password );
+        const connect under_test( remaining_length, prot_name, prot_level, prot_flags, keep_alive_secs, client_id,
+                                  will_topic, will_message, username, password );
 
         WHEN( "a caller asks for the last will quality of service" )
         {
@@ -365,7 +365,7 @@ SCENARIO( "connect", "[packets]" )
 
     GIVEN( "a connect with the last will flag set" )
     {
-        packet::header header{0x01 << 4, 20};  // 20 is just some number
+        const uint32_t remaining_length = 20;  // 20 is just some number
         const char* const prot_name = "MQTT";
         const std::uint8_t prot_level = 0x04;
         const std::uint8_t prot_flags = 0x04;
@@ -376,8 +376,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
-                                  will_message, username, password );
+        const connect under_test( remaining_length, prot_name, prot_level, prot_flags, keep_alive_secs, client_id,
+                                  will_topic, will_message, username, password );
 
         WHEN( "a caller asks whether the packet contains a last will message" )
         {
@@ -392,7 +392,7 @@ SCENARIO( "connect", "[packets]" )
 
     GIVEN( "a connect with the last will flag not set" )
     {
-        packet::header header{0x01 << 4, 20};  // 20 is just some number
+        const uint32_t remaining_length = 20;  // 20 is just some number
         const char* const prot_name = "MQTT";
         const std::uint8_t prot_level = 0x04;
         const std::uint8_t prot_flags = 0xFB;
@@ -403,8 +403,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
-                                  will_message, username, password );
+        const connect under_test( remaining_length, prot_name, prot_level, prot_flags, keep_alive_secs, client_id,
+                                  will_topic, will_message, username, password );
 
         WHEN( "a caller asks whether the packet contains a last will message" )
         {
@@ -419,7 +419,7 @@ SCENARIO( "connect", "[packets]" )
 
     GIVEN( "a connect with the clean session flag set" )
     {
-        packet::header header{0x01 << 4, 20};  // 20 is just some number
+        const uint32_t remaining_length = 20;  // 20 is just some number
         const char* const prot_name = "MQTT";
         const std::uint8_t prot_level = 0x04;
         const std::uint8_t prot_flags = 0x02;
@@ -430,8 +430,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
-                                  will_message, username, password );
+        const connect under_test( remaining_length, prot_name, prot_level, prot_flags, keep_alive_secs, client_id,
+                                  will_topic, will_message, username, password );
 
         WHEN( "a caller asks whether the client session should be cleaned" )
         {
@@ -446,7 +446,7 @@ SCENARIO( "connect", "[packets]" )
 
     GIVEN( "a connect with the clean session flag not set" )
     {
-        packet::header header{0x01 << 4, 20};  // 20 is just some number
+        const uint32_t remaining_length = 20;  // 20 is just some number
         const char* const prot_name = "MQTT";
         const std::uint8_t prot_level = 0x04;
         const std::uint8_t prot_flags = 0xFD;
@@ -457,8 +457,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
-                                  will_message, username, password );
+        const connect under_test( remaining_length, prot_name, prot_level, prot_flags, keep_alive_secs, client_id,
+                                  will_topic, will_message, username, password );
 
         WHEN( "a caller asks whether the client session should be cleaned" )
         {
@@ -473,7 +473,7 @@ SCENARIO( "connect", "[packets]" )
 
     GIVEN( "a connect with all members initialized in its constructor" )
     {
-        packet::header header{0x01 << 4, 20};  // 20 is just some number
+        const uint32_t remaining_length = 20;  // 20 is just some number
         const char* const prot_name = "MQTT";
         const std::uint8_t prot_level = 0x04;
         const std::uint8_t prot_flags = 0xFD;
@@ -484,8 +484,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = "username";
         const char* const password = "password";
 
-        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
-                                  will_message, username, password );
+        const connect under_test( remaining_length, prot_name, prot_level, prot_flags, keep_alive_secs, client_id,
+                                  will_topic, will_message, username, password );
 
         WHEN( "a caller calls accessors for all fields" )
         {
@@ -508,7 +508,7 @@ SCENARIO( "connect", "[packets]" )
 
     GIVEN( "a connect with all optional members uninitialized in its constructor" )
     {
-        packet::header header{0x01 << 4, 20};  // 20 is just some number
+        const uint32_t remaining_length = 20;  // 20 is just some number
         const char* const prot_name = "MQTT";
         const std::uint8_t prot_level = 0x04;
         const std::uint8_t prot_flags = 0xFD;
@@ -519,8 +519,8 @@ SCENARIO( "connect", "[packets]" )
         const char* const username = nullptr;
         const char* const password = nullptr;
 
-        const connect under_test( header, prot_name, prot_level, prot_flags, keep_alive_secs, client_id, will_topic,
-                                  will_message, username, password );
+        const connect under_test( remaining_length, prot_name, prot_level, prot_flags, keep_alive_secs, client_id,
+                                  will_topic, will_message, username, password );
 
         WHEN( "a caller calls accessors for all fields" )
         {

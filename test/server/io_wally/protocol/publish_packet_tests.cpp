@@ -13,7 +13,6 @@ SCENARIO( "publish", "[packets]" )
     {
         const auto flgs = std::uint8_t{3 << 4 | 0x03};
         const auto rem_len = std::uint32_t{5};
-        const auto hdr = packet::header{flgs, rem_len};
 
         const auto topic = "a";
 
@@ -21,7 +20,7 @@ SCENARIO( "publish", "[packets]" )
 
         const auto msg = std::vector<uint8_t>{0x00, 0x00};
 
-        auto under_test = publish{hdr, topic, pktid, msg};
+        auto under_test = publish{flgs, rem_len, topic, pktid, msg};
 
         WHEN( "a caller calls dup( true )" )
         {
@@ -48,7 +47,6 @@ SCENARIO( "publish", "[packets]" )
     {
         const auto flgs = std::uint8_t{3 << 4 | 0x09};
         const auto rem_len = std::uint32_t{5};
-        const auto hdr = packet::header{flgs, rem_len};
 
         const auto topic = "a";
 
@@ -56,7 +54,7 @@ SCENARIO( "publish", "[packets]" )
 
         const auto msg = std::vector<uint8_t>{0x00, 0x00};
 
-        auto under_test = publish{hdr, topic, pktid, msg};
+        auto under_test = publish{flgs, rem_len, topic, pktid, msg};
 
         WHEN( "a caller calls dup( true )" )
         {
@@ -83,7 +81,6 @@ SCENARIO( "publish", "[packets]" )
     {
         const auto flgs = std::uint8_t{3 << 4 | 0x00};
         const auto rem_len = std::uint32_t{3};
-        const auto hdr = packet::header{flgs, rem_len};
 
         const auto topic = "a";
 
@@ -91,7 +88,7 @@ SCENARIO( "publish", "[packets]" )
 
         const auto msg = std::vector<uint8_t>{0x01, 0x02};
 
-        auto under_test = publish{hdr, topic, 0, msg};
+        auto under_test = publish{flgs, rem_len, topic, 0, msg};
 
         WHEN( "a caller calls qos()" )
         {
@@ -137,7 +134,6 @@ SCENARIO( "publish", "[packets]" )
     {
         const auto flgs = std::uint8_t{3 << 4 | 0x0B};
         const auto rem_len = std::uint32_t{5};
-        const auto hdr = packet::header{flgs, rem_len};
 
         const auto topic = "a";
 
@@ -145,7 +141,7 @@ SCENARIO( "publish", "[packets]" )
 
         const auto msg = std::vector<uint8_t>{0x00, 0x00};
 
-        auto under_test = publish{hdr, topic, pktid, msg};
+        auto under_test = publish{flgs, rem_len, topic, pktid, msg};
 
         WHEN( "a caller calls qos()" )
         {
@@ -188,7 +184,6 @@ SCENARIO( "publish", "[packets]" )
     {
         const auto flgs = std::uint8_t{3 << 4 | 0x04};
         const auto rem_len = std::uint32_t{5};
-        const auto hdr = packet::header{flgs, rem_len};
 
         const auto topic = "a";
 
@@ -196,7 +191,7 @@ SCENARIO( "publish", "[packets]" )
 
         const auto msg = std::vector<uint8_t>{0x00, 0x00};
 
-        auto under_test = publish{hdr, topic, pktid, msg};
+        auto under_test = publish{flgs, rem_len, topic, pktid, msg};
 
         WHEN( "a caller calls qos()" )
         {
@@ -239,7 +234,6 @@ SCENARIO( "publish", "[packets]" )
     {
         const auto flgs = std::uint8_t{3 << 4 | 0x02};
         const auto rem_len = std::uint32_t{5};
-        const auto hdr = packet::header{flgs, rem_len};
 
         const auto topic = "a";
 
@@ -247,7 +241,7 @@ SCENARIO( "publish", "[packets]" )
 
         const auto msg = std::vector<uint8_t>{0x00, 0x00};
 
-        auto under_test = publish{hdr, topic, pktid, msg};
+        auto under_test = publish{flgs, rem_len, topic, pktid, msg};
 
         WHEN( "a caller calls retain( false )" )
         {
@@ -274,7 +268,6 @@ SCENARIO( "publish", "[packets]" )
     {
         const auto flgs = std::uint8_t{3 << 4 | 0x03};
         const auto rem_len = std::uint32_t{5};
-        const auto hdr = packet::header{flgs, rem_len};
 
         const auto topic = "a";
 
@@ -282,7 +275,7 @@ SCENARIO( "publish", "[packets]" )
 
         const auto msg = std::vector<uint8_t>{0x00, 0x00};
 
-        auto under_test = publish{hdr, topic, pktid, msg};
+        auto under_test = publish{flgs, rem_len, topic, pktid, msg};
 
         WHEN( "a caller calls retain( false )" )
         {

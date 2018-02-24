@@ -24,7 +24,7 @@ namespace framework
     std::shared_ptr<io_wally::protocol::connect> create_connect_packet( const std::string& client_id,
                                                                         bool clean_session )
     {
-        const auto header = io_wally::protocol::packet::header{0x01 << 4, 20};  // 20 is just some number
+        const auto remaining_length = uint32_t{20};  // 20 is just some number
         const auto prot_name = "MQTT";
         const auto prot_level = std::uint8_t{0x04};
         auto connect_flags = std::uint8_t{0x00};
@@ -35,7 +35,7 @@ namespace framework
         const auto username = nullptr;
         const auto password = nullptr;
 
-        return std::make_shared<io_wally::protocol::connect>( header, prot_name, prot_level, connect_flags,
+        return std::make_shared<io_wally::protocol::connect>( remaining_length, prot_name, prot_level, connect_flags,
                                                               keep_alive_secs, client_id.c_str( ), will_topic,
                                                               will_message, username, password );
     }
@@ -48,7 +48,7 @@ namespace framework
         io_wally::protocol::packet::QoS will_qos,
         bool will_retain )
     {
-        const auto header = io_wally::protocol::packet::header{0x01 << 4, 20};  // 20 is just some number
+        const auto remaining_length = uint32_t{20};  // 20 is just some number
         const auto prot_name = "MQTT";
         const auto prot_level = std::uint8_t{0x04};
         auto connect_flags = std::uint8_t{0x00};
@@ -60,7 +60,7 @@ namespace framework
         const auto username = nullptr;
         const auto password = nullptr;
 
-        return std::make_shared<io_wally::protocol::connect>( header, prot_name, prot_level, connect_flags,
+        return std::make_shared<io_wally::protocol::connect>( remaining_length, prot_name, prot_level, connect_flags,
                                                               keep_alive_secs, client_id.c_str( ), will_topic.c_str( ),
                                                               will_message.c_str( ), username, password );
     }
@@ -68,19 +68,19 @@ namespace framework
     std::shared_ptr<io_wally::protocol::subscribe> create_subscribe_packet(
         const std::vector<io_wally::protocol::subscription> subscriptions )
     {
-        auto header = io_wally::protocol::packet::header{0x08 << 4, 20};  // 20 is just some number
-        auto pktid = uint16_t{9};
+        const auto remaining_length = uint32_t{20};  // 20 is just some number
+        const auto pktid = uint16_t{9};
 
-        return std::make_shared<io_wally::protocol::subscribe>( header, pktid, subscriptions );
+        return std::make_shared<io_wally::protocol::subscribe>( remaining_length, pktid, subscriptions );
     }
 
     std::shared_ptr<io_wally::protocol::unsubscribe> create_unsubscribe_packet(
         const std::vector<std::string> topic_filters )
     {
-        auto header = io_wally::protocol::packet::header{0x0A << 4, 20};  // 20 is just some number
-        auto pktid = uint16_t{11};
+        const auto remaining_length = uint32_t{20};  // 20 is just some number
+        const auto pktid = uint16_t{11};
 
-        return std::make_shared<io_wally::protocol::unsubscribe>( header, pktid, topic_filters );
+        return std::make_shared<io_wally::protocol::unsubscribe>( remaining_length, pktid, topic_filters );
     }
 
     io_wally::mqtt_packet_sender::packet_container_t::ptr create_subscribe_container(
@@ -103,10 +103,10 @@ namespace framework
         }
 
         const auto type_and_flags = std::uint8_t( ( 3 << 4 ) | flags );
-        const auto header = io_wally::protocol::packet::header{type_and_flags, 20};
+        const auto remaining_length = uint32_t{20};  // 20 is just some number
         const auto pktid = std::uint16_t{7};
 
-        return std::make_shared<io_wally::protocol::publish>( header, topic, pktid, msg );
+        return std::make_shared<io_wally::protocol::publish>( type_and_flags, remaining_length, topic, pktid, msg );
     }
 
     io_wally::mqtt_packet_sender::packet_container_t::ptr create_publish_container( const std::string& topic )

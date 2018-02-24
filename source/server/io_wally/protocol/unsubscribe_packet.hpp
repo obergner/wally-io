@@ -2,8 +2,8 @@
 
 #include <cassert>
 #include <cstdint>
-#include <string>
 #include <sstream>
+#include <string>
 #include <vector>
 
 #include <optional>
@@ -36,12 +36,23 @@ namespace io_wally
             /// \brief Create a new \c unsubscribe instance.
             ///
             /// \param header           Fixed header, common to all MQTT control packets
+            unsubscribe( const uint32_t remaining_length,
+                         const uint16_t packet_identifier,
+                         std::vector<std::string> topic_filters )
+                : mqtt_packet{( 0x0A << 4 ) | 0x02, remaining_length},
+                  packet_identifier_{packet_identifier},
+                  topic_filters_{std::move( topic_filters )}
+            {
+                assert( packet::type_of( type_and_flags_ ) == packet::Type::UNSUBSCRIBE );
+            }
+
+            /// \brief Create a new \c unsubscribe instance.
+            ///
+            /// \param header           Fixed header, common to all MQTT control packets
             unsubscribe( packet::header header,
                          const uint16_t packet_identifier,
                          std::vector<std::string> topic_filters )
-                : mqtt_packet{std::move( header )},
-                  packet_identifier_{packet_identifier},
-                  topic_filters_{std::move( topic_filters )}
+                : unsubscribe{header.remaining_length( ), packet_identifier, topic_filters}
             {
                 assert( header.type( ) == packet::Type::UNSUBSCRIBE );
             }

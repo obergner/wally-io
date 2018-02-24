@@ -68,6 +68,7 @@ namespace io_wally
                 : publish{header.type_and_flags( ), header.remaining_length( ), topic, packet_identifier,
                           std::move( application_message )}
             {
+                assert( header.type( ) == packet::Type::PUBLISH );
             }
 
             /// \brief Return whether DUP flag is set, i.e. this PUBLISH packet is a duplicate publication.

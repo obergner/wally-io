@@ -105,6 +105,50 @@ namespace io_wally
         struct connect final : public mqtt_packet
         {
            public:
+            /**
+             * @brief Create a new @c connect instance.
+             *
+             * @param remaining_length Connect packet's fixed @c header
+             * @param prot_name        Protocol name, almost always "MQTT"
+             * @param prot_level       Protocol level (protocol version), only @c packet::ProtocolLevel::LEVEL4 aka
+             *                         MQTT 3.1.1 is supported by this implementation
+             * @param con_flags        CONNECT packet flags, e.g. @c username, @c will qos etc.
+             * @param keep_alive_secs  Keep alive period in seconds
+             * @param header           Fixed header, common to all MQTT control packets
+             * @param client_id        Remote client's unique ID (mandatory)
+             * @param will_topic       Topic to publish the remote client's @c will message on, if present (optional)
+             * @param will_message     Remote client's @c will message (optional)
+             * @param username         Username for authenticating remote client (optional)
+             * @param password         Password for authenticating remote client (optional)
+             */
+            connect( const uint32_t remaining_length,
+                     const char* const prot_name,
+                     const uint8_t prot_level,
+                     const uint8_t con_flags,
+                     const uint16_t keep_alive_secs,
+                     const char* const client_id,
+                     const char* const will_topic,
+                     const char* const will_message,
+                     const char* const username,
+                     const char* const password )
+                : mqtt_packet{0x01 << 4, remaining_length},
+                  prot_name_{prot_name},
+                  prot_level_{prot_level},
+                  con_flags_{con_flags},
+                  keep_alive_secs_{keep_alive_secs},
+                  client_id_{client_id},
+                  will_topic_{will_topic ? std::optional<const std::string>( std::string( will_topic ) )
+                                         : std::optional<const std::string>( )},
+                  will_message_{will_message ? std::optional<const std::string>( std::string( will_message ) )
+                                             : std::optional<const std::string>( )},
+                  username_{username ? std::optional<const std::string>( std::string( username ) )
+                                     : std::optional<const std::string>( )},
+                  password_{password ? std::optional<const std::string>( std::string( password ) )
+                                     : std::optional<const std::string>( )}
+            {
+                assert( packet::type_of( type_and_flags_ ) == packet::Type::CONNECT );
+            }
+
             /// \brief Create a new \c connect instance.
             ///
             /// \param header           Connect packet's fixed \c header
@@ -129,20 +173,16 @@ namespace io_wally
                      const char* const will_message,
                      const char* const username,
                      const char* const password )
-                : mqtt_packet{std::move( header )},
-                  prot_name_{prot_name},
-                  prot_level_{prot_level},
-                  con_flags_{con_flags},
-                  keep_alive_secs_{keep_alive_secs},
-                  client_id_{client_id},
-                  will_topic_{will_topic ? std::optional<const std::string>( std::string( will_topic ) )
-                                         : std::optional<const std::string>( )},
-                  will_message_{will_message ? std::optional<const std::string>( std::string( will_message ) )
-                                             : std::optional<const std::string>( )},
-                  username_{username ? std::optional<const std::string>( std::string( username ) )
-                                     : std::optional<const std::string>( )},
-                  password_{password ? std::optional<const std::string>( std::string( password ) )
-                                     : std::optional<const std::string>( )}
+                : connect{header.remaining_length( ),
+                          prot_name,
+                          prot_level,
+                          con_flags,
+                          keep_alive_secs,
+                          client_id,
+                          will_topic,
+                          will_message,
+                          username,
+                          password}
             {
                 assert( header.type( ) == packet::Type::CONNECT );
             }

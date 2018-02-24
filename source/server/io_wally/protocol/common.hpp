@@ -656,7 +656,7 @@ namespace io_wally
              * @param type_and_flags   Byte containing packet type and fixed header flags
              * @param remaining_length Remaining length of packet
              */
-            mqtt_packet( uint8_t type_and_flags, uint32_t remaining_length )
+            mqtt_packet( const uint8_t type_and_flags, const uint32_t remaining_length )
                 : type_and_flags_{type_and_flags}, remaining_length_{remaining_length}
             {
                 return;
