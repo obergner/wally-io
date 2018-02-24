@@ -10,199 +10,38 @@ TEST_CASE( "MQTT header flags", "[header]" )
 {
     SECTION( "all flags are set" )
     {
-        const std::uint8_t flgs = 0x0F;
-        packet::header_flags under_test( flgs );
+        const auto flgs = uint8_t{0x0F};
 
-        REQUIRE( under_test.dup( ) );
-        REQUIRE( under_test.retain( ) );
-        REQUIRE( under_test.qos( ) == packet::QoS::RESERVED );
+        REQUIRE( packet::dup_of( flgs ) );
+        REQUIRE( packet::retain_of( flgs ) );
+        REQUIRE( packet::qos_of( flgs, 1 ) == packet::QoS::RESERVED );
     }
 
     SECTION( "only flags 0 and 1 are set" )
     {
-        const std::uint8_t flgs = 0x03;
-        packet::header_flags under_test( flgs );
+        const auto flgs = uint8_t{0x03};
 
-        REQUIRE( !under_test.dup( ) );
-        REQUIRE( under_test.retain( ) );
-        REQUIRE( under_test.qos( ) == packet::QoS::AT_LEAST_ONCE );
+        REQUIRE( !packet::dup_of( flgs ) );
+        REQUIRE( packet::retain_of( flgs ) );
+        REQUIRE( packet::qos_of( flgs, 1 ) == packet::QoS::AT_LEAST_ONCE );
     }
 
     SECTION( "only flags 1 and 2 are set" )
     {
-        const std::uint8_t flgs = 0x06;
-        packet::header_flags under_test( flgs );
+        const auto flgs = uint8_t{0x06};
 
-        REQUIRE( !under_test.dup( ) );
-        REQUIRE( !under_test.retain( ) );
-        REQUIRE( under_test.qos( ) == packet::QoS::RESERVED );
+        REQUIRE( !packet::dup_of( flgs ) );
+        REQUIRE( !packet::retain_of( flgs ) );
+        REQUIRE( packet::qos_of( flgs, 1 ) == packet::QoS::RESERVED );
     }
 
     SECTION( "only flags 2 and 3 are set" )
     {
-        const std::uint8_t flgs = 0x0C;
-        packet::header_flags under_test( flgs );
+        const auto flgs = uint8_t{0x0C};
 
-        REQUIRE( under_test.dup( ) );
-        REQUIRE( !under_test.retain( ) );
-        REQUIRE( under_test.qos( ) == packet::QoS::EXACTLY_ONCE );
-    }
-}
-
-TEST_CASE( "An MQTT header is read", "[header]" )
-{
-
-    SECTION( "no control packet type bits/no flags are set" )
-    {
-        const std::uint8_t type_and_flags = 0x00;
-        const std::uint32_t remaining_length = 325678;
-        const packet::header under_test( type_and_flags, remaining_length );
-
-        REQUIRE( under_test.type( ) == packet::Type::RESERVED1 );
-    }
-
-    SECTION( "control packet type bit 4/no flags are set" )
-    {
-        const std::uint8_t type_and_flags = 0x10;
-        const std::uint32_t remaining_length = 325678;
-        const packet::header under_test( type_and_flags, remaining_length );
-
-        REQUIRE( under_test.type( ) == packet::Type::CONNECT );
-    }
-
-    SECTION( "control packet type bit 5/no flags are set" )
-    {
-        const std::uint8_t type_and_flags = 0x20;
-        const std::uint32_t remaining_length = 325678;
-        const packet::header under_test( type_and_flags, remaining_length );
-
-        REQUIRE( under_test.type( ) == packet::Type::CONNACK );
-    }
-
-    SECTION( "control packet type bits 4 and 5/no flags are set" )
-    {
-        const std::uint8_t type_and_flags = 0x30;
-        const std::uint32_t remaining_length = 325678;
-        const packet::header under_test( type_and_flags, remaining_length );
-
-        REQUIRE( under_test.type( ) == packet::Type::PUBLISH );
-    }
-
-    SECTION( "control packet type bit 6/no flags are set" )
-    {
-        const std::uint8_t type_and_flags = 0x40;
-        const std::uint32_t remaining_length = 325678;
-        const packet::header under_test( type_and_flags, remaining_length );
-
-        REQUIRE( under_test.type( ) == packet::Type::PUBACK );
-    }
-
-    SECTION( "control packet type bits 6 and 4/no flags are set" )
-    {
-        const std::uint8_t type_and_flags = 0x50;
-        const std::uint32_t remaining_length = 325678;
-        const packet::header under_test( type_and_flags, remaining_length );
-
-        REQUIRE( under_test.type( ) == packet::Type::PUBREC );
-    }
-
-    SECTION( "control packet type bits 6 and 5/no flags are set" )
-    {
-        const std::uint8_t type_and_flags = 0x60;
-        const std::uint32_t remaining_length = 325678;
-        const packet::header under_test( type_and_flags, remaining_length );
-
-        REQUIRE( under_test.type( ) == packet::Type::PUBREL );
-    }
-
-    SECTION( "control packet type bits 6, 5 and 4/no flags are set" )
-    {
-        const std::uint8_t type_and_flags = 0x70;
-        const std::uint32_t remaining_length = 325678;
-        const packet::header under_test( type_and_flags, remaining_length );
-
-        REQUIRE( under_test.type( ) == packet::Type::PUBCOMP );
-    }
-
-    SECTION( "control packet type bit 7/no flags are set" )
-    {
-        const std::uint8_t type_and_flags = 0x80;
-        const std::uint32_t remaining_length = 325678;
-        const packet::header under_test( type_and_flags, remaining_length );
-
-        REQUIRE( under_test.type( ) == packet::Type::SUBSCRIBE );
-    }
-
-    SECTION( "control packet type bits 7 and 4/no flags are set" )
-    {
-        const std::uint8_t type_and_flags = 0x90;
-        const std::uint32_t remaining_length = 325678;
-        const packet::header under_test( type_and_flags, remaining_length );
-
-        REQUIRE( under_test.type( ) == packet::Type::SUBACK );
-    }
-
-    SECTION( "control packet type bits 7 and 5/no flags are set" )
-    {
-        const std::uint8_t type_and_flags = 0xA0;
-        const std::uint32_t remaining_length = 325678;
-        const packet::header under_test( type_and_flags, remaining_length );
-
-        REQUIRE( under_test.type( ) == packet::Type::UNSUBSCRIBE );
-    }
-
-    SECTION( "control packet type bits 7, 5 and 4/no flags are set" )
-    {
-        const std::uint8_t type_and_flags = 0xB0;
-        const std::uint32_t remaining_length = 325678;
-        const packet::header under_test( type_and_flags, remaining_length );
-
-        REQUIRE( under_test.type( ) == packet::Type::UNSUBACK );
-    }
-
-    SECTION( "control packet type bits 7 and 6/no flags are set" )
-    {
-        const std::uint8_t type_and_flags = 0xC0;
-        const std::uint32_t remaining_length = 325678;
-        const packet::header under_test( type_and_flags, remaining_length );
-
-        REQUIRE( under_test.type( ) == packet::Type::PINGREQ );
-    }
-
-    SECTION( "control packet type bits 7, 6 and 4/no flags are set" )
-    {
-        const std::uint8_t type_and_flags = 0xD0;
-        const std::uint32_t remaining_length = 325678;
-        const packet::header under_test( type_and_flags, remaining_length );
-
-        REQUIRE( under_test.type( ) == packet::Type::PINGRESP );
-    }
-
-    SECTION( "control packet type bits 7, 6 and 5/no flags are set" )
-    {
-        const std::uint8_t type_and_flags = 0xE0;
-        const std::uint32_t remaining_length = 325678;
-        const packet::header under_test( type_and_flags, remaining_length );
-
-        REQUIRE( under_test.type( ) == packet::Type::DISCONNECT );
-    }
-
-    SECTION( "all control packet type bits/no flags are set" )
-    {
-        const std::uint8_t type_and_flags = 0xF0;
-        const std::uint32_t remaining_length = 325678;
-        const packet::header under_test( type_and_flags, remaining_length );
-
-        REQUIRE( under_test.type( ) == packet::Type::RESERVED2 );
-    }
-
-    SECTION( "all control packet type bits/flag bit 0 are set" )
-    {
-        const std::uint8_t type_and_flags = 0xF1;
-        const std::uint32_t remaining_length = 325678;
-        const packet::header under_test( type_and_flags, remaining_length );
-
-        REQUIRE( under_test.flags( ).retain( ) );
+        REQUIRE( packet::dup_of( flgs ) );
+        REQUIRE( !packet::retain_of( flgs ) );
+        REQUIRE( packet::qos_of( flgs, 1 ) == packet::QoS::EXACTLY_ONCE );
     }
 }
 
@@ -353,9 +192,84 @@ SCENARIO( "writing a QoS into a byte", "[packets]" )
 
 SCENARIO( "converting a header byte into Type", "[packets]" )
 {
+    GIVEN( "a byte encoding type CONNECT with some header flags set" )
+    {
+        const auto input = uint8_t{( 0x01 << 4 ) | 0x09};
+
+        WHEN( "a caller passes that byte into type_of()" )
+        {
+            const packet::Type type = packet::type_of( input );
+
+            THEN( "it will receive Type::CONNECT" )
+            {
+                REQUIRE( type == packet::Type::CONNECT );
+            }
+        }
+    }
+
+    GIVEN( "a byte encoding type CONNACK with some header flags set" )
+    {
+        const auto input = uint8_t{( 0x02 << 4 ) | 0x0F};
+
+        WHEN( "a caller passes that byte into type_of()" )
+        {
+            const packet::Type type = packet::type_of( input );
+
+            THEN( "it will receive Type::CONNACK" )
+            {
+                REQUIRE( type == packet::Type::CONNACK );
+            }
+        }
+    }
+
+    GIVEN( "a byte encoding type PUBLISH with some header flags set" )
+    {
+        const auto input = uint8_t{( 0x03 << 4 ) | 0x0F};
+
+        WHEN( "a caller passes that byte into type_of()" )
+        {
+            const packet::Type type = packet::type_of( input );
+
+            THEN( "it will receive Type::PUBLISH" )
+            {
+                REQUIRE( type == packet::Type::PUBLISH );
+            }
+        }
+    }
+
+    GIVEN( "a byte encoding type PUBACK with some header flags set" )
+    {
+        const auto input = uint8_t{( 0x04 << 4 ) | 0x0F};
+
+        WHEN( "a caller passes that byte into type_of()" )
+        {
+            const packet::Type type = packet::type_of( input );
+
+            THEN( "it will receive Type::PUBACK" )
+            {
+                REQUIRE( type == packet::Type::PUBACK );
+            }
+        }
+    }
+
+    GIVEN( "a byte encoding type PUBREC with some header flags set" )
+    {
+        const auto input = uint8_t{( 0x05 << 4 ) | 0x0F};
+
+        WHEN( "a caller passes that byte into type_of()" )
+        {
+            const packet::Type type = packet::type_of( input );
+
+            THEN( "it will receive Type::PUBREC" )
+            {
+                REQUIRE( type == packet::Type::PUBREC );
+            }
+        }
+    }
+
     GIVEN( "a byte encoding type PUBREL with some header flags set" )
     {
-        const std::uint8_t input = 0x6F;
+        const auto input = uint8_t{( 0x06 << 4 ) | 0x01};
 
         WHEN( "a caller passes that byte into type_of()" )
         {
@@ -367,18 +281,163 @@ SCENARIO( "converting a header byte into Type", "[packets]" )
             }
         }
     }
+
+    GIVEN( "a byte encoding type PUBCOMP with some header flags set" )
+    {
+        const auto input = uint8_t{( 0x07 << 4 ) | 0x01};
+
+        WHEN( "a caller passes that byte into type_of()" )
+        {
+            const packet::Type type = packet::type_of( input );
+
+            THEN( "it will receive Type::PUBCOMP" )
+            {
+                REQUIRE( type == packet::Type::PUBCOMP );
+            }
+        }
+    }
+
+    GIVEN( "a byte encoding type SUBSCRIBE with some header flags set" )
+    {
+        const auto input = uint8_t{( 0x08 << 4 ) | 0x01};
+
+        WHEN( "a caller passes that byte into type_of()" )
+        {
+            const packet::Type type = packet::type_of( input );
+
+            THEN( "it will receive Type::SUBSCRIBE" )
+            {
+                REQUIRE( type == packet::Type::SUBSCRIBE );
+            }
+        }
+    }
+
+    GIVEN( "a byte encoding type SUBACK with some header flags set" )
+    {
+        const auto input = uint8_t{( 0x09 << 4 ) | 0x01};
+
+        WHEN( "a caller passes that byte into type_of()" )
+        {
+            const packet::Type type = packet::type_of( input );
+
+            THEN( "it will receive Type::SUBACK" )
+            {
+                REQUIRE( type == packet::Type::SUBACK );
+            }
+        }
+    }
+
+    GIVEN( "a byte encoding type UNSUBSCRIBE with some header flags set" )
+    {
+        const auto input = uint8_t{( 0x0A << 4 ) | 0x01};
+
+        WHEN( "a caller passes that byte into type_of()" )
+        {
+            const packet::Type type = packet::type_of( input );
+
+            THEN( "it will receive Type::UNSUBSCRIBE" )
+            {
+                REQUIRE( type == packet::Type::UNSUBSCRIBE );
+            }
+        }
+    }
+
+    GIVEN( "a byte encoding type UNSUBACK with some header flags set" )
+    {
+        const auto input = uint8_t{( 0x0B << 4 ) | 0x01};
+
+        WHEN( "a caller passes that byte into type_of()" )
+        {
+            const packet::Type type = packet::type_of( input );
+
+            THEN( "it will receive Type::UNSUBACK" )
+            {
+                REQUIRE( type == packet::Type::UNSUBACK );
+            }
+        }
+    }
+
+    GIVEN( "a byte encoding type PINGREQ with some header flags set" )
+    {
+        const auto input = uint8_t{( 0x0C << 4 ) | 0x01};
+
+        WHEN( "a caller passes that byte into type_of()" )
+        {
+            const packet::Type type = packet::type_of( input );
+
+            THEN( "it will receive Type::PINGREQ" )
+            {
+                REQUIRE( type == packet::Type::PINGREQ );
+            }
+        }
+    }
+
+    GIVEN( "a byte encoding type PINGRESP with some header flags set" )
+    {
+        const auto input = uint8_t{( 0x0D << 4 ) | 0x01};
+
+        WHEN( "a caller passes that byte into type_of()" )
+        {
+            const packet::Type type = packet::type_of( input );
+
+            THEN( "it will receive Type::PINGRESP" )
+            {
+                REQUIRE( type == packet::Type::PINGRESP );
+            }
+        }
+    }
+
+    GIVEN( "a byte encoding type DISCONNECT with some header flags set" )
+    {
+        const auto input = uint8_t{( 0x0E << 4 ) | 0x01};
+
+        WHEN( "a caller passes that byte into type_of()" )
+        {
+            const packet::Type type = packet::type_of( input );
+
+            THEN( "it will receive Type::DISCONNECT" )
+            {
+                REQUIRE( type == packet::Type::DISCONNECT );
+            }
+        }
+    }
 }
 
 SCENARIO( "writing a Type into a header byte", "[packets]" )
 {
     GIVEN( "a header byte with type CONNECT and some flags set" )
     {
-        std::uint8_t header_byte = 0x1E;
-        const std::uint8_t expected_header_byte = 0x3E;
+        auto header_byte = uint8_t{( 0x01 << 4 ) | 0x0B};
+
+        WHEN( "a caller passes type CONNACK and the given header byte into type_into()" )
+        {
+            const auto expected_header_byte = uint8_t{( 0x02 << 4 ) | 0x0B};
+
+            packet::type_into( packet::Type::CONNACK, header_byte );
+
+            THEN( "it will see a correctly updated header byte" )
+            {
+                REQUIRE( header_byte == expected_header_byte );
+            }
+        }
 
         WHEN( "a caller passes type PUBLISH and the given header byte into type_into()" )
         {
+            const auto expected_header_byte = uint8_t{( 0x03 << 4 ) | 0x0B};
+
             packet::type_into( packet::Type::PUBLISH, header_byte );
+
+            THEN( "it will see a correctly updated header byte" )
+            {
+                REQUIRE( header_byte == expected_header_byte );
+            }
+        }
+
+        WHEN( "a caller passes type DISCONNECT and the given header byte into type_into()" )
+        {
+            const auto expected_header_byte = uint8_t{( 0x0E << 4 ) | 0x0B};
+
+            packet::type_into( packet::Type::DISCONNECT, header_byte );
 
             THEN( "it will see a correctly updated header byte" )
             {
@@ -392,13 +451,11 @@ SCENARIO( "calculating a packet's total length in bytes on the wire", "[packets]
 {
     GIVEN( "a fixed header with remaining length 126" )
     {
-        const std::uint8_t type_and_flags = 0xF1;
         const std::uint32_t remaining_length = 126;
-        const packet::header under_test( type_and_flags, remaining_length );
 
         WHEN( "a caller calls total_length()" )
         {
-            const std::uint32_t total_length = under_test.total_length( );
+            const std::uint32_t total_length = packet::total_length( remaining_length );
 
             THEN( "it will see a total length of remaining_length + 2 bytes" )
             {
@@ -409,13 +466,11 @@ SCENARIO( "calculating a packet's total length in bytes on the wire", "[packets]
 
     GIVEN( "a fixed header with remaining length 128" )
     {
-        const std::uint8_t type_and_flags = 0xF1;
         const std::uint32_t remaining_length = 128;
-        const packet::header under_test( type_and_flags, remaining_length );
 
         WHEN( "a caller calls total_length()" )
         {
-            const std::uint32_t total_length = under_test.total_length( );
+            const std::uint32_t total_length = packet::total_length( remaining_length );
 
             THEN( "it will see a total length of remaining_length + 3 bytes" )
             {
@@ -426,13 +481,11 @@ SCENARIO( "calculating a packet's total length in bytes on the wire", "[packets]
 
     GIVEN( "a fixed header with remaining length 16383" )
     {
-        const std::uint8_t type_and_flags = 0xF1;
         const std::uint32_t remaining_length = 16383;
-        const packet::header under_test( type_and_flags, remaining_length );
 
         WHEN( "a caller calls total_length()" )
         {
-            const std::uint32_t total_length = under_test.total_length( );
+            const std::uint32_t total_length = packet::total_length( remaining_length );
 
             THEN( "it will see a total length of remaining_length + 3 bytes" )
             {
@@ -443,13 +496,11 @@ SCENARIO( "calculating a packet's total length in bytes on the wire", "[packets]
 
     GIVEN( "a fixed header with remaining length 16384" )
     {
-        const std::uint8_t type_and_flags = 0xF1;
         const std::uint32_t remaining_length = 16384;
-        const packet::header under_test( type_and_flags, remaining_length );
 
         WHEN( "a caller calls total_length()" )
         {
-            const std::uint32_t total_length = under_test.total_length( );
+            const std::uint32_t total_length = packet::total_length( remaining_length );
 
             THEN( "it will see a total length of remaining_length + 4 bytes" )
             {
@@ -460,13 +511,11 @@ SCENARIO( "calculating a packet's total length in bytes on the wire", "[packets]
 
     GIVEN( "a fixed header with remaining length 2097151" )
     {
-        const std::uint8_t type_and_flags = 0xF1;
         const std::uint32_t remaining_length = 2097151;
-        const packet::header under_test( type_and_flags, remaining_length );
 
         WHEN( "a caller calls total_length()" )
         {
-            const std::uint32_t total_length = under_test.total_length( );
+            const std::uint32_t total_length = packet::total_length( remaining_length );
 
             THEN( "it will see a total length of remaining_length + 4 bytes" )
             {
@@ -477,13 +526,11 @@ SCENARIO( "calculating a packet's total length in bytes on the wire", "[packets]
 
     GIVEN( "a fixed header with remaining length 2097152" )
     {
-        const std::uint8_t type_and_flags = 0xF1;
         const std::uint32_t remaining_length = 2097152;
-        const packet::header under_test( type_and_flags, remaining_length );
 
         WHEN( "a caller calls total_length()" )
         {
-            const std::uint32_t total_length = under_test.total_length( );
+            const std::uint32_t total_length = packet::total_length( remaining_length );
 
             THEN( "it will see a total length of remaining_length + 5 bytes" )
             {
@@ -494,13 +541,11 @@ SCENARIO( "calculating a packet's total length in bytes on the wire", "[packets]
 
     GIVEN( "a fixed header with remaining length 268435455" )
     {
-        const std::uint8_t type_and_flags = 0xF1;
         const std::uint32_t remaining_length = 268435455;
-        const packet::header under_test( type_and_flags, remaining_length );
 
         WHEN( "a caller calls total_length()" )
         {
-            const std::uint32_t total_length = under_test.total_length( );
+            const std::uint32_t total_length = packet::total_length( remaining_length );
 
             THEN( "it will see a total length of remaining_length + 5 bytes" )
             {

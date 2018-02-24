@@ -34,13 +34,14 @@ namespace io_wally
                 assert( frame.type( ) == packet::Type::PUBLISH );
 
                 // Check flags
-                const auto flags = protocol::packet::header_flags{frame.type_and_flags};
+                const auto dup = packet::dup_of( frame.type_and_flags );
+                const auto qos = packet::qos_of( frame.type_and_flags, 1 );
                 // [MQTT-3.3.1-2]: dup flag must not be set for QoS 0
-                if ( flags.dup( ) && ( flags.qos( ) == protocol::packet::QoS::AT_MOST_ONCE ) )
+                if ( dup && ( qos == protocol::packet::QoS::AT_MOST_ONCE ) )
                     throw error::malformed_mqtt_packet( "[MQTT-3.3.1-2] DUP flag set but QoS is 0 (at most once)" );
 
                 // [MQTT-3.3.1-4]: QoS MUST NOT be RESERVED
-                if ( flags.qos( ) == protocol::packet::QoS::RESERVED )
+                if ( qos == protocol::packet::QoS::RESERVED )
                     throw error::malformed_mqtt_packet( "[MQTT-3.3.1-4] QoS MUST NOT be 3 (RESERVED)" );
 
                 auto new_buf_start = frame.begin;
@@ -52,7 +53,7 @@ namespace io_wally
 
                 // Parse variable header publish_header IFF QoS > 0
                 auto packet_id = uint16_t{0};
-                if ( ( flags.qos( ) == packet::QoS::AT_LEAST_ONCE ) || ( flags.qos( ) == packet::QoS::EXACTLY_ONCE ) )
+                if ( ( qos == packet::QoS::AT_LEAST_ONCE ) || ( qos == packet::QoS::EXACTLY_ONCE ) )
                 {
                     std::tie( new_buf_start, packet_id ) = decode_uint16( new_buf_start, frame.end );
                 }
