@@ -31,7 +31,7 @@ namespace framework
         connect_flags = clean_session ? connect_flags | 0x02 : connect_flags;
         const auto keep_alive_secs = std::uint16_t{0x0000};
         const auto will_topic = nullptr;
-        const auto will_message = nullptr;
+        const auto will_message = std::vector<uint8_t>{};
         const auto username = nullptr;
         const auto password = nullptr;
 
@@ -60,9 +60,9 @@ namespace framework
         const auto username = nullptr;
         const auto password = nullptr;
 
-        return std::make_shared<io_wally::protocol::connect>( remaining_length, prot_name, prot_level, connect_flags,
-                                                              keep_alive_secs, client_id.c_str( ), will_topic.c_str( ),
-                                                              will_message.c_str( ), username, password );
+        return std::make_shared<io_wally::protocol::connect>(
+            remaining_length, prot_name, prot_level, connect_flags, keep_alive_secs, client_id.c_str( ),
+            will_topic.c_str( ), std::vector<uint8_t>{will_message.begin( ), will_message.end( )}, username, password );
     }
 
     std::shared_ptr<io_wally::protocol::subscribe> create_subscribe_packet(

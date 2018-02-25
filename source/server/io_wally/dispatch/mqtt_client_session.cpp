@@ -110,7 +110,16 @@ namespace io_wally
 
         void mqtt_client_session::client_disconnected_ungracefully( dispatch::disconnect_reason reason )
         {
-            logger_->info( "UNGRACEFUL DISCONNECT: [{}:{}]", client_id_, reason );
+            logger_->warn( "UNGRACEFUL DISCONNECT: [{}:{}]", client_id_, reason );
+            if ( lwt_message_ )
+            {
+                logger_->debug( "SEND: client [{}]'s LWT message ...", client_id_ );
+                auto lwt_publish =
+                    protocol::publish::create( false, lwt_message_->last_will_qos( ), false,
+                                               *lwt_message_->will_topic( ), 0x0000, *lwt_message_->will_message( ) );
+                session_manager_.publish( std::move( lwt_publish ) );
+                logger_->info( "SENT: client [{}]'s LWT message", client_id_ );
+            }
         }
 
         void mqtt_client_session::destroy( )

@@ -73,7 +73,8 @@ SCENARIO( "mqtt_packet_decoder", "[decoder]" )
                 CHECK( connect_packet.will_topic( ) );
                 CHECK( *connect_packet.will_topic( ) == "will" );
                 CHECK( connect_packet.will_message( ) );
-                CHECK( *connect_packet.will_message( ) == "send me home" );
+                CHECK( *connect_packet.will_message( ) ==
+                       std::vector<uint8_t>{'s', 'e', 'n', 'd', ' ', 'm', 'e', ' ', 'h', 'o', 'm', 'e'} );
                 CHECK( connect_packet.username( ) );
                 CHECK( *connect_packet.username( ) == "surgemq" );
                 CHECK( connect_packet.password( ) );

@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include <optional>
 
@@ -128,7 +129,7 @@ namespace io_wally
                      const uint16_t keep_alive_secs,
                      const char* const client_id,
                      const char* const will_topic,
-                     const char* const will_message,
+                     const std::vector<uint8_t> will_message,
                      const char* const username,
                      const char* const password )
                 : mqtt_packet{0x01 << 4, remaining_length},
@@ -137,14 +138,14 @@ namespace io_wally
                   con_flags_{con_flags},
                   keep_alive_secs_{keep_alive_secs},
                   client_id_{client_id},
-                  will_topic_{will_topic ? std::optional<const std::string>( std::string( will_topic ) )
-                                         : std::optional<const std::string>( )},
-                  will_message_{will_message ? std::optional<const std::string>( std::string( will_message ) )
-                                             : std::optional<const std::string>( )},
-                  username_{username ? std::optional<const std::string>( std::string( username ) )
-                                     : std::optional<const std::string>( )},
-                  password_{password ? std::optional<const std::string>( std::string( password ) )
-                                     : std::optional<const std::string>( )}
+                  will_topic_{will_topic ? std::optional<const std::string>{std::string{will_topic}}
+                                         : std::optional<const std::string>{}},
+                  will_message_{will_topic ? std::optional<const std::vector<uint8_t>>{will_message}
+                                           : std::optional<const std::vector<uint8_t>>{}},
+                  username_{username ? std::optional<const std::string>{std::string{username}}
+                                     : std::optional<const std::string>{}},
+                  password_{password ? std::optional<const std::string>{std::string{password}}
+                                     : std::optional<const std::string>{}}
             {
                 assert( packet::type_of( type_and_flags_ ) == packet::Type::CONNECT );
             }
@@ -252,7 +253,7 @@ namespace io_wally
             /// \brief Return last will message (if present)
             ///
             /// \return Message to publish in case this remote client "dies", i.e. unexpectedly disconnects (if present)
-            const std::optional<const std::string>& will_message( ) const
+            const std::optional<const std::vector<uint8_t>>& will_message( ) const
             {
                 return will_message_;
             }
@@ -295,12 +296,12 @@ namespace io_wally
             const uint8_t prot_level_;
             const struct connect_flags con_flags_;
             const uint16_t keep_alive_secs_;
-            const std::string client_id_;                          // mandatory
-            const std::optional<const std::string> will_topic_;    // MUST be present iff will flag is set
-            const std::optional<const std::string> will_message_;  // MUST be present iff will flag is set
-            const std::optional<const std::string> username_;      // MUST be present iff username flag is set
-            const std::optional<const std::string> password_;      // MUST be present iff password flag is set
-        };                                                         // struct connect
+            const std::string client_id_;                                   // mandatory
+            const std::optional<const std::string> will_topic_;             // MUST be present iff will flag is set
+            const std::optional<const std::vector<uint8_t>> will_message_;  // MUST be present iff will flag is set
+            const std::optional<const std::string> username_;               // MUST be present iff username flag is set
+            const std::optional<const std::string> password_;               // MUST be present iff password flag is set
+        };                                                                  // struct connect
 
     }  // namespace protocol
 }  // namespace io_wally

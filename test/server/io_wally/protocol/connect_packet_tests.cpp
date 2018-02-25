@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 #include <optional>
 
@@ -21,7 +22,7 @@ SCENARIO( "connect", "[packets]" )
         const std::uint16_t keep_alive_secs = 0x0000;
         const char* const client_id = "client id";
         const char* const will_topic = "will topic";
-        const char* const will_message = "will message";
+        const std::vector<uint8_t> will_message = {'w', 'i', 'l', 'l', ' ', 'm', 'e', 's', 's', 'a', 'g', 'e'};
         const char* const username = "username";
         const char* const password = "password";
 
@@ -48,7 +49,7 @@ SCENARIO( "connect", "[packets]" )
         const std::uint16_t keep_alive_secs = 0x0000;
         const char* const client_id = "client id";
         const char* const will_topic = "will topic";
-        const char* const will_message = "will message";
+        const std::vector<uint8_t> will_message = {'w', 'i', 'l', 'l', ' ', 'm', 'e', 's', 's', 'a', 'g', 'e'};
         const char* const username = "username";
         const char* const password = "password";
 
@@ -75,7 +76,7 @@ SCENARIO( "connect", "[packets]" )
         const std::uint16_t keep_alive_secs = 0x0000;
         const char* const client_id = "client id";
         const char* const will_topic = "will topic";
-        const char* const will_message = "will message";
+        const std::vector<uint8_t> will_message = {'w', 'i', 'l', 'l', ' ', 'm', 'e', 's', 's', 'a', 'g', 'e'};
         const char* const username = "username";
         const char* const password = "password";
 
@@ -102,7 +103,7 @@ SCENARIO( "connect", "[packets]" )
         const std::uint16_t keep_alive_secs = 0x0000;
         const char* const client_id = "client id";
         const char* const will_topic = "will topic";
-        const char* const will_message = "will message";
+        const std::vector<uint8_t> will_message = {'w', 'i', 'l', 'l', ' ', 'm', 'e', 's', 's', 'a', 'g', 'e'};
         const char* const username = "username";
         const char* const password = "password";
 
@@ -129,7 +130,7 @@ SCENARIO( "connect", "[packets]" )
         const std::uint16_t keep_alive_secs = 0x0000;
         const char* const client_id = "client id";
         const char* const will_topic = "will topic";
-        const char* const will_message = "will message";
+        const std::vector<uint8_t> will_message = {'w', 'i', 'l', 'l', ' ', 'm', 'e', 's', 's', 'a', 'g', 'e'};
         const char* const username = "username";
         const char* const password = "password";
 
@@ -156,7 +157,7 @@ SCENARIO( "connect", "[packets]" )
         const std::uint16_t keep_alive_secs = 0x0000;
         const char* const client_id = "client id";
         const char* const will_topic = "will topic";
-        const char* const will_message = "will message";
+        const std::vector<uint8_t> will_message = {'w', 'i', 'l', 'l', ' ', 'm', 'e', 's', 's', 'a', 'g', 'e'};
         const char* const username = "username";
         const char* const password = "password";
 
@@ -183,7 +184,7 @@ SCENARIO( "connect", "[packets]" )
         const std::uint16_t keep_alive_secs = 0x0000;
         const char* const client_id = "client id";
         const char* const will_topic = "will topic";
-        const char* const will_message = "will message";
+        const std::vector<uint8_t> will_message = {'w', 'i', 'l', 'l', ' ', 'm', 'e', 's', 's', 'a', 'g', 'e'};
         const char* const username = "username";
         const char* const password = "password";
 
@@ -210,7 +211,7 @@ SCENARIO( "connect", "[packets]" )
         const std::uint16_t keep_alive_secs = 0x0000;
         const char* const client_id = "client id";
         const char* const will_topic = "will topic";
-        const char* const will_message = "will message";
+        const std::vector<uint8_t> will_message = {'w', 'i', 'l', 'l', ' ', 'm', 'e', 's', 's', 'a', 'g', 'e'};
         const char* const username = "username";
         const char* const password = "password";
 
@@ -237,7 +238,7 @@ SCENARIO( "connect", "[packets]" )
         const std::uint16_t keep_alive_secs = 0x0000;
         const char* const client_id = "client id";
         const char* const will_topic = "will topic";
-        const char* const will_message = "will message";
+        const std::vector<uint8_t> will_message = {'w', 'i', 'l', 'l', ' ', 'm', 'e', 's', 's', 'a', 'g', 'e'};
         const char* const username = "username";
         const char* const password = "password";
 
@@ -264,7 +265,7 @@ SCENARIO( "connect", "[packets]" )
         const std::uint16_t keep_alive_secs = 0x0000;
         const char* const client_id = "client id";
         const char* const will_topic = "will topic";
-        const char* const will_message = "will message";
+        const std::vector<uint8_t> will_message = {'w', 'i', 'l', 'l', ' ', 'm', 'e', 's', 's', 'a', 'g', 'e'};
         const char* const username = "username";
         const char* const password = "password";
 
@@ -291,7 +292,7 @@ SCENARIO( "connect", "[packets]" )
         const std::uint16_t keep_alive_secs = 0x0000;
         const char* const client_id = "client id";
         const char* const will_topic = "will topic";
-        const char* const will_message = "will message";
+        const std::vector<uint8_t> will_message = {'w', 'i', 'l', 'l', ' ', 'm', 'e', 's', 's', 'a', 'g', 'e'};
         const char* const username = "username";
         const char* const password = "password";
 
@@ -318,7 +319,7 @@ SCENARIO( "connect", "[packets]" )
         const std::uint16_t keep_alive_secs = 0x0000;
         const char* const client_id = "client id";
         const char* const will_topic = "will topic";
-        const char* const will_message = "will message";
+        const std::vector<uint8_t> will_message = {'w', 'i', 'l', 'l', ' ', 'm', 'e', 's', 's', 'a', 'g', 'e'};
         const char* const username = "username";
         const char* const password = "password";
 
@@ -345,7 +346,7 @@ SCENARIO( "connect", "[packets]" )
         const std::uint16_t keep_alive_secs = 0x0000;
         const char* const client_id = "client id";
         const char* const will_topic = "will topic";
-        const char* const will_message = "will message";
+        const std::vector<uint8_t> will_message = {'w', 'i', 'l', 'l', ' ', 'm', 'e', 's', 's', 'a', 'g', 'e'};
         const char* const username = "username";
         const char* const password = "password";
 
@@ -372,7 +373,7 @@ SCENARIO( "connect", "[packets]" )
         const std::uint16_t keep_alive_secs = 0x0000;
         const char* const client_id = "client id";
         const char* const will_topic = "will topic";
-        const char* const will_message = "will message";
+        const std::vector<uint8_t> will_message = {'w', 'i', 'l', 'l', ' ', 'm', 'e', 's', 's', 'a', 'g', 'e'};
         const char* const username = "username";
         const char* const password = "password";
 
@@ -399,7 +400,7 @@ SCENARIO( "connect", "[packets]" )
         const std::uint16_t keep_alive_secs = 0x0000;
         const char* const client_id = "client id";
         const char* const will_topic = "will topic";
-        const char* const will_message = "will message";
+        const std::vector<uint8_t> will_message = {'w', 'i', 'l', 'l', ' ', 'm', 'e', 's', 's', 'a', 'g', 'e'};
         const char* const username = "username";
         const char* const password = "password";
 
@@ -426,7 +427,7 @@ SCENARIO( "connect", "[packets]" )
         const std::uint16_t keep_alive_secs = 0x0000;
         const char* const client_id = "client id";
         const char* const will_topic = "will topic";
-        const char* const will_message = "will message";
+        const std::vector<uint8_t> will_message = {'w', 'i', 'l', 'l', ' ', 'm', 'e', 's', 's', 'a', 'g', 'e'};
         const char* const username = "username";
         const char* const password = "password";
 
@@ -453,7 +454,7 @@ SCENARIO( "connect", "[packets]" )
         const std::uint16_t keep_alive_secs = 0x0000;
         const char* const client_id = "client id";
         const char* const will_topic = "will topic";
-        const char* const will_message = "will message";
+        const std::vector<uint8_t> will_message = {'w', 'i', 'l', 'l', ' ', 'm', 'e', 's', 's', 'a', 'g', 'e'};
         const char* const username = "username";
         const char* const password = "password";
 
@@ -480,7 +481,7 @@ SCENARIO( "connect", "[packets]" )
         const std::uint16_t keep_alive_secs = 0x0000;
         const char* const client_id = "client id";
         const char* const will_topic = "will topic";
-        const char* const will_message = "will message";
+        const std::vector<uint8_t> will_message = {'w', 'i', 'l', 'l', ' ', 'm', 'e', 's', 's', 'a', 'g', 'e'};
         const char* const username = "username";
         const char* const password = "password";
 
@@ -491,7 +492,7 @@ SCENARIO( "connect", "[packets]" )
         {
             const std::string client_id_ret = under_test.client_id( );
             const std::optional<const std::string> will_topic_ret = under_test.will_topic( );
-            const std::optional<const std::string> will_message_ret = under_test.will_message( );
+            const std::optional<const std::vector<uint8_t>> will_message_ret = under_test.will_message( );
             const std::optional<const std::string> username_ret = under_test.username( );
             const std::optional<const std::string> password_ret = under_test.password( );
 
@@ -515,7 +516,7 @@ SCENARIO( "connect", "[packets]" )
         const std::uint16_t keep_alive_secs = 0x0000;
         const char* const client_id = "client id";
         const char* const will_topic = nullptr;
-        const char* const will_message = nullptr;
+        const std::vector<uint8_t> will_message = {};
         const char* const username = nullptr;
         const char* const password = nullptr;
 
@@ -526,7 +527,7 @@ SCENARIO( "connect", "[packets]" )
         {
             const std::string client_id_ret = under_test.client_id( );
             const std::optional<const std::string> will_topic_ret = under_test.will_topic( );
-            const std::optional<const std::string> will_message_ret = under_test.will_message( );
+            const std::optional<const std::vector<uint8_t>> will_message_ret = under_test.will_message( );
             const std::optional<const std::string> username_ret = under_test.username( );
             const std::optional<const std::string> password_ret = under_test.password( );
 
