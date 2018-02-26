@@ -1,6 +1,7 @@
 #include "catch.hpp"
 
 #include <algorithm>
+#include <string>
 
 #include <asio.hpp>
 
@@ -12,6 +13,7 @@
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/publish_packet.hpp"
 
+using namespace std::string_literals;
 using namespace io_wally::protocol;
 
 SCENARIO( "mqtt_client_session_manager::session_store#insert", "[dispatch]" )
@@ -26,7 +28,7 @@ SCENARIO( "mqtt_client_session_manager::session_store#insert", "[dispatch]" )
 
         WHEN( "client code calls under_test.insert(...)" )
         {
-            const auto client_id = "test-client";
+            const auto client_id = "test-client"s;
             const auto connect = framework::create_connect_packet( client_id );
             auto client_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id );
 
@@ -40,7 +42,7 @@ SCENARIO( "mqtt_client_session_manager::session_store#insert", "[dispatch]" )
 
         WHEN( "client code calls under_test.insert(...) twice with the same client_id" )
         {
-            const auto client_id = "test-client";
+            const auto client_id = "test-client"s;
 
             const auto connect1 = framework::create_connect_packet( client_id );
             auto client1_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id );
@@ -58,7 +60,7 @@ SCENARIO( "mqtt_client_session_manager::session_store#insert", "[dispatch]" )
 
         WHEN( "client code calls under_test.insert(client_id, connection_ptr)" )
         {
-            const auto client_id = "test-client";
+            const auto client_id = "test-client"s;
             const auto connect = framework::create_connect_packet( client_id );
             auto client_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id );
 
@@ -84,7 +86,7 @@ SCENARIO( "mqtt_client_session_manager::session_store#size", "[dispatch]" )
 
         auto under_test = io_wally::dispatch::mqtt_client_session_manager::session_store{parent};
 
-        const auto client_id = "test-client";
+        const auto client_id = "test-client"s;
 
         WHEN( "client code calls under_test.insert(...) x times with connections having different client_ids" )
         {
@@ -92,8 +94,9 @@ SCENARIO( "mqtt_client_session_manager::session_store#size", "[dispatch]" )
             const auto ids = std::array<const int, x>{{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}};
             for ( const auto id : ids )
             {
-                const auto connect = framework::create_connect_packet( client_id + id );
-                auto client_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id + id );
+                const auto connect = framework::create_connect_packet( client_id + std::to_string( id ) );
+                auto client_connection_ptr =
+                    std::make_shared<framework::packet_sender_mock>( client_id + std::to_string( id ) );
                 under_test.insert( connect, client_connection_ptr );
             }
 
@@ -115,7 +118,7 @@ SCENARIO( "mqtt_client_session_manager::session_store#remove", "[dispatch]" )
 
         auto under_test = io_wally::dispatch::mqtt_client_session_manager::session_store{parent};
 
-        const auto client_id = "test-client";
+        const auto client_id = "test-client"s;
 
         WHEN( "client code calls under_test.insert(...)" )
         {
@@ -154,7 +157,7 @@ SCENARIO( "mqtt_client_session_manager::session_store#operator[]", "[dispatch]" 
 
         WHEN( "client code calls under_test['some-client-id']" )
         {
-            const auto client_id = "some-client-id";
+            const auto client_id = "some-client-id"s;
             const auto non_existing_session = under_test[client_id];
 
             THEN( "that client code should see a nullptr being returned" )
@@ -165,7 +168,7 @@ SCENARIO( "mqtt_client_session_manager::session_store#operator[]", "[dispatch]" 
 
         WHEN( "client code calls under_test.insert(client_id, connection_ptr)" )
         {
-            const auto client_id = "test-client";
+            const auto client_id = "test-client"s;
             const auto connect = framework::create_connect_packet( client_id );
             auto client_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id );
 
@@ -191,7 +194,7 @@ SCENARIO( "mqtt_client_session_manager::session_store#clear", "[dispatch]" )
 
         auto under_test = io_wally::dispatch::mqtt_client_session_manager::session_store{parent};
 
-        const auto client_id = "test-client";
+        const auto client_id = "test-client"s;
 
         WHEN( "client code calls under_test.insert(...) x times with connections having different client_ids" )
         {
@@ -199,8 +202,9 @@ SCENARIO( "mqtt_client_session_manager::session_store#clear", "[dispatch]" )
             const auto ids = std::array<const int, x>{{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}};
             for ( const auto id : ids )
             {
-                const auto connect = framework::create_connect_packet( client_id + id );
-                auto client_connection_ptr = std::make_shared<framework::packet_sender_mock>( client_id + id );
+                const auto connect = framework::create_connect_packet( client_id + std::to_string( id ) );
+                auto client_connection_ptr =
+                    std::make_shared<framework::packet_sender_mock>( client_id + std::to_string( id ) );
                 under_test.insert( connect, client_connection_ptr );
             }
         }
@@ -225,16 +229,16 @@ SCENARIO( "mqtt_client_session_manager#client_published", "[dispatch]" )
         auto io_service = asio::io_service{};
         auto under_test = io_wally::dispatch::mqtt_client_session_manager{context, io_service};
 
-        const auto subscriber_id = "test-subscriber";
+        const auto subscriber_id = "test-subscriber"s;
         const auto subscriber_connect = framework::create_connect_packet( subscriber_id );
         auto subscriber_ptr = std::make_shared<framework::packet_sender_mock>( subscriber_id );
         under_test.client_connected( subscriber_connect, subscriber_ptr );
 
-        const auto topic = "/topic/mqtt_client_session_manager/test";
+        const auto topic = "/topic/mqtt_client_session_manager/test"s;
         const auto subscribe_packet = framework::create_subscribe_packet( {{topic, packet::QoS::AT_MOST_ONCE}} );
         under_test.client_subscribed( *subscriber_ptr->client_id( ), subscribe_packet );
 
-        const auto publisher_id = "test-publisher";
+        const auto publisher_id = "test-publisher"s;
         const auto publisher_connect = framework::create_connect_packet( publisher_id );
         auto publisher_ptr = std::make_shared<framework::packet_sender_mock>( publisher_id );
         under_test.client_connected( publisher_connect, publisher_ptr );
@@ -285,7 +289,7 @@ SCENARIO( "mqtt_client_session_manager#client_published", "[dispatch]" )
             auto publish_packet = framework::create_publish_packet( topic, true );
             under_test.client_published( publisher_id, publish_packet );
 
-            const auto new_subscriber_id = "new-test-subscriber";
+            const auto new_subscriber_id = "new-test-subscriber"s;
             const auto new_subscriber_connect = framework::create_connect_packet( new_subscriber_id );
             auto new_subscriber_ptr = std::make_shared<framework::packet_sender_mock>( new_subscriber_id );
             under_test.client_connected( new_subscriber_connect, new_subscriber_ptr );
@@ -309,7 +313,7 @@ SCENARIO( "mqtt_client_session_manager#client_published", "[dispatch]" )
             auto publish_packet = framework::create_publish_packet( topic, false );
             under_test.client_published( publisher_id, publish_packet );
 
-            const auto new_subscriber_id = "new-test-subscriber";
+            const auto new_subscriber_id = "new-test-subscriber"s;
             const auto new_subscriber_connect = framework::create_connect_packet( new_subscriber_id );
             auto new_subscriber_ptr = std::make_shared<framework::packet_sender_mock>( new_subscriber_id );
             under_test.client_connected( new_subscriber_connect, new_subscriber_ptr );
@@ -337,7 +341,7 @@ SCENARIO( "mqtt_client_session_manager#client_published", "[dispatch]" )
             auto delete_publish_packet = framework::create_publish_packet( topic, true, {} );
             under_test.client_published( publisher_id, delete_publish_packet );
 
-            const auto new_subscriber_id = "new-test-subscriber";
+            const auto new_subscriber_id = "new-test-subscriber"s;
             const auto new_subscriber_connect = framework::create_connect_packet( new_subscriber_id );
             auto new_subscriber_ptr = std::make_shared<framework::packet_sender_mock>( new_subscriber_id );
             under_test.client_connected( new_subscriber_connect, new_subscriber_ptr );
@@ -368,7 +372,7 @@ SCENARIO( "mqtt_client_session_manager#client_disconnected_ungracefully", "[disp
         auto io_service = asio::io_service{};
         auto under_test = io_wally::dispatch::mqtt_client_session_manager{context, io_service};
 
-        const auto client_id = "test-client";
+        const auto client_id = "test-client"s;
         const auto connect = framework::create_connect_packet( client_id );
         auto client_ptr = std::make_shared<framework::packet_sender_mock>( client_id );
         under_test.client_connected( connect, client_ptr );
@@ -381,6 +385,67 @@ SCENARIO( "mqtt_client_session_manager#client_disconnected_ungracefully", "[disp
             THEN( "under_test.connected_clients_count() should return 0" )
             {
                 REQUIRE( under_test.connected_clients_count( ) == 0 );
+            }
+        }
+    }
+
+    GIVEN(
+        "mqtt_client_session_manager holding a connected client with an unretained LWT message and a connected client "
+        "subscribed to LWT topic" )
+    {
+        const auto context = framework::create_context( );
+        auto io_service = asio::io_service{};
+        auto under_test = io_wally::dispatch::mqtt_client_session_manager{context, io_service};
+
+        const auto lwt_topic = "/topic/mqtt_client_session_manager/unretained-lwt/test"s;
+
+        const auto lwt_client_id = "unretained-lwt-publisher"s;
+        const auto lwt_message = "LWT"s;
+        const auto lwt_client_connect = framework::create_connect_packet_with_lwt(
+            lwt_client_id, false, lwt_topic, lwt_message, io_wally::protocol::packet::QoS::AT_MOST_ONCE, false );
+        auto lwt_client_ptr = std::make_shared<framework::packet_sender_mock>( lwt_client_id );
+        under_test.client_connected( lwt_client_connect, lwt_client_ptr );
+
+        const auto lwt_subscriber_id = "unretained-lwt-subscriber"s;
+        const auto lwt_subscriber_connect = framework::create_connect_packet( lwt_subscriber_id );
+        auto lwt_subscriber_ptr = std::make_shared<framework::packet_sender_mock>( lwt_subscriber_id );
+        under_test.client_connected( lwt_subscriber_connect, lwt_subscriber_ptr );
+
+        const auto subscribe_packet = framework::create_subscribe_packet( {{lwt_topic, packet::QoS::AT_MOST_ONCE}} );
+        under_test.client_subscribed( *lwt_client_ptr->client_id( ), subscribe_packet );
+        under_test.client_subscribed( *lwt_subscriber_ptr->client_id( ), subscribe_packet );
+
+        WHEN( "client code calls client_disconnected_ungracefully() for the connected client with LWT message" )
+        {
+            under_test.client_disconnected_ungracefully(
+                lwt_client_id, io_wally::dispatch::disconnect_reason::network_or_server_failure );
+
+            THEN( "LWT message should be sent to subscribed client" )
+            {
+                const auto& sent_packets = lwt_subscriber_ptr->sent_packets( );
+                const auto lwt_message_vec = std::vector<uint8_t>{lwt_message.begin( ), lwt_message.end( )};
+                const auto pos = std::find_if(
+                    std::begin( sent_packets ), std::end( sent_packets ),
+                    [&lwt_message_vec]( const std::shared_ptr<const io_wally::protocol::mqtt_packet> packet ) -> bool {
+                        return ( packet->type( ) == io_wally::protocol::packet::Type::PUBLISH ) &&
+                               ( std::dynamic_pointer_cast<const io_wally::protocol::publish>( packet )
+                                     ->application_message( ) == lwt_message_vec );
+                    } );
+                REQUIRE( pos != std::end( sent_packets ) );
+            }
+
+            AND_THEN( "LWT message should NOT be sent to the disconnected client" )
+            {
+                const auto& sent_packets = lwt_client_ptr->sent_packets( );
+                const auto lwt_message_vec = std::vector<uint8_t>{lwt_message.begin( ), lwt_message.end( )};
+                const auto pos = std::find_if(
+                    std::begin( sent_packets ), std::end( sent_packets ),
+                    [&lwt_message_vec]( const std::shared_ptr<const io_wally::protocol::mqtt_packet> packet ) -> bool {
+                        return ( packet->type( ) == io_wally::protocol::packet::Type::PUBLISH ) &&
+                               ( std::dynamic_pointer_cast<const io_wally::protocol::publish>( packet )
+                                     ->application_message( ) == lwt_message_vec );
+                    } );
+                REQUIRE( pos == std::end( sent_packets ) );
             }
         }
     }

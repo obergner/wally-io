@@ -240,8 +240,19 @@ namespace io_wally
         void mqtt_client_session_manager::client_disconnected_ungracefully( const std::string& client_id,
                                                                             dispatch::disconnect_reason reason )
         {
-            sessions_.remove( client_id );
-            logger_->info( "Client session [cltid:{}] destroyed after ungraceful disconnect: {}", client_id, reason );
+            if ( const auto session = sessions_[client_id] )
+            {
+                // so that we do not send an LWT message to ourselves if we happen to be subscribed to our own LWT topic
+                sessions_.remove( client_id );
+                session->client_disconnected_ungracefully( reason );
+                logger_->info( "Client session [cltid:{}] destroyed after ungraceful disconnect: {}", client_id,
+                               reason );
+            }
+            else
+            {
+                logger_->warn( "Client [{}] discconnected ungracefully, yet there is no client session for this client",
+                               client_id );
+            }
         }
 
         std::size_t mqtt_client_session_manager::connected_clients_count( ) const
