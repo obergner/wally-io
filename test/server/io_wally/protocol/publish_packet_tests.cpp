@@ -361,4 +361,34 @@ SCENARIO( "publish#create", "[packets]" )
             }
         }
     }
+
+    GIVEN(
+        "publish packet properties dup, retain, qos, topic, packet identifier and an application message of non-zero "
+        "length using QoS 0" )
+    {
+        const auto dup = true;
+        const auto qos = packet::QoS::AT_MOST_ONCE;
+        const auto retain = false;
+        const auto topic = "just/another/different/test/topic"s;
+        const auto pktid = std::uint16_t{0x01FE};
+        const auto msg = std::vector<uint8_t>{'m', 'e', 's', 's', 'a', 'g', 'e'};
+
+        const auto expected_remaining_length = ( 2 + topic.length( ) ) + msg.size( );
+
+        WHEN( "a caller calls publish::create(...)" )
+        {
+            const auto publish_ptr = publish::create( dup, qos, retain, topic, pktid, msg );
+
+            THEN( "it should receive a properly constructed publish packet" )
+            {
+                CHECK( publish_ptr->dup( ) == dup );
+                CHECK( publish_ptr->qos( ) == qos );
+                CHECK( publish_ptr->retain( ) == retain );
+                CHECK( publish_ptr->topic( ) == topic );
+                CHECK( publish_ptr->packet_identifier( ) == pktid );
+                CHECK( publish_ptr->remaining_length( ) == expected_remaining_length );
+                REQUIRE( publish_ptr->application_message( ) == msg );
+            }
+        }
+    }
 }

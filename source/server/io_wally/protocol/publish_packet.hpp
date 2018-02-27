@@ -47,7 +47,8 @@ namespace io_wally
                 packet::qos_into( qos, type_and_flags, 1 );
                 packet::retain_into( retain, type_and_flags );
 
-                auto remaining_length = uint32_t{2};  // packet_identifier
+                auto remaining_length =
+                    qos == packet::QoS::AT_MOST_ONCE ? uint16_t{0} : uint32_t{2};  // packet_identifier
                 remaining_length += ( 2 + topic.length( ) );
                 remaining_length += application_message.size( );
 

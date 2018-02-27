@@ -39,9 +39,9 @@ namespace io_wally
             logger_->debug( "RX: {}", *packet_container->packet( ) );
             if ( packet_container->packet_type( ) == protocol::packet::Type::CONNECT )
             {
-                // For now, we do not support LWT messages
+                // For now, we do not support retained LWT messages
                 const auto connect = packet_container->packet_as<protocol::connect>( );
-                assert( !connect->contains_last_will( ) );
+                assert( !connect->contains_last_will( ) || !connect->retain_last_will( ) );
                 session_manager_.client_connected( packet_container->packet_as<protocol::connect>( ),
                                                    packet_container->rx_connection( ) );
             }

@@ -141,9 +141,11 @@ class Subscriber(object):
 class Publisher(object):
     """ Test MQTT publisher
     """
-    def __init__(self, name):
+    def __init__(self, name, will_topic=None, will_message=None, will_qos=0, will_retain=False):
         self.name = name
         self.client = mqtt.Client(self.name)
+        if will_topic is not None:
+            self.client.will_set(will_topic, will_message, will_qos, will_retain)
         self.client.on_connect = self.__on_connect
         self.client.on_publish = self.__on_publish
 
@@ -183,6 +185,11 @@ class Publisher(object):
         """
         logging.info("[%s] Successfully published message: mid = %s (client:%s|userdata:%s)",
                      self.name, mid, client, userdata)
+
+    def disconnect_ungracefully(self):
+        """ Force connection close without sending a DISCONNECT
+        """
+        self.client._sock.close()
 
 SERVER_UNDER_TEST = ServerUnderTest("ServerUnderTest")
 
