@@ -87,7 +87,7 @@ namespace spdlog
             std::string _tag;
             bool _use_raw_msg;
         };
-    }
-}
+    }  // namespace sinks
+}  // namespace spdlog
 
 #endif

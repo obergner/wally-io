@@ -16,6 +16,8 @@ namespace io_wally
         class authentication_service
         {
            public:
+            virtual ~authentication_service( ){};
+
             virtual bool authenticate( const std::string& client_ip,
                                        const std::optional<const std::string>& username,
                                        const std::optional<const std::string>& password ) = 0;

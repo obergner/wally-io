@@ -29,8 +29,9 @@ namespace asio
     namespace detail
     {
 
-        extern "C" {
-        ASIO_DECL void* asio_detail_posix_thread_function( void* arg );
+        extern "C"
+        {
+            ASIO_DECL void* asio_detail_posix_thread_function( void* arg );
         }
 
         class posix_thread : private noncopyable

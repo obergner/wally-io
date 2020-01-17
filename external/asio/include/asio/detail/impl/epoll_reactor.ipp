@@ -403,10 +403,10 @@ namespace asio
                 void* ptr = events[i].data.ptr;
                 if ( ptr == &interrupter_ )
                 {
-                // No need to reset the interrupter since we're leaving the descriptor
-                // in a ready-to-read state and relying on edge-triggered notifications
-                // to make it so that we only get woken up when the descriptor's epoll
-                // registration is updated.
+                    // No need to reset the interrupter since we're leaving the descriptor
+                    // in a ready-to-read state and relying on edge-triggered notifications
+                    // to make it so that we only get woken up when the descriptor's epoll
+                    // registration is updated.
 
 #if defined( ASIO_HAS_TIMERFD )
                     if ( timer_fd_ == -1 )

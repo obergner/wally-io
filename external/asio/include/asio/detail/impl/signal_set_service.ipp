@@ -92,7 +92,7 @@ namespace asio
 
                 int fd = state->read_descriptor_;
                 int signal_number = 0;
-                while (::read( fd, &signal_number, sizeof( int ) ) == sizeof( int ) )
+                while ( ::read( fd, &signal_number, sizeof( int ) ) == sizeof( int ) )
                     if ( signal_number >= 0 && signal_number < max_signal_number )
                         signal_set_service::deliver_signal( signal_number );
 
@@ -261,9 +261,9 @@ namespace asio
                     memset( &sa, 0, sizeof( sa ) );
                     sa.sa_handler = asio_signal_handler;
                     sigfillset( &sa.sa_mask );
-                    if (::sigaction( signal_number, &sa, 0 ) == -1 )
+                    if ( ::sigaction( signal_number, &sa, 0 ) == -1 )
 #else   // defined(ASIO_HAS_SIGACTION)
-                    if (::signal( signal_number, asio_signal_handler ) == SIG_ERR )
+                    if ( ::signal( signal_number, asio_signal_handler ) == SIG_ERR )
 #endif  // defined(ASIO_HAS_SIGACTION)
                     {
 #if defined( ASIO_WINDOWS ) || defined( __CYGWIN__ )
@@ -330,9 +330,9 @@ namespace asio
                     struct sigaction sa;
                     memset( &sa, 0, sizeof( sa ) );
                     sa.sa_handler = SIG_DFL;
-                    if (::sigaction( signal_number, &sa, 0 ) == -1 )
+                    if ( ::sigaction( signal_number, &sa, 0 ) == -1 )
 #else   // defined(ASIO_HAS_SIGACTION)
-                    if (::signal( signal_number, SIG_DFL ) == SIG_ERR )
+                    if ( ::signal( signal_number, SIG_DFL ) == SIG_ERR )
 #endif  // defined(ASIO_HAS_SIGACTION)
                     {
 #if defined( ASIO_WINDOWS ) || defined( __CYGWIN__ )
@@ -382,9 +382,9 @@ namespace asio
                     struct sigaction sa;
                     memset( &sa, 0, sizeof( sa ) );
                     sa.sa_handler = SIG_DFL;
-                    if (::sigaction( reg->signal_number_, &sa, 0 ) == -1 )
+                    if ( ::sigaction( reg->signal_number_, &sa, 0 ) == -1 )
 #else   // defined(ASIO_HAS_SIGACTION)
-                    if (::signal( reg->signal_number_, SIG_DFL ) == SIG_ERR )
+                    if ( ::signal( reg->signal_number_, SIG_DFL ) == SIG_ERR )
 #endif  // defined(ASIO_HAS_SIGACTION)
                     {
 #if defined( ASIO_WINDOWS ) || defined( __CYGWIN__ )
@@ -545,7 +545,7 @@ namespace asio
             signal_state* state = get_signal_state( );
 
             int pipe_fds[2];
-            if (::pipe( pipe_fds ) == 0 )
+            if ( ::pipe( pipe_fds ) == 0 )
             {
                 state->read_descriptor_ = pipe_fds[0];
                 ::fcntl( state->read_descriptor_, F_SETFL, O_NONBLOCK );

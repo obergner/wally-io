@@ -45,7 +45,7 @@ namespace spdlog
                     msg.formatted << *msg.logger_name;
                 }
             };
-        }
+        }  // namespace
 
         // log level appender
         class level_formatter : public flag_formatter
@@ -481,8 +481,8 @@ namespace spdlog
                 msg.formatted << fmt::StringRef( msg.raw.data( ), msg.raw.size( ) );
             }
         };
-    }
-}
+    }  // namespace details
+}  // namespace spdlog
 ///////////////////////////////////////////////////////////////////////////////
 // pattern_formatter inline impl
 ///////////////////////////////////////////////////////////////////////////////

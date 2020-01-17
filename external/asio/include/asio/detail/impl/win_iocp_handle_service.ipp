@@ -225,7 +225,7 @@ namespace asio
 
             ASIO_HANDLER_OPERATION( ( "handle", &impl, "cancel" ) );
 
-            if ( FARPROC cancel_io_ex_ptr = ::GetProcAddress(::GetModuleHandleA( "KERNEL32" ), "CancelIoEx" ) )
+            if ( FARPROC cancel_io_ex_ptr = ::GetProcAddress( ::GetModuleHandleA( "KERNEL32" ), "CancelIoEx" ) )
             {
                 // The version of Windows supports cancellation from any thread.
                 typedef BOOL( WINAPI * cancel_io_ex_t )( HANDLE, LPOVERLAPPED );

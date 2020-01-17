@@ -78,13 +78,13 @@ namespace asio
                                 break;
 #else   // defined(OPENSSL_NO_SSL2)
                             case context_base::sslv2:
-                                impl = ::SSL_CTX_new(::SSLv2_method( ) );
+                                impl = ::SSL_CTX_new( ::SSLv2_method( ) );
                                 break;
                             case context_base::sslv2_client:
-                                impl = ::SSL_CTX_new(::SSLv2_client_method( ) );
+                                impl = ::SSL_CTX_new( ::SSLv2_client_method( ) );
                                 break;
                             case context_base::sslv2_server:
-                                impl = ::SSL_CTX_new(::SSLv2_server_method( ) );
+                                impl = ::SSL_CTX_new( ::SSLv2_server_method( ) );
                                 break;
 #endif  // defined(OPENSSL_NO_SSL2)
 #if defined( OPENSSL_NO_SSL3 )
@@ -95,32 +95,32 @@ namespace asio
                                 break;
 #else   // defined(OPENSSL_NO_SSL3)
                             case context_base::sslv3:
-                                impl = ::SSL_CTX_new(::SSLv3_method( ) );
+                                impl = ::SSL_CTX_new( ::SSLv3_method( ) );
                                 break;
                             case context_base::sslv3_client:
-                                impl = ::SSL_CTX_new(::SSLv3_client_method( ) );
+                                impl = ::SSL_CTX_new( ::SSLv3_client_method( ) );
                                 break;
                             case context_base::sslv3_server:
-                                impl = ::SSL_CTX_new(::SSLv3_server_method( ) );
+                                impl = ::SSL_CTX_new( ::SSLv3_server_method( ) );
                                 break;
 #endif  // defined(OPENSSL_NO_SSL3)
                             case context_base::tlsv1:
-                                impl = ::SSL_CTX_new(::TLSv1_method( ) );
+                                impl = ::SSL_CTX_new( ::TLSv1_method( ) );
                                 break;
                             case context_base::tlsv1_client:
-                                impl = ::SSL_CTX_new(::TLSv1_client_method( ) );
+                                impl = ::SSL_CTX_new( ::TLSv1_client_method( ) );
                                 break;
                             case context_base::tlsv1_server:
-                                impl = ::SSL_CTX_new(::TLSv1_server_method( ) );
+                                impl = ::SSL_CTX_new( ::TLSv1_server_method( ) );
                                 break;
                             case context_base::sslv23:
-                                impl = ::SSL_CTX_new(::SSLv23_method( ) );
+                                impl = ::SSL_CTX_new( ::SSLv23_method( ) );
                                 break;
                             case context_base::sslv23_client:
-                                impl = ::SSL_CTX_new(::SSLv23_client_method( ) );
+                                impl = ::SSL_CTX_new( ::SSLv23_client_method( ) );
                                 break;
                             case context_base::sslv23_server:
-                                impl = ::SSL_CTX_new(::SSLv23_server_method( ) );
+                                impl = ::SSL_CTX_new( ::SSLv23_server_method( ) );
                                 break;
                             default:
                                 impl = ::SSL_CTX_new( 0 );
@@ -171,7 +171,7 @@ namespace asio
                                                        const std::string& filename,
                                                        asio::error_code& ec )
                     {
-                        if (::SSL_CTX_load_verify_locations( impl, filename.c_str( ), 0 ) != 1 )
+                        if ( ::SSL_CTX_load_verify_locations( impl, filename.c_str( ), 0 ) != 1 )
                         {
                             ec = asio::error::invalid_argument;
                             return ec;
@@ -185,7 +185,7 @@ namespace asio
                     // performing verification.
                     asio::error_code add_verify_path( impl_type& impl, const std::string& path, asio::error_code& ec )
                     {
-                        if (::SSL_CTX_load_verify_locations( impl, 0, path.c_str( ) ) != 1 )
+                        if ( ::SSL_CTX_load_verify_locations( impl, 0, path.c_str( ) ) != 1 )
                         {
                             ec = asio::error::invalid_argument;
                             return ec;
@@ -217,7 +217,7 @@ namespace asio
                             }
                         }
 
-                        if (::SSL_CTX_use_certificate_file( impl, filename.c_str( ), file_type ) != 1 )
+                        if ( ::SSL_CTX_use_certificate_file( impl, filename.c_str( ), file_type ) != 1 )
                         {
                             ec = asio::error::invalid_argument;
                             return ec;
@@ -232,7 +232,7 @@ namespace asio
                                                                  const std::string& filename,
                                                                  asio::error_code& ec )
                     {
-                        if (::SSL_CTX_use_certificate_chain_file( impl, filename.c_str( ) ) != 1 )
+                        if ( ::SSL_CTX_use_certificate_chain_file( impl, filename.c_str( ) ) != 1 )
                         {
                             ec = asio::error::invalid_argument;
                             return ec;
@@ -264,7 +264,7 @@ namespace asio
                             }
                         }
 
-                        if (::SSL_CTX_use_PrivateKey_file( impl, filename.c_str( ), file_type ) != 1 )
+                        if ( ::SSL_CTX_use_PrivateKey_file( impl, filename.c_str( ), file_type ) != 1 )
                         {
                             ec = asio::error::invalid_argument;
                             return ec;
@@ -296,7 +296,7 @@ namespace asio
                             }
                         }
 
-                        if (::SSL_CTX_use_RSAPrivateKey_file( impl, filename.c_str( ), file_type ) != 1 )
+                        if ( ::SSL_CTX_use_RSAPrivateKey_file( impl, filename.c_str( ), file_type ) != 1 )
                         {
                             ec = asio::error::invalid_argument;
                             return ec;

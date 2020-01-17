@@ -45,5 +45,5 @@ namespace spdlog
                 value = val;
             }
         };
-    }
-}
+    }  // namespace details
+}  // namespace spdlog

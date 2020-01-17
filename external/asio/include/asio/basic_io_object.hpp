@@ -43,7 +43,7 @@ namespace asio
                 sizeof( asio_service_has_move_eval( static_cast<service_type*>( 0 ),
                                                     static_cast<implementation_type*>( 0 ) ) ) == 1;
         };
-    }
+    }   // namespace detail
 #endif  // defined(ASIO_HAS_MOVE)
 
 /// Base class for all I/O objects.

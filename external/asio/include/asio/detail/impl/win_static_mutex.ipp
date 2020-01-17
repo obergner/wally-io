@@ -48,7 +48,7 @@ namespace asio
             _snwprintf(
 #endif  // defined(ASIO_HAS_SECURE_RTL)
                 mutex_name, 128, L"asio-58CCDC44-6264-4842-90C2-F3C545CB8AA7-%u-%p",
-                static_cast<unsigned int>(::GetCurrentProcessId( ) ), this );
+                static_cast<unsigned int>( ::GetCurrentProcessId( ) ), this );
 
 #if defined( ASIO_WINDOWS_APP )
             HANDLE mutex = ::CreateMutexExW( 0, mutex_name, CREATE_MUTEX_INITIAL_OWNER, 0 );
@@ -76,8 +76,8 @@ namespace asio
             }
 
 #if defined( __MINGW32__ )
-                // Not sure if MinGW supports structured exception handling, so for now
-                // we'll just call the Windows API and hope.
+            // Not sure if MinGW supports structured exception handling, so for now
+            // we'll just call the Windows API and hope.
 #if defined( UNDER_CE )
             ::InitializeCriticalSection( &crit_section_ );
 #else

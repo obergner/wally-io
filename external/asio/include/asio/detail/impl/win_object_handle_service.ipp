@@ -245,7 +245,7 @@ namespace asio
                 if ( wait_handle != INVALID_HANDLE_VALUE )
                     ::UnregisterWaitEx( wait_handle, INVALID_HANDLE_VALUE );
 
-                if (::CloseHandle( impl.handle_ ) )
+                if ( ::CloseHandle( impl.handle_ ) )
                 {
                     impl.handle_ = INVALID_HANDLE_VALUE;
                     ec = asio::error_code( );
@@ -309,7 +309,7 @@ namespace asio
         void win_object_handle_service::wait( win_object_handle_service::implementation_type& impl,
                                               asio::error_code& ec )
         {
-            switch (::WaitForSingleObject( impl.handle_, INFINITE ) )
+            switch ( ::WaitForSingleObject( impl.handle_, INFINITE ) )
             {
                 case WAIT_FAILED:
                 {

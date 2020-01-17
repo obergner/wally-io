@@ -39,7 +39,7 @@ namespace asio
                 return next;
             }
         };
-    }
+    }  // namespace detail
 
     template <typename Protocol, typename SocketService, typename Iterator>
     Iterator connect( basic_socket<Protocol, SocketService>& s, Iterator begin )

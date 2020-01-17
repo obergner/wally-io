@@ -140,5 +140,5 @@ namespace spdlog
             FILE* _fd;
             filename_t _filename;
         };
-    }
-}
+    }  // namespace details
+}  // namespace spdlog

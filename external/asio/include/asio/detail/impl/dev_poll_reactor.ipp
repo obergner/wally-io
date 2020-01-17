@@ -263,7 +263,7 @@ namespace asio
                 return;
 
             // Write the pending event registration changes to the /dev/poll descriptor.
-            std::size_t events_size = sizeof(::pollfd ) * pending_event_changes_.size( );
+            std::size_t events_size = sizeof( ::pollfd ) * pending_event_changes_.size( );
             if ( events_size > 0 )
             {
                 errno = 0;
@@ -419,7 +419,7 @@ namespace asio
                 std::size_t index = pending_event_changes_.size( );
                 pending_event_changes_.reserve( pending_event_changes_.size( ) + 1 );
                 pending_event_change_index_.insert( std::make_pair( descriptor, index ) );
-                pending_event_changes_.push_back(::pollfd( ) );
+                pending_event_changes_.push_back( ::pollfd( ) );
                 pending_event_changes_[index].fd = descriptor;
                 pending_event_changes_[index].revents = 0;
                 return pending_event_changes_[index];

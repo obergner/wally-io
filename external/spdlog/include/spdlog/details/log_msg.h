@@ -42,5 +42,5 @@ namespace spdlog
             fmt::MemoryWriter formatted;
             size_t msg_id;
         };
-    }
-}
+    }  // namespace details
+}  // namespace spdlog

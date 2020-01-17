@@ -19,6 +19,7 @@ namespace io_wally
         class accept_all_authentication_service final : public spi::authentication_service
         {
            public:
+            ~accept_all_authentication_service( ) override{};
             /// \brief Always return \c true.
             bool authenticate( const std::string& /* client_ip */,
                                const std::optional<const std::string>& /* username  */,
@@ -44,5 +45,5 @@ namespace io_wally
                 return std::unique_ptr<spi::authentication_service>( new accept_all_authentication_service( ) );
             }
         };
-    }  // namespace spi
+    }  // namespace impl
 }  // namespace io_wally

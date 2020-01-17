@@ -33,7 +33,7 @@ namespace asio
 
         void winsock_init_base::startup( data& d, unsigned char major, unsigned char minor )
         {
-            if (::InterlockedIncrement( &d.init_count_ ) == 1 )
+            if ( ::InterlockedIncrement( &d.init_count_ ) == 1 )
             {
                 WSADATA wsa_data;
                 long result = ::WSAStartup( MAKEWORD( major, minor ), &wsa_data );
@@ -43,7 +43,7 @@ namespace asio
 
         void winsock_init_base::manual_startup( data& d )
         {
-            if (::InterlockedIncrement( &d.init_count_ ) == 1 )
+            if ( ::InterlockedIncrement( &d.init_count_ ) == 1 )
             {
                 ::InterlockedExchange( &d.result_, 0 );
             }
@@ -51,7 +51,7 @@ namespace asio
 
         void winsock_init_base::cleanup( data& d )
         {
-            if (::InterlockedDecrement( &d.init_count_ ) == 0 )
+            if ( ::InterlockedDecrement( &d.init_count_ ) == 0 )
             {
                 ::WSACleanup( );
             }

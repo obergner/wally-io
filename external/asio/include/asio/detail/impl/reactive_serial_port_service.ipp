@@ -69,7 +69,7 @@ namespace asio
             // Set up default serial port options.
             termios ios;
             errno = 0;
-            s = descriptor_ops::error_wrapper(::tcgetattr( fd, &ios ), ec );
+            s = descriptor_ops::error_wrapper( ::tcgetattr( fd, &ios ), ec );
             if ( s >= 0 )
             {
 #if defined( _BSD_SOURCE )
@@ -84,7 +84,7 @@ namespace asio
                 ios.c_iflag |= IGNPAR;
                 ios.c_cflag |= CREAD | CLOCAL;
                 errno = 0;
-                s = descriptor_ops::error_wrapper(::tcsetattr( fd, TCSANOW, &ios ), ec );
+                s = descriptor_ops::error_wrapper( ::tcsetattr( fd, TCSANOW, &ios ), ec );
             }
             if ( s < 0 )
             {
@@ -111,7 +111,7 @@ namespace asio
         {
             termios ios;
             errno = 0;
-            descriptor_ops::error_wrapper(::tcgetattr( descriptor_service_.native_handle( impl ), &ios ), ec );
+            descriptor_ops::error_wrapper( ::tcgetattr( descriptor_service_.native_handle( impl ), &ios ), ec );
             if ( ec )
                 return ec;
 
@@ -119,7 +119,8 @@ namespace asio
                 return ec;
 
             errno = 0;
-            descriptor_ops::error_wrapper(::tcsetattr( descriptor_service_.native_handle( impl ), TCSANOW, &ios ), ec );
+            descriptor_ops::error_wrapper( ::tcsetattr( descriptor_service_.native_handle( impl ), TCSANOW, &ios ),
+                                           ec );
             return ec;
         }
 
@@ -131,7 +132,7 @@ namespace asio
         {
             termios ios;
             errno = 0;
-            descriptor_ops::error_wrapper(::tcgetattr( descriptor_service_.native_handle( impl ), &ios ), ec );
+            descriptor_ops::error_wrapper( ::tcgetattr( descriptor_service_.native_handle( impl ), &ios ), ec );
             if ( ec )
                 return ec;
 

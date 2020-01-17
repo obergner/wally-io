@@ -49,7 +49,7 @@ namespace asio
         {
             struct kevent events[1];
             ASIO_KQUEUE_EV_SET( &events[0], interrupter_.read_descriptor( ), EVFILT_READ, EV_ADD, 0, 0, &interrupter_ );
-            if (::kevent( kqueue_fd_, events, 1, 0, 0, 0 ) == -1 )
+            if ( ::kevent( kqueue_fd_, events, 1, 0, 0, 0 ) == -1 )
             {
                 asio::error_code error( errno, asio::error::get_system_category( ) );
                 asio::detail::throw_error( error );
@@ -95,7 +95,7 @@ namespace asio
                 struct kevent events[2];
                 ASIO_KQUEUE_EV_SET( &events[0], interrupter_.read_descriptor( ), EVFILT_READ, EV_ADD, 0, 0,
                                     &interrupter_ );
-                if (::kevent( kqueue_fd_, events, 1, 0, 0, 0 ) == -1 )
+                if ( ::kevent( kqueue_fd_, events, 1, 0, 0, 0 ) == -1 )
                 {
                     asio::error_code ec( errno, asio::error::get_system_category( ) );
                     asio::detail::throw_error( ec, "kqueue interrupter registration" );
@@ -111,7 +111,7 @@ namespace asio
                                             state );
                         ASIO_KQUEUE_EV_SET( &events[1], state->descriptor_, EVFILT_WRITE, EV_ADD | EV_CLEAR, 0, 0,
                                             state );
-                        if (::kevent( kqueue_fd_, events, state->num_kevents_, 0, 0, 0 ) == -1 )
+                        if ( ::kevent( kqueue_fd_, events, state->num_kevents_, 0, 0, 0 ) == -1 )
                         {
                             asio::error_code ec( errno, asio::error::get_system_category( ) );
                             asio::detail::throw_error( ec, "kqueue re-registration" );
@@ -156,7 +156,7 @@ namespace asio
 
             struct kevent events[1];
             ASIO_KQUEUE_EV_SET( &events[0], descriptor, EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0, descriptor_data );
-            if (::kevent( kqueue_fd_, events, 1, 0, 0, 0 ) == -1 )
+            if ( ::kevent( kqueue_fd_, events, 1, 0, 0, 0 ) == -1 )
                 return errno;
 
             return 0;
@@ -212,7 +212,7 @@ namespace asio
                                             descriptor_data );
                         ASIO_KQUEUE_EV_SET( &events[1], descriptor, EVFILT_WRITE, EV_ADD | EV_CLEAR, 0, 0,
                                             descriptor_data );
-                        if (::kevent( kqueue_fd_, events, num_kevents[op_type], 0, 0, 0 ) != -1 )
+                        if ( ::kevent( kqueue_fd_, events, num_kevents[op_type], 0, 0, 0 ) != -1 )
                         {
                             descriptor_data->num_kevents_ = num_kevents[op_type];
                         }
@@ -381,8 +381,8 @@ namespace asio
                         descriptor_data->num_kevents_ = 1;
                     }
 
-                        // Exception operations must be processed first to ensure that any
-                        // out-of-band data is read before normal data.
+                    // Exception operations must be processed first to ensure that any
+                    // out-of-band data is read before normal data.
 #if defined( __NetBSD__ )
                     static const unsigned int filter[max_ops] =
 #else

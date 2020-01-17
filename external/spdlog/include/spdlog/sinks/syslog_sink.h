@@ -73,7 +73,7 @@ namespace spdlog
                 return _priorities[static_cast<int>( msg.level )];
             }
         };
-    }
-}
+    }  // namespace sinks
+}  // namespace spdlog
 
 #endif

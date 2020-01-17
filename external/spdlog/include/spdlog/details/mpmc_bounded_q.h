@@ -166,5 +166,5 @@ namespace spdlog
             void operator=( mpmc_bounded_queue const& ) = delete;
         };
 
-    }  // ns details
-}  // ns spdlog
+    }  // namespace details
+}  // namespace spdlog

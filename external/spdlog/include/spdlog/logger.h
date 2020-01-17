@@ -126,6 +126,6 @@ namespace spdlog
         std::atomic<time_t> _last_err_time;
         std::atomic<size_t> _msg_counter;
     };
-}
+}  // namespace spdlog
 
 #include "details/logger_impl.h"

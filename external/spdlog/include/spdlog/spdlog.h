@@ -227,6 +227,6 @@ namespace spdlog
 #else
 #define SPDLOG_DEBUG( logger, ... ) (void)0
 #endif
-}
+}  // namespace spdlog
 
 #include "details/spdlog_impl.h"

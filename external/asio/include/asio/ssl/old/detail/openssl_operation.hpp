@@ -39,7 +39,7 @@ namespace asio
             namespace detail
             {
 
-                typedef boost::function<int(::SSL* )> ssl_primitive_func;
+                typedef boost::function<int( ::SSL* )> ssl_primitive_func;
                 typedef boost::function<void( const asio::error_code&, int )> user_handler_func;
 
                 // Network send_/recv buffer implementation
@@ -169,9 +169,9 @@ namespace asio
                         bool is_read_needed = ( error_code == SSL_ERROR_WANT_READ );
                         bool is_write_needed = ( error_code == SSL_ERROR_WANT_WRITE || ::BIO_ctrl_pending( ssl_bio_ ) );
                         bool is_shut_down_received =
-                            ( (::SSL_get_shutdown( session_ ) & SSL_RECEIVED_SHUTDOWN ) == SSL_RECEIVED_SHUTDOWN );
+                            ( ( ::SSL_get_shutdown( session_ ) & SSL_RECEIVED_SHUTDOWN ) == SSL_RECEIVED_SHUTDOWN );
                         bool is_shut_down_sent =
-                            ( (::SSL_get_shutdown( session_ ) & SSL_SENT_SHUTDOWN ) == SSL_SENT_SHUTDOWN );
+                            ( ( ::SSL_get_shutdown( session_ ) & SSL_SENT_SHUTDOWN ) == SSL_SENT_SHUTDOWN );
 
                         if ( is_shut_down_sent && is_shut_down_received && is_operation_done && !is_write_needed )
                             // SSL connection is shut down cleanly

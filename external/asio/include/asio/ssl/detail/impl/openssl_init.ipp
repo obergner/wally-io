@@ -43,7 +43,7 @@ namespace asio
                     ::OpenSSL_add_all_algorithms( );
 
 #if ( OPENSSL_VERSION_NUMBER < 0x10100000L )
-                    mutexes_.resize(::CRYPTO_num_locks( ) );
+                    mutexes_.resize( ::CRYPTO_num_locks( ) );
                     for ( size_t i = 0; i < mutexes_.size( ); ++i )
                         mutexes_[i].reset( new asio::detail::mutex );
                     ::CRYPTO_set_locking_callback( &do_init::openssl_locking_func );

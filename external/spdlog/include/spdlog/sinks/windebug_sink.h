@@ -22,7 +22,7 @@ namespace spdlog
 
         typedef msvc_sink_mt windebug_sink_mt;
         typedef msvc_sink_st windebug_sink_st;
-    }
-}
+    }  // namespace sinks
+}  // namespace spdlog
 
 #endif

@@ -107,7 +107,7 @@ namespace asio
         {
             asio_handler_invoke_helpers::invoke( function, this_handler->handler_ );
         }
-    }
+    }  // namespace detail
 
     template <typename Stream>
     template <typename WriteHandler>

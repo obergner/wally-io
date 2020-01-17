@@ -311,7 +311,7 @@ namespace spdlog
             inline size_t _thread_id( )
             {
 #ifdef _WIN32
-                return static_cast<size_t>(::GetCurrentThreadId( ) );
+                return static_cast<size_t>( ::GetCurrentThreadId( ) );
 #elif __linux__
 #if defined( __ANDROID__ ) && defined( __ANDROID_API__ ) && ( __ANDROID_API__ < 21 )
 #define SYS_gettid __NR_gettid
@@ -418,7 +418,7 @@ namespace spdlog
 #ifdef _WIN32
                 return ::_getpid( );
 #else
-                return static_cast<int>(::getpid( ) );
+                return static_cast<int>( ::getpid( ) );
 #endif
             }
 
@@ -457,6 +457,6 @@ namespace spdlog
                 return isatty( fileno( file ) ) ? true : false;
 #endif
             }
-        }  // os
-    }      // details
-}  // spdlog
+        }  // namespace os
+    }      // namespace details
+}  // namespace spdlog

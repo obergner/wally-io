@@ -69,7 +69,7 @@ namespace
         return count;
     }
 #endif
-}
+}  // namespace
 
 fmt::BufferedFile::~BufferedFile( ) FMT_NOEXCEPT
 {

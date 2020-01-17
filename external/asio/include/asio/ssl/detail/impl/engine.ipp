@@ -36,11 +36,11 @@ namespace asio
 
 #if !defined( ASIO_ENABLE_OLD_SSL )
 
-            engine::engine( SSL_CTX* context ) : ssl_(::SSL_new( context ) )
+            engine::engine( SSL_CTX* context ) : ssl_( ::SSL_new( context ) )
             {
                 if ( !ssl_ )
                 {
-                    asio::error_code ec( static_cast<int>(::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
+                    asio::error_code ec( static_cast<int>( ::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
                     asio::detail::throw_error( ec, "engine" );
                 }
 
@@ -192,15 +192,15 @@ namespace asio
                     return ec;
                 }
 
-                    // SSL v2 doesn't provide a protocol-level shutdown, so an eof on the
-                    // underlying transport is passed through.
+                // SSL v2 doesn't provide a protocol-level shutdown, so an eof on the
+                // underlying transport is passed through.
 #if ( OPENSSL_VERSION_NUMBER < 0x10100000L )
                 if ( ssl_->version == SSL2_VERSION )
                     return ec;
 #endif  // (OPENSSL_VERSION_NUMBER < 0x10100000L)
 
                 // Otherwise, the peer should have negotiated a proper shutdown.
-                if ( (::SSL_get_shutdown( ssl_ ) & SSL_RECEIVED_SHUTDOWN ) == 0 )
+                if ( ( ::SSL_get_shutdown( ssl_ ) & SSL_RECEIVED_SHUTDOWN ) == 0 )
                 {
                     ec = asio::ssl::error::stream_truncated;
                 }
@@ -224,7 +224,7 @@ namespace asio
                 ::ERR_clear_error( );
                 int result = ( this->*op )( data, length );
                 int ssl_error = ::SSL_get_error( ssl_, result );
-                int sys_error = static_cast<int>(::ERR_get_error( ) );
+                int sys_error = static_cast<int>( ::ERR_get_error( ) );
                 std::size_t pending_output_after = ::BIO_ctrl_pending( ext_bio_ );
 
                 if ( ssl_error == SSL_ERROR_SSL )
@@ -257,7 +257,7 @@ namespace asio
                     ec = asio::error_code( );
                     return want_input_and_retry;
                 }
-                else if (::SSL_get_shutdown( ssl_ ) & SSL_RECEIVED_SHUTDOWN )
+                else if ( ::SSL_get_shutdown( ssl_ ) & SSL_RECEIVED_SHUTDOWN )
                 {
                     ec = asio::error::eof;
                     return want_nothing;

@@ -251,5 +251,5 @@ namespace spdlog
 
         typedef daily_file_sink<std::mutex> daily_file_sink_mt;
         typedef daily_file_sink<details::null_mutex> daily_file_sink_st;
-    }
-}
+    }  // namespace sinks
+}  // namespace spdlog

@@ -40,8 +40,8 @@ namespace asio
         int win_mutex::do_init( )
         {
 #if defined( __MINGW32__ )
-        // Not sure if MinGW supports structured exception handling, so for now
-        // we'll just call the Windows API and hope.
+            // Not sure if MinGW supports structured exception handling, so for now
+            // we'll just call the Windows API and hope.
 #if defined( UNDER_CE )
             ::InitializeCriticalSection( &crit_section_ );
 #elif defined( ASIO_WINDOWS_APP )

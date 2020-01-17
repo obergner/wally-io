@@ -342,8 +342,8 @@ namespace fmt
             return 63 - r;
         }
 #define FMT_BUILTIN_CLZLL( n ) fmt::internal::clzll( n )
-    }
-}
+    }  // namespace internal
+}  // namespace fmt
 #endif
 
 namespace fmt
@@ -394,7 +394,7 @@ namespace fmt
         {
             return value;
         }
-    }
+    }  // namespace internal
 }  // namespace fmt
 
 namespace std
@@ -4166,7 +4166,7 @@ namespace fmt
     void arg( StringRef, const internal::NamedArg<Char>& ) FMT_DELETED_OR_UNDEFINED;
     template <typename Char>
     void arg( WStringRef, const internal::NamedArg<Char>& ) FMT_DELETED_OR_UNDEFINED;
-}
+}  // namespace fmt
 
 #if FMT_GCC_VERSION
 // Use the system_header pragma to suppress warnings about variadic macros
@@ -4753,7 +4753,7 @@ namespace fmt
             return {s};
         }
 
-    }  // inline namespace literals
+    }  // namespace literals
 }  // namespace fmt
 #endif  // FMT_USE_USER_DEFINED_LITERALS
 

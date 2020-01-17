@@ -34,7 +34,7 @@ namespace asio
             int open( const char* path, int flags, asio::error_code& ec )
             {
                 errno = 0;
-                int result = error_wrapper(::open( path, flags ), ec );
+                int result = error_wrapper( ::open( path, flags ), ec );
                 if ( result >= 0 )
                     ec = asio::error_code( );
                 return result;
@@ -46,16 +46,16 @@ namespace asio
                 if ( d != -1 )
                 {
                     errno = 0;
-                    result = error_wrapper(::close( d ), ec );
+                    result = error_wrapper( ::close( d ), ec );
 
                     if ( result != 0 && ( ec == asio::error::would_block || ec == asio::error::try_again ) )
                     {
-                    // According to UNIX Network Programming Vol. 1, it is possible for
-                    // close() to fail with EWOULDBLOCK under certain circumstances. What
-                    // isn't clear is the state of the descriptor after this error. The one
-                    // current OS where this behaviour is seen, Windows, says that the socket
-                    // remains open. Therefore we'll put the descriptor back into blocking
-                    // mode and have another attempt at closing it.
+                        // According to UNIX Network Programming Vol. 1, it is possible for
+                        // close() to fail with EWOULDBLOCK under certain circumstances. What
+                        // isn't clear is the state of the descriptor after this error. The one
+                        // current OS where this behaviour is seen, Windows, says that the socket
+                        // remains open. Therefore we'll put the descriptor back into blocking
+                        // mode and have another attempt at closing it.
 #if defined( __SYMBIAN32__ )
                         int flags = ::fcntl( d, F_GETFL, 0 );
                         if ( flags >= 0 )
@@ -67,7 +67,7 @@ namespace asio
                         state &= ~non_blocking;
 
                         errno = 0;
-                        result = error_wrapper(::close( d ), ec );
+                        result = error_wrapper( ::close( d ), ec );
                     }
                 }
 
@@ -86,16 +86,16 @@ namespace asio
 
                 errno = 0;
 #if defined( __SYMBIAN32__ )
-                int result = error_wrapper(::fcntl( d, F_GETFL, 0 ), ec );
+                int result = error_wrapper( ::fcntl( d, F_GETFL, 0 ), ec );
                 if ( result >= 0 )
                 {
                     errno = 0;
                     int flag = ( value ? ( result | O_NONBLOCK ) : ( result & ~O_NONBLOCK ) );
-                    result = error_wrapper(::fcntl( d, F_SETFL, flag ), ec );
+                    result = error_wrapper( ::fcntl( d, F_SETFL, flag ), ec );
                 }
 #else   // defined(__SYMBIAN32__)
                 ioctl_arg_type arg = ( value ? 1 : 0 );
-                int result = error_wrapper(::ioctl( d, FIONBIO, &arg ), ec );
+                int result = error_wrapper( ::ioctl( d, FIONBIO, &arg ), ec );
 #endif  // defined(__SYMBIAN32__)
 
                 if ( result >= 0 )
@@ -135,16 +135,16 @@ namespace asio
 
                 errno = 0;
 #if defined( __SYMBIAN32__ )
-                int result = error_wrapper(::fcntl( d, F_GETFL, 0 ), ec );
+                int result = error_wrapper( ::fcntl( d, F_GETFL, 0 ), ec );
                 if ( result >= 0 )
                 {
                     errno = 0;
                     int flag = ( value ? ( result | O_NONBLOCK ) : ( result & ~O_NONBLOCK ) );
-                    result = error_wrapper(::fcntl( d, F_SETFL, flag ), ec );
+                    result = error_wrapper( ::fcntl( d, F_SETFL, flag ), ec );
                 }
 #else   // defined(__SYMBIAN32__)
                 ioctl_arg_type arg = ( value ? 1 : 0 );
-                int result = error_wrapper(::ioctl( d, FIONBIO, &arg ), ec );
+                int result = error_wrapper( ::ioctl( d, FIONBIO, &arg ), ec );
 #endif  // defined(__SYMBIAN32__)
 
                 if ( result >= 0 )
@@ -185,7 +185,7 @@ namespace asio
                 {
                     // Try to complete the operation without blocking.
                     errno = 0;
-                    signed_size_type bytes = error_wrapper(::readv( d, bufs, static_cast<int>( count ) ), ec );
+                    signed_size_type bytes = error_wrapper( ::readv( d, bufs, static_cast<int>( count ) ), ec );
 
                     // Check if operation succeeded.
                     if ( bytes > 0 )
@@ -219,7 +219,7 @@ namespace asio
                 {
                     // Read some data.
                     errno = 0;
-                    signed_size_type bytes = error_wrapper(::readv( d, bufs, static_cast<int>( count ) ), ec );
+                    signed_size_type bytes = error_wrapper( ::readv( d, bufs, static_cast<int>( count ) ), ec );
 
                     // Check for end of stream.
                     if ( bytes == 0 )
@@ -274,7 +274,7 @@ namespace asio
                 {
                     // Try to complete the operation without blocking.
                     errno = 0;
-                    signed_size_type bytes = error_wrapper(::writev( d, bufs, static_cast<int>( count ) ), ec );
+                    signed_size_type bytes = error_wrapper( ::writev( d, bufs, static_cast<int>( count ) ), ec );
 
                     // Check if operation succeeded.
                     if ( bytes > 0 )
@@ -301,7 +301,7 @@ namespace asio
                 {
                     // Write some data.
                     errno = 0;
-                    signed_size_type bytes = error_wrapper(::writev( d, bufs, static_cast<int>( count ) ), ec );
+                    signed_size_type bytes = error_wrapper( ::writev( d, bufs, static_cast<int>( count ) ), ec );
 
                     // Retry operation if interrupted by signal.
                     if ( ec == asio::error::interrupted )
@@ -333,7 +333,7 @@ namespace asio
                 }
 
                 errno = 0;
-                int result = error_wrapper(::ioctl( d, cmd, arg ), ec );
+                int result = error_wrapper( ::ioctl( d, cmd, arg ), ec );
 
                 if ( result >= 0 )
                 {
@@ -373,7 +373,7 @@ namespace asio
                 }
 
                 errno = 0;
-                int result = error_wrapper(::fcntl( d, cmd ), ec );
+                int result = error_wrapper( ::fcntl( d, cmd ), ec );
                 if ( result != -1 )
                     ec = asio::error_code( );
                 return result;
@@ -388,7 +388,7 @@ namespace asio
                 }
 
                 errno = 0;
-                int result = error_wrapper(::fcntl( d, cmd, arg ), ec );
+                int result = error_wrapper( ::fcntl( d, cmd, arg ), ec );
                 if ( result != -1 )
                     ec = asio::error_code( );
                 return result;
@@ -408,7 +408,7 @@ namespace asio
                 fds.revents = 0;
                 int timeout = ( state & user_set_non_blocking ) ? 0 : -1;
                 errno = 0;
-                int result = error_wrapper(::poll( &fds, 1, timeout ), ec );
+                int result = error_wrapper( ::poll( &fds, 1, timeout ), ec );
                 if ( result == 0 )
                     ec = ( state & user_set_non_blocking ) ? asio::error::would_block : asio::error_code( );
                 else if ( result > 0 )
@@ -430,7 +430,7 @@ namespace asio
                 fds.revents = 0;
                 int timeout = ( state & user_set_non_blocking ) ? 0 : -1;
                 errno = 0;
-                int result = error_wrapper(::poll( &fds, 1, timeout ), ec );
+                int result = error_wrapper( ::poll( &fds, 1, timeout ), ec );
                 if ( result == 0 )
                     ec = ( state & user_set_non_blocking ) ? asio::error::would_block : asio::error_code( );
                 else if ( result > 0 )

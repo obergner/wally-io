@@ -74,8 +74,8 @@ namespace io_wally
                                       const context& context,
                                       dispatch::dispatcher& dispatcher )
         : description_{connection_description( socket )},
-          socket_{move( socket )},
           strand_{socket.get_io_service( )},
+          socket_{move( socket )},
           connection_manager_{connection_manager},
           context_{context},
           dispatcher_{dispatcher},
@@ -478,4 +478,4 @@ namespace io_wally
             stop( message, spdlog::level::level_enum::err );
         }
     }
-}
+}  // namespace io_wally

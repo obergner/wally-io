@@ -120,5 +120,5 @@ namespace spdlog
 
         typedef wincolor_stderr_sink<std::mutex> wincolor_stderr_sink_mt;
         typedef wincolor_stderr_sink<details::null_mutex> wincolor_stderr_sink_st;
-    }
-}
+    }  // namespace sinks
+}  // namespace spdlog

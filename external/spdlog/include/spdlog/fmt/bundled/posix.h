@@ -426,7 +426,7 @@ namespace std
     {
         return f;
     }
-}
+}  // namespace std
 #endif
 
 #endif  // FMT_POSIX_H_

@@ -63,7 +63,7 @@ namespace io_wally
                         "[MQTT-3.8.3-3] A SUBSCRIBE packet MUST contain at least one subscription (topic filter/QoS "
                         "pair)"};
 
-                return std::make_shared<protocol::subscribe>( static_cast<const uint32_t>( frame.remaining_length( ) ),
+                return std::make_shared<protocol::subscribe>( static_cast<uint32_t>( frame.remaining_length( ) ),
                                                               packet_id, subscriptions );
             }
         };  // class subscribe_packet_decoder_impl

@@ -92,7 +92,7 @@ namespace asio
            protected:
             basic_socket_streambuf<Protocol, StreamSocketService, Time, TimeTraits, TimerService> streambuf_;
         };
-    }
+    }  // namespace detail
 
     /// Iostream interface for a socket.
     template <typename Protocol,

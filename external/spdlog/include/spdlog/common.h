@@ -71,7 +71,16 @@ namespace spdlog
     // Log level enum
     namespace level
     {
-        typedef enum { trace = 0, debug = 1, info = 2, warn = 3, err = 4, critical = 5, off = 6 } level_enum;
+        typedef enum
+        {
+            trace = 0,
+            debug = 1,
+            info = 2,
+            warn = 3,
+            err = 4,
+            critical = 5,
+            off = 6
+        } level_enum;
 
 #if !defined( SPDLOG_LEVEL_NAMES )
 #define SPDLOG_LEVEL_NAMES                                              \
@@ -92,7 +101,7 @@ namespace spdlog
         {
             return short_level_names[l];
         }
-    }  // level
+    }  // namespace level
 
     //
     // Async overflow policy - block by default.
@@ -122,7 +131,7 @@ namespace spdlog
         {
             std::string errno_str( int err_num );
         }
-    }
+    }  // namespace details
     class spdlog_ex : public std::exception
     {
        public:
@@ -151,4 +160,4 @@ namespace spdlog
     using filename_t = std::string;
 #endif
 
-}  // spdlog
+}  // namespace spdlog

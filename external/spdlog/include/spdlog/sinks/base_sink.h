@@ -49,5 +49,5 @@ namespace spdlog
             virtual void _flush( ) = 0;
             Mutex _mutex;
         };
-    }
-}
+    }  // namespace sinks
+}  // namespace spdlog

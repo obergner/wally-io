@@ -28,7 +28,7 @@ namespace fmt
                 size -= n;
             } while ( size != 0 );
         }
-    }
+    }  // namespace internal
 
     FMT_FUNC void print( std::ostream& os, CStringRef format_str, ArgList args )
     {

@@ -20,7 +20,7 @@ namespace
         std::generate_n( str.begin( ), length, randchar );
         return str;
     }
-}
+}  // namespace
 
 //
 // See: http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718106

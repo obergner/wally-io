@@ -86,7 +86,7 @@ namespace asio
                     return result;
                 }
             };
-        }
+        }  // namespace detail
 
 #if defined( ASIO_MSVC ) && ( ASIO_MSVC < 1400 )
 

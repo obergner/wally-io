@@ -100,13 +100,13 @@ namespace asio
 #else   // defined(OPENSSL_NO_SSL2)
         // || (OPENSSL_VERSION_NUMBER >= 0x10100000L)
                 case context::sslv2:
-                    handle_ = ::SSL_CTX_new(::SSLv2_method( ) );
+                    handle_ = ::SSL_CTX_new( ::SSLv2_method( ) );
                     break;
                 case context::sslv2_client:
-                    handle_ = ::SSL_CTX_new(::SSLv2_client_method( ) );
+                    handle_ = ::SSL_CTX_new( ::SSLv2_client_method( ) );
                     break;
                 case context::sslv2_server:
-                    handle_ = ::SSL_CTX_new(::SSLv2_server_method( ) );
+                    handle_ = ::SSL_CTX_new( ::SSLv2_server_method( ) );
                     break;
 #endif  // defined(OPENSSL_NO_SSL2)
         // || (OPENSSL_VERSION_NUMBER >= 0x10100000L)
@@ -118,45 +118,45 @@ namespace asio
                     break;
 #else   // defined(OPENSSL_NO_SSL3)
                 case context::sslv3:
-                    handle_ = ::SSL_CTX_new(::SSLv3_method( ) );
+                    handle_ = ::SSL_CTX_new( ::SSLv3_method( ) );
                     break;
                 case context::sslv3_client:
-                    handle_ = ::SSL_CTX_new(::SSLv3_client_method( ) );
+                    handle_ = ::SSL_CTX_new( ::SSLv3_client_method( ) );
                     break;
                 case context::sslv3_server:
-                    handle_ = ::SSL_CTX_new(::SSLv3_server_method( ) );
+                    handle_ = ::SSL_CTX_new( ::SSLv3_server_method( ) );
                     break;
 #endif  // defined(OPENSSL_NO_SSL3)
 #if ( OPENSSL_VERSION_NUMBER < 0x10100000L )
                 case context::tlsv1:
-                    handle_ = ::SSL_CTX_new(::TLSv1_method( ) );
+                    handle_ = ::SSL_CTX_new( ::TLSv1_method( ) );
                     break;
                 case context::tlsv1_client:
-                    handle_ = ::SSL_CTX_new(::TLSv1_client_method( ) );
+                    handle_ = ::SSL_CTX_new( ::TLSv1_client_method( ) );
                     break;
                 case context::tlsv1_server:
-                    handle_ = ::SSL_CTX_new(::TLSv1_server_method( ) );
+                    handle_ = ::SSL_CTX_new( ::TLSv1_server_method( ) );
                     break;
 #endif  // (OPENSSL_VERSION_NUMBER < 0x10100000L)
                 case context::sslv23:
-                    handle_ = ::SSL_CTX_new(::SSLv23_method( ) );
+                    handle_ = ::SSL_CTX_new( ::SSLv23_method( ) );
                     break;
                 case context::sslv23_client:
-                    handle_ = ::SSL_CTX_new(::SSLv23_client_method( ) );
+                    handle_ = ::SSL_CTX_new( ::SSLv23_client_method( ) );
                     break;
                 case context::sslv23_server:
-                    handle_ = ::SSL_CTX_new(::SSLv23_server_method( ) );
+                    handle_ = ::SSL_CTX_new( ::SSLv23_server_method( ) );
                     break;
 #if ( OPENSSL_VERSION_NUMBER < 0x10100000L )
 #if defined( SSL_TXT_TLSV1_1 )
                 case context::tlsv11:
-                    handle_ = ::SSL_CTX_new(::TLSv1_1_method( ) );
+                    handle_ = ::SSL_CTX_new( ::TLSv1_1_method( ) );
                     break;
                 case context::tlsv11_client:
-                    handle_ = ::SSL_CTX_new(::TLSv1_1_client_method( ) );
+                    handle_ = ::SSL_CTX_new( ::TLSv1_1_client_method( ) );
                     break;
                 case context::tlsv11_server:
-                    handle_ = ::SSL_CTX_new(::TLSv1_1_server_method( ) );
+                    handle_ = ::SSL_CTX_new( ::TLSv1_1_server_method( ) );
                     break;
 #else   // defined(SSL_TXT_TLSV1_1)
                 case context::tlsv11:
@@ -167,13 +167,13 @@ namespace asio
 #endif  // defined(SSL_TXT_TLSV1_1)
 #if defined( SSL_TXT_TLSV1_2 )
                 case context::tlsv12:
-                    handle_ = ::SSL_CTX_new(::TLSv1_2_method( ) );
+                    handle_ = ::SSL_CTX_new( ::TLSv1_2_method( ) );
                     break;
                 case context::tlsv12_client:
-                    handle_ = ::SSL_CTX_new(::TLSv1_2_client_method( ) );
+                    handle_ = ::SSL_CTX_new( ::TLSv1_2_client_method( ) );
                     break;
                 case context::tlsv12_server:
-                    handle_ = ::SSL_CTX_new(::TLSv1_2_server_method( ) );
+                    handle_ = ::SSL_CTX_new( ::TLSv1_2_server_method( ) );
                     break;
 #else   // defined(SSL_TXT_TLSV1_2)
                 case context::tlsv12:
@@ -186,17 +186,17 @@ namespace asio
                 case context::tlsv1:
                 case context::tlsv11:
                 case context::tlsv12:
-                    handle_ = ::SSL_CTX_new(::TLS_method( ) );
+                    handle_ = ::SSL_CTX_new( ::TLS_method( ) );
                     break;
                 case context::tlsv1_client:
                 case context::tlsv11_client:
                 case context::tlsv12_client:
-                    handle_ = ::SSL_CTX_new(::TLS_client_method( ) );
+                    handle_ = ::SSL_CTX_new( ::TLS_client_method( ) );
                     break;
                 case context::tlsv1_server:
                 case context::tlsv11_server:
                 case context::tlsv12_server:
-                    handle_ = ::SSL_CTX_new(::TLS_server_method( ) );
+                    handle_ = ::SSL_CTX_new( ::TLS_server_method( ) );
                     break;
 #endif  // (OPENSSL_VERSION_NUMBER < 0x10100000L)
                 default:
@@ -206,7 +206,7 @@ namespace asio
 
             if ( handle_ == 0 )
             {
-                asio::error_code ec( static_cast<int>(::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
+                asio::error_code ec( static_cast<int>( ::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
                 asio::detail::throw_error( ec, "context" );
             }
 
@@ -377,9 +377,9 @@ namespace asio
         {
             ::ERR_clear_error( );
 
-            if (::SSL_CTX_load_verify_locations( handle_, filename.c_str( ), 0 ) != 1 )
+            if ( ::SSL_CTX_load_verify_locations( handle_, filename.c_str( ), 0 ) != 1 )
             {
-                ec = asio::error_code( static_cast<int>(::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
+                ec = asio::error_code( static_cast<int>( ::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
                 return ec;
             }
 
@@ -406,7 +406,7 @@ namespace asio
                 {
                     if ( X509_STORE* store = ::SSL_CTX_get_cert_store( handle_ ) )
                     {
-                        if (::X509_STORE_add_cert( store, cert.p ) == 1 )
+                        if ( ::X509_STORE_add_cert( store, cert.p ) == 1 )
                         {
                             ec = asio::error_code( );
                             return ec;
@@ -415,7 +415,7 @@ namespace asio
                 }
             }
 
-            ec = asio::error_code( static_cast<int>(::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
+            ec = asio::error_code( static_cast<int>( ::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
             return ec;
         }
 
@@ -430,9 +430,9 @@ namespace asio
         {
             ::ERR_clear_error( );
 
-            if (::SSL_CTX_set_default_verify_paths( handle_ ) != 1 )
+            if ( ::SSL_CTX_set_default_verify_paths( handle_ ) != 1 )
             {
-                ec = asio::error_code( static_cast<int>(::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
+                ec = asio::error_code( static_cast<int>( ::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
                 return ec;
             }
 
@@ -451,9 +451,9 @@ namespace asio
         {
             ::ERR_clear_error( );
 
-            if (::SSL_CTX_load_verify_locations( handle_, 0, path.c_str( ) ) != 1 )
+            if ( ::SSL_CTX_load_verify_locations( handle_, 0, path.c_str( ) ) != 1 )
             {
-                ec = asio::error_code( static_cast<int>(::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
+                ec = asio::error_code( static_cast<int>( ::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
                 return ec;
             }
 
@@ -476,8 +476,8 @@ namespace asio
 
             if ( format == context_base::asn1 )
             {
-                if (::SSL_CTX_use_certificate_ASN1( handle_, static_cast<int>( buffer_size( certificate ) ),
-                                                    buffer_cast<const unsigned char*>( certificate ) ) == 1 )
+                if ( ::SSL_CTX_use_certificate_ASN1( handle_, static_cast<int>( buffer_size( certificate ) ),
+                                                     buffer_cast<const unsigned char*>( certificate ) ) == 1 )
                 {
                     ec = asio::error_code( );
                     return ec;
@@ -491,7 +491,7 @@ namespace asio
                     x509_cleanup cert = {::PEM_read_bio_X509( bio.p, 0, 0, 0 )};
                     if ( cert.p )
                     {
-                        if (::SSL_CTX_use_certificate( handle_, cert.p ) == 1 )
+                        if ( ::SSL_CTX_use_certificate( handle_, cert.p ) == 1 )
                         {
                             ec = asio::error_code( );
                             return ec;
@@ -505,7 +505,7 @@ namespace asio
                 return ec;
             }
 
-            ec = asio::error_code( static_cast<int>(::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
+            ec = asio::error_code( static_cast<int>( ::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
             return ec;
         }
 
@@ -538,9 +538,9 @@ namespace asio
 
             ::ERR_clear_error( );
 
-            if (::SSL_CTX_use_certificate_file( handle_, filename.c_str( ), file_type ) != 1 )
+            if ( ::SSL_CTX_use_certificate_file( handle_, filename.c_str( ), file_type ) != 1 )
             {
-                ec = asio::error_code( static_cast<int>(::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
+                ec = asio::error_code( static_cast<int>( ::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
                 return ec;
             }
 
@@ -579,7 +579,7 @@ namespace asio
                 int result = ::SSL_CTX_use_certificate( handle_, cert.p );
                 if ( result == 0 || ::ERR_peek_error( ) != 0 )
                 {
-                    ec = asio::error_code( static_cast<int>(::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
+                    ec = asio::error_code( static_cast<int>( ::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
                     return ec;
                 }
 
@@ -597,8 +597,8 @@ namespace asio
                 {
                     if ( !::SSL_CTX_add_extra_chain_cert( handle_, cacert ) )
                     {
-                        ec =
-                            asio::error_code( static_cast<int>(::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
+                        ec = asio::error_code( static_cast<int>( ::ERR_get_error( ) ),
+                                               asio::error::get_ssl_category( ) );
                         return ec;
                     }
                 }
@@ -612,7 +612,7 @@ namespace asio
                 }
             }
 
-            ec = asio::error_code( static_cast<int>(::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
+            ec = asio::error_code( static_cast<int>( ::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
             return ec;
         }
 
@@ -627,9 +627,9 @@ namespace asio
         {
             ::ERR_clear_error( );
 
-            if (::SSL_CTX_use_certificate_chain_file( handle_, filename.c_str( ) ) != 1 )
+            if ( ::SSL_CTX_use_certificate_chain_file( handle_, filename.c_str( ) ) != 1 )
             {
-                ec = asio::error_code( static_cast<int>(::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
+                ec = asio::error_code( static_cast<int>( ::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
                 return ec;
             }
 
@@ -679,7 +679,7 @@ namespace asio
 
                 if ( evp_private_key.p )
                 {
-                    if (::SSL_CTX_use_PrivateKey( handle_, evp_private_key.p ) == 1 )
+                    if ( ::SSL_CTX_use_PrivateKey( handle_, evp_private_key.p ) == 1 )
                     {
                         ec = asio::error_code( );
                         return ec;
@@ -687,7 +687,7 @@ namespace asio
                 }
             }
 
-            ec = asio::error_code( static_cast<int>(::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
+            ec = asio::error_code( static_cast<int>( ::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
             return ec;
         }
 
@@ -740,7 +740,7 @@ namespace asio
 
                 if ( rsa_private_key.p )
                 {
-                    if (::SSL_CTX_use_RSAPrivateKey( handle_, rsa_private_key.p ) == 1 )
+                    if ( ::SSL_CTX_use_RSAPrivateKey( handle_, rsa_private_key.p ) == 1 )
                     {
                         ec = asio::error_code( );
                         return ec;
@@ -748,7 +748,7 @@ namespace asio
                 }
             }
 
-            ec = asio::error_code( static_cast<int>(::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
+            ec = asio::error_code( static_cast<int>( ::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
             return ec;
         }
 
@@ -774,9 +774,9 @@ namespace asio
 
             ::ERR_clear_error( );
 
-            if (::SSL_CTX_use_PrivateKey_file( handle_, filename.c_str( ), file_type ) != 1 )
+            if ( ::SSL_CTX_use_PrivateKey_file( handle_, filename.c_str( ), file_type ) != 1 )
             {
-                ec = asio::error_code( static_cast<int>(::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
+                ec = asio::error_code( static_cast<int>( ::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
                 return ec;
             }
 
@@ -813,9 +813,9 @@ namespace asio
 
             ::ERR_clear_error( );
 
-            if (::SSL_CTX_use_RSAPrivateKey_file( handle_, filename.c_str( ), file_type ) != 1 )
+            if ( ::SSL_CTX_use_RSAPrivateKey_file( handle_, filename.c_str( ), file_type ) != 1 )
             {
-                ec = asio::error_code( static_cast<int>(::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
+                ec = asio::error_code( static_cast<int>( ::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
                 return ec;
             }
 
@@ -840,7 +840,7 @@ namespace asio
                 return do_use_tmp_dh( bio.p, ec );
             }
 
-            ec = asio::error_code( static_cast<int>(::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
+            ec = asio::error_code( static_cast<int>( ::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
             return ec;
         }
 
@@ -861,7 +861,7 @@ namespace asio
                 return do_use_tmp_dh( bio.p, ec );
             }
 
-            ec = asio::error_code( static_cast<int>(::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
+            ec = asio::error_code( static_cast<int>( ::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
             return ec;
         }
 
@@ -872,14 +872,14 @@ namespace asio
             dh_cleanup dh = {::PEM_read_bio_DHparams( bio, 0, 0, 0 )};
             if ( dh.p )
             {
-                if (::SSL_CTX_set_tmp_dh( handle_, dh.p ) == 1 )
+                if ( ::SSL_CTX_set_tmp_dh( handle_, dh.p ) == 1 )
                 {
                     ec = asio::error_code( );
                     return ec;
                 }
             }
 
-            ec = asio::error_code( static_cast<int>(::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
+            ec = asio::error_code( static_cast<int>( ::ERR_get_error( ) ), asio::error::get_ssl_category( ) );
             return ec;
         }
 

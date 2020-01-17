@@ -185,8 +185,8 @@ namespace spdlog
             // wait until the queue is empty
             void wait_empty_q( );
         };
-    }
-}
+    }  // namespace details
+}  // namespace spdlog
 
 ///////////////////////////////////////////////////////////////////////////////
 // async_sink class implementation

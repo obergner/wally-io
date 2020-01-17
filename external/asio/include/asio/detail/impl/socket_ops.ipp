@@ -119,7 +119,7 @@ namespace asio
 #if defined( __MACH__ ) && defined( __APPLE__ ) || defined( __FreeBSD__ )
                 int optval = 1;
                 int result =
-                    error_wrapper(::setsockopt( new_s, SOL_SOCKET, SO_NOSIGPIPE, &optval, sizeof( optval ) ), ec );
+                    error_wrapper( ::setsockopt( new_s, SOL_SOCKET, SO_NOSIGPIPE, &optval, sizeof( optval ) ), ec );
                 if ( result != 0 )
                 {
                     ::close( new_s );
@@ -318,19 +318,19 @@ namespace asio
 
                     clear_last_error( );
 #if defined( ASIO_WINDOWS ) || defined( __CYGWIN__ )
-                    result = error_wrapper(::closesocket( s ), ec );
+                    result = error_wrapper( ::closesocket( s ), ec );
 #else   // defined(ASIO_WINDOWS) || defined(__CYGWIN__)
-                    result = error_wrapper(::close( s ), ec );
+                    result = error_wrapper( ::close( s ), ec );
 #endif  // defined(ASIO_WINDOWS) || defined(__CYGWIN__)
 
                     if ( result != 0 && ( ec == asio::error::would_block || ec == asio::error::try_again ) )
                     {
-                    // According to UNIX Network Programming Vol. 1, it is possible for
-                    // close() to fail with EWOULDBLOCK under certain circumstances. What
-                    // isn't clear is the state of the descriptor after this error. The one
-                    // current OS where this behaviour is seen, Windows, says that the socket
-                    // remains open. Therefore we'll put the descriptor back into blocking
-                    // mode and have another attempt at closing it.
+                        // According to UNIX Network Programming Vol. 1, it is possible for
+                        // close() to fail with EWOULDBLOCK under certain circumstances. What
+                        // isn't clear is the state of the descriptor after this error. The one
+                        // current OS where this behaviour is seen, Windows, says that the socket
+                        // remains open. Therefore we'll put the descriptor back into blocking
+                        // mode and have another attempt at closing it.
 #if defined( ASIO_WINDOWS ) || defined( __CYGWIN__ )
                         ioctl_arg_type arg = 0;
                         ::ioctlsocket( s, FIONBIO, &arg );
@@ -348,9 +348,9 @@ namespace asio
 
                         clear_last_error( );
 #if defined( ASIO_WINDOWS ) || defined( __CYGWIN__ )
-                        result = error_wrapper(::closesocket( s ), ec );
+                        result = error_wrapper( ::closesocket( s ), ec );
 #else   // defined(ASIO_WINDOWS) || defined(__CYGWIN__)
-                        result = error_wrapper(::close( s ), ec );
+                        result = error_wrapper( ::close( s ), ec );
 #endif  // defined(ASIO_WINDOWS) || defined(__CYGWIN__)
                     }
                 }
@@ -371,18 +371,18 @@ namespace asio
                 clear_last_error( );
 #if defined( ASIO_WINDOWS ) || defined( __CYGWIN__ )
                 ioctl_arg_type arg = ( value ? 1 : 0 );
-                int result = error_wrapper(::ioctlsocket( s, FIONBIO, &arg ), ec );
+                int result = error_wrapper( ::ioctlsocket( s, FIONBIO, &arg ), ec );
 #elif defined( __SYMBIAN32__ )
-                int result = error_wrapper(::fcntl( s, F_GETFL, 0 ), ec );
+                int result = error_wrapper( ::fcntl( s, F_GETFL, 0 ), ec );
                 if ( result >= 0 )
                 {
                     clear_last_error( );
                     int flag = ( value ? ( result | O_NONBLOCK ) : ( result & ~O_NONBLOCK ) );
-                    result = error_wrapper(::fcntl( s, F_SETFL, flag ), ec );
+                    result = error_wrapper( ::fcntl( s, F_SETFL, flag ), ec );
                 }
 #else
                 ioctl_arg_type arg = ( value ? 1 : 0 );
-                int result = error_wrapper(::ioctl( s, FIONBIO, &arg ), ec );
+                int result = error_wrapper( ::ioctl( s, FIONBIO, &arg ), ec );
 #endif
 
                 if ( result >= 0 )
@@ -423,18 +423,18 @@ namespace asio
                 clear_last_error( );
 #if defined( ASIO_WINDOWS ) || defined( __CYGWIN__ )
                 ioctl_arg_type arg = ( value ? 1 : 0 );
-                int result = error_wrapper(::ioctlsocket( s, FIONBIO, &arg ), ec );
+                int result = error_wrapper( ::ioctlsocket( s, FIONBIO, &arg ), ec );
 #elif defined( __SYMBIAN32__ )
-                int result = error_wrapper(::fcntl( s, F_GETFL, 0 ), ec );
+                int result = error_wrapper( ::fcntl( s, F_GETFL, 0 ), ec );
                 if ( result >= 0 )
                 {
                     clear_last_error( );
                     int flag = ( value ? ( result | O_NONBLOCK ) : ( result & ~O_NONBLOCK ) );
-                    result = error_wrapper(::fcntl( s, F_SETFL, flag ), ec );
+                    result = error_wrapper( ::fcntl( s, F_SETFL, flag ), ec );
                 }
 #else
                 ioctl_arg_type arg = ( value ? 1 : 0 );
-                int result = error_wrapper(::ioctl( s, FIONBIO, &arg ), ec );
+                int result = error_wrapper( ::ioctl( s, FIONBIO, &arg ), ec );
 #endif
 
                 if ( result >= 0 )
@@ -459,7 +459,7 @@ namespace asio
                 }
 
                 clear_last_error( );
-                int result = error_wrapper(::shutdown( s, what ), ec );
+                int result = error_wrapper( ::shutdown( s, what ), ec );
                 if ( result == 0 )
                     ec = asio::error_code( );
                 return result;
@@ -555,8 +555,8 @@ namespace asio
 
             bool non_blocking_connect( socket_type s, asio::error_code& ec )
             {
-            // Check if the connect operation has finished. This is required since we may
-            // get spurious readiness notifications from the reactor.
+                // Check if the connect operation has finished. This is required since we may
+                // get spurious readiness notifications from the reactor.
 #if defined( ASIO_WINDOWS ) || defined( __CYGWIN__ ) || defined( __SYMBIAN32__ )
                 fd_set write_fds;
                 FD_ZERO( &write_fds );
@@ -612,7 +612,7 @@ namespace asio
                 return socket_error_retval;
 #else
                 clear_last_error( );
-                int result = error_wrapper(::socketpair( af, type, protocol, sv ), ec );
+                int result = error_wrapper( ::socketpair( af, type, protocol, sv ), ec );
                 if ( result == 0 )
                     ec = asio::error_code( );
                 return result;
@@ -630,9 +630,9 @@ namespace asio
 #if defined( SIOCATMARK )
                 ioctl_arg_type value = 0;
 #if defined( ASIO_WINDOWS ) || defined( __CYGWIN__ )
-                int result = error_wrapper(::ioctlsocket( s, SIOCATMARK, &value ), ec );
+                int result = error_wrapper( ::ioctlsocket( s, SIOCATMARK, &value ), ec );
 #else   // defined(ASIO_WINDOWS) || defined(__CYGWIN__)
-                int result = error_wrapper(::ioctl( s, SIOCATMARK, &value ), ec );
+                int result = error_wrapper( ::ioctl( s, SIOCATMARK, &value ), ec );
 #endif  // defined(ASIO_WINDOWS) || defined(__CYGWIN__)
                 if ( result == 0 )
                     ec = asio::error_code( );
@@ -641,7 +641,7 @@ namespace asio
                     ec = asio::error::not_socket;
 #endif  // defined(ENOTTY)
 #else   // defined(SIOCATMARK)
-                int value = error_wrapper(::sockatmark( s ), ec );
+                int value = error_wrapper( ::sockatmark( s ), ec );
                 if ( value != -1 )
                     ec = asio::error_code( );
 #endif  // defined(SIOCATMARK)
@@ -659,9 +659,9 @@ namespace asio
 
                 ioctl_arg_type value = 0;
 #if defined( ASIO_WINDOWS ) || defined( __CYGWIN__ )
-                int result = error_wrapper(::ioctlsocket( s, FIONREAD, &value ), ec );
+                int result = error_wrapper( ::ioctlsocket( s, FIONREAD, &value ), ec );
 #else   // defined(ASIO_WINDOWS) || defined(__CYGWIN__)
-                int result = error_wrapper(::ioctl( s, FIONREAD, &value ), ec );
+                int result = error_wrapper( ::ioctl( s, FIONREAD, &value ), ec );
 #endif  // defined(ASIO_WINDOWS) || defined(__CYGWIN__)
                 if ( result == 0 )
                     ec = asio::error_code( );
@@ -682,7 +682,7 @@ namespace asio
                 }
 
                 clear_last_error( );
-                int result = error_wrapper(::listen( s, backlog ), ec );
+                int result = error_wrapper( ::listen( s, backlog ), ec );
                 if ( result == 0 )
                     ec = asio::error_code( );
                 return result;
@@ -758,7 +758,7 @@ namespace asio
                 DWORD bytes_transferred = 0;
                 DWORD recv_flags = flags;
                 int result =
-                    error_wrapper(::WSARecv( s, bufs, recv_buf_count, &bytes_transferred, &recv_flags, 0, 0 ), ec );
+                    error_wrapper( ::WSARecv( s, bufs, recv_buf_count, &bytes_transferred, &recv_flags, 0, 0 ), ec );
                 if ( ec.value( ) == ERROR_NETNAME_DELETED )
                     ec = asio::error::connection_reset;
                 else if ( ec.value( ) == ERROR_PORT_UNREACHABLE )
@@ -771,7 +771,7 @@ namespace asio
                 msghdr msg = msghdr( );
                 msg.msg_iov = bufs;
                 msg.msg_iovlen = static_cast<int>( count );
-                signed_size_type result = error_wrapper(::recvmsg( s, &msg, flags ), ec );
+                signed_size_type result = error_wrapper( ::recvmsg( s, &msg, flags ), ec );
                 if ( result >= 0 )
                     ec = asio::error_code( );
                 return result;
@@ -933,7 +933,7 @@ namespace asio
                 msg.msg_namelen = static_cast<int>( *addrlen );
                 msg.msg_iov = bufs;
                 msg.msg_iovlen = static_cast<int>( count );
-                signed_size_type result = error_wrapper(::recvmsg( s, &msg, flags ), ec );
+                signed_size_type result = error_wrapper( ::recvmsg( s, &msg, flags ), ec );
                 *addrlen = msg.msg_namelen;
                 if ( result >= 0 )
                     ec = asio::error_code( );
@@ -1049,7 +1049,7 @@ namespace asio
                 msghdr msg = msghdr( );
                 msg.msg_iov = bufs;
                 msg.msg_iovlen = static_cast<int>( count );
-                signed_size_type result = error_wrapper(::recvmsg( s, &msg, in_flags ), ec );
+                signed_size_type result = error_wrapper( ::recvmsg( s, &msg, in_flags ), ec );
                 if ( result >= 0 )
                 {
                     ec = asio::error_code( );
@@ -1178,7 +1178,7 @@ namespace asio
 #if defined( __linux__ )
                 flags |= MSG_NOSIGNAL;
 #endif  // defined(__linux__)
-                signed_size_type result = error_wrapper(::sendmsg( s, &msg, flags ), ec );
+                signed_size_type result = error_wrapper( ::sendmsg( s, &msg, flags ), ec );
                 if ( result >= 0 )
                     ec = asio::error_code( );
                 return result;
@@ -1295,9 +1295,10 @@ namespace asio
                 // Send the data.
                 DWORD send_buf_count = static_cast<DWORD>( count );
                 DWORD bytes_transferred = 0;
-                int result = error_wrapper(::WSASendTo( s, const_cast<buf*>( bufs ), send_buf_count, &bytes_transferred,
-                                                        flags, addr, static_cast<int>( addrlen ), 0, 0 ),
-                                           ec );
+                int result =
+                    error_wrapper( ::WSASendTo( s, const_cast<buf*>( bufs ), send_buf_count, &bytes_transferred, flags,
+                                                addr, static_cast<int>( addrlen ), 0, 0 ),
+                                   ec );
                 if ( ec.value( ) == ERROR_NETNAME_DELETED )
                     ec = asio::error::connection_reset;
                 else if ( ec.value( ) == ERROR_PORT_UNREACHABLE )
@@ -1315,7 +1316,7 @@ namespace asio
 #if defined( __linux__ )
                 flags |= MSG_NOSIGNAL;
 #endif  // defined(__linux__)
-                signed_size_type result = error_wrapper(::sendmsg( s, &msg, flags ), ec );
+                signed_size_type result = error_wrapper( ::sendmsg( s, &msg, flags ), ec );
                 if ( result >= 0 )
                     ec = asio::error_code( );
                 return result;
@@ -1401,7 +1402,7 @@ namespace asio
             {
                 clear_last_error( );
 #if defined( ASIO_WINDOWS ) || defined( __CYGWIN__ )
-                socket_type s = error_wrapper(::WSASocketW( af, type, protocol, 0, 0, WSA_FLAG_OVERLAPPED ), ec );
+                socket_type s = error_wrapper( ::WSASocketW( af, type, protocol, 0, 0, WSA_FLAG_OVERLAPPED ), ec );
                 if ( s == invalid_socket )
                     return s;
 
@@ -1419,12 +1420,13 @@ namespace asio
 
                 return s;
 #elif defined( __MACH__ ) && defined( __APPLE__ ) || defined( __FreeBSD__ )
-                socket_type s = error_wrapper(::socket( af, type, protocol ), ec );
+                socket_type s = error_wrapper( ::socket( af, type, protocol ), ec );
                 if ( s == invalid_socket )
                     return s;
 
                 int optval = 1;
-                int result = error_wrapper(::setsockopt( s, SOL_SOCKET, SO_NOSIGPIPE, &optval, sizeof( optval ) ), ec );
+                int result =
+                    error_wrapper( ::setsockopt( s, SOL_SOCKET, SO_NOSIGPIPE, &optval, sizeof( optval ) ), ec );
                 if ( result != 0 )
                 {
                     ::close( s );
@@ -1433,7 +1435,7 @@ namespace asio
 
                 return s;
 #else
-                int s = error_wrapper(::socket( af, type, protocol ), ec );
+                int s = error_wrapper( ::socket( af, type, protocol ), ec );
                 if ( s >= 0 )
                     ec = asio::error_code( );
                 return s;
@@ -1742,12 +1744,12 @@ namespace asio
 
                 clear_last_error( );
 #if defined( ASIO_WINDOWS ) || defined( __CYGWIN__ )
-                int result = error_wrapper(::ioctlsocket( s, cmd, arg ), ec );
+                int result = error_wrapper( ::ioctlsocket( s, cmd, arg ), ec );
 #elif defined( __MACH__ ) && defined( __APPLE__ ) || defined( __NetBSD__ ) || defined( __FreeBSD__ ) || \
     defined( __OpenBSD__ )
-                int result = error_wrapper(::ioctl( s, static_cast<unsigned int>( cmd ), arg ), ec );
+                int result = error_wrapper( ::ioctl( s, static_cast<unsigned int>( cmd ), arg ), ec );
 #else
-                int result = error_wrapper(::ioctl( s, cmd, arg ), ec );
+                int result = error_wrapper( ::ioctl( s, cmd, arg ), ec );
 #endif
                 if ( result >= 0 )
                 {
@@ -1810,9 +1812,9 @@ namespace asio
                 timespec ts;
                 ts.tv_sec = timeout ? timeout->tv_sec : 0;
                 ts.tv_nsec = timeout ? timeout->tv_usec * 1000 : 0;
-                return error_wrapper(::pselect( nfds, readfds, writefds, exceptfds, timeout ? &ts : 0, 0 ), ec );
+                return error_wrapper( ::pselect( nfds, readfds, writefds, exceptfds, timeout ? &ts : 0, 0 ), ec );
 #else
-                int result = error_wrapper(::select( nfds, readfds, writefds, exceptfds, timeout ), ec );
+                int result = error_wrapper( ::select( nfds, readfds, writefds, exceptfds, timeout ), ec );
                 if ( result >= 0 )
                     ec = asio::error_code( );
                 return result;
@@ -1836,7 +1838,7 @@ namespace asio
                 zero_timeout.tv_usec = 0;
                 timeval* timeout = ( state & user_set_non_blocking ) ? &zero_timeout : 0;
                 clear_last_error( );
-                int result = error_wrapper(::select( s + 1, &fds, 0, 0, timeout ), ec );
+                int result = error_wrapper( ::select( s + 1, &fds, 0, 0, timeout ), ec );
 #else   // defined(ASIO_WINDOWS)
         // || defined(__CYGWIN__)
         // || defined(__SYMBIAN32__)
@@ -1846,7 +1848,7 @@ namespace asio
                 fds.revents = 0;
                 int timeout = ( state & user_set_non_blocking ) ? 0 : -1;
                 clear_last_error( );
-                int result = error_wrapper(::poll( &fds, 1, timeout ), ec );
+                int result = error_wrapper( ::poll( &fds, 1, timeout ), ec );
 #endif  // defined(ASIO_WINDOWS)
         // || defined(__CYGWIN__)
         // || defined(__SYMBIAN32__)
@@ -1874,7 +1876,7 @@ namespace asio
                 zero_timeout.tv_usec = 0;
                 timeval* timeout = ( state & user_set_non_blocking ) ? &zero_timeout : 0;
                 clear_last_error( );
-                int result = error_wrapper(::select( s + 1, 0, &fds, 0, timeout ), ec );
+                int result = error_wrapper( ::select( s + 1, 0, &fds, 0, timeout ), ec );
 #else   // defined(ASIO_WINDOWS)
         // || defined(__CYGWIN__)
         // || defined(__SYMBIAN32__)
@@ -1884,7 +1886,7 @@ namespace asio
                 fds.revents = 0;
                 int timeout = ( state & user_set_non_blocking ) ? 0 : -1;
                 clear_last_error( );
-                int result = error_wrapper(::poll( &fds, 1, timeout ), ec );
+                int result = error_wrapper( ::poll( &fds, 1, timeout ), ec );
 #endif  // defined(ASIO_WINDOWS)
         // || defined(__CYGWIN__)
         // || defined(__SYMBIAN32__)
@@ -1911,7 +1913,7 @@ namespace asio
                 FD_ZERO( &except_fds );
                 FD_SET( s, &except_fds );
                 clear_last_error( );
-                int result = error_wrapper(::select( s + 1, 0, &write_fds, &except_fds, 0 ), ec );
+                int result = error_wrapper( ::select( s + 1, 0, &write_fds, &except_fds, 0 ), ec );
                 if ( result >= 0 )
                     ec = asio::error_code( );
                 return result;
@@ -1923,7 +1925,7 @@ namespace asio
                 fds.events = POLLOUT;
                 fds.revents = 0;
                 clear_last_error( );
-                int result = error_wrapper(::poll( &fds, 1, -1 ), ec );
+                int result = error_wrapper( ::poll( &fds, 1, -1 ), ec );
                 if ( result >= 0 )
                     ec = asio::error_code( );
                 return result;
@@ -2018,8 +2020,8 @@ namespace asio
                     ::WSAAddressToStringW( &address.base, address_length, 0, string_buffer, &string_length ), ec );
                 ::WideCharToMultiByte( CP_ACP, 0, string_buffer, -1, dest, static_cast<int>( length ), 0, 0 );
 #else
-                int result =
-                    error_wrapper(::WSAAddressToStringA( &address.base, address_length, 0, dest, &string_length ), ec );
+                int result = error_wrapper(
+                    ::WSAAddressToStringA( &address.base, address_length, 0, dest, &string_length ), ec );
 #endif
 
                 // Windows may set error code on success.
@@ -2032,7 +2034,7 @@ namespace asio
 
                 return result == socket_error_retval ? 0 : dest;
 #else   // defined(ASIO_WINDOWS) || defined(__CYGWIN__)
-                const char* result = error_wrapper(::inet_ntop( af, src, dest, static_cast<int>( length ) ), ec );
+                const char* result = error_wrapper( ::inet_ntop( af, src, dest, static_cast<int>( length ) ), ec );
                 if ( result == 0 && !ec )
                     ec = asio::error::invalid_argument;
                 if ( result != 0 && af == ASIO_OS_DEF( AF_INET6 ) && scope_id != 0 )
@@ -2228,7 +2230,7 @@ namespace asio
                 LPWSTR wide_buffer = (LPWSTR)_alloca( num_wide_chars * sizeof( WCHAR ) );
                 ::MultiByteToWideChar( CP_ACP, 0, src, -1, wide_buffer, num_wide_chars );
                 int result =
-                    error_wrapper(::WSAStringToAddressW( wide_buffer, af, 0, &address.base, &address_length ), ec );
+                    error_wrapper( ::WSAStringToAddressW( wide_buffer, af, 0, &address.base, &address_length ), ec );
 #else
                 int result = error_wrapper(
                     ::WSAStringToAddressA( const_cast<char*>( src ), af, 0, &address.base, &address_length ), ec );
@@ -2287,7 +2289,7 @@ namespace asio
                     src_ptr = src_buf;
                 }
 
-                int result = error_wrapper(::inet_pton( af, src_ptr, dest ), ec );
+                int result = error_wrapper( ::inet_pton( af, src_ptr, dest ), ec );
                 if ( result <= 0 && !ec )
                     ec = asio::error::invalid_argument;
                 if ( result > 0 && is_v6 && scope_id )
@@ -2343,7 +2345,7 @@ namespace asio
                     return -1;
                 }
 #else  // defined(ASIO_WINDOWS_RUNTIME)
-                int result = error_wrapper(::gethostname( name, namelen ), ec );
+                int result = error_wrapper( ::gethostname( name, namelen ), ec );
 #if defined( ASIO_WINDOWS )
                 if ( result == 0 )
                     ec = asio::error_code( );
@@ -2391,7 +2393,7 @@ namespace asio
 #if defined( ASIO_WINDOWS ) || defined( __CYGWIN__ )
                 (void)( buffer );
                 (void)( buflength );
-                hostent* retval = error_wrapper(::gethostbyaddr( addr, length, af ), ec );
+                hostent* retval = error_wrapper( ::gethostbyaddr( addr, length, af ), ec );
                 if ( !retval )
                     return 0;
                 ec = asio::error_code( );
@@ -2400,7 +2402,7 @@ namespace asio
 #elif defined( __sun ) || defined( __QNX__ )
                 int error = 0;
                 hostent* retval =
-                    error_wrapper(::gethostbyaddr_r( addr, length, af, result, buffer, buflength, &error ), ec );
+                    error_wrapper( ::gethostbyaddr_r( addr, length, af, result, buffer, buflength, &error ), ec );
                 if ( error )
                     ec = translate_netdb_error( error );
                 return retval;
@@ -2408,7 +2410,7 @@ namespace asio
                 (void)( buffer );
                 (void)( buflength );
                 int error = 0;
-                hostent* retval = error_wrapper(::getipnodebyaddr( addr, length, af, &error ), ec );
+                hostent* retval = error_wrapper( ::getipnodebyaddr( addr, length, af, &error ), ec );
                 if ( error )
                     ec = translate_netdb_error( error );
                 if ( !retval )
@@ -2418,7 +2420,7 @@ namespace asio
 #else
                 hostent* retval = 0;
                 int error = 0;
-                error_wrapper(::gethostbyaddr_r( addr, length, af, result, buffer, buflength, &retval, &error ), ec );
+                error_wrapper( ::gethostbyaddr_r( addr, length, af, result, buffer, buflength, &retval, &error ), ec );
                 if ( error )
                     ec = translate_netdb_error( error );
                 return retval;
@@ -2443,7 +2445,7 @@ namespace asio
                     ec = asio::error::address_family_not_supported;
                     return 0;
                 }
-                hostent* retval = error_wrapper(::gethostbyname( name ), ec );
+                hostent* retval = error_wrapper( ::gethostbyname( name ), ec );
                 if ( !retval )
                     return 0;
                 ec = asio::error_code( );
@@ -2457,7 +2459,7 @@ namespace asio
                     return 0;
                 }
                 int error = 0;
-                hostent* retval = error_wrapper(::gethostbyname_r( name, result, buffer, buflength, &error ), ec );
+                hostent* retval = error_wrapper( ::gethostbyname_r( name, result, buffer, buflength, &error ), ec );
                 if ( error )
                     ec = translate_netdb_error( error );
                 return retval;
@@ -2465,7 +2467,7 @@ namespace asio
                 (void)( buffer );
                 (void)( buflength );
                 int error = 0;
-                hostent* retval = error_wrapper(::getipnodebyname( name, af, ai_flags, &error ), ec );
+                hostent* retval = error_wrapper( ::getipnodebyname( name, af, ai_flags, &error ), ec );
                 if ( error )
                     ec = translate_netdb_error( error );
                 if ( !retval )
@@ -2481,7 +2483,7 @@ namespace asio
                 }
                 hostent* retval = 0;
                 int error = 0;
-                error_wrapper(::gethostbyname_r( name, result, buffer, buflength, &retval, &error ), ec );
+                error_wrapper( ::gethostbyname_r( name, result, buffer, buflength, &retval, &error ), ec );
                 if ( error )
                     ec = translate_netdb_error( error );
                 return retval;
@@ -2601,7 +2603,7 @@ namespace asio
             inline T* gai_alloc( std::size_t size = sizeof( T ) )
             {
                 using namespace std;
-                T* p = static_cast<T*>(::operator new( size, std::nothrow ) );
+                T* p = static_cast<T*>( ::operator new( size, std::nothrow ) );
                 if ( p )
                     memset( p, 0, size );
                 return p;

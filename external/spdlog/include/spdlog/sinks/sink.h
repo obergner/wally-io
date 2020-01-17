@@ -47,5 +47,5 @@ namespace spdlog
         {
             return static_cast<spdlog::level::level_enum>( _level.load( std::memory_order_relaxed ) );
         }
-    }
-}
+    }  // namespace sinks
+}  // namespace spdlog

@@ -65,7 +65,7 @@ namespace asio
             typedef typename helper::buffer_type buffer_type;
             typedef typename helper::template byte_type<ByteType>::type byte_type;
         };
-    }
+    }  // namespace detail
 
     /// A random access iterator over the bytes in a buffer sequence.
     template <typename BufferSequence, typename ByteType = char>

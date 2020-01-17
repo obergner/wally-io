@@ -137,7 +137,7 @@ namespace asio
             asio::error_code send_break( implementation_type& impl, asio::error_code& ec )
             {
                 errno = 0;
-                descriptor_ops::error_wrapper(::tcsendbreak( descriptor_service_.native_handle( impl ), 0 ), ec );
+                descriptor_ops::error_wrapper( ::tcsendbreak( descriptor_service_.native_handle( impl ), 0 ), ec );
                 return ec;
             }
 

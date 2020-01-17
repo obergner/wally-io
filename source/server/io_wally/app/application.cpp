@@ -84,4 +84,4 @@ namespace io_wally
             server_->wait_until_stopped( );
         }
     }  // namespace app
-}
+}  // namespace io_wally

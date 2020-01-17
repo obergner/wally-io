@@ -68,5 +68,5 @@ namespace spdlog
 
         typedef dist_sink<std::mutex> dist_sink_mt;
         typedef dist_sink<details::null_mutex> dist_sink_st;
-    }
-}
+    }  // namespace sinks
+}  // namespace spdlog

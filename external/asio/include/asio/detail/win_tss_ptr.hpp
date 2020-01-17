@@ -50,7 +50,7 @@ namespace asio
             // Get the value.
             operator T*( ) const
             {
-                return static_cast<T*>(::TlsGetValue( tss_key_ ) );
+                return static_cast<T*>( ::TlsGetValue( tss_key_ ) );
             }
 
             // Set the value.

@@ -200,7 +200,7 @@ namespace asio
 
             ASIO_HANDLER_OPERATION( ( "socket", &impl, "cancel" ) );
 
-            if ( FARPROC cancel_io_ex_ptr = ::GetProcAddress(::GetModuleHandleA( "KERNEL32" ), "CancelIoEx" ) )
+            if ( FARPROC cancel_io_ex_ptr = ::GetProcAddress( ::GetModuleHandleA( "KERNEL32" ), "CancelIoEx" ) )
             {
                 // The version of Windows supports cancellation from any thread.
                 typedef BOOL( WINAPI * cancel_io_ex_t )( HANDLE, LPOVERLAPPED );
@@ -709,8 +709,8 @@ namespace asio
                 GUID guid = {0x25a207b9, 0xddf3, 0x4660, {0x8e, 0xe9, 0x76, 0xe5, 0x8c, 0x74, 0x06, 0x3e}};
 
                 DWORD bytes = 0;
-                if (::WSAIoctl( impl.socket_, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof( guid ), &ptr,
-                                sizeof( ptr ), &bytes, 0, 0 ) != 0 )
+                if ( ::WSAIoctl( impl.socket_, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof( guid ), &ptr,
+                                 sizeof( ptr ), &bytes, 0, 0 ) != 0 )
                 {
                     // Set connect_ex_ to a special value to indicate that ConnectEx is
                     // unavailable. That way we won't bother trying to look it up again.

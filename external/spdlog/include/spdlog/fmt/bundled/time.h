@@ -77,7 +77,7 @@ namespace fmt
         {
             return Null<>( );
         }
-    }
+    }  // namespace internal
 
     // Thread-safe replacement for std::localtime
     inline std::tm localtime( std::time_t time )

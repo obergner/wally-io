@@ -29,5 +29,5 @@ namespace spdlog
         };
         typedef null_sink<details::null_mutex> null_sink_st;
         typedef null_sink<details::null_mutex> null_sink_mt;
-    }
-}
+    }  // namespace sinks
+}  // namespace spdlog

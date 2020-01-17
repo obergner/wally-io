@@ -15,5 +15,5 @@ namespace io_wally
         {
             return factories_by_name_.at( name );
         }
-    }
-}
+    }  // namespace app
+}  // namespace io_wally

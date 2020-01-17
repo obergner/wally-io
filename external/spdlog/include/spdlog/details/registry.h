@@ -250,5 +250,5 @@ namespace spdlog
 #else
         typedef registry_t<std::mutex> registry;
 #endif
-    }
-}
+    }  // namespace details
+}  // namespace spdlog

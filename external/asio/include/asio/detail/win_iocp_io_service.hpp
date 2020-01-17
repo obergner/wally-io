@@ -96,7 +96,7 @@ namespace asio
             // Notify that some work has finished.
             void work_finished( )
             {
-                if (::InterlockedDecrement( &outstanding_work_ ) == 0 )
+                if ( ::InterlockedDecrement( &outstanding_work_ ) == 0 )
                     stop( );
             }
 

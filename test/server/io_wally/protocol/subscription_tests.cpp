@@ -22,7 +22,7 @@ namespace
         std::generate_n( str.begin( ), length, randchar );
         return str;
     }
-}
+}  // namespace
 
 SCENARIO( "subscription", "[packets]" )
 {

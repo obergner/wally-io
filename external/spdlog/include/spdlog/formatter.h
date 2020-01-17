@@ -45,6 +45,6 @@ namespace spdlog
         void handle_flag( char flag );
         void compile_pattern( const std::string& pattern );
     };
-}
+}  // namespace spdlog
 
 #include "details/pattern_formatter_impl.h"

@@ -76,6 +76,6 @@ namespace spdlog
        private:
         std::unique_ptr<details::async_log_helper> _async_log_helper;
     };
-}
+}  // namespace spdlog
 
 #include "details/async_logger_impl.h"

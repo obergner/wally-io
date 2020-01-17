@@ -89,7 +89,7 @@ namespace asio
                                                   wait_op* op )
         {
             // If the service has been shut down we silently discard the timer.
-            if (::InterlockedExchangeAdd( &shutdown_, 0 ) != 0 )
+            if ( ::InterlockedExchangeAdd( &shutdown_, 0 ) != 0 )
             {
                 post_immediate_completion( op, false );
                 return;
@@ -109,7 +109,7 @@ namespace asio
                                                        std::size_t max_cancelled )
         {
             // If the service has been shut down we silently ignore the cancellation.
-            if (::InterlockedExchangeAdd( &shutdown_, 0 ) != 0 )
+            if ( ::InterlockedExchangeAdd( &shutdown_, 0 ) != 0 )
                 return 0;
 
             mutex::scoped_lock lock( dispatch_mutex_ );

@@ -51,7 +51,7 @@ namespace asio
             // Get the value.
             operator T*( ) const
             {
-                return static_cast<T*>(::pthread_getspecific( tss_key_ ) );
+                return static_cast<T*>( ::pthread_getspecific( tss_key_ ) );
             }
 
             // Set the value.

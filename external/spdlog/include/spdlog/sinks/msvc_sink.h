@@ -43,7 +43,7 @@ namespace spdlog
 
         typedef msvc_sink<std::mutex> msvc_sink_mt;
         typedef msvc_sink<details::null_mutex> msvc_sink_st;
-    }
-}
+    }  // namespace sinks
+}  // namespace spdlog
 
 #endif

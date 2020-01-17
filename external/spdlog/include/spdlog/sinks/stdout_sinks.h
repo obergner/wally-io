@@ -78,5 +78,5 @@ namespace spdlog
 
         typedef stderr_sink<std::mutex> stderr_sink_mt;
         typedef stderr_sink<details::null_mutex> stderr_sink_st;
-    }
-}
+    }  // namespace sinks
+}  // namespace spdlog

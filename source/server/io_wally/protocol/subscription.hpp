@@ -56,7 +56,7 @@ namespace io_wally
             /// \brief Copy assignment operator.
             ///
             /// \param other \c subscription to assign from.
-            subscription& operator=( const subscription& other ) = default;
+            // subscription& operator=( const subscription& other ) = default;
 
             /// \brief Return this \c subscription's topic filter.
             inline const std::string& topic_filter( ) const

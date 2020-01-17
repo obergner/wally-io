@@ -57,8 +57,8 @@ namespace io_wally
                     throw error::malformed_mqtt_packet{
                         "[MQTT-3.10.3-2] A UNSUBSCRIBE packet MUST contain at least one subscription (topic filter)"};
 
-                return std::make_shared<protocol::unsubscribe>(
-                    static_cast<const uint32_t>( frame.remaining_length( ) ), packet_id, topic_filters );
+                return std::make_shared<protocol::unsubscribe>( static_cast<uint32_t>( frame.remaining_length( ) ),
+                                                                packet_id, topic_filters );
             }
         };  // class unsubscribe_packet_decoder_impl
     }       // namespace decoder

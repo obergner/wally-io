@@ -307,19 +307,19 @@ namespace asio
     }  // namespace detail
 }  // namespace asio
 
-#define ASIO_CORO_REENTER( c )                              \
-    switch (::asio::detail::coroutine_ref _coro_value = c ) \
-    case -1:                                                \
-        if ( _coro_value )                                  \
-        {                                                   \
-            goto terminate_coroutine;                       \
-        terminate_coroutine:                                \
-            _coro_value = -1;                               \
-            goto bail_out_of_coroutine;                     \
-        bail_out_of_coroutine:                              \
-            break;                                          \
-        }                                                   \
-        else                                                \
+#define ASIO_CORO_REENTER( c )                               \
+    switch ( ::asio::detail::coroutine_ref _coro_value = c ) \
+    case -1:                                                 \
+        if ( _coro_value )                                   \
+        {                                                    \
+            goto terminate_coroutine;                        \
+        terminate_coroutine:                                 \
+            _coro_value = -1;                                \
+            goto bail_out_of_coroutine;                      \
+        bail_out_of_coroutine:                               \
+            break;                                           \
+        }                                                    \
+        else                                                 \
         case 0:
 
 #define ASIO_CORO_YIELD_IMPL( n )                           \

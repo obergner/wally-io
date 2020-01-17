@@ -78,7 +78,7 @@ namespace asio
 
             unsigned int thread_id = 0;
             thread_ =
-                reinterpret_cast<HANDLE>(::_beginthreadex( 0, stack_size, win_thread_function, arg, 0, &thread_id ) );
+                reinterpret_cast<HANDLE>( ::_beginthreadex( 0, stack_size, win_thread_function, arg, 0, &thread_id ) );
             if ( !thread_ )
             {
                 DWORD last_error = ::GetLastError( );

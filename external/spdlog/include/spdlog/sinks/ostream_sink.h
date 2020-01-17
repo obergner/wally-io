@@ -46,5 +46,5 @@ namespace spdlog
 
         typedef ostream_sink<std::mutex> ostream_sink_mt;
         typedef ostream_sink<details::null_mutex> ostream_sink_st;
-    }
-}
+    }  // namespace sinks
+}  // namespace spdlog

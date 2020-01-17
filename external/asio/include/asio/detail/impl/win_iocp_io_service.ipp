@@ -49,9 +49,9 @@ namespace asio
         {
             void operator( )( )
             {
-                while (::InterlockedExchangeAdd( &io_service_->shutdown_, 0 ) == 0 )
+                while ( ::InterlockedExchangeAdd( &io_service_->shutdown_, 0 ) == 0 )
                 {
-                    if (::WaitForSingleObject( io_service_->waitable_timer_.handle, INFINITE ) == WAIT_OBJECT_0 )
+                    if ( ::WaitForSingleObject( io_service_->waitable_timer_.handle, INFINITE ) == WAIT_OBJECT_0 )
                     {
                         ::InterlockedExchange( &io_service_->dispatch_required_, 1 );
                         ::PostQueuedCompletionStatus( io_service_->iocp_.handle, 0, wake_for_dispatch, 0 );
@@ -96,7 +96,7 @@ namespace asio
                 ::SetWaitableTimer( waitable_timer_.handle, &timeout, 1, 0, 0, FALSE );
             }
 
-            while (::InterlockedExchangeAdd( &outstanding_work_, 0 ) > 0 )
+            while ( ::InterlockedExchangeAdd( &outstanding_work_, 0 ) > 0 )
             {
                 op_queue<win_iocp_operation> ops;
                 timer_queues_.get_all_timers( ops );
@@ -131,7 +131,7 @@ namespace asio
 
         asio::error_code win_iocp_io_service::register_handle( HANDLE handle, asio::error_code& ec )
         {
-            if (::CreateIoCompletionPort( handle, iocp_.handle, 0, 0 ) == 0 )
+            if ( ::CreateIoCompletionPort( handle, iocp_.handle, 0, 0 ) == 0 )
             {
                 DWORD last_error = ::GetLastError( );
                 ec = asio::error_code( last_error, asio::error::get_system_category( ) );
@@ -145,7 +145,7 @@ namespace asio
 
         size_t win_iocp_io_service::run( asio::error_code& ec )
         {
-            if (::InterlockedExchangeAdd( &outstanding_work_, 0 ) == 0 )
+            if ( ::InterlockedExchangeAdd( &outstanding_work_, 0 ) == 0 )
             {
                 stop( );
                 ec = asio::error_code( );
@@ -164,7 +164,7 @@ namespace asio
 
         size_t win_iocp_io_service::run_one( asio::error_code& ec )
         {
-            if (::InterlockedExchangeAdd( &outstanding_work_, 0 ) == 0 )
+            if ( ::InterlockedExchangeAdd( &outstanding_work_, 0 ) == 0 )
             {
                 stop( );
                 ec = asio::error_code( );
@@ -179,7 +179,7 @@ namespace asio
 
         size_t win_iocp_io_service::poll( asio::error_code& ec )
         {
-            if (::InterlockedExchangeAdd( &outstanding_work_, 0 ) == 0 )
+            if ( ::InterlockedExchangeAdd( &outstanding_work_, 0 ) == 0 )
             {
                 stop( );
                 ec = asio::error_code( );
@@ -198,7 +198,7 @@ namespace asio
 
         size_t win_iocp_io_service::poll_one( asio::error_code& ec )
         {
-            if (::InterlockedExchangeAdd( &outstanding_work_, 0 ) == 0 )
+            if ( ::InterlockedExchangeAdd( &outstanding_work_, 0 ) == 0 )
             {
                 stop( );
                 ec = asio::error_code( );
@@ -213,9 +213,9 @@ namespace asio
 
         void win_iocp_io_service::stop( )
         {
-            if (::InterlockedExchange( &stopped_, 1 ) == 0 )
+            if ( ::InterlockedExchange( &stopped_, 1 ) == 0 )
             {
-                if (::InterlockedExchange( &stop_event_posted_, 1 ) == 0 )
+                if ( ::InterlockedExchange( &stop_event_posted_, 1 ) == 0 )
                 {
                     if ( !::PostQueuedCompletionStatus( iocp_.handle, 0, 0, 0 ) )
                     {
@@ -275,7 +275,7 @@ namespace asio
 
         void win_iocp_io_service::on_pending( win_iocp_operation* op )
         {
-            if (::InterlockedCompareExchange( &op->ready_, 1, 0 ) == 1 )
+            if ( ::InterlockedCompareExchange( &op->ready_, 1, 0 ) == 1 )
             {
                 // Enqueue the operation on the I/O completion port.
                 if ( !::PostQueuedCompletionStatus( iocp_.handle, 0, overlapped_contains_result, op ) )
@@ -335,7 +335,7 @@ namespace asio
             for ( ;; )
             {
                 // Try to acquire responsibility for dispatching timers and completed ops.
-                if (::InterlockedCompareExchange( &dispatch_required_, 0, 1 ) == 1 )
+                if ( ::InterlockedCompareExchange( &dispatch_required_, 0, 1 ) == 1 )
                 {
                     mutex::scoped_lock lock( dispatch_mutex_ );
 
@@ -383,7 +383,7 @@ namespace asio
                     // if the initiating function (e.g. a call to WSARecv) has not yet
                     // returned. This is because the initiating function still wants access
                     // to the operation's OVERLAPPED structure.
-                    if (::InterlockedCompareExchange( &op->ready_, 1, 0 ) == 1 )
+                    if ( ::InterlockedCompareExchange( &op->ready_, 1, 0 ) == 1 )
                     {
                         // Ensure the count of outstanding work is decremented on block exit.
                         work_finished_on_block_exit on_exit = {this};
@@ -421,10 +421,10 @@ namespace asio
 
                     // The stopped_ flag is always checked to ensure that any leftover
                     // stop events from a previous run invocation are ignored.
-                    if (::InterlockedExchangeAdd( &stopped_, 0 ) != 0 )
+                    if ( ::InterlockedExchangeAdd( &stopped_, 0 ) != 0 )
                     {
                         // Wake up next thread that is blocked on GetQueuedCompletionStatus.
-                        if (::InterlockedExchange( &stop_event_posted_, 1 ) == 0 )
+                        if ( ::InterlockedExchange( &stop_event_posted_, 1 ) == 0 )
                         {
                             if ( !::PostQueuedCompletionStatus( iocp_.handle, 0, 0, 0 ) )
                             {

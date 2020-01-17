@@ -46,10 +46,10 @@ namespace io_wally
         using buf_iter = std::vector<uint8_t>::iterator;
 
         /// Factory method for \c mqtt_connections.
-        static mqtt_connection::ptr create(asio::ip::tcp::socket socket,
-                                           mqtt_connection_manager& connection_manager,
-                                           const context& context,
-                                           dispatch::dispatcher& dispatcher );
+        static mqtt_connection::ptr create( asio::ip::tcp::socket socket,
+                                            mqtt_connection_manager& connection_manager,
+                                            const context& context,
+                                            dispatch::dispatcher& dispatcher );
 
        private:  // static
         static const std::string endpoint_description( const asio::ip::tcp::socket& socket );
@@ -87,10 +87,10 @@ namespace io_wally
 
        private:
         /// Hide constructor since we MUST be created by static factory method 'create' above
-        mqtt_connection(asio::ip::tcp::socket socket,
-                        mqtt_connection_manager& connection_manager,
-                        const context& context,
-                        dispatch::dispatcher& dispatcher );
+        mqtt_connection( asio::ip::tcp::socket socket,
+                         mqtt_connection_manager& connection_manager,
+                         const context& context,
+                         dispatch::dispatcher& dispatcher );
 
         void do_stop( );
 
@@ -157,10 +157,10 @@ namespace io_wally
         std::string description_;
         /// Encode outgoing packets
         const encoder::mqtt_packet_encoder<buf_iter> packet_encoder_{};
-        /// The client socket this connection is connected to
-        asio::ip::tcp::socket socket_;
         /// Strand used to serialize access to socket and timer
         asio::io_service::strand strand_;
+        /// The client socket this connection is connected to
+        asio::ip::tcp::socket socket_;
         /// Our connection manager, responsible for managing our lifecycle
         mqtt_connection_manager& connection_manager_;
         /// Our context reference, used for configuring ourselves etc
@@ -185,4 +185,4 @@ namespace io_wally
         std::unique_ptr<spdlog::logger> logger_ =
             context_.logger_factory( ).logger( mqtt_connection::endpoint_description( socket_ ) );
     };  // class mqtt_connection
-}
+}  // namespace io_wally
