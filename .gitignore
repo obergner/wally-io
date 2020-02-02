@@ -27,3 +27,4 @@ find_all_symbols_db.yaml
 libs/org.eclipse.paho.mqtt.c/
 build/.tags
 /.testlog
+/.clangd/

@@ -39,14 +39,14 @@ namespace io_wally
         using ptr = std::shared_ptr<mqtt_server>;
 
         /// Factory method for \c mqtt_servers.
-        static mqtt_server::ptr create( context );
+        static auto create( context ) -> mqtt_server::ptr;
 
        public:
         /// \brief \c mqtt_server instances cannot be copied
         mqtt_server( const mqtt_server& ) = delete;
 
         /// \brief \c mqtt_server instances cannot be copied
-        mqtt_server& operator=( const mqtt_server& ) = delete;
+        auto operator=( const mqtt_server& ) -> mqtt_server& = delete;
 
         /// Run the mqtt_server's io_service loop.
         void run( );

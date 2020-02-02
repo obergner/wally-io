@@ -22,7 +22,7 @@ namespace io_wally
         /// An mqtt_connection_manager cannot be copied.
         mqtt_connection_manager( const mqtt_connection_manager& ) = delete;
         /// An mqtt_connection_manager cannot be copied.
-        mqtt_connection_manager& operator=( const mqtt_connection_manager& ) = delete;
+        auto operator=( const mqtt_connection_manager& ) -> mqtt_connection_manager& = delete;
 
         /// Construct a connection manager.
         mqtt_connection_manager( const context& context );

@@ -7,11 +7,9 @@
 
 #include "io_wally/defaults.hpp"
 
-namespace io_wally
+namespace io_wally::app
 {
-    namespace app
-    {
-        static const std::string USAGE = R"USG(
+    static const std::string USAGE = R"USG(
 
 mqttd: MQTT 3.1.1 Broker v. 0.0.1-PREALPHA
 
@@ -30,19 +28,18 @@ DISCLAIMER:
   and insult your girl/boy friend. YOU HAVE BEEN WARNED.
 )USG";
 
-        const std::vector<std::string> options_factory::GROUPS = {
-            options_factory::COMMAND_LINE_GROUP, options_factory::SERVER_GROUP,
-            options_factory::CONNECTION_GROUP,   options_factory::LOGGING_GROUP,
-            options_factory::PUBLICATION_GROUP,  options_factory::AUTHENTICATION_GROUP};
+    const std::vector<std::string> options_factory::GROUPS = {
+        options_factory::COMMAND_LINE_GROUP, options_factory::SERVER_GROUP,      options_factory::CONNECTION_GROUP,
+        options_factory::LOGGING_GROUP,      options_factory::PUBLICATION_GROUP, options_factory::AUTHENTICATION_GROUP};
 
-        cxxopts::Options options_factory::create( ) const
-        {
-            using namespace io_wally::defaults;
+    auto options_factory::create( ) const -> cxxopts::Options
+    {
+        using namespace io_wally::defaults;
 
-            auto options = cxxopts::Options{"wally-iod", "A lightweight MQTT 3.1.1 server in the making\n"};
-            options.custom_help( USAGE );
+        auto options = cxxopts::Options{"wally-iod", "A lightweight MQTT 3.1.1 server in the making\n"};
+        options.custom_help( USAGE );
 
-            // clang-format off
+        // clang-format off
             options.add_options( COMMAND_LINE_GROUP )
                 ( HELP_SPEC, "Print help message and exit" );
 
@@ -101,9 +98,8 @@ DISCLAIMER:
                   "Use authentication service factory <name>",
                   cxxopts::value<std::string>( )->default_value( DEFAULT_AUTHENTICATION_SERVICE_FACTORY ),
                   "<name>" );
-            // clang-format on
+        // clang-format on
 
-            return options;
-        }
-    }  // namespace app
-}  // namespace io_wally
+        return options;
+    }
+}  // namespace io_wally::app

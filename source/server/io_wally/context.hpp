@@ -52,25 +52,25 @@ namespace io_wally
             return;
         }
 
-        context( context&& other )
-            : options_{std::move( other.options_ )},
+        context( context&& other ) noexcept
+            : options_{other.options_},
               authentication_service_{std::move( other.authentication_service_ )},
-              logger_factory_{std::move( other.logger_factory_ )}
+              logger_factory_{other.logger_factory_}
         {
             return;
         }
 
-        const cxxopts::OptionValue& operator[]( const std::string& name ) const
+        auto operator[]( const std::string& name ) const -> const cxxopts::OptionValue&
         {
             return options_[name];
         }
 
-        spi::authentication_service& authentication_service( ) const
+        auto authentication_service( ) const -> spi::authentication_service&
         {
             return *authentication_service_;
         }
 
-        const logging::logger_factory& logger_factory( ) const
+        auto logger_factory( ) const -> const logging::logger_factory&
         {
             return logger_factory_;
         }
@@ -80,4 +80,4 @@ namespace io_wally
         std::unique_ptr<spi::authentication_service> authentication_service_;
         const logging::logger_factory logger_factory_;
     };
-}
+}  // namespace io_wally

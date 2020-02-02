@@ -46,41 +46,41 @@ namespace io_wally
         using buf_iter = std::vector<uint8_t>::iterator;
 
         /// Factory method for \c mqtt_connections.
-        static mqtt_connection::ptr create( asio::ip::tcp::socket socket,
-                                            mqtt_connection_manager& connection_manager,
-                                            const context& context,
-                                            dispatch::dispatcher& dispatcher );
+        static auto create( asio::ip::tcp::socket socket,
+                            mqtt_connection_manager& connection_manager,
+                            const context& context,
+                            dispatch::dispatcher& dispatcher ) -> mqtt_connection::ptr;
 
        private:  // static
-        static const std::string endpoint_description( const asio::ip::tcp::socket& socket );
+        static auto endpoint_description( const asio::ip::tcp::socket& socket ) -> const std::string;
 
-        static const std::string connection_description( const asio::ip::tcp::socket& socket,
-                                                         const std::string& client_id = "ANON" );
+        static auto connection_description( const asio::ip::tcp::socket& socket, const std::string& client_id = "ANON" )
+            -> const std::string;
 
        public:
         /// Naturally, mqtt_connections cannot be copied.
         mqtt_connection( const mqtt_connection& ) = delete;
         /// Naturally, mqtt_connections cannot be copied.
-        mqtt_connection& operator=( const mqtt_connection& ) = delete;
+        auto operator=( const mqtt_connection& ) -> mqtt_connection& = delete;
 
-        ~mqtt_connection( ){};
+        ~mqtt_connection( ) override = default;
 
         /// \brief Start this connection, initiating reading incoming data.
         void start( );
 
-        virtual inline const std::optional<const std::string>& client_id( ) const override
+        inline auto client_id( ) const -> const std::optional<const std::string>& override
         {
             return client_id_;
         }
 
         /// \brief Send an \c mqtt_packet to connected client.
-        virtual void send( protocol::mqtt_packet::ptr packet ) override;
+        void send( protocol::mqtt_packet::ptr packet ) override;
 
         /// \brief Stop this connection, closing its \c tcp::socket.
-        virtual void stop( const std::string& message = "",
-                           const spdlog::level::level_enum log_level = spdlog::level::level_enum::info ) override;
+        void stop( const std::string& message = "",
+                   const spdlog::level::level_enum log_level = spdlog::level::level_enum::info ) override;
 
-        virtual operator const std::string&( ) const override
+        operator const std::string&( ) const override
         {
             return description_;
         }
@@ -106,25 +106,25 @@ namespace io_wally
 
         // Processing decoded packets
 
-        void process_decoded_packet( std::shared_ptr<protocol::mqtt_packet> packet );
+        void process_decoded_packet( const std::shared_ptr<protocol::mqtt_packet>& packet );
 
         // Dealing with CONNECT packets
 
-        void process_connect_packet( std::shared_ptr<protocol::connect> connect );
+        void process_connect_packet( const std::shared_ptr<protocol::connect>& connect );
 
-        void dispatch_connect_packet( std::shared_ptr<protocol::connect> connect );
+        void dispatch_connect_packet( const std::shared_ptr<protocol::connect>& connect );
 
         // Dealing with DISCONNECT packets
 
-        void process_disconnect_packet( std::shared_ptr<protocol::disconnect> disconnect );
+        void process_disconnect_packet( const std::shared_ptr<protocol::disconnect>& disconnect );
 
         void dispatch_disconnect_packet(
-            std::shared_ptr<protocol::disconnect> disconnect,
+            const std::shared_ptr<protocol::disconnect>& disconnect,
             const dispatch::disconnect_reason disconnect_reason = dispatch::disconnect_reason::client_disconnect );
 
         // Dealing with non-connection managing packets
 
-        void dispatch_packet( std::shared_ptr<protocol::mqtt_packet> packet );
+        void dispatch_packet( const std::shared_ptr<protocol::mqtt_packet>& packet );
 
         // Sending MQTT packets
 

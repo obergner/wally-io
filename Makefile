@@ -497,6 +497,15 @@ tidy                      : $(SRCS_M) $(EXECSOURCE_M) $(COMPILATIONDB)
 		$(SRCS_M) $(EXECSOURCE_M) \
 		$(SRCS_UT) $(EXECSOURCE_UT)
 
+.PHONY                    : tidy-fix
+tidy-fix                  : compilation-db
+tidy-fix                  : $(SRCS_M) $(EXECSOURCE_M) $(COMPILATIONDB)
+	clang-tidy -p=$(COMPILATIONDB) \
+		-config= \
+		-fix \
+		$(SRCS_M) $(EXECSOURCE_M) \
+		$(SRCS_UT) $(EXECSOURCE_UT)
+
 .PHONY                    : format-main
 format-main               : $(SRCS_M) $(EXECSOURCE_M)
 	clang-format -i -style=file $(SRCS_M) $(EXECSOURCE_M)

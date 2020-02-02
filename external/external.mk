@@ -77,12 +77,16 @@ CATCH2_EXT_INC                  := $(CATCH2_EXT_DIR)/include
 
 CATCH2_EXT_SRCS                 := $(wildcard $(CATCH2_EXT_INC)/*.hpp)
 
-CATCH2_DL_URL                   := https://raw.githubusercontent.com/catchorg/Catch2/master/single_include/catch.hpp
+CATCH2_DL_URL                   := https://github.com/catchorg/Catch2/releases/latest/download/catch.hpp
 
 .PHONY                          : upgrade-catch-hpp
 upgrade-catch-hpp               :
 	@mv $(CATCH2_EXT_INC)/catch.hpp $(CATCH2_EXT_INC)/catch.hpp.backup; \
-		curl --progress-bar --output $(CATCH2_EXT_INC)/catch.hpp $(CATCH2_DL_URL);
+		curl --location --progress-bar --output $(CATCH2_EXT_INC)/catch.hpp $(CATCH2_DL_URL);
+
+.PHONY                          : revert-catch-hpp
+revert-catch-hpp                :
+	@mv $(CATCH2_EXT_INC)/catch.hpp.backup $(CATCH2_EXT_INC)/catch.hpp
 
 # -------------------------------------------------------------------------------- 
 # All external sources combined

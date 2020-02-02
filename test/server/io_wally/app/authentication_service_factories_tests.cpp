@@ -33,9 +33,6 @@ SCENARIO( "authentication_service_factories", "[authentication]" )
 
         WHEN( "a client asks for a non-existent authentication_service_factory" )
         {
-            const io_wally::spi::authentication_service_factory& accept_all =
-                under_test[io_wally::app::authentication_service_factories::ACCEPT_ALL];
-
             THEN( "it should see std::out_of_range being thrown" )
             {
                 REQUIRE_THROWS_AS( under_test["does-not-exist"], std::out_of_range );

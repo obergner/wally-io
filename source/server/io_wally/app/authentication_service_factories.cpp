@@ -10,8 +10,8 @@ namespace io_wally
     {
         const string authentication_service_factories::ACCEPT_ALL = "accept_all";
 
-        const spi::authentication_service_factory& authentication_service_factories::operator[](
-            const string& name ) const
+        auto authentication_service_factories::operator[]( const string& name ) const
+            -> const spi::authentication_service_factory&
         {
             return factories_by_name_.at( name );
         }

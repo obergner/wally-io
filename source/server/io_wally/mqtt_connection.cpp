@@ -29,10 +29,10 @@ namespace io_wally
     // Public/static
     // ---------------------------------------------------------------------------------------------------------------
 
-    mqtt_connection::ptr mqtt_connection::create( tcp::socket socket,
-                                                  mqtt_connection_manager& connection_manager,
-                                                  const context& context,
-                                                  dispatch::dispatcher& dispatcher )
+    auto mqtt_connection::create( tcp::socket socket,
+                                  mqtt_connection_manager& connection_manager,
+                                  const context& context,
+                                  dispatch::dispatcher& dispatcher ) -> mqtt_connection::ptr
     {
         return std::shared_ptr<mqtt_connection>{
             new mqtt_connection{move( socket ), connection_manager, context, dispatcher}};
@@ -42,7 +42,7 @@ namespace io_wally
     // Private/static
     // ---------------------------------------------------------------------------------------------------------------
 
-    const std::string mqtt_connection::endpoint_description( const asio::ip::tcp::socket& socket )
+    auto mqtt_connection::endpoint_description( const asio::ip::tcp::socket& socket ) -> const std::string
     {
         if ( socket.is_open( ) )
         {
@@ -55,8 +55,8 @@ namespace io_wally
         }
     }
 
-    const std::string mqtt_connection::connection_description( const asio::ip::tcp::socket& socket,
-                                                               const std::string& client_id )
+    auto mqtt_connection::connection_description( const asio::ip::tcp::socket& socket, const std::string& client_id )
+        -> const std::string
     {
         if ( socket.is_open( ) )
         {
@@ -194,7 +194,7 @@ namespace io_wally
             // TODO: Think about better resizing strategy - maybe using a max buffer capacity
             read_buffer_.resize( context_[context::READ_BUFFER_SIZE].as<size_t>( ) );
 
-            process_decoded_packet( move( parsed_packet ) );
+            process_decoded_packet( parsed_packet );
         }
         catch ( const error::malformed_mqtt_packet& e )
         {
@@ -219,7 +219,7 @@ namespace io_wally
 
     // Processing and dispatching decoded messages
 
-    void mqtt_connection::process_decoded_packet( shared_ptr<protocol::mqtt_packet> packet )
+    void mqtt_connection::process_decoded_packet( const shared_ptr<protocol::mqtt_packet>& packet )
     {
         logger_->debug( "--- PROCESSING: {} ...", *packet );
         switch ( packet->type( ) )
@@ -270,7 +270,7 @@ namespace io_wally
         }
     }
 
-    void mqtt_connection::process_connect_packet( shared_ptr<protocol::connect> connect )
+    void mqtt_connection::process_connect_packet( const shared_ptr<protocol::connect>& connect )
     {
         if ( client_id_ )
         {
@@ -304,7 +304,7 @@ namespace io_wally
         }
     }
 
-    void mqtt_connection::dispatch_connect_packet( shared_ptr<protocol::connect> connect )
+    void mqtt_connection::dispatch_connect_packet( const shared_ptr<protocol::connect>& connect )
     {
         logger_->debug( "--- DISPATCHING: {} ...", *connect );
         const auto connect_container = packet_container_t::contain( connect->client_id( ), shared_from_this( ), connect,
@@ -314,12 +314,12 @@ namespace io_wally
         write_packet( connack{false, connect_return_code::CONNECTION_ACCEPTED} );
     }
 
-    void mqtt_connection::process_disconnect_packet( shared_ptr<protocol::disconnect> disconnect )
+    void mqtt_connection::process_disconnect_packet( const shared_ptr<protocol::disconnect>& disconnect )
     {
         dispatch_disconnect_packet( disconnect );
     }
 
-    void mqtt_connection::dispatch_disconnect_packet( shared_ptr<protocol::disconnect> disconnect,
+    void mqtt_connection::dispatch_disconnect_packet( const shared_ptr<protocol::disconnect>& disconnect,
                                                       const dispatch::disconnect_reason disconnect_reason )
     {
         logger_->debug( "--- DISPATCHING: {} [rsn:{}] ...", *disconnect, disconnect_reason );
@@ -333,7 +333,7 @@ namespace io_wally
         stop( msg.str( ), spdlog::level::level_enum::info );
     }
 
-    void mqtt_connection::dispatch_packet( shared_ptr<protocol::mqtt_packet> packet )
+    void mqtt_connection::dispatch_packet( const shared_ptr<protocol::mqtt_packet>& packet )
     {
         logger_->debug( "--- DISPATCHING: {} ...", *packet );
         const auto subscribe_container = packet_container_t::contain( *client_id_, shared_from_this( ), packet );

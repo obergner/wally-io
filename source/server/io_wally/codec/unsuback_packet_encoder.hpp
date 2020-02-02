@@ -6,40 +6,37 @@
 #include "io_wally/protocol/common.hpp"
 #include "io_wally/protocol/unsuback_packet.hpp"
 
-namespace io_wally
+namespace io_wally::encoder
 {
-    namespace encoder
+    /// \brief Encoder for UNSUBACK packet bodies.
+    ///
+    template <typename OutputIterator>
+    class unsuback_packet_encoder final : public packet_body_encoder<OutputIterator>
     {
-        /// \brief Encoder for UNSUBACK packet bodies.
+       public:
+        /// Methods
+
+        /// \brief Encode \c mqtt_packet into supplied buffer.
         ///
-        template <typename OutputIterator>
-        class unsuback_packet_encoder final : public packet_body_encoder<OutputIterator>
+        /// Encode \c unsuback into buffer starting at \c buf_start. Return an \c OutputIterator that points
+        /// immediately past the last byte written. If \c unsuback does not conform to spec, throw
+        /// error::invalid_mqtt_packet.
+        ///
+        /// \param unsuback_packet \c unsuback packet to encode
+        /// \param buf_start      Start of buffer to encode \c mqtt_packet into
+        /// \return         \c OutputIterator that points immediately past the last byte written
+        auto encode( const protocol::mqtt_packet& unsuback_packet, OutputIterator buf_start ) const -> OutputIterator
         {
-           public:
-            /// Methods
+            using namespace io_wally::protocol;
 
-            /// \brief Encode \c mqtt_packet into supplied buffer.
-            ///
-            /// Encode \c unsuback into buffer starting at \c buf_start. Return an \c OutputIterator that points
-            /// immediately past the last byte written. If \c unsuback does not conform to spec, throw
-            /// error::invalid_mqtt_packet.
-            ///
-            /// \param unsuback_packet \c unsuback packet to encode
-            /// \param buf_start      Start of buffer to encode \c mqtt_packet into
-            /// \return         \c OutputIterator that points immediately past the last byte written
-            OutputIterator encode( const protocol::mqtt_packet& unsuback_packet, OutputIterator buf_start ) const
-            {
-                using namespace io_wally::protocol;
+            assert( unsuback_packet.type( ) == packet::Type::UNSUBACK );
 
-                assert( unsuback_packet.type( ) == packet::Type::UNSUBACK );
+            const auto& unsuback = dynamic_cast<const struct unsuback&>( unsuback_packet );
 
-                const auto& unsuback = dynamic_cast<const struct unsuback&>( unsuback_packet );
+            // Encode packet identifier
+            buf_start = encode_uint16( unsuback.packet_identifier( ), buf_start );
 
-                // Encode packet identifier
-                buf_start = encode_uint16( unsuback.packet_identifier( ), buf_start );
-
-                return buf_start;
-            }
-        };
-    }  /// namespace decoder
-}  /// namespace io_wally
+            return buf_start;
+        }
+    };
+}  // namespace io_wally::encoder

@@ -1,6 +1,6 @@
 #include "io_wally/app/application.hpp"
 
-int main( int argc, char** argv )
+auto main( int argc, char** argv ) -> int
 {
     auto app = io_wally::app::application{};
 

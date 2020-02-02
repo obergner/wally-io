@@ -15,7 +15,7 @@ namespace io_wally
     // Public
     // ---------------------------------------------------------------------------------------------------------------
 
-    mqtt_server::ptr mqtt_server::create( context context )
+    auto mqtt_server::create( context context ) -> mqtt_server::ptr
     {
         return ptr( new mqtt_server( move( context ) ) );
     }

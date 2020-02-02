@@ -24,12 +24,10 @@ namespace io_wally
         using packet_container_t = dispatch::packet_container<mqtt_packet_sender>;
 
        public:
-        virtual ~mqtt_packet_sender( )
-        {
-        }
+        virtual ~mqtt_packet_sender( ) = default;
 
         /// \brief Return ID of connected client, if already authenticated. Otherwise, return \c std::nullopt.
-        virtual const std::optional<const std::string>& client_id( ) const = 0;
+        [[nodiscard]] virtual auto client_id( ) const -> const std::optional<const std::string>& = 0;
 
         /// \brief Send an \c mqtt_packet to connected client.
         virtual void send( protocol::mqtt_packet::ptr packet ) = 0;
@@ -43,7 +41,7 @@ namespace io_wally
         /// \return A string representation to be used in log output
         virtual operator const std::string&( ) const = 0;
 
-        inline friend std::ostream& operator<<( std::ostream& output, mqtt_packet_sender const& packet_sender )
+        inline friend auto operator<<( std::ostream& output, mqtt_packet_sender const& packet_sender ) -> std::ostream&
         {
             output << static_cast<const std::string&>( packet_sender );
 

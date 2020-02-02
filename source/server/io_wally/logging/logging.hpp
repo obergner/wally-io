@@ -11,33 +11,30 @@
 
 #include <spdlog/spdlog.h>
 
-namespace io_wally
+namespace io_wally::logging
 {
-    namespace logging
+    /// \brief Factory for \c spdlog::logger instances
+    ///
+    class logger_factory final
     {
-        /// \brief Factory for \c spdlog::logger instances
-        ///
-        class logger_factory final
-        {
-           public:  // static
-            static logger_factory create( const cxxopts::ParseResult& config );
+       public:  // static
+        static auto create( const cxxopts::ParseResult& config ) -> logger_factory;
 
-            static logger_factory disabled( );
+        static auto disabled( ) -> logger_factory;
 
-            logger_factory( const std::string log_pattern,
-                            spdlog::level::level_enum log_level,
-                            const std::vector<spdlog::sink_ptr> sinks );
+        logger_factory( std::string log_pattern,
+                        spdlog::level::level_enum log_level,
+                        std::vector<spdlog::sink_ptr> sinks );
 
-           public:
-            std::unique_ptr<spdlog::logger> logger( const std::string& logger_name ) const;
+       public:
+        [[nodiscard]] auto logger( const std::string& logger_name ) const -> std::unique_ptr<spdlog::logger>;
 
-           private:  // static
-            static std::unique_ptr<logger_factory> instance_;
+       private:  // static
+        static std::unique_ptr<logger_factory> instance_;
 
-           private:
-            const std::string log_pattern_;
-            spdlog::level::level_enum log_level_;
-            const std::vector<spdlog::sink_ptr> sinks_;
-        };  // class logger_factory
-    }       // namespace loggers
-}  // namespace io_wally
+       private:
+        const std::string log_pattern_;
+        spdlog::level::level_enum log_level_;
+        const std::vector<spdlog::sink_ptr> sinks_;
+    };  // class logger_factory
+}  // namespace io_wally::logging

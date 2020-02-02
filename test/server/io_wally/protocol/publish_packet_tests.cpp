@@ -86,8 +86,6 @@ SCENARIO( "publish", "[packets]" )
 
         const auto topic = "a";
 
-        const auto pktid = std::uint16_t{0xF312};
-
         const auto msg = std::vector<uint8_t>{0x01, 0x02};
 
         auto under_test = publish{flgs, rem_len, topic, 0, msg};
